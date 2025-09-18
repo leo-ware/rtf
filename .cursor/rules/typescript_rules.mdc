@@ -1,0 +1,21 @@
+---
+alwaysApply: false
+---
+# Typescript rules
+
+## General
+
+Use string templates instead of string concatenation.
+
+## Functions
+
+Use ES6 arrow functions with the const keyword for all function declarations including async functions and components.
+
+## Type Annotations
+
+Use `type` instead of `interface` for type definitions.
+
+## Formatting
+
+- Use four spaces for indentation.
+- Don't use semicolons except where necessary.

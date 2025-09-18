@@ -13,9 +13,21 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as animals from "../animals.js";
+import type * as articles from "../articles.js";
 import type * as auth from "../auth.js";
+import type * as contactMessages from "../contactMessages.js";
+import type * as donations from "../donations.js";
+import type * as events from "../events.js";
+import type * as herds from "../herds.js";
 import type * as http from "../http.js";
+import type * as images from "../images.js";
 import type * as myFunctions from "../myFunctions.js";
+import type * as newsletter from "../newsletter.js";
+import type * as pages from "../pages.js";
+import type * as seedEvents from "../seedEvents.js";
+import type * as userManagement from "../userManagement.js";
+import type * as users from "../users.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -26,9 +38,21 @@ import type * as myFunctions from "../myFunctions.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  animals: typeof animals;
+  articles: typeof articles;
   auth: typeof auth;
+  contactMessages: typeof contactMessages;
+  donations: typeof donations;
+  events: typeof events;
+  herds: typeof herds;
   http: typeof http;
+  images: typeof images;
   myFunctions: typeof myFunctions;
+  newsletter: typeof newsletter;
+  pages: typeof pages;
+  seedEvents: typeof seedEvents;
+  userManagement: typeof userManagement;
+  users: typeof users;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

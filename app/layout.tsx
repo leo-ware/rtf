@@ -30,6 +30,9 @@ export default function RootLayout({
     return (
         <ConvexAuthNextjsServerProvider>
             <html lang="en">
+                <head>
+                    <link rel="icon" href="/favicon.ico" />
+                </head>
                 <body
                     className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
                 >

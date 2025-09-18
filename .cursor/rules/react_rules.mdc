@@ -1,0 +1,24 @@
+---
+alwaysApply: false
+---
+# React rules
+
+## General
+
+Don't import React, e.g. `import React from 'react'`. Instead use statements like `import { useState } from 'react'`.
+
+
+## Components
+
+Use const/ES6 arrow functions for component defintions by default.
+
+## Props
+
+Use `type` statements for props.
+Comply with ESLint prefer-destructuring rule
+
+## Styling
+
+Use Tailwind CSS for styling whenever possible. Fallback to inline styles only when necessary.
+
+Never use independent css files.
