@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ImagePicker } from "@/components/ImagePicker";
 import {
     Plus,
     Edit,
@@ -33,10 +34,47 @@ import {
     FileText,
     ExternalLink,
     Folder,
-    Globe
+    Globe,
+    Image as ImageIcon
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
+type PageWithImageAndEditor = {
+    _id: Id<"pages">;
+    _creationTime: number;
+    title: string;
+    slug: string;
+    content: string;
+    excerpt?: string;
+    category: "about" | "what-we-do" | "learn" | "take-action";
+    imageId?: Id<"images">;
+    isPublished: boolean;
+    metaTitle?: string;
+    metaDescription?: string;
+    lastEditedBy: Id<"users">;
+    createdAt: number;
+    updatedAt: number;
+    lastEditor?: {
+        id: Id<"users">;
+        email?: string;
+        name: string;
+    } | null;
+    image?: {
+        _id: Id<"images">;
+        fileName: string;
+        originalName: string;
+        mimeType: string;
+        size: number;
+        storageId: Id<"_storage">;
+        altText?: string;
+        description?: string;
+        isPublic: boolean;
+        width?: number;
+        height?: number;
+        url: string;
+    };
+};
 
 const AdminPagesPage = () => {
     const router = useRouter();
@@ -58,11 +96,13 @@ const AdminPagesPage = () => {
         excerpt: "",
         content: "Start writing your page...",
         category: "about" as "about" | "what-we-do" | "learn" | "take-action",
-        imageUrl: "",
+        imageId: "" as Id<"images"> | "",
         isPublished: false,
         metaTitle: "",
         metaDescription: "",
     });
+    const [isImagePickerOpen, setIsImagePickerOpen] = useState(false);
+    const [selectedImageUrl, setSelectedImageUrl] = useState<string | undefined>();
 
     const handleCreatePage = async () => {
         try {
@@ -71,7 +111,7 @@ const AdminPagesPage = () => {
                 excerpt: formData.excerpt || undefined,
                 content: formData.content,
                 category: formData.category,
-                imageUrl: formData.imageUrl || undefined,
+                imageId: formData.imageId ? (formData.imageId as Id<"images">) : undefined,
                 isPublished: formData.isPublished,
                 metaTitle: formData.metaTitle || undefined,
                 metaDescription: formData.metaDescription || undefined,
@@ -107,11 +147,22 @@ const AdminPagesPage = () => {
             excerpt: "",
             content: "Start writing your page...",
             category: "about",
-            imageUrl: "",
+            imageId: "" as Id<"images"> | "",
             isPublished: false,
             metaTitle: "",
             metaDescription: "",
         });
+        setSelectedImageUrl(undefined);
+    };
+
+    const handleImageSelect = (imageData: { imageId: string; imageUrl: string }) => {
+        setFormData({ ...formData, imageId: imageData.imageId as Id<"images"> });
+        setSelectedImageUrl(imageData.imageUrl);
+    };
+
+    const handleRemoveImage = () => {
+        setFormData({ ...formData, imageId: "" as Id<"images"> | "" });
+        setSelectedImageUrl(undefined);
     };
 
     const formatDate = (timestamp: number) => {
@@ -142,7 +193,7 @@ const AdminPagesPage = () => {
         return colors[category as keyof typeof colors] || "bg-gray-100 text-gray-800";
     };
 
-    const filteredPages = pages?.filter(page =>
+    const filteredPages = pages?.filter((page: PageWithImageAndEditor) =>
         selectedCategory === "all" || page.category === selectedCategory
     );
 
@@ -233,13 +284,37 @@ const AdminPagesPage = () => {
                             </div>
 
                             <div>
-                                <Label htmlFor="imageUrl">Featured Image URL</Label>
-                                <Input
-                                    id="imageUrl"
-                                    value={formData.imageUrl}
-                                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                                    placeholder="https://example.com/image.jpg (optional)"
-                                />
+                                <Label>Featured Image</Label>
+                                <div className="space-y-2">
+                                    {selectedImageUrl ? (
+                                        <div className="relative">
+                                            <img
+                                                src={selectedImageUrl}
+                                                alt="Selected image"
+                                                className="w-full h-32 object-cover rounded-md"
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={handleRemoveImage}
+                                                className="absolute top-2 right-2"
+                                            >
+                                                Remove
+                                            </Button>
+                                        </div>
+                                    ) : (
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => setIsImagePickerOpen(true)}
+                                            className="w-full h-32 border-dashed"
+                                        >
+                                            <ImageIcon className="h-8 w-8 mr-2" />
+                                            Select Image
+                                        </Button>
+                                    )}
+                                </div>
                             </div>
 
                             <div>
@@ -340,7 +415,7 @@ const AdminPagesPage = () => {
 
             {/* Pages Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredPages?.map((page) => (
+                {filteredPages?.map((page: PageWithImageAndEditor) => (
                     <Card key={page._id} className="hover:shadow-lg transition-shadow">
                         <CardHeader>
                             <div className="flex justify-between items-start">
@@ -383,11 +458,11 @@ const AdminPagesPage = () => {
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-3">
-                                {page.imageUrl && (
+                                {page.image?.url && (
                                     <div className="w-full h-32 bg-gray-200 rounded-md overflow-hidden">
                                         <img
-                                            src={page.imageUrl}
-                                            alt={page.title}
+                                            src={page.image.url}
+                                            alt={page.image.altText || page.title}
                                             className="w-full h-full object-cover"
                                             onError={(e) => {
                                                 e.currentTarget.style.display = 'none';
@@ -456,6 +531,15 @@ const AdminPagesPage = () => {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+
+            {/* Image Picker */}
+            <ImagePicker
+                isOpen={isImagePickerOpen}
+                onClose={() => setIsImagePickerOpen(false)}
+                onImageSelect={handleImageSelect}
+                title="Select Featured Image"
+                description="Choose an image from your library or upload a new one"
+            />
         </div>
     );
 };

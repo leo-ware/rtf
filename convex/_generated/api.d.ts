@@ -22,10 +22,8 @@ import type * as events from "../events.js";
 import type * as herds from "../herds.js";
 import type * as http from "../http.js";
 import type * as images from "../images.js";
-import type * as myFunctions from "../myFunctions.js";
 import type * as newsletter from "../newsletter.js";
 import type * as pages from "../pages.js";
-import type * as seedEvents from "../seedEvents.js";
 import type * as userManagement from "../userManagement.js";
 import type * as users from "../users.js";
 
@@ -47,10 +45,8 @@ declare const fullApi: ApiFromModules<{
   herds: typeof herds;
   http: typeof http;
   images: typeof images;
-  myFunctions: typeof myFunctions;
   newsletter: typeof newsletter;
   pages: typeof pages;
-  seedEvents: typeof seedEvents;
   userManagement: typeof userManagement;
   users: typeof users;
 }>;

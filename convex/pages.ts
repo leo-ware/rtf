@@ -47,10 +47,13 @@ export const listPages = query({
             ? pages.filter(page => page.isPublished)
             : pages;
 
-        // Get last editor information for each page
-        const pagesWithEditors = await Promise.all(
+        // Get last editor and image information for each page
+        const pagesWithEditorsAndImages = await Promise.all(
             filteredPages.map(async (page) => {
                 const lastEditor = await ctx.db.get(page.lastEditedBy);
+                const image = page.imageId ? await ctx.db.get(page.imageId) : null;
+                const imageUrl = image ? await ctx.storage.getUrl(image.storageId) : null;
+                
                 return {
                     ...page,
                     lastEditor: lastEditor && 'email' in lastEditor ? {
@@ -58,11 +61,25 @@ export const listPages = query({
                         email: lastEditor.email || undefined,
                         name: lastEditor.name ?? lastEditor.email ?? "Unknown"
                     } : null,
+                    image: (image && imageUrl) ? {
+                        _id: image._id,
+                        fileName: image.fileName,
+                        originalName: image.originalName,
+                        mimeType: image.mimeType,
+                        size: image.size,
+                        storageId: image.storageId,
+                        altText: image.altText,
+                        description: image.description,
+                        isPublic: image.isPublic,
+                        width: image.width,
+                        height: image.height,
+                        url: imageUrl,
+                    } : undefined,
                 };
             })
         );
 
-        return pagesWithEditors;
+        return pagesWithEditorsAndImages;
     },
 });
 
@@ -75,6 +92,9 @@ export const getPage = query({
         }
 
         const lastEditor = await ctx.db.get(page.lastEditedBy);
+        const image = page.imageId ? await ctx.db.get(page.imageId) : null;
+        const imageUrl = image ? await ctx.storage.getUrl(image.storageId) : null;
+        
         return {
             ...page,
             lastEditor: lastEditor && 'email' in lastEditor ? {
@@ -82,6 +102,20 @@ export const getPage = query({
                 email: lastEditor.email || undefined,
                 name: lastEditor.name ?? lastEditor.email ?? "Unknown"
             } : null,
+            image: (image && imageUrl) ? {
+                _id: image._id,
+                fileName: image.fileName,
+                originalName: image.originalName,
+                mimeType: image.mimeType,
+                size: image.size,
+                storageId: image.storageId,
+                altText: image.altText,
+                description: image.description,
+                isPublic: image.isPublic,
+                width: image.width,
+                height: image.height,
+                url: imageUrl,
+            } : undefined,
         };
     },
 });
@@ -99,6 +133,9 @@ export const getPageBySlug = query({
         }
 
         const lastEditor = await ctx.db.get(page.lastEditedBy);
+        const image = page.imageId ? await ctx.db.get(page.imageId) : null;
+        const imageUrl = image ? await ctx.storage.getUrl(image.storageId) : null;
+        
         return {
             ...page,
             lastEditor: lastEditor && 'email' in lastEditor ? {
@@ -106,6 +143,20 @@ export const getPageBySlug = query({
                 email: lastEditor.email || undefined,
                 name: lastEditor.name ?? lastEditor.email ?? "Unknown"
             } : null,
+            image: (image && imageUrl) ? {
+                _id: image._id,
+                fileName: image.fileName,
+                originalName: image.originalName,
+                mimeType: image.mimeType,
+                size: image.size,
+                storageId: image.storageId,
+                altText: image.altText,
+                description: image.description,
+                isPublic: image.isPublic,
+                width: image.width,
+                height: image.height,
+                url: imageUrl,
+            } : undefined,
         };
     },
 });
@@ -122,7 +173,7 @@ export const createPage = mutation({
             v.literal("learn"),
             v.literal("take-action")
         ),
-        imageUrl: v.optional(v.string()),
+        imageId: v.optional(v.id("images")),
         isPublished: v.optional(v.boolean()),
         metaTitle: v.optional(v.string()),
         metaDescription: v.optional(v.string()),
@@ -160,7 +211,7 @@ export const createPage = mutation({
             content: args.content,
             excerpt: args.excerpt,
             category: args.category,
-            imageUrl: args.imageUrl,
+            imageId: args.imageId,
             isPublished: args.isPublished ?? false,
             metaTitle: args.metaTitle,
             metaDescription: args.metaDescription,
@@ -186,7 +237,7 @@ export const updatePage = mutation({
             v.literal("learn"),
             v.literal("take-action")
         )),
-        imageUrl: v.optional(v.string()),
+        imageId: v.optional(v.id("images")),
         isPublished: v.optional(v.boolean()),
         metaTitle: v.optional(v.string()),
         metaDescription: v.optional(v.string()),
@@ -217,7 +268,7 @@ export const updatePage = mutation({
         if (args.content !== undefined) updateData.content = args.content;
         if (args.excerpt !== undefined) updateData.excerpt = args.excerpt;
         if (args.category !== undefined) updateData.category = args.category;
-        if (args.imageUrl !== undefined) updateData.imageUrl = args.imageUrl;
+        if (args.imageId !== undefined) updateData.imageId = args.imageId;
         if (args.isPublished !== undefined) updateData.isPublished = args.isPublished;
         if (args.metaTitle !== undefined) updateData.metaTitle = args.metaTitle;
         if (args.metaDescription !== undefined) updateData.metaDescription = args.metaDescription;

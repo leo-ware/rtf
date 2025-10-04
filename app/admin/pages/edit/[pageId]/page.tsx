@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ImagePicker } from "@/components/ImagePicker";
 import {
     Save,
     Eye,
@@ -23,7 +24,8 @@ import {
     Settings,
     Folder,
     Globe,
-    ExternalLink
+    ExternalLink,
+    Image as ImageIcon
 } from "lucide-react";
 import Link from "next/link";
 import { Id } from "@/convex/_generated/dataModel";
@@ -47,7 +49,21 @@ type PageType = {
     slug: string;
     excerpt?: string;
     category: "about" | "what-we-do" | "learn" | "take-action";
-    imageUrl?: string;
+    imageId?: Id<"images">;
+    image?: {
+        _id: Id<"images">;
+        fileName: string;
+        originalName: string;
+        mimeType: string;
+        size: number;
+        storageId: Id<"_storage">;
+        altText?: string;
+        description?: string;
+        isPublic: boolean;
+        width?: number;
+        height?: number;
+        url: string;
+    };
     isPublished: boolean;
     metaTitle?: string;
     metaDescription?: string;
@@ -78,7 +94,7 @@ const PageEditPageInner = ({ page }: { page: PageType }) => {
         slug: page.slug,
         excerpt: page.excerpt || "",
         category: page.category,
-        imageUrl: page.imageUrl || "",
+        imageId: page.imageId || ("" as Id<"images"> | ""),
         isPublished: page.isPublished,
         metaTitle: page.metaTitle || "",
         metaDescription: page.metaDescription || "",
@@ -87,6 +103,8 @@ const PageEditPageInner = ({ page }: { page: PageType }) => {
     const [isSaving, setIsSaving] = useState(false);
     const [lastSaved, setLastSaved] = useState<Date | null>(null);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+    const [isImagePickerOpen, setIsImagePickerOpen] = useState(false);
+    const [selectedImageUrl, setSelectedImageUrl] = useState<string | undefined>(page.image?.url);
 
     // Track changes
     useEffect(() => {
@@ -96,7 +114,7 @@ const PageEditPageInner = ({ page }: { page: PageType }) => {
                 formData.slug !== page.slug ||
                 formData.excerpt !== (page.excerpt || "") ||
                 formData.category !== page.category ||
-                formData.imageUrl !== (page.imageUrl || "") ||
+                formData.imageId !== (page.imageId || "") ||
                 formData.isPublished !== page.isPublished ||
                 formData.metaTitle !== (page.metaTitle || "") ||
                 formData.metaDescription !== (page.metaDescription || "") ||
@@ -116,7 +134,7 @@ const PageEditPageInner = ({ page }: { page: PageType }) => {
                 slug: formData.slug,
                 excerpt: formData.excerpt || undefined,
                 category: formData.category,
-                imageUrl: formData.imageUrl || undefined,
+                imageId: formData.imageId ? (formData.imageId as Id<"images">) : undefined,
                 content,
                 isPublished: publishNow ? true : formData.isPublished,
                 metaTitle: formData.metaTitle || undefined,
@@ -144,6 +162,16 @@ const PageEditPageInner = ({ page }: { page: PageType }) => {
             id: page._id,
             isPublished: newPublishedState,
         })
+    };
+
+    const handleImageSelect = (imageData: { imageId: string; imageUrl: string }) => {
+        setFormData({ ...formData, imageId: imageData.imageId as Id<"images"> });
+        setSelectedImageUrl(imageData.imageUrl);
+    };
+
+    const handleRemoveImage = () => {
+        setFormData({ ...formData, imageId: "" as Id<"images"> | "" });
+        setSelectedImageUrl(undefined);
     };
 
     const formatDate = (timestamp: number) => {
@@ -244,28 +272,27 @@ const PageEditPageInner = ({ page }: { page: PageType }) => {
                                     Last saved: {lastSaved.toLocaleTimeString()}
                                 </span>
                             )}
+                            <Button
+                                onClick={() => handleSave()}
+                                disabled={isSaving || !hasUnsavedChanges}
+                            >
+                                <Save className="h-4 w-4 mr-2" />
+                                {isSaving ? "Saving..." : "Save"}
+                            </Button>
                             {hasUnsavedChanges && (
                                 <Badge variant="outline" className="text-orange-600 border-orange-600">
                                     Unsaved changes
                                 </Badge>
                             )}
-                            <Button
-                                onClick={() => handleSave()}
-                                disabled={isSaving || !hasUnsavedChanges}
-                                variant="outline"
-                            >
-                                <Save className="h-4 w-4 mr-2" />
-                                {isSaving ? "Saving..." : "Save"}
-                            </Button>
                             {!page.isPublished
                                 ? (
-                                    <Button onClick={() => handleSave(true)} disabled={isSaving}>
+                                    <Button onClick={() => handleSave(true)} disabled={isSaving} variant="outline">
                                         <Globe className="h-4 w-4 mr-2" />
                                         Publish
                                     </Button>
                                 ) : (
-                                    <Link href={`/${page.category}/${page.slug}`}>
-                                        <Button>
+                                    <Link href={`/${page.category}/${page.slug}`} target="_blank">
+                                        <Button variant="outline">
                                             <ExternalLink className="h-4 w-4 mr-2" />
                                             View Live
                                         </Button>
@@ -382,13 +409,37 @@ const PageEditPageInner = ({ page }: { page: PageType }) => {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="imageUrl">Featured Image URL</Label>
-                                    <Input
-                                        id="imageUrl"
-                                        value={formData.imageUrl}
-                                        onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                                        placeholder="https://example.com/image.jpg"
-                                    />
+                                    <Label>Featured Image</Label>
+                                    <div className="space-y-2">
+                                        {selectedImageUrl ? (
+                                            <div className="relative">
+                                                <img
+                                                    src={selectedImageUrl}
+                                                    alt="Selected image"
+                                                    className="w-full h-32 object-cover rounded-md"
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={handleRemoveImage}
+                                                    className="absolute top-2 right-2"
+                                                >
+                                                    Remove
+                                                </Button>
+                                            </div>
+                                        ) : (
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={() => setIsImagePickerOpen(true)}
+                                                className="w-full h-32 border-dashed"
+                                            >
+                                                <ImageIcon className="h-8 w-8 mr-2" />
+                                                Select Image
+                                            </Button>
+                                        )}
+                                    </div>
                                 </div>
 
                                 <Separator />
@@ -487,6 +538,15 @@ const PageEditPageInner = ({ page }: { page: PageType }) => {
                     </div>
                 </div>
             </div>
+
+            {/* Image Picker */}
+            <ImagePicker
+                isOpen={isImagePickerOpen}
+                onClose={() => setIsImagePickerOpen(false)}
+                onImageSelect={handleImageSelect}
+                title="Select Featured Image"
+                description="Choose an image from your library or upload a new one"
+            />
         </div>
     );
 };

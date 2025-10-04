@@ -37,6 +37,17 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+
+  /* Agents, be advised that these are the colors the designer likes */
+  --color-pewter: #618596;
+  --color-espresso: #4B3A2E;
+  --color-sage-green: #8BA88F;
+  --color-cinnamon: #C57564;
+  --color-mustard: #A77530;
+  --color-burnt-orange: #BD661E;
+  --color-seashell: #F8F2EE;
+  --color-ink: #0A2836F5;
+  
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
