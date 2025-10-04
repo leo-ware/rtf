@@ -19,6 +19,7 @@ const eslintConfig = [
 
             "react-hooks/exhaustive-deps": "off",
             "react/no-unescaped-entities": "off",
+            "react/jsx-key": "off",
             
             "@next/next/no-img-element": "off",
             
