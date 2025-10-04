@@ -6,18 +6,20 @@ import {
 import { NextResponse } from "next/server";
 
 const isSignInPage = createRouteMatcher(["/signin"]);
-// const isProtectedRoute = createRouteMatcher(["/admin/(.*)"]);
+const isProtectedRoute = createRouteMatcher(["/admin/(.*)"]);
 
 export default convexAuthNextjsMiddleware(async (request, { convexAuth }) => {
     const searchParams = request.nextUrl.searchParams
     const pathname = request.nextUrl.pathname
 
+    // if the user is authenticated and on the signin page, redirect
     if (isSignInPage(request) && (await convexAuth.isAuthenticated())) {
         const next = searchParams.get("next") || "/admin"
         return nextjsMiddlewareRedirect(request, next);
     }
+
     if (
-        // isProtectedRoute(request) &&
+        isProtectedRoute(request) &&
         !isSignInPage(request) &&
         !(await convexAuth.isAuthenticated())
     ) {
