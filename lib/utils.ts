@@ -10,3 +10,13 @@ export const chunk = (array: any[], size: number) => {
         array.slice(index * size, (index + 1) * size)
     )
 }
+
+export const range = (start: number, stop: number, step: number = 1): number[] => {
+    const acc = []
+    let i = start
+    while (i < stop) {
+        acc.push(i)
+        i += step
+    }
+    return acc
+}

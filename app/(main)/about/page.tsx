@@ -1,23 +1,16 @@
 import Image from "next/image"
 import Link from "next/link"
 import Button from "@/components/Button"
-import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
 import { chunk } from "@/lib/utils"
+
+import NewsCarousel from "./NewsCarousel"
+import CorporateCarousel from "./CorporateCarousel"
 
 import AboutHeroImg from "@/public/img/about_hero.jpg"
 import NedaAndSpirit from "@/public/img/neda-and-spirit.jpg"
-import BrosChilling from "@/public/img/bros-chilling.png"
 import AresMares from "@/public/img/ares-mares-cropped.png"
 
-import GSLogo from "@/public/img/sponsor-image-giant-steps.png"
-import HPLogo from "@/public/img/sponsor-image-horse-play.png"
-import MCLogo from "@/public/img/sponsor-image-montecito.png"
-import PRLogo from "@/public/img/sponsor-image-puremedy.png"
-import SBLogo from "@/public/img/sponsor-image-santa-barbara-foundation.png"
-
-const logos = [GSLogo, HPLogo, MCLogo, PRLogo, SBLogo]
-
-export default function AboutPage() {
+const AboutPage = () => {
     return (
         <div className="w-full h-fit">
             <div className="w-full h-[400px] relative flex items-center justify-center bg-sage-green">
@@ -87,37 +80,7 @@ export default function AboutPage() {
                 </div>
             </div>
 
-            <div className="w-full h-fit py-8 bg-seashell flex flex-col items-center justify-center gap-4">
-                <div className="text-3xl font-bold text-pewter">RTF in the News</div>
-                <div className="w-full flex items-center justify-center gap-4">
-                    <div>
-                        <FaCaretLeft size={30} className="text-pewter" />
-                    </div>
-                    <div className="w-3/4 h-[200px] flex">
-                        <div className="w-1/2 h-full overflow-hidden">
-                            <Image src={BrosChilling} alt="Image for news article" className="w
-                            -full h-full object-cover" />
-                        </div>
-                        <div className="w-1/2 h-full bg-white flex flex-col items-center justify-center">
-                            <div className="w-3/4 h-fit border-l-4 border-burnt-orange pl-4 py-2 gap-2">
-                                <div className="text-[12px] text-ink uppercase font-bold">
-                                    Bloodhorse Daily
-                                </div>
-                                <div className="text-lg font-bold text-pewter">
-                                    Mustang Movie a Fine Fit With SAFE ACT Campaign
-                                </div>
-                                <div className="text-sm">
-                                    September 20, 2025
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div>
-                        <FaCaretRight size={30} className="text-pewter" />
-                    </div>
-                </div>
-            </div>
+            <NewsCarousel />
 
             <div className="relative w-full h-[325px] pl-36 py-8 flex items-center">
                 <Image
@@ -163,28 +126,10 @@ export default function AboutPage() {
                 </div>
             </div>
 
-            <div className="w-full h-fit py-8">
-                <div className="w-full flex flex-col items-center justify-center gap-1">
-                    <div className="text-burnt-orange text-3xl font-bold text-center">
-                        Corporate Sponsors
-                    </div>
-                    <div className="w-1/2 text-ink text-sm text-center">
-                        A very special thank you goes out to our generous sponsors — corporations 
-                        that make it possible to do more of the costly work required of a national 
-                        advocacy organization like Return to Freedom.
-                        <br/>
-                        If you or your company wishes to sponsor our work, please email us.
-                    </div>
-                </div>
-
-                <div className="w-full flex items-center justify-center gap-4">
-                    {logos.map(logo => (
-                        <Image src={logo} alt="Sponsor Logo" width={200} height={200} />
-                    ))}
-                </div>
-
-            </div>
+            <CorporateCarousel />
 
         </div>
     )
 }
+
+export default AboutPage
