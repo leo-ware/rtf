@@ -226,4 +226,17 @@ export default defineSchema({
         .index("by_created_by", ["createdBy"])
         .index("by_updated_at", ["updatedAt"])
         .index("by_image", ["imageId"]),
+
+    externalArticles: defineTable({
+        link: v.string(),
+        title: v.string(),
+        imageId: v.optional(v.id("images")),
+        blurb: v.string(),
+        organization: v.string(),
+        createdBy: v.id("users"),
+        createdAt: v.number(),
+    }).index("by_organization", ["organization"])
+        .index("by_created_by", ["createdBy"])
+        .index("by_created_at", ["createdAt"])
+        .index("by_image", ["imageId"]),
 });

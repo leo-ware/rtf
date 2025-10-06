@@ -26,19 +26,19 @@ const AboutPage = () => {
             </div>
 
             <div className="w-full h-fit py-12 px-4 flex flex-col items-center justify-center gap-4">
-                <div className="md:max-w-1/2 text-center">
+                <div className="max-w-11/12 md:max-w-1/2 text-center">
                     Return to Freedom is a 501(c)(3) nonprofit wild horse sanctuary founded in the
                     late 1990s by equine enthusiast Neda DeMayo. What began as a childhood dream
                     blossomed into a thriving sanctuary dedicated to preserving the freedom, diversity,
                     and natural habitats of America’s wild horses and burros.
                 </div>
-                <Link href="/about/our-history" className="w-fit">
+                <Link href="/about/history" className="w-fit">
                     <Button color="pewter">OUR HISTORY</Button>
                 </Link>
             </div>
 
             <div className="w-full h-fit py-4 px-4 flex flex-col items-center justify-center gap-12">
-                <div className="bg-seashell max-w-7/12 px-16 py-8 rounded-md flex flex-col items-center justify-center gap-4">
+                <div className="bg-seashell max-w-11/12 md:max-w-7/12 px-8 md:px-16 py-8 rounded-md flex flex-col items-center justify-center gap-4">
                     <div className="text-3xl font-bold text-burnt-orange">Mission</div>
                     <div>
                         Return to Freedom is dedicated to preserving the freedom, diversity, and habitat
@@ -48,7 +48,7 @@ const AboutPage = () => {
                     </div>
                 </div>
 
-                <div className="bg-seashell max-w-7/12 px-16 py-8 rounded-md flex flex-col items-center justify-center gap-4">
+                <div className="bg-seashell max-w-11/12 md:max-w-7/12 px-8 md:px-16 py-8 rounded-md flex flex-col items-center justify-center gap-4">
                     <div className="text-3xl font-bold text-burnt-orange">Vision</div>
                     <div>
                         Return to Freedom is poised to take our management model to the next level by creating
@@ -61,11 +61,11 @@ const AboutPage = () => {
             </div>
 
             <div className="w-full h-fit py-12 flex flex-col items-center justify-center gap-4">
-                <div className="max-w-1/2 h-[300px] bg-sage-green flex">
-                    <div className="w-1/2">
-                        <Image src={NedaAndSpirit} alt="Neda and Spirit" className="w-full h-full object-cover" />
+                <div className="max-w-11/12 md:max-w-1/2 md:h-[300px] h-fit bg-sage-green flex flex-col md:flex-row">
+                    <div className="relative w-full md:w-1/2">
+                        <Image src={NedaAndSpirit} alt="Neda and Spirit" className="w-full aspect-square md:h-full object-cover" />
                     </div>
-                    <div className="w-1/2 p-6 flex flex-col items-start justify-center gap-2">
+                    <div className="md:w-1/2 p-6 flex flex-col items-start justify-center gap-2">
                         <div className="text-xl font-bold text-white">Our People</div>
                         <div className="text-white text-sm">
                             The RTF team is dedicated to preserving the freedom, diversity,
@@ -73,7 +73,7 @@ const AboutPage = () => {
                             and conservation, while enriching the human spirit through direct experience with the
                             natural world.
                         </div>
-                        <Link href="/">
+                        <Link href="/people">
                             <Button color="burnt-orange" className="py-1">MEET THE TEAM</Button>
                         </Link>
                     </div>
@@ -82,7 +82,7 @@ const AboutPage = () => {
 
             <NewsCarousel />
 
-            <div className="relative w-full h-[325px] pl-36 py-8 flex items-center">
+            <div className="relative w-full h-[325px] md:pl-36 py-8 flex items-center justify-center md:justify-start">
                 <Image
                     src={AresMares}
                     alt="Ares Mares"
@@ -97,24 +97,32 @@ const AboutPage = () => {
                 </div>
             </div>
 
-            <div className="w-full h-fit bg-pewter py-8 flex items-center justify-center gap-8">
-                <div>
+            <div className="w-full h-fit bg-pewter py-8 px-8 md:px-1/12 flex flex-col md:flex-row items-start md:items-center justify-center gap-8">
+                <div className="flex flex-col items-start justify-start gap-2 md:max-w-[150px]">
                     <div className="text-white text-2xl font-bold">Financials</div>
-                    <div className="text-white text-sm max-w-[150px]">
+                    <div className="text-white text-sm">
                         Return to Freedom is a 501(c)3 nonprofit organization. Tax ID: #06-1484961
                     </div>
                 </div>
 
-                <div className="w-1/2 h-fit flex flex-col items-center justify-center gap-4">
+                <div className="w-full md:w-1/2 h-fit flex flex-col items-center justify-center gap-4">
                     <div className="w-full flex stretch gap-4">
-                        <div className="flex-grow bg-white rounded py-1 text-center text-pewter text-xs">FORM 990</div>
-                        <div className="flex-grow bg-white rounded py-1 text-center text-pewter text-xs">FINANCIAL STATEMENTS</div>
-                        <div className="flex-grow bg-white rounded py-1 text-center text-pewter text-xs">ANNUAL REPORTS</div>
+                        <div className="grow basis-10 md:basis-auto bg-white rounded py-2 md:py-1 px-2 text-pewter text-xs flex items-center justify-center">
+                            FORM 990
+                        </div>
+                        <div className="grow basis-10 md:basis-auto bg-white rounded py-2 md:py-1 px-2 text-pewter text-xs flex items-center justify-center">
+                            <div className="hidden md:block">FINANCIAL STATEMENTS</div>
+                            <div className="block md:hidden">FINANCIALs</div>
+                        </div>
+                        <div className="grow basis-10 md:basis-auto bg-white rounded py-2 md:py-1 px-2 text-pewter text-xs flex items-center justify-center">
+                            <div className="hidden md:block">ANNUAL REPORTS</div>
+                            <div className="block md:hidden">REPORTS</div>
+                        </div>
                     </div>
 
-                    <div className="w-full bg-white rounded p-8 flex">
+                    <div className="w-full bg-white rounded p-8 flex flex-col md:flex-row">
                         {chunk([...Array(10)].map((_, index) => 2023 - index), 8).map(rl => (
-                            <div className="w-1/4 flex flex-col items-start justify-start gap-1">
+                            <div className="w-full md:w-1/3 flex flex-col items-start justify-start gap-1">
                                 {rl.map(r => (
                                     <Link href="/" className="text-pewter text-sm">
                                         {r} Annual Report

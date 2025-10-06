@@ -35,15 +35,15 @@ const NewsCarousel = () => {
     const items = articles.map((article) => ({
         id: article.link,
         widget: (
-            <div className="w-[75vw] h-[200px] flex">
-                <div className="w-1/2 h-full overflow-hidden">
+            <div className="w-full md:w-[75vw] h-[300px] md:h-[200px] flex md:flex-row flex-col stretch">
+                <div className="basis-0 grow overflow-hidden">
                     <Image
                         src={article.image}
                         alt="Image for news article"
                         className="w-full h-full object-cover" />
                 </div>
-                <div className="w-1/2 h-full bg-white flex flex-col items-center justify-center">
-                    <div className="w-3/4 h-fit border-l-4 border-burnt-orange pl-4 py-2 gap-2">
+                <div className="basis-0 grow bg-white flex flex-col items-center justify-center">
+                    <div className="w-3/4 h-fit md:border-l-4 border-burnt-orange md:pl-4 py-2 gap-2">
                         <div className="text-[12px] text-ink uppercase font-bold">
                             {article.outlet}
                         </div>

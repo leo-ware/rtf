@@ -20,7 +20,7 @@ type CarouselProps = {
 
 const Carousel = ({
     className,
-    items,
+    items: initialItems,
     nDisplayItems,
     autoPlay = 'right',
     autoPlayInterval = 3000,
@@ -33,6 +33,10 @@ const Carousel = ({
     const [isTransitioning, setIsTransitioning] = useState<CarouselAction | null>(null)
     const [actionQueue, setActionQueue] = useState<CarouselAction[]>([])
     const [autoplayAction, setAutoplayAction] = useState<CarouselAction | null>(autoPlay || null)
+
+    const items = useMemo(() => {
+        return initialItems.concat(initialItems.map(item => ({ ...item, id: `${item.id}-copy` })))
+    }, [initialItems])
 
     const normalizeIndex = (index: number) => (index + items.length) % items.length
 
@@ -127,7 +131,7 @@ const Carousel = ({
                     {displayItems.map((item, index) => (
                         <div
                             key={item.id}
-                            className="flex-shrink-0 flex items-center justify-center"
+                            className="flex-shrink-0 flex items-center justify-center px-2"
                             style={{ width: `${100 / (nDisplayItems + 2)}%` }}
                         >
                             {item.widget}

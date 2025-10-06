@@ -21,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
     Plus,
     Edit,
@@ -30,7 +31,8 @@ import {
     Calendar,
     User,
     FileText,
-    ExternalLink
+    ExternalLink,
+    Link as LinkIcon
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -39,16 +41,23 @@ import { handleConvexError, handleNotFoundError } from "@/lib/errorHandler";
 const AdminNewsPage = () => {
     const router = useRouter();
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+    const [isCreateExternalDialogOpen, setIsCreateExternalDialogOpen] = useState(false);
     const [deletingArticle, setDeletingArticle] = useState<Id<"articles"> | null>(null);
+    const [deletingExternalArticle, setDeletingExternalArticle] = useState<Id<"externalArticles"> | null>(null);
     const [confirmDeleteId, setConfirmDeleteId] = useState<Id<"articles"> | null>(null);
+    const [confirmDeleteExternalId, setConfirmDeleteExternalId] = useState<Id<"externalArticles"> | null>(null);
+    const [fetchingUrl, setFetchingUrl] = useState(false);
 
     const articles = useQuery(api.articles.listArticles, {
         publishedOnly: false,
         limit: 100
     });
+    const externalArticles = useQuery(api.externalArticles.listExternalArticles, { limit: 100 });
     const userArticles = useQuery(api.articles.listUserArticles, { limit: 100 });
     const deleteArticle = useMutation(api.articles.deleteArticle);
+    const deleteExternalArticle = useMutation(api.externalArticles.deleteExternalArticle);
     const createArticle = useMutation(api.articles.createArticle);
+    const createExternalArticle = useMutation(api.externalArticles.createExternalArticle);
 
     const [formData, setFormData] = useState({
         title: "",
@@ -56,6 +65,13 @@ const AdminNewsPage = () => {
         content: "Start writing your article...",
         imageUrl: "",
         published: false,
+    });
+
+    const [externalFormData, setExternalFormData] = useState({
+        url: "",
+        title: "",
+        blurb: "",
+        organization: "",
     });
 
     const handleCreateArticle = async () => {
@@ -112,6 +128,75 @@ const AdminNewsPage = () => {
         });
     };
 
+    const resetExternalForm = () => {
+        setExternalFormData({
+            url: "",
+            title: "",
+            blurb: "",
+            organization: "",
+        });
+    };
+
+    const fetchUrlMetadata = async (url: string) => {
+        setFetchingUrl(true);
+        try {
+            const response = await fetch(`/api/fetch-url-metadata?url=${encodeURIComponent(url)}`);
+            if (response.ok) {
+                const data = await response.json();
+                setExternalFormData(prev => ({
+                    ...prev,
+                    title: data.title || prev.title,
+                    blurb: data.description || prev.blurb,
+                    organization: data.siteName || prev.organization,
+                }));
+            }
+        } catch (error) {
+            console.error("Error fetching URL metadata:", error);
+        } finally {
+            setFetchingUrl(false);
+        }
+    };
+
+    const handleCreateExternalArticle = async () => {
+        try {
+            await createExternalArticle({
+                link: externalFormData.url,
+                title: externalFormData.title,
+                blurb: externalFormData.blurb,
+                organization: externalFormData.organization,
+            });
+
+            setIsCreateExternalDialogOpen(false);
+            resetExternalForm();
+        } catch (error: any) {
+            console.error("Error creating external article:", error);
+            if (error?.message?.includes('permission') || error?.message?.includes('not authenticated')) {
+                handleConvexError(error, "create external article", router);
+            } else {
+                alert("Failed to create external article: " + (error?.message || "Unknown error"));
+            }
+        }
+    };
+
+    const handleDeleteExternalArticle = async (externalArticleId: Id<"externalArticles">) => {
+        try {
+            setDeletingExternalArticle(externalArticleId);
+            await deleteExternalArticle({ id: externalArticleId });
+            setConfirmDeleteExternalId(null);
+        } catch (error: any) {
+            console.error("Error deleting external article:", error);
+            if (error?.message?.includes('not found')) {
+                handleNotFoundError("external article", externalArticleId, undefined, router);
+            } else if (error?.message?.includes('permission')) {
+                handleConvexError(error, "delete external article", router);
+            } else {
+                alert("Failed to delete external article: " + (error?.message || "Unknown error"));
+            }
+        } finally {
+            setDeletingExternalArticle(null);
+        }
+    };
+
     const formatDate = (timestamp: number) => {
         return new Date(timestamp).toLocaleDateString("en-US", {
             year: "numeric",
@@ -120,7 +205,7 @@ const AdminNewsPage = () => {
         });
     };
 
-    if (articles === undefined) {
+    if (articles === undefined || externalArticles === undefined) {
         return (
             <div className="min-h-screen bg-gray-50 p-8">
                 <div className="animate-pulse">
@@ -138,15 +223,21 @@ const AdminNewsPage = () => {
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {/* Action Header */}
-            <div className="flex justify-end items-center mb-8">
-                <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-                    <DialogTrigger asChild>
-                        <Button onClick={resetForm}>
-                            <Plus className="h-4 w-4 mr-2" />
-                            Create Article
-                        </Button>
-                    </DialogTrigger>
+            <Tabs defaultValue="articles" className="w-full">
+                <div className="flex justify-between items-center mb-8">
+                    <TabsList className="grid w-fit grid-cols-2">
+                        <TabsTrigger value="articles">Articles</TabsTrigger>
+                        <TabsTrigger value="external">External Articles</TabsTrigger>
+                    </TabsList>
+
+                    <div className="flex gap-2">
+                        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                            <DialogTrigger asChild>
+                                <Button onClick={resetForm}>
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Create Article
+                                </Button>
+                            </DialogTrigger>
                     <DialogContent className="max-w-2xl">
                         <DialogHeader>
                             <DialogTitle>Create New Article</DialogTitle>
@@ -208,10 +299,92 @@ const AdminNewsPage = () => {
                         </div>
                     </DialogContent>
                 </Dialog>
-            </div>
 
+                        <Dialog open={isCreateExternalDialogOpen} onOpenChange={setIsCreateExternalDialogOpen}>
+                            <DialogTrigger asChild>
+                                <Button variant="outline" onClick={resetExternalForm}>
+                                    <LinkIcon className="h-4 w-4 mr-2" />
+                                    Add External Article
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl">
+                                <DialogHeader>
+                                    <DialogTitle>Add External Article</DialogTitle>
+                                    <DialogDescription>
+                                        Add a reference to an external article from another organization.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="space-y-4">
+                                    <div>
+                                        <Label htmlFor="url">Article URL</Label>
+                                        <div className="flex gap-2">
+                                            <Input
+                                                id="url"
+                                                value={externalFormData.url}
+                                                onChange={(e) => setExternalFormData({ ...externalFormData, url: e.target.value })}
+                                                placeholder="https://example.com/article"
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={() => fetchUrlMetadata(externalFormData.url)}
+                                                disabled={!externalFormData.url || fetchingUrl}
+                                            >
+                                                {fetchingUrl ? "Fetching..." : "Fetch"}
+                                            </Button>
+                                        </div>
+                                    </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                                    <div>
+                                        <Label htmlFor="externalTitle">Article Title</Label>
+                                        <Input
+                                            id="externalTitle"
+                                            value={externalFormData.title}
+                                            onChange={(e) => setExternalFormData({ ...externalFormData, title: e.target.value })}
+                                            placeholder="Enter article title"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <Label htmlFor="organization">Organization</Label>
+                                        <Input
+                                            id="organization"
+                                            value={externalFormData.organization}
+                                            onChange={(e) => setExternalFormData({ ...externalFormData, organization: e.target.value })}
+                                            placeholder="Name of the organization"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <Label htmlFor="blurb">Description</Label>
+                                        <Textarea
+                                            id="blurb"
+                                            value={externalFormData.blurb}
+                                            onChange={(e) => setExternalFormData({ ...externalFormData, blurb: e.target.value })}
+                                            placeholder="Brief description of the article"
+                                            rows={3}
+                                        />
+                                    </div>
+
+                                    <div className="flex justify-end space-x-2 pt-4">
+                                        <Button variant="outline" onClick={resetExternalForm}>
+                                            Reset
+                                        </Button>
+                                        <Button
+                                            onClick={handleCreateExternalArticle}
+                                            disabled={!externalFormData.url || !externalFormData.title || !externalFormData.organization || !externalFormData.blurb}
+                                        >
+                                            Add External Article
+                                        </Button>
+                                    </div>
+                                </div>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
+                </div>
+
+                <TabsContent value="articles" className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium text-gray-600">
@@ -263,10 +436,9 @@ const AdminNewsPage = () => {
                         <div className="text-2xl font-bold">{userArticles?.length || 0}</div>
                     </CardContent>
                 </Card>
-            </div>
+                    </div>
 
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {articles.map((article) => (
                     <Card key={article._id} className="hover:shadow-lg transition-shadow">
                         <CardHeader>
@@ -344,19 +516,102 @@ const AdminNewsPage = () => {
                         </CardContent>
                     </Card>
                 ))}
-            </div>
+                    </div>
 
-            {articles.length === 0 && (
-                <div className="text-center py-12">
-                    <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No articles yet</h3>
-                    <p className="text-gray-600 mb-4">Get started by creating your first news article</p>
-                    <Button onClick={() => setIsCreateDialogOpen(true)}>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Create Article
-                    </Button>
-                </div>
-            )}
+                    {articles.length === 0 && (
+                        <div className="text-center py-12">
+                            <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                            <h3 className="text-lg font-medium text-gray-900 mb-2">No articles yet</h3>
+                            <p className="text-gray-600 mb-4">Get started by creating your first news article</p>
+                            <Button onClick={() => setIsCreateDialogOpen(true)}>
+                                <Plus className="h-4 w-4 mr-2" />
+                                Create Article
+                            </Button>
+                        </div>
+                    )}
+                </TabsContent>
+
+                <TabsContent value="external" className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium text-gray-600">
+                                    Total External Articles
+                                </CardTitle>
+                                <LinkIcon className="h-4 w-4 text-gray-600" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold">{externalArticles?.length || 0}</div>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {externalArticles.map((externalArticle) => (
+                            <Card key={externalArticle._id} className="hover:shadow-lg transition-shadow">
+                                <CardHeader>
+                                    <div className="flex justify-between items-start">
+                                        <div className="flex-1">
+                                            <CardTitle className="text-lg line-clamp-2">{externalArticle.title}</CardTitle>
+                                            <div className="flex items-center space-x-2 mt-2">
+                                                <Badge variant="outline" className="bg-blue-50 text-blue-800">
+                                                    <LinkIcon className="h-3 w-3 mr-1" />
+                                                    {externalArticle.organization}
+                                                </Badge>
+                                            </div>
+                                        </div>
+                                        <div className="flex space-x-1">
+                                            <Link href={externalArticle.link} target="_blank">
+                                                <Button variant="outline" size="sm">
+                                                    <ExternalLink className="h-4 w-4" />
+                                                </Button>
+                                            </Link>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => setConfirmDeleteExternalId(externalArticle._id)}
+                                                disabled={deletingExternalArticle === externalArticle._id}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-3">
+                                        <p className="text-sm text-gray-600 line-clamp-3">
+                                            {externalArticle.blurb}
+                                        </p>
+
+                                        <div className="flex items-center justify-between text-xs text-gray-500">
+                                            <div className="flex items-center">
+                                                <User className="h-3 w-3 mr-1" />
+                                                {externalArticle.creator?.name || 'Unknown'}
+                                            </div>
+                                            <div className="flex items-center">
+                                                <Calendar className="h-3 w-3 mr-1" />
+                                                {formatDate(externalArticle.createdAt)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+
+                    {externalArticles.length === 0 && (
+                        <div className="text-center py-12">
+                            <LinkIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                            <h3 className="text-lg font-medium text-gray-900 mb-2">No external articles yet</h3>
+                            <p className="text-gray-600 mb-4">Get started by adding your first external article reference</p>
+                            <Button onClick={() => setIsCreateExternalDialogOpen(true)}>
+                                <LinkIcon className="h-4 w-4 mr-2" />
+                                Add External Article
+                            </Button>
+                        </div>
+                    )}
+                </TabsContent>
+            </Tabs>
 
             {/* Delete Confirmation Dialog */}
             <AlertDialog open={confirmDeleteId !== null} onOpenChange={(open) => !open && setConfirmDeleteId(null)}>
@@ -376,6 +631,29 @@ const AdminNewsPage = () => {
                             disabled={deletingArticle !== null}
                         >
                             {deletingArticle === confirmDeleteId ? "Deleting..." : "Delete Article"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* Delete External Article Confirmation Dialog */}
+            <AlertDialog open={confirmDeleteExternalId !== null} onOpenChange={(open) => !open && setConfirmDeleteExternalId(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete External Article</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Are you sure you want to delete this external article reference? This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setConfirmDeleteExternalId(null)}>
+                            Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={() => confirmDeleteExternalId && handleDeleteExternalArticle(confirmDeleteExternalId)}
+                            disabled={deletingExternalArticle !== null}
+                        >
+                            {deletingExternalArticle === confirmDeleteExternalId ? "Deleting..." : "Delete External Article"}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

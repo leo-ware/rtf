@@ -19,6 +19,7 @@ import type * as auth from "../auth.js";
 import type * as contactMessages from "../contactMessages.js";
 import type * as donations from "../donations.js";
 import type * as events from "../events.js";
+import type * as externalArticles from "../externalArticles.js";
 import type * as herds from "../herds.js";
 import type * as http from "../http.js";
 import type * as images from "../images.js";
@@ -42,6 +43,7 @@ declare const fullApi: ApiFromModules<{
   contactMessages: typeof contactMessages;
   donations: typeof donations;
   events: typeof events;
+  externalArticles: typeof externalArticles;
   herds: typeof herds;
   http: typeof http;
   images: typeof images;

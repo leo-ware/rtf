@@ -1,5 +1,8 @@
+"use client"
+
 import Image from "next/image"
 import Carousel from "@/components/Carousel"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 import GSLogo from "@/public/img/sponsor-image-giant-steps.png"
 import HPLogo from "@/public/img/sponsor-image-horse-play.png"
@@ -14,19 +17,21 @@ const logos = [GSLogo, HPLogo, MCLogo, PRLogo, SBLogo, FRLogo, BGLogo, ASLogo]
 
 const CorporateCarousel = () => {
 
+    const isMobile = useIsMobile()
+
     const items = logos.map(logo => ({
         id: logo.src,
         widget: <Image src={logo} className="w-[200px] h-auto" alt="Sponsor Logo" />
     }))
 
     return (
-        <div className="w-full h-fit py-8 flex flex-col items-center justify-center gap-4">
+        <div className="w-full h-fit py-8 flex flex-col items-center justify-center gap-2 md:gap-4">
 
-            <div className="w-full flex flex-col items-center justify-center gap-1">
+            <div className="w-full flex flex-col items-center justify-center gap-2">
                 <div className="text-burnt-orange text-3xl font-bold text-center">
                     Corporate Sponsors
                 </div>
-                <div className="w-1/2 text-ink text-sm text-center">
+                <div className="w-11/12 md:w-1/2 text-ink text-sm text-center">
                     A very special thank you goes out to our generous sponsors — corporations
                     that make it possible to do more of the costly work required of a national
                     advocacy organization like Return to Freedom.
@@ -35,10 +40,10 @@ const CorporateCarousel = () => {
                 </div>
             </div>
 
-            <div className="w-11/12 h-[250px]">
+            <div className="w-11/12 h-[150px] md:h-[250px]">
                 <Carousel
                     items={items}
-                    nDisplayItems={5}
+                    nDisplayItems={isMobile ? 3 : 5}
                     autoPlay={"right"}
                     controls={false}
                     transitionDuration={800}
