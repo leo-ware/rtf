@@ -60,8 +60,8 @@ const NewsCarousel = () => {
     }))
 
     return (
-        <div className="w-full h-fit py-8 bg-seashell flex flex-col items-center justify-center gap-4">
-            <div className="text-3xl font-bold text-pewter">RTF in the News</div>
+        <div className="w-full h-fit pt-12 pb-16 bg-seashell flex flex-col items-center justify-center gap-4">
+            <div className="text-4xl font-serif text-cinnamon">Latest News</div>
             <div className="w-full flex items-center justify-center gap-4">
                 <Carosel
                     items={items}

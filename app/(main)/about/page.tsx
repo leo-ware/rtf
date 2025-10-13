@@ -4,7 +4,6 @@ import Button from "@/components/Button"
 import { chunk } from "@/lib/utils"
 
 import NewsCarousel from "./NewsCarousel"
-import CorporateCarousel from "./CorporateCarousel"
 
 import AboutHeroImg from "@/public/img/about_hero.jpg"
 import NedaAndSpirit from "@/public/img/neda-and-spirit.jpg"
@@ -133,8 +132,6 @@ const AboutPage = () => {
                     </div>
                 </div>
             </div>
-
-            <CorporateCarousel />
 
         </div>
     )

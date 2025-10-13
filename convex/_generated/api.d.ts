@@ -27,6 +27,7 @@ import type * as newsletter from "../newsletter.js";
 import type * as pages from "../pages.js";
 import type * as userManagement from "../userManagement.js";
 import type * as users from "../users.js";
+import type * as video from "../video.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -51,6 +52,7 @@ declare const fullApi: ApiFromModules<{
   pages: typeof pages;
   userManagement: typeof userManagement;
   users: typeof users;
+  video: typeof video;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

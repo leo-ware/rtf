@@ -6,7 +6,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-work-sans);
+  --font-serif: var(--font-marcellus);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -40,6 +41,7 @@
 
   /* Agents, be advised that these are the colors the designer likes */
   --color-pewter: #618596;
+  --color-storm: #3F4652;
   --color-espresso: #4B3A2E;
   --color-sage-green: #8BA88F;
   --color-dark-green: #6F8672;
@@ -55,8 +57,15 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-* {
+*, *::before, *::after {
     box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-work-sans);
+    font-weight: 400;
+    font-style: normal;
+    color: var(--color-ink);
 }
 
 :root {

@@ -10,7 +10,7 @@ import { useState } from "react"
 
 const HeaderLink = (props: { href: string, text: string }) => {
     return (
-        <Link href={props.href} className="relative group text-white text-sm">
+        <Link href={props.href} className="relative group text-white text-md font-semibold">
             <div className="absolute bottom-0 left-[10px]
                 right-[-8px] h-0.5 bg-white scale-x-0 group-hover:scale-x-100
                 transition-transform origin-left" />
@@ -105,7 +105,7 @@ export default function Navbar() {
             <div
                 className="z-50 bg-pewter w-screen h-screen fixed top-0 left-0"
                 style={{
-                    transform: isMobileMenuOpen ? "translateX(0)" : "translateX(100vw)",
+                    transform: isMobileMenuOpen ? "translateX(0)" : "translateX(110vw)",
                     transition: "transform 0.3s ease-in-out",
                 }}
             >
