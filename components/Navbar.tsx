@@ -11,8 +11,8 @@ import { useState } from "react"
 const HeaderLink = (props: { href: string, text: string }) => {
     return (
         <Link href={props.href} className="relative group text-white text-md font-semibold">
-            <div className="absolute bottom-0 left-[10px]
-                right-[-8px] h-0.5 bg-white scale-x-0 group-hover:scale-x-100
+            <div className="absolute bottom-0 left-0
+                right-0 h-0.5 bg-white scale-x-0 group-hover:scale-x-100
                 transition-transform origin-left" />
             {props.text}
         </Link>
@@ -37,9 +37,9 @@ export default function Navbar() {
                     <div className="flex-1 flex items-center justify-around">
                         <HeaderLink href="/about" text="About" />
                         <HeaderLink href="/what-we-do" text="What We Do" />
-                        <HeaderLink href="/" text="Learn" />
+                        <HeaderLink href="/learn" text="Learn" />
                         <HeaderLink href="/news" text="News" />
-                        <HeaderLink href="/" text="Our Horses" />
+                        <HeaderLink href="/our-horses" text="Our Horses" />
                     </div>
                     <div className="w-[180px] flex justify-center">
                         <Link href="/" className="flex-shrink-0">
@@ -47,8 +47,8 @@ export default function Navbar() {
                         </Link>
                     </div>
                     <div className="flex-1 flex items-center justify-around">
-                        <HeaderLink href="/" text="Take Action" />
-                        <HeaderLink href="/" text="Visit Us" />
+                        <HeaderLink href="/take-action" text="Take Action" />
+                        <HeaderLink href="/visit-us" text="Visit Us" />
 
                         <div className="flex items-center gap-4">
                             <Link
@@ -103,10 +103,10 @@ export default function Navbar() {
             </nav>
 
             <div
-                className="z-50 bg-pewter w-screen h-screen fixed top-0 left-0"
+                className="z-50 bg-pewter w-screen h-screen fixed top-0 left-0
+                transition-transform md:transition-none duration-300 ease-in-out"
                 style={{
                     transform: isMobileMenuOpen ? "translateX(0)" : "translateX(110vw)",
-                    transition: "transform 0.3s ease-in-out",
                 }}
             >
 
@@ -126,11 +126,11 @@ export default function Navbar() {
                 <div className="absolute left-6 bottom-6 flex flex-col items-start justify-end gap-4">
                     <MobileHeaderLink href="/about" text="About" onClick={() => setIsMobileMenuOpen(false)} />
                     <MobileHeaderLink href="/what-we-do" text="What We Do" onClick={() => setIsMobileMenuOpen(false)} />
-                    <MobileHeaderLink href="/" text="Learn" onClick={() => setIsMobileMenuOpen(false)} />
+                    <MobileHeaderLink href="/learn" text="Learn" onClick={() => setIsMobileMenuOpen(false)} />
                     <MobileHeaderLink href="/news" text="News" onClick={() => setIsMobileMenuOpen(false)} />
-                    <MobileHeaderLink href="/" text="Our Horses" onClick={() => setIsMobileMenuOpen(false)} />
-                    <MobileHeaderLink href="/" text="Take Action" onClick={() => setIsMobileMenuOpen(false)} />
-                    <MobileHeaderLink href="/" text="Visit Us" onClick={() => setIsMobileMenuOpen(false)} />
+                    <MobileHeaderLink href="/our-horses" text="Our Horses" onClick={() => setIsMobileMenuOpen(false)} />
+                    <MobileHeaderLink href="/take-action" text="Take Action" onClick={() => setIsMobileMenuOpen(false)} />
+                    <MobileHeaderLink href="/visit-us" text="Visit Us" onClick={() => setIsMobileMenuOpen(false)} />
                 </div>
             </div>
         </header>

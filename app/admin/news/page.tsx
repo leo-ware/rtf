@@ -37,6 +37,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { handleConvexError, handleNotFoundError } from "@/lib/errorHandler";
+import { ImagePicker } from "@/components/ImagePicker";
 
 const AdminNewsPage = () => {
     const router = useRouter();
@@ -63,9 +64,12 @@ const AdminNewsPage = () => {
         title: "",
         excerpt: "",
         content: "Start writing your article...",
-        imageUrl: "",
+        imageId: "" as Id<"images"> | "",
+        authorCredit: "",
         published: false,
+        publishedAt: "",
     });
+    const [isImagePickerOpen, setIsImagePickerOpen] = useState(false);
 
     const [externalFormData, setExternalFormData] = useState({
         url: "",
@@ -76,12 +80,20 @@ const AdminNewsPage = () => {
 
     const handleCreateArticle = async () => {
         try {
+            const publishedAtValue = formData.publishedAt ? 
+                (typeof formData.publishedAt === 'string' ? 
+                    new Date(formData.publishedAt).getTime() : 
+                    formData.publishedAt) : 
+                undefined;
+
             const articleId = await createArticle({
                 title: formData.title,
                 excerpt: formData.excerpt,
                 content: formData.content,
-                imageUrl: formData.imageUrl || undefined,
+                imageId: formData.imageId || undefined,
+                authorCredit: formData.authorCredit || undefined,
                 published: formData.published,
+                publishedAt: publishedAtValue,
             });
 
             setIsCreateDialogOpen(false);
@@ -123,8 +135,10 @@ const AdminNewsPage = () => {
             title: "",
             excerpt: "",
             content: "Start writing your article...",
-            imageUrl: "",
+            imageId: "",
+            authorCredit: "",
             published: false,
+            publishedAt: "",
         });
     };
 
@@ -205,6 +219,10 @@ const AdminNewsPage = () => {
         });
     };
 
+    const handleImageSelect = (imageData: { imageId: string; imageUrl: string }) => {
+        setFormData(prev => ({ ...prev, imageId: imageData.imageId as Id<"images"> }));
+    };
+
     if (articles === undefined || externalArticles === undefined) {
         return (
             <div className="min-h-screen bg-gray-50 p-8">
@@ -268,13 +286,39 @@ const AdminNewsPage = () => {
                             </div>
 
                             <div>
-                                <Label htmlFor="imageUrl">Featured Image URL</Label>
+                                <Label htmlFor="authorCredit">Author Credit</Label>
                                 <Input
-                                    id="imageUrl"
-                                    value={formData.imageUrl}
-                                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                                    placeholder="https://example.com/image.jpg (optional)"
+                                    id="authorCredit"
+                                    value={formData.authorCredit}
+                                    onChange={(e) => setFormData({ ...formData, authorCredit: e.target.value })}
+                                    placeholder="Author name for display (optional)"
                                 />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    The name that will be displayed as the author. If left empty, defaults to your name.
+                                </p>
+                            </div>
+
+                            <div>
+                                <Label>Featured Image</Label>
+                                <div className="flex gap-2">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => setIsImagePickerOpen(true)}
+                                        className="flex-1"
+                                    >
+                                        {formData.imageId ? "Change Image" : "Select Image"}
+                                    </Button>
+                                    {formData.imageId && (
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => setFormData(prev => ({ ...prev, imageId: "" }))}
+                                        >
+                                            Remove
+                                        </Button>
+                                    )}
+                                </div>
                             </div>
 
                             <div className="flex items-center space-x-2">
@@ -485,11 +529,11 @@ const AdminNewsPage = () => {
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-3">
-                                {article.imageUrl && (
+                                {article.image && (
                                     <div className="w-full h-32 bg-gray-200 rounded-md overflow-hidden">
                                         <img
-                                            src={article.imageUrl}
-                                            alt={article.title}
+                                            src={article.image.url || ""}
+                                            alt={article.image.altText || article.title}
                                             className="w-full h-full object-cover"
                                             onError={(e) => {
                                                 e.currentTarget.style.display = 'none';
@@ -658,6 +702,15 @@ const AdminNewsPage = () => {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+
+            {/* Image Picker */}
+            <ImagePicker
+                isOpen={isImagePickerOpen}
+                onClose={() => setIsImagePickerOpen(false)}
+                onImageSelect={handleImageSelect}
+                title="Select Featured Image"
+                description="Choose an image for your article from your library or upload a new one"
+            />
         </div>
 
     );

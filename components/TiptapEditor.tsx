@@ -21,20 +21,16 @@ import { ImagePicker } from "@/components/ImagePicker";
 import {
     Bold,
     Italic,
-    Strikethrough,
-    Code,
     Heading1,
     Heading2,
     Heading3,
     List,
     ListOrdered,
-    Quote,
     Undo,
     Redo,
     Link as LinkIcon,
     Image as ImageIcon,
     Table as TableIcon,
-    Minus,
     Type
 } from "lucide-react";
 import { useState } from "react";
@@ -81,18 +77,6 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
                     class: "max-w-full h-auto rounded-lg my-4",
                 },
             }),
-            Table.configure({
-                resizable: true,
-            }),
-            TableRow,
-            TableHeader,
-            TableCell,
-            CodeBlockLowlight.configure({
-                lowlight,
-                HTMLAttributes: {
-                    class: "bg-gray-100 p-4 rounded-lg my-4 overflow-x-auto",
-                },
-            }),
         ],
         content,
         onUpdate: ({ editor }) => {
@@ -131,10 +115,6 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
         setIsImagePickerOpen(false);
     };
 
-    const insertTable = () => {
-        editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
-    };
-
     return (
         <div className="border border-gray-200 rounded-lg overflow-hidden">
             {/* Toolbar */}
@@ -156,22 +136,6 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
                         className={editor.isActive("italic") ? "bg-gray-200" : ""}
                     >
                         <Italic className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => editor.chain().focus().toggleStrike().run()}
-                        className={editor.isActive("strike") ? "bg-gray-200" : ""}
-                    >
-                        <Strikethrough className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => editor.chain().focus().toggleCode().run()}
-                        className={editor.isActive("code") ? "bg-gray-200" : ""}
-                    >
-                        <Code className="h-4 w-4" />
                     </Button>
                 </div>
 
@@ -229,14 +193,6 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
                     >
                         <ListOrdered className="h-4 w-4" />
                     </Button>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => editor.chain().focus().toggleBlockquote().run()}
-                        className={editor.isActive("blockquote") ? "bg-gray-200" : ""}
-                    >
-                        <Quote className="h-4 w-4" />
-                    </Button>
                 </div>
 
                 {/* Media & Elements */}
@@ -280,21 +236,6 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
                         onClick={() => setIsImagePickerOpen(true)}
                     >
                         <ImageIcon className="h-4 w-4" />
-                    </Button>
-
-                    <Button variant="ghost" size="sm" onClick={insertTable}>
-                        <TableIcon className="h-4 w-4" />
-                    </Button>
-                </div>
-
-                {/* Misc */}
-                <div className="flex items-center space-x-1 pr-2 border-r border-gray-300">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => editor.chain().focus().setHorizontalRule().run()}
-                    >
-                        <Minus className="h-4 w-4" />
                     </Button>
                 </div>
 

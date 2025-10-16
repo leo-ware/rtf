@@ -79,10 +79,10 @@ const AdminNavbar = () => {
             description: "Image library"
         },
         {
-            name: "Donations",
-            href: "/admin/donations",
-            icon: DollarSign,
-            description: "Track donations"
+            name: "People",
+            href: "/admin/people",
+            icon: Users,
+            description: "Manage team members"
         },
         {
             name: "Analytics",

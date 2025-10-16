@@ -27,14 +27,33 @@ export default defineSchema({
         slug: v.string(),
         content: v.string(),
         excerpt: v.string(),
-        imageUrl: v.optional(v.string()),
+        imageId: v.optional(v.id("images")),
         authorId: v.id("users"),
+        authorCredit: v.optional(v.string()),
         published: v.boolean(),
         publishedAt: v.optional(v.number()),
+        createdAt: v.number(),
+        updatedAt: v.number(),
     }).index("by_published", ["published"])
         .index("by_author", ["authorId"])
         .index("by_published_date", ["published", "publishedAt"])
-        .index("by_slug", ["slug"]),
+        .index("by_slug", ["slug"])
+        .index("by_image", ["imageId"])
+        .index("by_created_at", ["createdAt"])
+        .index("by_updated_at", ["updatedAt"]),
+
+    externalArticles: defineTable({
+        link: v.string(),
+        title: v.string(),
+        imageId: v.optional(v.id("images")),
+        blurb: v.string(),
+        organization: v.string(),
+        createdBy: v.id("users"),
+        createdAt: v.number(),
+    }).index("by_organization", ["organization"])
+        .index("by_created_by", ["createdBy"])
+        .index("by_created_at", ["createdAt"])
+        .index("by_image", ["imageId"]),
 
     donations: defineTable({
         amount: v.number(),
@@ -62,6 +81,39 @@ export default defineSchema({
         .index("by_created_at", ["createdAt"])
         .index("by_donor_email", ["donorEmail"]),
 
+    programGroups: defineTable({
+        name: v.string(),
+        description: v.string(),
+        imageId: v.optional(v.id("images")),
+        order: v.number(),
+        isPublic: v.boolean(),
+        createdBy: v.id("users"),
+        createdAt: v.number(),
+        updatedAt: v.number(),
+    }).index("by_order", ["order"])
+        .index("by_public", ["isPublic"])
+        .index("by_created_by", ["createdBy"])
+        .index("by_created_at", ["createdAt"]),
+
+    programs: defineTable({
+        name: v.string(),
+        description: v.string(),
+        details: v.string(),
+        price: v.optional(v.number()),
+        location: v.string(),
+        isPublic: v.boolean(),
+        imageId: v.optional(v.id("images")),
+        programGroupId: v.id("programGroups"),
+        order: v.number(),
+        createdBy: v.id("users"),
+        createdAt: v.number(),
+        updatedAt: v.number(),
+    }).index("by_program_group", ["programGroupId"])
+        .index("by_order", ["order"])
+        .index("by_public", ["isPublic"])
+        .index("by_created_by", ["createdBy"])
+        .index("by_created_at", ["createdAt"]),
+
     events: defineTable({
         title: v.string(),
         description: v.string(),
@@ -85,6 +137,7 @@ export default defineSchema({
         contactEmail: v.optional(v.string()),
         contactPhone: v.optional(v.string()),
         imageUrl: v.optional(v.string()),
+        programId: v.optional(v.id("programs")),
         createdBy: v.id("users"),
         createdAt: v.number(),
         updatedAt: v.number(),
@@ -92,7 +145,8 @@ export default defineSchema({
         .index("by_event_type", ["eventType"])
         .index("by_public", ["isPublic"])
         .index("by_created_by", ["createdBy"])
-        .index("by_date_range", ["startDate", "endDate"]),
+        .index("by_date_range", ["startDate", "endDate"])
+        .index("by_program", ["programId"]),
 
     images: defineTable({
         fileName: v.string(),
@@ -227,16 +281,47 @@ export default defineSchema({
         .index("by_updated_at", ["updatedAt"])
         .index("by_image", ["imageId"]),
 
-    externalArticles: defineTable({
-        link: v.string(),
+    people: defineTable({
+        name: v.string(),
         title: v.string(),
+        bio: v.string(),
         imageId: v.optional(v.id("images")),
-        blurb: v.string(),
-        organization: v.string(),
+        isDirector: v.boolean(),
+        isStaff: v.optional(v.boolean()),
+        isEquine: v.optional(v.boolean()),
+        isStoryTeller: v.optional(v.boolean()),
+        isAmbassador: v.optional(v.boolean()),
+        inMemoriam: v.boolean(),
         createdBy: v.id("users"),
         createdAt: v.number(),
-    }).index("by_organization", ["organization"])
+        updatedAt: v.number(),
+    }).index("by_created_by", ["createdBy"])
+        .index("by_created_at", ["createdAt"])
+        .index("by_updated_at", ["updatedAt"])
+        .index("by_image", ["imageId"])
+        .index("by_is_director", ["isDirector"])
+        .index("by_is_staff", ["isStaff"])
+        .index("by_in_memoriam", ["inMemoriam"]),
+
+    advisoryBoards: defineTable({
+        name: v.string(),
+        order: v.number(),
+        createdBy: v.id("users"),
+        createdAt: v.number(),
+        updatedAt: v.number(),
+    }).index("by_order", ["order"])
         .index("by_created_by", ["createdBy"])
         .index("by_created_at", ["createdAt"])
-        .index("by_image", ["imageId"]),
+        .index("by_updated_at", ["updatedAt"]),
+
+    peopleAdvisoryBoards: defineTable({
+        personId: v.id("people"),
+        advisoryBoardId: v.id("advisoryBoards"),
+        createdBy: v.id("users"),
+        createdAt: v.number(),
+    }).index("by_person", ["personId"])
+        .index("by_advisory_board", ["advisoryBoardId"])
+        .index("by_created_by", ["createdBy"])
+        .index("by_created_at", ["createdAt"])
+        .index("by_person_and_board", ["personId", "advisoryBoardId"]),
 });

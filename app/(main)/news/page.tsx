@@ -4,63 +4,74 @@ import { useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import Link from "next/link"
 import Image from "next/image"
-import { useState, useMemo } from "react"
+import React, { useState, useMemo } from "react"
 import { format } from "date-fns"
 
 import { IoIosSearch } from "react-icons/io"
 import { FaRegFileImage } from "react-icons/fa"
+import NewsHeroImage from "./news-hero-image.jpg"
+import { FaCaretDown } from "react-icons/fa6"
+import { cn } from "@/lib/utils"
+
+
+const NewsOptionBox = (props: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>) => (
+    <div
+        {...props}
+        className={cn(
+            `h-full w-fit min-w-fit flex items-center justify-between gap-2 py-1 px-2 rounded-sm
+            border-2 border-[#618596] text-[#618596] uppercase font-semibold text-sm`,
+            props.className
+        )}
+    />
+)
 
 export default function NewsPage() {
-    const [searchTerm, setSearchTerm] = useState("")
-
     const articles = useQuery(api.articles.listArticles, {
         limit: 50,
         publishedOnly: true
     })
 
-    const filteredArticles = useMemo(() => {
-        if (!articles) return []
-
-        return articles.filter(article => {
-            const matchesSearch = searchTerm === "" ||
-                article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                article.excerpt.toLowerCase().includes(searchTerm.toLowerCase())
-
-            return matchesSearch
-        })
-    }, [articles, searchTerm])
+    const filteredArticles = articles || []
 
     return (
-        <div className="w-full h-fit bg-seashell">
-            {/* Hero Header */}
-            <div className="w-full h-[400px] relative flex items-center justify-center bg-sage-green">
+        <div className="w-full h-fit">
+            <div className="w-full h-[500px] relative flex items-center justify-center bg-sage-green">
                 <Image
-                    src="/img/Owyhee-9925-scaled.jpg"
+                    src={NewsHeroImage}
                     alt="News Hero"
                     className="z-0 absolute top-0 left-0 w-full h-full object-cover object-center"
                     fill
                 />
-                <div className="z-10 p-4 border-b border-white text-white text-4xl font-bold">
-                    News & Updates
+                <div className="z-10 p-4 text-white text-6xl font-serif">
+                    News
                 </div>
             </div>
 
-            <div className="h-fit w-11/12 md:w-1/2 mx-auto flex flex-col gap-8 py-8">
+            <div className="h-fit w-10/12 mx-auto flex flex-col gap-8 py-8">
                 {/* Search */}
-                <div className="w-full h-10 flex justify-between">
-                    <div className="flex items-center p-1 gap-2 h-full w-fit border-2 border-[#618596] rounded-sm">
-                        <div className="h-full w-fit">
-                            <input
-                                type="text"
-                                placeholder="Search articles..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-48 h-full focus:outline-none focus:ring-0"
-                            />
-                        </div>
-                        <div className="w-fit h-full flex items-center justify-center">
-                            <IoIosSearch className="text-ink" size={16} />
-                        </div>
+                <div className="w-full h-10 flex justify-between gap-8">
+                    <NewsOptionBox className="w-56">
+                        Search
+                        <IoIosSearch className="text-[#618596]" size={16} />
+                    </NewsOptionBox>
+                    <div className="flex gap-4">
+                        <NewsOptionBox className="w-40">
+                            News Type
+                            <FaCaretDown className="text-[#618596]" size={16} />
+                        </NewsOptionBox>
+                        <NewsOptionBox className="w-40">
+                            Source
+                            <FaCaretDown className="text-[#618596]" size={16} />
+                        </NewsOptionBox>
+                        <NewsOptionBox className="w-40">
+                            Issue
+                            <FaCaretDown className="text-[#618596]" size={16} />
+                        </NewsOptionBox>
+                    </div>
+                    <div />
+                    <div className="flex gap-8">
+                        <NewsOptionBox className="w-fit">Sort By</NewsOptionBox>
+                        <NewsOptionBox className="w-fit border-none">Reset</NewsOptionBox>
                     </div>
                 </div>
 
@@ -69,86 +80,62 @@ export default function NewsPage() {
                     {filteredArticles.length === 0
                         ? (
                             <div className="text-center py-12">
-                                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                                    {searchTerm ? "No articles found" : "No articles yet"}
-                                </h3>
-                                <p className="text-gray-600">
-                                    {searchTerm
-                                        ? "Try adjusting your search terms."
-                                        : "Check back soon for the latest news and updates."
-                                    }
-                                </p>
+                                No articles
                             </div>
                         ) : (
                             <div className="flex flex-col gap-4">
                                 {filteredArticles.map((article) => (
-                                    <article key={article._id} className="text-ink w-full h-fit py-2 flex gap-6">
-                                        <div className="relative basis-28 h-28 grow-0 shrink-0
+                                    <div
+                                        key={article._id}
+                                        className="w-full h-fit bg-seashell flex items-start gap-6"
+                                    >
+                                        <div className="relative h-48 aspect-[4/3] grow-0 shrink-0
                                             overflow-hidden flex items-center justify-center">
-                                            {article.imageUrl ? (
+                                            {article.image ? (
                                                 <Image
-                                                    src={article.imageUrl}
-                                                    alt={article.title}
+                                                    src={article.image.url || ""}
+                                                    alt={article.image.altText || article.title}
                                                     fill
                                                     className="w-full h-full object-cover object-center"
                                                 />
                                             ) : (
-                                                <div className="w-full h-full rounded-md bg-gray-100 flex items-center justify-center">
-                                                    <FaRegFileImage className="h-6 w-6 text-gray-400" />
+                                                <div className="w-full h-full rounded-md flex items-center justify-center">
+                                                    <FaRegFileImage className="h-6 w-6" />
                                                 </div>
                                             )}
                                         </div>
 
-                                        <div className="grow basis-0 flex flex-col gap-2">
+                                        <div className="grow basis-0 h-fit py-4 flex flex-col gap-[6px]">
                                             <Link
-                                                className="text-md font-bold hover:underline"
+                                                className="text-2xl font-serif hover:underline line-clamp-1"
                                                 href={`/news/article/${article.slug}`}
                                             >
                                                 {article.title}
                                             </Link>
 
-                                            <p className="text-sm text-gray-600 line-clamp-3 pr-2">
-                                                {article.excerpt}
-                                            </p>
-
-                                            <div className="flex items-center gap-2 text-xs text-gray-500">
+                                            <div className="flex items-center gap-1 text-xs uppercase font-semibold">
+                                                <div>
+                                                    {(article.authorCredit) || "RTF Staff"}
+                                                </div>
+                                                <>
+                                                    <div className="w-1 h-2 border-l border-gray-500" />
+                                                    <div>RTF News</div>
+                                                </>
                                                 {article.publishedAt && (
-                                                    <div className="flex items-center">
-                                                        {format(new Date(article.publishedAt), "MMM dd, yyyy")}
-                                                    </div>
-                                                )}
-                                                {article.author && (
-                                                    <div className="flex items-center">
-                                                        {article.author.name}
-                                                    </div>
+                                                    <>
+                                                        <div className="w-1 h-3 border-l border-gray-500" />
+                                                        <div>
+                                                            {format(new Date(article.publishedAt), "MMM dd, yyyy")}
+                                                        </div>
+                                                    </>
                                                 )}
                                             </div>
 
-                                            {/* <div className="flex justify-between items-center">
-                                                <div className="flex items-center space-x-4 text-sm text-gray-500">
-                                                    {article.publishedAt && (
-                                                        <div className="flex items-center">
-                                                            <Calendar className="h-4 w-4 mr-1" />
-                                                            {format(new Date(article.publishedAt), "MMM dd, yyyy")}
-                                                        </div>
-                                                    )}
-                                                    {article.author && (
-                                                        <div className="flex items-center">
-                                                            <User className="h-4 w-4 mr-1" />
-                                                            {article.author.name}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <Link
-                                                    href={`/news/article/${article.slug}`}
-                                                    className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors"
-                                                >
-                                                    Read More
-                                                    <ArrowRight className="h-4 w-4 ml-1" />
-                                                </Link>
-                                            </div> */}
+                                            <p className="text-md line-clamp-4 pr-2">
+                                                {article.excerpt}
+                                            </p>
                                         </div>
-                                    </article>
+                                    </div>
                                 ))}
                             </div>
                         )}

@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 
-type ConvexImageProps = {
+export type ConvexImageProps = {
     src: string
     width: number | undefined
     height: number | undefined
@@ -27,6 +27,7 @@ const ConvexImage: React.FC<ConvexImageProps> = ({ src, width, height, alt, obje
                 height={height}
                 alt={alt}
                 style={{ objectFit }}
+                className="w-full h-full"
                 loader={loader} />
         </div>
     )

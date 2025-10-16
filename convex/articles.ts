@@ -22,16 +22,31 @@ export const listArticles = query({
                 .order("desc")
                 .take(limit);
 
-        // Get author information for each article
+        // Get author and image information for each article
         const articlesWithAuthors = await Promise.all(
             articles.map(async (article) => {
                 const author = await ctx.db.get(article.authorId);
+                const image = article.imageId ? await ctx.db.get(article.imageId) : null;
                 return {
                     ...article,
                     author: author ? {
                         id: author._id,
                         email: author.email,
                         name: author.name ?? author.email
+                    } : null,
+                    image: image ? {
+                        _id: image._id,
+                        fileName: image.fileName,
+                        originalName: image.originalName,
+                        mimeType: image.mimeType,
+                        size: image.size,
+                        storageId: image.storageId,
+                        altText: image.altText,
+                        description: image.description,
+                        isPublic: image.isPublic,
+                        width: image.width,
+                        height: image.height,
+                        url: await ctx.storage.getUrl(image.storageId)
                     } : null,
                 };
             })
@@ -50,12 +65,27 @@ export const getArticle = query({
         }
 
         const author = await ctx.db.get(article.authorId);
+        const image = article.imageId ? await ctx.db.get(article.imageId) : null;
         return {
             ...article,
             author: author ? {
                 id: author._id,
                 email: author.email,
                 name: author.name ?? author.email
+            } : null,
+            image: image ? {
+                _id: image._id,
+                fileName: image.fileName,
+                originalName: image.originalName,
+                mimeType: image.mimeType,
+                size: image.size,
+                storageId: image.storageId,
+                altText: image.altText,
+                description: image.description,
+                isPublic: image.isPublic,
+                width: image.width,
+                height: image.height,
+                url: await ctx.storage.getUrl(image.storageId)
             } : null,
         };
     },
@@ -74,12 +104,27 @@ export const getArticleBySlug = query({
         }
 
         const author = await ctx.db.get(article.authorId);
+        const image = article.imageId ? await ctx.db.get(article.imageId) : null;
         return {
             ...article,
             author: author ? {
                 id: author._id,
                 email: author.email,
                 name: author.name ?? author.email
+            } : null,
+            image: image ? {
+                _id: image._id,
+                fileName: image.fileName,
+                originalName: image.originalName,
+                mimeType: image.mimeType,
+                size: image.size,
+                storageId: image.storageId,
+                altText: image.altText,
+                description: image.description,
+                isPublic: image.isPublic,
+                width: image.width,
+                height: image.height,
+                url: await ctx.storage.getUrl(image.storageId)
             } : null,
         };
     },
@@ -101,13 +146,20 @@ export const createArticle = mutation({
         slug: v.optional(v.string()),
         content: v.string(),
         excerpt: v.string(),
-        imageUrl: v.optional(v.string()),
+        imageId: v.optional(v.id("images")),
+        authorCredit: v.optional(v.string()),
         published: v.optional(v.boolean()),
+        publishedAt: v.optional(v.number()),
     },
     handler: async (ctx, args) => {
         const userId = await getAuthUserId(ctx);
         if (!userId) {
-            throw new Error("Must be authenticated to create articles");
+            throw new Error("User not authenticated");
+        }
+        
+        const user = await ctx.db.get(userId);
+        if (!user || !user.role || !["authorized", "admin", "dev"].includes(user.role)) {
+            throw new Error("User not authorized");
         }
 
         // Generate slug from title if not provided
@@ -130,10 +182,13 @@ export const createArticle = mutation({
             slug,
             content: args.content,
             excerpt: args.excerpt,
-            imageUrl: args.imageUrl,
+            imageId: args.imageId,
             authorId: userId,
+            authorCredit: args.authorCredit || user.name || user.email || "Unknown Author",
             published: args.published ?? false,
-            publishedAt: args.published ? now : undefined,
+            publishedAt: args.publishedAt || (args.published ? now : undefined),
+            createdAt: now,
+            updatedAt: now,
         });
 
         return articleId;
@@ -147,13 +202,20 @@ export const updateArticle = mutation({
         slug: v.optional(v.string()),
         content: v.optional(v.string()),
         excerpt: v.optional(v.string()),
-        imageUrl: v.optional(v.string()),
+        imageId: v.optional(v.id("images")),
+        authorCredit: v.optional(v.string()),
         published: v.optional(v.boolean()),
+        publishedAt: v.optional(v.number()),
     },
     handler: async (ctx, args) => {
         const userId = await getAuthUserId(ctx);
         if (!userId) {
-            throw new Error("Must be authenticated to update articles");
+            throw new Error("User not authenticated");
+        }
+        
+        const user = await ctx.db.get(userId);
+        if (!user || !user.role || !["authorized", "admin", "dev"].includes(user.role)) {
+            throw new Error("User not authorized");
         }
 
         const existingArticle = await ctx.db.get(args.id);
@@ -161,16 +223,14 @@ export const updateArticle = mutation({
             throw new Error("Article not found");
         }
 
-        // Check if user is the author
-        if (existingArticle.authorId !== userId) {
-            throw new Error("Only the author can edit this article");
-        }
-
         const updateData: any = {};
         if (args.title !== undefined) updateData.title = args.title;
         if (args.content !== undefined) updateData.content = args.content;
         if (args.excerpt !== undefined) updateData.excerpt = args.excerpt;
-        if (args.imageUrl !== undefined) updateData.imageUrl = args.imageUrl;
+        if (args.imageId !== undefined) updateData.imageId = args.imageId;
+        if (args.authorCredit !== undefined) updateData.authorCredit = args.authorCredit;
+        if (args.published !== undefined) updateData.published = args.published;
+        if (args.publishedAt !== undefined) updateData.publishedAt = args.publishedAt;
 
         // Handle slug update
         if (args.slug !== undefined) {
@@ -186,17 +246,8 @@ export const updateArticle = mutation({
             updateData.slug = args.slug;
         }
 
-        // Handle publishing status
-        if (args.published !== undefined) {
-            updateData.published = args.published;
-            if (args.published && !existingArticle.published) {
-                // Article is being published for the first time
-                updateData.publishedAt = Date.now();
-            } else if (!args.published) {
-                // Article is being unpublished
-                updateData.publishedAt = undefined;
-            }
-        }
+        // Always update the updatedAt timestamp
+        updateData.updatedAt = Date.now();
 
         await ctx.db.patch(args.id, updateData);
         return args.id;
@@ -210,17 +261,17 @@ export const deleteArticle = mutation({
     handler: async (ctx, args) => {
         const userId = await getAuthUserId(ctx);
         if (!userId) {
-            throw new Error("Must be authenticated to delete articles");
+            throw new Error("User not authenticated");
+        }
+        
+        const user = await ctx.db.get(userId);
+        if (!user || !user.role || !["authorized", "admin", "dev"].includes(user.role)) {
+            throw new Error("User not authorized");
         }
 
         const article = await ctx.db.get(args.id);
         if (!article) {
             throw new Error("Article not found");
-        }
-
-        // Check if user is the author
-        if (article.authorId !== userId) {
-            throw new Error("Only the author can delete this article");
         }
 
         await ctx.db.delete(args.id);

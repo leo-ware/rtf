@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Id } from "@/convex/_generated/dataModel";
+import { ImagePicker } from "@/components/ImagePicker";
 
 type ArticleEditPageProps = {
     params: Promise<{
@@ -43,9 +44,26 @@ type ArticleType = {
     title: string;
     slug: string;
     excerpt: string;
-    imageUrl?: string;
+    imageId?: Id<"images">;
+    image?: {
+        _id: Id<"images">;
+        fileName: string;
+        originalName: string;
+        mimeType: string;
+        size: number;
+        storageId: Id<"_storage">;
+        altText?: string;
+        description?: string;
+        isPublic: boolean;
+        width?: number;
+        height?: number;
+        url: string | null;
+    } | null;
+    authorCredit?: string;
     published: boolean;
     publishedAt?: number;
+    createdAt: number;
+    updatedAt: number;
 }
 
 const ArticleEditPage = ({ params }: ArticleEditPageProps) => {
@@ -70,9 +88,12 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
         title: article.title,
         slug: article.slug,
         excerpt: article.excerpt,
-        imageUrl: article.imageUrl || "",
+        imageId: article.imageId || ("" as Id<"images"> | ""),
+        authorCredit: article.authorCredit || "",
         published: article.published,
+        publishedAt: article.publishedAt || "",
     });
+    const [isImagePickerOpen, setIsImagePickerOpen] = useState(false);
     const [content, setContent] = useState(article.content);
     const [isSaving, setIsSaving] = useState(false);
     const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -98,8 +119,10 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
                 formData.title !== article.title ||
                 formData.slug !== article.slug ||
                 formData.excerpt !== article.excerpt ||
-                formData.imageUrl !== (article.imageUrl || "") ||
+                formData.imageId !== (article.imageId || "") ||
+                formData.authorCredit !== (article.authorCredit || "") ||
                 formData.published !== article.published ||
+                formData.publishedAt !== (article.publishedAt || "") ||
                 content !== article.content;
             setHasUnsavedChanges(hasChanges);
         }
@@ -110,14 +133,22 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
 
         setIsSaving(true);
         try {
+            const publishedAtValue = formData.publishedAt ? 
+                (typeof formData.publishedAt === 'string' ? 
+                    new Date(formData.publishedAt).getTime() : 
+                    formData.publishedAt) : 
+                undefined;
+
             await updateArticle({
                 id: article._id,
                 title: formData.title,
                 slug: formData.slug,
                 excerpt: formData.excerpt,
-                imageUrl: formData.imageUrl || undefined,
+                imageId: formData.imageId || undefined,
+                authorCredit: formData.authorCredit || undefined,
                 content,
                 published: publishNow ? true : formData.published,
+                publishedAt: publishedAtValue,
             });
 
             if (publishNow) {
@@ -164,6 +195,10 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
             .replace(/\s+/g, "-")
             .replace(/-+/g, "-")
             .trim();
+    };
+
+    const handleImageSelect = (imageData: { imageId: string; imageUrl: string }) => {
+        setFormData(prev => ({ ...prev, imageId: imageData.imageId as Id<"images"> }));
     };
 
     if (article === undefined) {
@@ -326,13 +361,50 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="imageUrl">Featured Image URL</Label>
+                                    <Label htmlFor="authorCredit">Author Credit</Label>
                                     <Input
-                                        id="imageUrl"
-                                        value={formData.imageUrl}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, imageUrl: e.target.value }))}
-                                        placeholder="https://example.com/image.jpg"
+                                        id="authorCredit"
+                                        value={formData.authorCredit}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, authorCredit: e.target.value }))}
+                                        placeholder="Author name for display"
                                     />
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        The name that will be displayed as the author. Defaults to the user who created the article.
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <Label>Featured Image</Label>
+                                    <div className="space-y-2">
+                                        {article.image && (
+                                            <div className="w-full h-32 bg-gray-200 rounded-md overflow-hidden">
+                                                <img
+                                                    src={article.image.url || ""}
+                                                    alt={article.image.altText || article.title}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                        )}
+                                        <div className="flex gap-2">
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={() => setIsImagePickerOpen(true)}
+                                                className="flex-1"
+                                            >
+                                                {formData.imageId ? "Change Image" : "Select Image"}
+                                            </Button>
+                                            {formData.imageId && (
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    onClick={() => setFormData(prev => ({ ...prev, imageId: "" }))}
+                                                >
+                                                    Remove
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <Separator />
@@ -353,6 +425,27 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
                                         )}
                                     </div>
                                 </div>
+
+                                {formData.published && (
+                                    <div>
+                                        <Label htmlFor="publishedAt">Published Date</Label>
+                                        <Input
+                                            id="publishedAt"
+                                            type="datetime-local"
+                                            value={formData.publishedAt ? 
+                                                new Date(formData.publishedAt).toISOString().slice(0, 16) : 
+                                                ""
+                                            }
+                                            onChange={(e) => {
+                                                const value = e.target.value ? new Date(e.target.value).getTime() : "";
+                                                setFormData(prev => ({ ...prev, publishedAt: value }));
+                                            }}
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Set a custom publish date for backdating articles.
+                                        </p>
+                                    </div>
+                                )}
                             </CardContent>
                         </Card>
 
@@ -365,13 +458,25 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
                                 {article.author && (
                                     <div className="flex items-center space-x-2 text-sm">
                                         <User className="h-4 w-4 text-gray-400" />
-                                        <span>Author: {article.author.name}</span>
+                                        <span>Created by: {article.author.name}</span>
+                                    </div>
+                                )}
+
+                                {article.authorCredit && (
+                                    <div className="flex items-center space-x-2 text-sm">
+                                        <User className="h-4 w-4 text-gray-400" />
+                                        <span>Author Credit: {article.authorCredit}</span>
                                     </div>
                                 )}
 
                                 <div className="flex items-center space-x-2 text-sm">
                                     <Calendar className="h-4 w-4 text-gray-400" />
-                                    <span>Created: {formatDate(article._creationTime)}</span>
+                                    <span>Created: {formatDate(article.createdAt)}</span>
+                                </div>
+
+                                <div className="flex items-center space-x-2 text-sm">
+                                    <Calendar className="h-4 w-4 text-gray-400" />
+                                    <span>Last Updated: {formatDate(article.updatedAt)}</span>
                                 </div>
 
                                 {article.publishedAt && (
@@ -392,6 +497,15 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
                     </div>
                 </div>
             </div>
+
+            {/* Image Picker */}
+            <ImagePicker
+                isOpen={isImagePickerOpen}
+                onClose={() => setIsImagePickerOpen(false)}
+                onImageSelect={handleImageSelect}
+                title="Select Featured Image"
+                description="Choose an image for your article from your library or upload a new one"
+            />
         </div>
     );
 }

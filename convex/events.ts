@@ -3,7 +3,22 @@ import { v } from "convex/values"
 import { Id } from "./_generated/dataModel"
 import { getAuthUserId } from "@convex-dev/auth/server"
 
-// Get all events
+// Helper function to check if user has admin privileges
+const checkAdminAuth = async (ctx: any) => {
+    const userId = await getAuthUserId(ctx)
+    if (!userId) {
+        throw new Error("User not authenticated")
+    }
+    
+    const user = await ctx.db.get(userId)
+    if (!user || !user.role || !["authorized", "admin", "dev"].includes(user.role)) {
+        throw new Error("User not authorized")
+    }
+    
+    return userId
+}
+
+// Get all events (admin only)
 export const getAllEvents = query({
     args: {},
     returns: v.array(v.object({
@@ -31,11 +46,13 @@ export const getAllEvents = query({
         contactEmail: v.optional(v.string()),
         contactPhone: v.optional(v.string()),
         imageUrl: v.optional(v.string()),
+        programId: v.optional(v.id("programs")),
         createdBy: v.id("users"),
         createdAt: v.number(),
         updatedAt: v.number(),
     })),
     handler: async (ctx) => {
+        await checkAdminAuth(ctx)
         return await ctx.db
             .query("events")
             .order("desc")
@@ -71,6 +88,7 @@ export const getPublicEvents = query({
         contactEmail: v.optional(v.string()),
         contactPhone: v.optional(v.string()),
         imageUrl: v.optional(v.string()),
+        programId: v.optional(v.id("programs")),
         createdBy: v.id("users"),
         createdAt: v.number(),
         updatedAt: v.number(),
@@ -84,7 +102,7 @@ export const getPublicEvents = query({
     },
 })
 
-// Get events by date range
+// Get events by date range (public events only)
 export const getEventsByDateRange = query({
     args: {
         startDate: v.number(),
@@ -115,6 +133,7 @@ export const getEventsByDateRange = query({
         contactEmail: v.optional(v.string()),
         contactPhone: v.optional(v.string()),
         imageUrl: v.optional(v.string()),
+        programId: v.optional(v.id("programs")),
         createdBy: v.id("users"),
         createdAt: v.number(),
         updatedAt: v.number(),
@@ -125,6 +144,7 @@ export const getEventsByDateRange = query({
             .withIndex("by_start_date", (q) => 
                 q.gte("startDate", args.startDate).lte("startDate", args.endDate)
             )
+            .filter((q) => q.eq(q.field("isPublic"), true))
             .order("asc")
             .collect()
     },
@@ -139,7 +159,7 @@ export const getEventById = query({
             _creationTime: v.number(),
             title: v.string(),
             description: v.string(),
-        longDescription: v.optional(v.string()),
+            longDescription: v.optional(v.string()),
             startDate: v.number(),
             endDate: v.number(),
             location: v.optional(v.string()),
@@ -159,6 +179,7 @@ export const getEventById = query({
             contactEmail: v.optional(v.string()),
             contactPhone: v.optional(v.string()),
             imageUrl: v.optional(v.string()),
+            programId: v.optional(v.id("programs")),
             createdBy: v.id("users"),
             createdAt: v.number(),
             updatedAt: v.number(),
@@ -166,7 +187,17 @@ export const getEventById = query({
         v.null()
     ),
     handler: async (ctx, args) => {
-        return await ctx.db.get(args.id)
+        const event = await ctx.db.get(args.id)
+        if (!event) {
+            return null
+        }
+        
+        // If not public, check admin auth
+        if (!event.isPublic) {
+            await checkAdminAuth(ctx)
+        }
+        
+        return event
     },
 })
 
@@ -194,14 +225,13 @@ export const createEvent = mutation({
         contactEmail: v.optional(v.string()),
         contactPhone: v.optional(v.string()),
         imageUrl: v.optional(v.string()),
+        programId: v.optional(v.id("programs")),
     },
     returns: v.id("events"),
     handler: async (ctx, args) => {
+        const userId = await checkAdminAuth(ctx)
         const now = Date.now()
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("User not authenticated")
-        }
+        
         return await ctx.db.insert("events", {
             ...args,
             currentAttendees: 0,
@@ -237,10 +267,13 @@ export const updateEvent = mutation({
         contactEmail: v.optional(v.string()),
         contactPhone: v.optional(v.string()),
         imageUrl: v.optional(v.string()),
+        programId: v.optional(v.id("programs")),
     },
     returns: v.null(),
     handler: async (ctx, args) => {
+        await checkAdminAuth(ctx)
         const { id, ...updates } = args
+        
         const existingEvent = await ctx.db.get(id)
         if (!existingEvent) {
             throw new Error("Event not found")
@@ -259,6 +292,8 @@ export const deleteEvent = mutation({
     args: { id: v.id("events") },
     returns: v.null(),
     handler: async (ctx, args) => {
+        await checkAdminAuth(ctx)
+        
         const existingEvent = await ctx.db.get(args.id)
         if (!existingEvent) {
             throw new Error("Event not found")
@@ -277,6 +312,8 @@ export const updateAttendeeCount = mutation({
     },
     returns: v.null(),
     handler: async (ctx, args) => {
+        await checkAdminAuth(ctx)
+        
         const existingEvent = await ctx.db.get(args.id)
         if (!existingEvent) {
             throw new Error("Event not found")
@@ -290,7 +327,7 @@ export const updateAttendeeCount = mutation({
     },
 })
 
-// Get events by type
+// Get events by type (public events only)
 export const getEventsByType = query({
     args: {
         eventType: v.union(
@@ -327,6 +364,7 @@ export const getEventsByType = query({
         contactEmail: v.optional(v.string()),
         contactPhone: v.optional(v.string()),
         imageUrl: v.optional(v.string()),
+        programId: v.optional(v.id("programs")),
         createdBy: v.id("users"),
         createdAt: v.number(),
         updatedAt: v.number(),
@@ -335,6 +373,7 @@ export const getEventsByType = query({
         return await ctx.db
             .query("events")
             .withIndex("by_event_type", (q) => q.eq("eventType", args.eventType))
+            .filter((q) => q.eq(q.field("isPublic"), true))
             .order("desc")
             .collect()
     },
