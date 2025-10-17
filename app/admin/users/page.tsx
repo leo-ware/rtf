@@ -7,7 +7,7 @@ import { Id } from "@/convex/_generated/dataModel"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -58,6 +58,16 @@ const AdminUsersPage = () => {
     const [editFormData, setEditFormData] = useState({
         role: "authorized" as "authorized" | "admin" | "dev",
     })
+
+    const canEditRole = (userRole: string) => {
+        if (currentUserRole === "dev") return true
+        if (currentUserRole === "admin" && userRole !== "dev") return true
+        return false
+    }
+
+    const canDeleteUser = () => {
+        return currentUserRole === "dev"
+    }
 
     const handleCreateUser = async () => {
         try {
@@ -138,41 +148,39 @@ const AdminUsersPage = () => {
     }
 
     const handleDeleteUser = async (userId: Id<"users">) => {
-        if (confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
-            try {
-                setDeletingUser(userId)
-                await deleteUser({ targetUserId: userId })
+        try {
+            setDeletingUser(userId)
+            await deleteUser({ targetUserId: userId })
 
-                setActionStatus("success")
-                setActionMessage("User deleted successfully!")
-                setTimeout(() => setActionStatus("idle"), 3000)
-            } catch (error: any) {
-                console.error("Error deleting user:", error)
+            setActionStatus("success")
+            setActionMessage("User deleted successfully!")
+            setTimeout(() => setActionStatus("idle"), 3000)
+        } catch (error: any) {
+            console.error("Error deleting user:", error)
 
-                // Check for permission errors
-                if (error?.message?.includes('Only dev users can delete') ||
-                    error?.message?.includes('Insufficient permissions')) {
-                    handlePermissionError(
-                        "delete users",
-                        "user management",
-                        currentUserRole || "unknown",
-                        "dev"
-                    )
-                    return
-                }
-
-                // For validation errors, show inline message
-                if (error?.message?.includes('Cannot delete') ||
-                    error?.message?.includes('validation')) {
-                    setActionStatus("error")
-                    setActionMessage(error.message || "Failed to delete user")
-                    setTimeout(() => setActionStatus("idle"), 5000)
-                } else {
-                    handleConvexError(error, "delete user")
-                }
-            } finally {
-                setDeletingUser(null)
+            // Check for permission errors
+            if (error?.message?.includes('Only dev users can delete') ||
+                error?.message?.includes('Insufficient permissions')) {
+                handlePermissionError(
+                    "delete users",
+                    "user management",
+                    currentUserRole || "unknown",
+                    "dev"
+                )
+                return
             }
+
+            // For validation errors, show inline message
+            if (error?.message?.includes('Cannot delete') ||
+                error?.message?.includes('validation')) {
+                setActionStatus("error")
+                setActionMessage(error.message || "Failed to delete user")
+                setTimeout(() => setActionStatus("idle"), 5000)
+            } else {
+                handleConvexError(error, "delete user")
+            }
+        } finally {
+            setDeletingUser(null)
         }
     }
 
@@ -214,16 +222,6 @@ const AdminUsersPage = () => {
         }
     }
 
-    const canEditRole = (userRole: string) => {
-        if (currentUserRole === "dev") return true
-        if (currentUserRole === "admin" && userRole !== "dev") return true
-        return false
-    }
-
-    const canDeleteUser = () => {
-        return currentUserRole === "dev"
-    }
-
     // Check if user has permission to access this page
     if (hasAdminAccess === false) {
         // Redirect to 403 error page with proper context
@@ -255,12 +253,6 @@ const AdminUsersPage = () => {
         )
     }
 
-    const roleStats = users.reduce((acc, user) => {
-        const role = user.role || 'authorized'
-        acc[role] = (acc[role] || 0) + 1
-        return acc
-    }, {} as Record<string, number>)
-
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {/* Action Header */}
@@ -268,8 +260,8 @@ const AdminUsersPage = () => {
                 <div className="flex items-center space-x-4">
                     {actionStatus !== "idle" && (
                         <div className={`p-3 rounded-md flex items-center ${actionStatus === "success"
-                                ? "bg-green-50 text-green-800 border border-green-200"
-                                : "bg-red-50 text-red-800 border border-red-200"
+                            ? "bg-green-50 text-green-800 border border-green-200"
+                            : "bg-red-50 text-red-800 border border-red-200"
                             }`}>
                             {actionStatus === "success" ? (
                                 <CheckCircle className="h-5 w-5 mr-2" />
@@ -349,56 +341,6 @@ const AdminUsersPage = () => {
                         </DialogContent>
                     </Dialog>
                 </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-600">
-                            Total Users
-                        </CardTitle>
-                        <Users className="h-4 w-4 text-gray-600" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{users.length}</div>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-600">
-                            Developers
-                        </CardTitle>
-                        <Crown className="h-4 w-4 text-purple-600" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{roleStats.dev || 0}</div>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-600">
-                            Administrators
-                        </CardTitle>
-                        <Shield className="h-4 w-4 text-blue-600" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{roleStats.admin || 0}</div>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-600">
-                            Authorized Users
-                        </CardTitle>
-                        <User className="h-4 w-4 text-gray-600" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{roleStats.authorized || 0}</div>
-                    </CardContent>
-                </Card>
             </div>
 
             {/* Users Table */}
@@ -513,15 +455,29 @@ const AdminUsersPage = () => {
                                             )}
 
                                             {canDeleteUser() && (
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => handleDeleteUser(user._id)}
-                                                    disabled={deletingUser === user._id}
-                                                    className="text-red-600 hover:text-red-700"
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
+                                                <Dialog>
+                                                    <DialogTrigger asChild>
+                                                        <Button variant="outline" size="sm">
+                                                            <Trash2 className="h-4 w-4 text-black" />
+                                                        </Button>
+                                                    </DialogTrigger>
+                                                    <DialogContent>
+                                                        <DialogHeader>
+                                                            <DialogTitle>Delete User</DialogTitle>
+                                                            <DialogDescription>
+                                                                Are you sure you want to delete this user? This action cannot be undone.
+                                                            </DialogDescription>
+                                                        </DialogHeader>
+                                                        <DialogFooter>
+                                                            <DialogClose onClick={() => setDeletingUser(null)}>
+                                                                Cancel
+                                                            </DialogClose>
+                                                            <Button onClick={() => handleDeleteUser(user._id)} type="submit">
+                                                                Delete User
+                                                            </Button>
+                                                        </DialogFooter>
+                                                    </DialogContent>
+                                                </Dialog>
                                             )}
                                         </div>
                                     )}
@@ -531,7 +487,7 @@ const AdminUsersPage = () => {
                     </div>
                 </CardContent>
             </Card>
-        </div>
+        </div >
     )
 }
 
