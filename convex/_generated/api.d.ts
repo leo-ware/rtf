@@ -13,8 +13,10 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as ResendOTP from "../ResendOTP.js";
 import type * as advisoryBoards from "../advisoryBoards.js";
 import type * as animals from "../animals.js";
+import type * as approvedUserEmails from "../approvedUserEmails.js";
 import type * as articles from "../articles.js";
 import type * as auth from "../auth.js";
 import type * as contactMessages from "../contactMessages.js";
@@ -29,7 +31,6 @@ import type * as pages from "../pages.js";
 import type * as people from "../people.js";
 import type * as programGroups from "../programGroups.js";
 import type * as programs from "../programs.js";
-import type * as userManagement from "../userManagement.js";
 import type * as users from "../users.js";
 import type * as utils from "../utils.js";
 import type * as video from "../video.js";
@@ -43,8 +44,10 @@ import type * as video from "../video.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  ResendOTP: typeof ResendOTP;
   advisoryBoards: typeof advisoryBoards;
   animals: typeof animals;
+  approvedUserEmails: typeof approvedUserEmails;
   articles: typeof articles;
   auth: typeof auth;
   contactMessages: typeof contactMessages;
@@ -59,7 +62,6 @@ declare const fullApi: ApiFromModules<{
   people: typeof people;
   programGroups: typeof programGroups;
   programs: typeof programs;
-  userManagement: typeof userManagement;
   users: typeof users;
   utils: typeof utils;
   video: typeof video;

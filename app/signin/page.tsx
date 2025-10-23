@@ -1,44 +1,19 @@
 "use client";
 
 import { useAuthActions } from "@convex-dev/auth/react";
-import { useRouter } from "next/navigation";
-import { useState, use } from "react";
-import Image from "next/image";
-import { ImSpinner8 } from "react-icons/im";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { ImSpinner8 } from "react-icons/im";
+import Image from "next/image";
 
-type LogInProps = {
-    searchParams: Promise<{
-        next?: string;
-    }>
-}
-
-const LogIn = ({ searchParams }: LogInProps) => {
+const LogIn = () => {
     const { signIn } = useAuthActions();
-    const { next = "/admin" } = use(searchParams)
-    const router = useRouter();
+
+    const [email, setEmail] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
-
-    // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
-    //     e.preventDefault();
-
-    //     const formData = new FormData(e.target as HTMLFormElement);
-    //     formData.set("flow", "signIn");
-    //     formData.set("redirectTo", next);
-
-    //     try {
-    //         const signinResult = await signIn("password", formData);
-    //         console.log(signinResult);
-    //         if (!signinResult.signingIn) {
-    //             throw new Error("Unknown error");
-    //         }
-    //     } catch (error: any) {
-    //         console.log(error);
-    //         setError(error.toString());
-    //     }
-    // }
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
         e.preventDefault();
@@ -50,18 +25,10 @@ const LogIn = ({ searchParams }: LogInProps) => {
 
         try {
             const result = await signIn("password", formData);
-
             // Check if result is null or undefined
             if (!result) {
                 setError("Invalid email or password");
                 return;
-            }
-
-            // Check if sign in was successful
-            if (result.redirect) {
-                router.push(next);
-            } else {
-                setError("Invalid email or password");
             }
         } catch (err: any) {
             console.error("Sign in error:", err);
@@ -103,7 +70,6 @@ const LogIn = ({ searchParams }: LogInProps) => {
                     </h1>
                 </div>
 
-
                 <form
                     className="flex flex-col gap-4"
                     onSubmit={handleSubmit}
@@ -114,6 +80,8 @@ const LogIn = ({ searchParams }: LogInProps) => {
                         name="email"
                         placeholder="Email"
                         required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                     />
                     <input
                         className="px-4 py-2 text-gray-900 bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
@@ -121,28 +89,30 @@ const LogIn = ({ searchParams }: LogInProps) => {
                         name="password"
                         placeholder="Password"
                         required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                     />
                     {loading ? (
                         <Button variant="outline" type="submit" disabled className="w-full flex items-center justify-center gap-2">
                             <ImSpinner8 className="animate-spin size-4" />
                             Signing in...
                         </Button>
-                    ):(
+                    ) : (
                         <Button
-                            variant = "default"
-                            type = "submit"
-                            >
+                            variant="default"
+                            type="submit"
+                        >
                             Sign In
                         </Button>
                     )}
                 </form>
 
-            {error && (
-                <div className="p-4 mt-4 text-sm text-red-800 bg-red-100 border border-red-400 rounded-md dark:bg-red-800/20 dark:text-red-400 dark:border-red-400/50">
-                    <p className="font-mono text-xs">Error: {error}</p>
-                </div>
-            )}
-        </div>
+                {error && (
+                    <div className="p-4 mt-4 text-sm text-red-800 bg-red-100 border border-red-400 rounded-md dark:bg-red-800/20 dark:text-red-400 dark:border-red-400/50">
+                        <p className="font-mono text-xs">Error: {error}</p>
+                    </div>
+                )}
+            </div>
         </div >
     );
 }

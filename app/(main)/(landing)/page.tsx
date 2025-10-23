@@ -30,7 +30,7 @@ const HomePage = () => {
         <div className="w-full">
 
             <div className="relative w-full h-[84vh] bg-pewter">
-                <video
+                {/* <video
                     className="z-0 absolute w-full h-full object-cover"
                     autoPlay
                     loop
@@ -39,7 +39,7 @@ const HomePage = () => {
                 >
                     {landingVideoUrl
                         && <source src={landingVideoUrl} type="video/mp4" />}
-                </video>
+                </video> */}
                 <div className="relative z-10 w-full h-full flex items-center justify-center
                     text-white text-center text-[64px] font-serif">
                     Wild Horse Conservation

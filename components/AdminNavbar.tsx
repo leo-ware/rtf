@@ -38,8 +38,9 @@ interface NavItem {
 const AdminNavbar = () => {
     const pathname = usePathname();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const hasAdminAccess = useQuery(api.userManagement.hasAdminAccess);
-    const currentUserRole = useQuery(api.userManagement.getCurrentUserRole);
+    const currentUser = useQuery(api.users.getCurrentUser)
+    const hasAdminAccess = currentUser?.atLeastAdmin ?? false
+    const currentUserRole = currentUser?.role
 
     const navigationItems: NavItem[] = [
         {
@@ -47,12 +48,6 @@ const AdminNavbar = () => {
             href: "/admin",
             icon: Home,
             description: "Overview and statistics"
-        },
-        {
-            name: "Pages",
-            href: "/admin/pages",
-            icon: Folder,
-            description: "Website content"
         },
         {
             name: "News",
@@ -89,16 +84,15 @@ const AdminNavbar = () => {
             href: "/admin/analytics",
             icon: BarChart3,
             description: "View reports"
-        },
+        }
+    ].concat(hasAdminAccess ? [
         {
             name: "Users",
             href: "/admin/users",
             icon: Shield,
-            description: "User management",
-            requiresAdmin: true,
-            badge: currentUserRole === "dev" ? "DEV" : currentUserRole === "admin" ? "ADMIN" : undefined
+            description: "User management"
         }
-    ];
+    ]: []);
 
     const isActive = (href: string) => {
         if (href === "/admin") {

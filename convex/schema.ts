@@ -8,18 +8,34 @@ import { authTables } from "@convex-dev/auth/server";
 export default defineSchema({
     ...authTables,
     users: defineTable({
-        name: v.optional(v.string()),
-        image: v.optional(v.string()),
-        email: v.optional(v.string()),
-        emailVerified: v.optional(v.number()),
+        // required fields
+        name: v.string(),
+        email: v.string(),
+        emailVerificationTime: v.optional(v.number()),
         phone: v.optional(v.string()),
-        phoneVerified: v.optional(v.number()),
+        phoneVerificationTime: v.optional(v.number()),
         isAnonymous: v.optional(v.boolean()),
-        role: v.optional(v.union(
+        
+        // added fields
+        image: v.optional(v.id("images")),
+        role: v.union(
             v.literal("authorized"),
             v.literal("admin"),
             v.literal("dev")
-        )),
+        ),
+    }).index("email", ["email"]),
+
+    // Emails that are allowed to create accounts but have not yet
+    approvedUserEmails: defineTable({
+        name: v.optional(v.string()),
+        email: v.string(),
+        role: v.union(
+            v.literal("authorized"),
+            v.literal("admin"),
+            v.literal("dev")
+        ),
+        createdAt: v.number(),
+        updatedAt: v.number(),
     }).index("email", ["email"]),
 
     articles: defineTable({
@@ -90,6 +106,7 @@ export default defineSchema({
         createdBy: v.id("users"),
         createdAt: v.number(),
         updatedAt: v.number(),
+        emailVerificationTime: v.optional(v.number()),
     }).index("by_order", ["order"])
         .index("by_public", ["isPublic"])
         .index("by_created_by", ["createdBy"])

@@ -35,19 +35,17 @@ const AdminUsersPage = () => {
     const [actionStatus, setActionStatus] = useState<"idle" | "success" | "error">("idle")
     const [actionMessage, setActionMessage] = useState("")
 
-    // Check permissions
-    const hasAdminAccess = useQuery(api.userManagement.hasAdminAccess)
-    const hasDevAccess = useQuery(api.userManagement.hasDevAccess)
-    const currentUserRole = useQuery(api.userManagement.getCurrentUserRole)
-
     // Data queries
-    const users = useQuery(api.userManagement.listUsers, { limit: 100 })
-    const currentUser = useQuery(api.users.currentUser)
+    const currentUser = useQuery(api.users.getCurrentUser)
+    const users = useQuery(api.users.listUsers, { limit: 200 })
+
+    const hasAdminAccess = currentUser?.atLeastAdmin
+    const currentUserRole = currentUser?.role
 
     // Mutations
-    const createUser = useMutation(api.userManagement.createUser)
-    const updateUserRole = useMutation(api.userManagement.updateUserRole)
-    const deleteUser = useMutation(api.userManagement.deleteUser)
+    const createUser = useMutation(api.approvedUserEmails.createApprovedUserEmail)
+    const updateUserRole = useMutation(api.users.updateUserRole)
+    const deleteUser = useMutation(api.users.deleteUser)
 
     const [formData, setFormData] = useState({
         name: "",
@@ -357,7 +355,7 @@ const AdminUsersPage = () => {
                             <div key={user._id} className="flex items-center justify-between p-4 border rounded-lg">
                                 <div className="flex items-center space-x-4">
                                     <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                                        {user.image ? (
+                                        {user.type === "user" && user.image ? (
                                             <img
                                                 src={user.image}
                                                 alt={user.name || user.email || "User"}
@@ -398,7 +396,7 @@ const AdminUsersPage = () => {
                                         </span>
                                     </Badge>
 
-                                    {user._id !== currentUser?._id && (
+                                    {user.type === "user" && user._id !== currentUser?._id && (
                                         <div className="flex space-x-2">
                                             {canEditRole(user.role || 'authorized') && (
                                                 <Dialog>
@@ -454,7 +452,7 @@ const AdminUsersPage = () => {
                                                 </Dialog>
                                             )}
 
-                                            {canDeleteUser() && (
+                                            {user.type === "user" && canDeleteUser() && (
                                                 <Dialog>
                                                     <DialogTrigger asChild>
                                                         <Button variant="outline" size="sm">

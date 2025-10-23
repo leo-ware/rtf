@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 
 export const ProfileDropdown: React.FC = () => {
-    const currentUser = useQuery(api.users.currentUser);
+    const currentUser = useQuery(api.users.getCurrentUser);
 
     const getInitials = (name?: string, email?: string) => {
         if (name) {
