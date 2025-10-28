@@ -1,0 +1,142 @@
+"use client"
+
+import Hero from "@/components/public-ui/Hero"
+import Button from "@/components/public-ui/Button"
+import Image from "next/image"
+import SponsorAHorseMenu from "./SponsorAHorseMenu"
+import OurHorsesHeroImage from "./our-horses-hero.jpg"
+
+import SpiritImage from "./spirit.png"
+import AdoptBanner from "./adopt-banner.jpg"
+import MysticImage from "./mystic.png"
+
+const OurHorsesPage = () => {
+    return (
+        <div className="w-full h-fit min-h-screen flex flex-col items-center justify-start gap-16 text-center">
+
+            <Hero title="Our Horses" image={OurHorsesHeroImage} />
+
+            <div className="w-8/12 h-fit flex flex-col items-center justify-center text-pewter text-[24px] font-serif">
+                Every horse at Return to Freedom carries a story—of survival,
+                resilience, and renewal. From the wild herds rescued from
+                government roundups to the rare and historic strains preserved
+                for future generations, each one represents a vital piece of
+                America's living heritage. Across our sanctuaries in Lompoc
+                and San Luis Obispo, more than 460 wild horses and burros
+                now live safely in natural family bands, free from fear and
+                confinement.
+            </div>
+
+            <div className="w-10/12 h-fit flex flex-col items-center justify-center gap-4">
+                <div className="text-sage-green text-[48px] font-serif">
+                    Meet Spirit
+                </div>
+                <div className="text-[20px] font-serif">
+                    Spirit, the Kiger mustang who inspired DreamWorks’ Spirit:
+                    Stallion of the Cimarron, found his permanent home at
+                    Return to Freedom after the film’s release in 2002.
+                    Now in his thirties, Spirit lives at our Lompoc sanctuary
+                    as an ambassador for all wild horses—helping children and
+                    adults alike connect with the beauty, strength, and freedom
+                    that define America's mustangs.
+                </div>
+                <Button color="cinnamon" className="py-1 px-4">
+                    LEARN MORE ABOUT SPIRIT
+                </Button>
+            </div>
+
+            <div className="relative w-full h-[500px] flex flex-col items-center justify-center">
+                <Image
+                    src={SpiritImage}
+                    alt="Spirit"
+                    className="w-full h-full object-cover object-center"
+                    fill
+                />
+            </div>
+
+            <div className="w-full h-fit flex flex-col items-center justify-center gap-8">
+                <div className="text-sage-green text-[48px] font-serif">
+                    Our Herds
+                </div>
+                <div className="w-full h-fit">
+                    <div className="w-10/12 mx-auto h-fit flex items-center justify-center gap-6">
+                        <div className="relative w-1/2 h-[450px]">
+                            <Image
+                                src={SpiritImage}
+                                alt="Spirit"
+                                className="w-full h-full object-cover object-center"
+                                fill
+                            />
+                        </div>
+                        <div className="w-1/2 h-fit flex flex-col items-start justify-center gap-2">
+                            <div className="text-pewter text-3xl font-serif">
+                                Alpine Herd
+                            </div>
+                            <div className="text-lg text-left">
+                                In one of the largest equine rescues in California's history, RTF
+                                partnered with county officials to care for over 425 neglected and
+                                starving horses seized from a local ranch. Within days, RTF
+                                mobilized emergency crews, coordinated medical care, and provided
+                                refuge for many of the animals. This response helped establish RTF
+                                as a trusted national voice in large-scale rescue and rehabilitation.
+                            </div>
+                            <Button color="cinnamon" className="py-1 px-4">
+                                LEARN MORE ABOUT THE ALPINE HERD
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <SponsorAHorseMenu />
+
+            <div className="relative w-full h-[400px] flex flex-col items-center justify-center gap-8">
+                <Image
+                    src={AdoptBanner}
+                    alt="Adopt a Horse"
+                    className="absolute top-0 left-0 w-full h-full object-cover object-center" />
+                <div className="relative w-full h-full py-10 px-32 z-10 flex flex-col items-end justify-center gap-2">
+                    <div className="relative z-10 text-white text-[48px] font-serif">
+                        Adopt a Horse
+                    </div>
+                    <div className="text-white text-2xl font-serif">
+                        Give a horse a forever home.
+                    </div>
+                    <Button color="cinnamon" className="py-1 px-4">Learn more</Button>
+                </div>
+            </div>
+
+            <div className="w-full h-fit flex flex-col items-center justify-center gap-8">
+                <div className="text-cinnamon text-[48px] font-serif">
+                    In Memoriam
+                </div>
+                <div className="w-full h-fit flex flex-col items-center justify-center">
+                    <div className="relative w-full h-[500px]">
+                        <Image className="w-full h-full object-cover object-top" src={MysticImage} alt="Mystic" />
+                    </div>
+                    <div className="w-full h-fit bg-pewter text-white flex py-12 px-48 gap-32">
+                        <div className="basis-[200px] flex flex-col items-end justify-center gap-2">
+                            <div className="text-3xl font-serif">Mystic</div>
+                            <div className="text-2xl font-serif">1995-2025</div>
+                        </div>
+                        <div className="basis-0 grow flex flex-col items-start justify-center gap-2">
+                            <div className="text-lg text-left">
+                                Mystic, one of our ambassador stallions left this world to run in the next. He
+                                was approximately 30 years old. It is painful to know he is no longer here in
+                                the hills, but many of us share 16 years of memories with him and for that time
+                                we are forever grateful. Mystic was one of the first stallions to arrive at
+                                Return to Freedom in 1999. He was captured during the total removal of 279
+                                horses from the Hart Mountain National Antelope Refuge in Oregon.
+                            </div>
+                            <Button color="cinnamon" className="py-1 px-4">
+                                Donate in Memory of Mystic
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export default OurHorsesPage

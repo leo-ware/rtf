@@ -1,27 +1,19 @@
 import Image from "next/image"
-import Button from "@/components/Button"
+import Button from "@/components/public-ui/Button"
+import Link from "next/link"
+import Hero from "@/components/public-ui/Hero"
 
 import HeroImage from "./what-we-do-hero.png"
 import ConservationImage from "./conservation-image.png"
 import AdvocacyImage from "./advocacy-image.png"
 import SanctuaryImage from "./sanctuary-image.png"
 import EducationImage from "./education-image.png"
-import Link from "next/link"
 
 
 const WhatWeDoPage = () => {
     return (
         <div className="w-full h-fit pb-8">
-            <div className="w-full h-[400px] relative flex items-center justify-center bg-sage-green">
-                <Image
-                    src={HeroImage}
-                    alt="What We Do Hero"
-                    className="z-0 absolute top-0 left-0 w-full h-full object-cover object-center"
-                    fill />
-                <div className="z-10 p-4 border-b border-white text-white text-4xl font-bold">
-                    What We Do
-                </div>
-            </div>
+            <Hero title="What We Do" image={HeroImage} />
 
             <div className="w-full h-fit pt-12 pb-4 flex flex-col items-center justify-center gap-4">
                 <p className="max-w-11/12 md:max-w-1/2 md:text-center">
@@ -86,7 +78,7 @@ const WhatWeDoPage = () => {
                         about what RTF does something something something about what RTF
                         does something something something about what RTF
                     </div>
-                    <Link href="/what-we-do/sanctuary" className="mt-2">
+                    <Link href="/what-we-do/conservation" className="mt-2">
                         <Button className="px-6" color="sage-green">Learn More</Button>
                     </Link>
                 </div>
@@ -115,7 +107,7 @@ const WhatWeDoPage = () => {
                         about what RTF does something something something about what RTF
                         does something something something about what RTF
                     </div>
-                    <Link href="/what-we-do/sanctuary" className="mt-2">
+                    <Link href="/what-we-do/education" className="mt-2">
                         <Button className="px-6" color="sage-green">Learn More</Button>
                     </Link>
                 </div>
@@ -144,7 +136,7 @@ const WhatWeDoPage = () => {
                         about what RTF does something something something about what RTF
                         does something something something about what RTF
                     </div>
-                    <Link href="/what-we-do/sanctuary" className="mt-2">
+                    <Link href="/what-we-do/advocacy" className="mt-2">
                         <Button className="px-6" color="sage-green">Learn More</Button>
                     </Link>
                 </div>

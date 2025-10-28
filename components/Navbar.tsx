@@ -21,7 +21,7 @@ const HeaderLink = (props: { href: string, text: string }) => {
 
 const MobileHeaderLink = (props: { href: string, text: string, onClick: () => void }) => {
     return (
-        <Link href={props.href} className="relative text-white text-lg" onClick={props.onClick}>
+        <Link href={props.href} className="relative text-white " onClick={props.onClick}>
             {props.text}
         </Link>
     )
@@ -32,14 +32,16 @@ export default function Navbar() {
 
     return (
         <header className="bg-pewter max-w-screen w-full h-fit font-bold">
-            <nav className="w-full hidden md:block">
+
+            {/* Desktop Navigation */}
+            <nav className="w-full hidden xl:block">
                 <div className="w-full flex items-center py-2 px-[10%]">
                     <div className="flex-1 flex items-center justify-around">
                         <HeaderLink href="/about" text="About" />
                         <HeaderLink href="/what-we-do" text="What We Do" />
-                        <HeaderLink href="/learn" text="Learn" />
-                        <HeaderLink href="/news" text="News" />
-                        <HeaderLink href="/our-horses" text="Our Horses" />
+                        <HeaderLink href="/resources/learn" text="Learn" />
+                        <HeaderLink href="/resources/news" text="News" />
+                        <HeaderLink href="/horses/our-horses" text="Our Horses" />
                     </div>
                     <div className="w-[180px] flex justify-center">
                         <Link href="/" className="flex-shrink-0">
@@ -52,7 +54,7 @@ export default function Navbar() {
 
                         <div className="flex items-center gap-4">
                             <Link
-                                href="/"
+                                href="/donate"
                                 className={`rounded-lg bg-burnt-orange border-1 border-burnt-orange w-[100px] flex items-center 
                                     justify-center py-1 text-white text-sm`}
                             >
@@ -60,7 +62,7 @@ export default function Navbar() {
                             </Link>
 
                             <Link
-                                href="/"
+                                href="/take-action/subscribe"
                                 className={`rounded-lg border-1 border-white w-[100px] flex items-center 
                                     justify-center py-1 text-white text-sm`}
                             >
@@ -73,8 +75,11 @@ export default function Navbar() {
             </nav>
 
             {/* Mobile Navigation */}
-            <div className="block md:hidden h-[60px] w-full" />
-            <nav className="block md:hidden fixed bg-pewter z-40 top-0 left-0 w-screen p-2 flex flex-row items-center justify-between">
+            <div className="block xl:hidden h-[60px] w-full" />
+            <nav className="
+                block xl:hidden fixed bg-pewter z-40 top-0 left-0 w-screen
+                flex flex-row items-center justify-between
+                p-2 md:px-8">
                 <Link href="/" className="flex-shrink-0">
                     <Image
                         src={RTFLogoWhite}
@@ -104,7 +109,7 @@ export default function Navbar() {
 
             <div
                 className="z-50 bg-pewter w-screen h-screen fixed top-0 left-0
-                transition-transform md:transition-none duration-300 ease-in-out"
+                transition-transform xl:transition-none duration-300 ease-in-out"
                 style={{
                     transform: isMobileMenuOpen ? "translateX(0)" : "translateX(110vw)",
                 }}
@@ -117,18 +122,27 @@ export default function Navbar() {
                         onClick={() => setIsMobileMenuOpen(false)}
                     >
                         <IoMdClose
-                            size={30}
-                            className={`text-seashell ${!isMobileMenuOpen && 'animate-spin'}`}
+                            // size={30}
+                            className={`
+                                text-seashell ${!isMobileMenuOpen && 'animate-spin'}
+                                text-[30px]
+                                md:text-[60px]
+                            `}
                         />
                     </button>
                 </div>
 
-                <div className="absolute left-6 bottom-6 flex flex-col items-start justify-end gap-4">
+                <div
+                    className="
+                        absolute left-6 bottom-6 flex flex-col items-start justify-end
+                        font-serif font-base underline underline-offset-4
+                        gap-4 text-lg
+                        md:text-4xl md:p-16 md:gap-6">
                     <MobileHeaderLink href="/about" text="About" onClick={() => setIsMobileMenuOpen(false)} />
                     <MobileHeaderLink href="/what-we-do" text="What We Do" onClick={() => setIsMobileMenuOpen(false)} />
-                    <MobileHeaderLink href="/learn" text="Learn" onClick={() => setIsMobileMenuOpen(false)} />
-                    <MobileHeaderLink href="/news" text="News" onClick={() => setIsMobileMenuOpen(false)} />
-                    <MobileHeaderLink href="/our-horses" text="Our Horses" onClick={() => setIsMobileMenuOpen(false)} />
+                    <MobileHeaderLink href="/resources/learn" text="Learn" onClick={() => setIsMobileMenuOpen(false)} />
+                    <MobileHeaderLink href="/resources/news" text="News" onClick={() => setIsMobileMenuOpen(false)} />
+                    <MobileHeaderLink href="/horses/our-horses" text="Our Horses" onClick={() => setIsMobileMenuOpen(false)} />
                     <MobileHeaderLink href="/take-action" text="Take Action" onClick={() => setIsMobileMenuOpen(false)} />
                     <MobileHeaderLink href="/visit-us" text="Visit Us" onClick={() => setIsMobileMenuOpen(false)} />
                 </div>

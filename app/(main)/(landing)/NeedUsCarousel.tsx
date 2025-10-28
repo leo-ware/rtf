@@ -1,6 +1,6 @@
 "use client"
 
-import Button from "@/components/Button"
+import Button from "@/components/public-ui/Button"
 import Carousel from "@/components/Carousel"
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
 import Image, { StaticImageData } from "next/image"

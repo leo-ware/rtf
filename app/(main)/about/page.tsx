@@ -1,9 +1,9 @@
 import Image from "next/image"
 import Link from "next/link"
-import Button from "@/components/Button"
+import Button from "@/components/public-ui/Button"
 import { chunk } from "@/lib/utils"
 
-import NewsCarousel from "./NewsCarousel"
+import NewsCarousel from "../../../components/NewsCarousel"
 
 import AboutHeroImg from "@/public/img/about_hero.jpg"
 import NedaAndSpirit from "@/public/img/neda-and-spirit.jpg"

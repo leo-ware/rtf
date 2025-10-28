@@ -1,13 +1,13 @@
 "use client"
 
-import Button from "@/components/Button"
+import Button from "@/components/public-ui/Button"
 import VideoStandin from "./landing_hero_video_preview.png"
 import Image from "next/image"
 import Link from "next/link"
 
 import CorporateCarousel from "./CorporateCarousel"
-import NewsCarousel from "../about/NewsCarousel"
-import VideoCarousel from "./VideoCarousel"
+import NewsCarousel from "../../../components/NewsCarousel"
+import VideoCarousel from "../../../components/VideoCarousel"
 
 import ConservationImage from "./some-mountain.png"
 import AdvocacyImage from "./horses-in-hills.jpg"
@@ -294,7 +294,24 @@ const HomePage = () => {
 
             <NewsCarousel />
 
-            <VideoCarousel />
+            <VideoCarousel carouselItems={[
+                {
+                    title: 'Robert Redford stands with America\'s wild horses',
+                    videoId: '423814174',
+                },
+                {
+                    title: "\'Spirit: Untamed\' director visits RTF's sanctuary",
+                    videoId: '567146784',
+                },
+                {
+                    title: 'Stand with America\'s wild horses and burros',
+                    videoId: '263067600',
+                },
+                {
+                    title: 'Join Wendie Malick in the fight to protect America\'s wild horses',
+                    videoId: '160682894',
+                }
+            ]} />
 
             <CorporateCarousel />
 
