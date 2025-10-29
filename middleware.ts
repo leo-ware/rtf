@@ -1,6 +1,11 @@
 import { clerkMiddleware } from '@clerk/nextjs/server';
 
-export default clerkMiddleware();
+export default clerkMiddleware({
+    authorizedParties: [
+        'https://returntofreedom.org',
+        'https://rtf.leoware.io',
+    ],
+});
 
 export const config = {
   matcher: [
