@@ -20,7 +20,8 @@ import {
     Menu,
     X,
     BarChart3,
-    Heart
+    Heart,
+    Code
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -90,7 +91,7 @@ const AdminNavbar = () => {
             icon: Shield,
             description: "User management"
         }
-    ]: []);
+    ] : [])
 
     const isActive = (href: string) => {
         if (href === "/admin") {
@@ -172,10 +173,12 @@ const AdminNavbar = () => {
                                 <span className="md:hidden">Site</span>
                             </Button>
                         </Link>
-                        <Button variant="outline" size="sm" className="hidden lg:flex">
-                            <Settings className="h-4 w-4 mr-2" />
-                            Settings
-                        </Button>
+                        <Link href="/admin/dev">
+                            <Button variant="outline" size="sm" className="hidden lg:flex">
+                                <Code className="h-4 w-4 mr-2" />
+                                Developer
+                            </Button>
+                        </Link>
                         <ProfileDropdown />
                     </div>
                 </div>
@@ -262,12 +265,12 @@ const AdminNavbar = () => {
                                     <span>View Site</span>
                                 </Link>
                                 <Link
-                                    href="/admin/profile"
+                                    href="/admin/dev"
                                     onClick={() => setIsMobileMenuOpen(false)}
                                     className="flex items-center space-x-3 px-3 py-3 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                                 >
-                                    <Settings className="h-5 w-5" />
-                                    <span>Settings</span>
+                                    <Code className="h-5 w-5" />
+                                    <span>Developer</span>
                                 </Link>
                             </div>
                         </nav>
