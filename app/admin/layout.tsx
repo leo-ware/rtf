@@ -1,7 +1,7 @@
 import React from "react"
 import { AdminErrorBoundary } from "@/components/AdminErrorBoundary"
 import AdminNavbar from "@/components/AdminNavbar"
-import AuthRouterProvider from "@/providers/AuthRouterProvider"
+import AuthRouter from "@/providers/AuthRouter"
 
 interface AdminLayoutProps {
     children: React.ReactNode
@@ -9,7 +9,7 @@ interface AdminLayoutProps {
 
 const AdminLayout = ({ children }: AdminLayoutProps) => {
     return (
-        <AuthRouterProvider>
+        <AuthRouter>
             <AdminErrorBoundary>
                 <div className="min-h-screen bg-gray-50">
                     <AdminNavbar />
@@ -18,7 +18,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                     </main>
                 </div>
             </AdminErrorBoundary>
-        </AuthRouterProvider>
+        </AuthRouter>
     );
 };
 
