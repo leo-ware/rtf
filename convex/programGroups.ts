@@ -1,22 +1,6 @@
 import { query, mutation } from "./_generated/server"
 import { v } from "convex/values"
-import { Id } from "./_generated/dataModel"
-import { getAuthUserId } from "@convex-dev/auth/server"
-
-// Helper function to check if user has admin privileges
-const checkAdminAuth = async (ctx: any) => {
-    const userId = await getAuthUserId(ctx)
-    if (!userId) {
-        throw new Error("User not authenticated")
-    }
-    
-    const user = await ctx.db.get(userId)
-    if (!user || !user.role || !["authorized", "admin", "dev"].includes(user.role)) {
-        throw new Error("User not authorized")
-    }
-    
-    return userId
-}
+import { getCurrentUserOrThrow } from "./users"
 
 // Get all program groups (admin only)
 export const getAllProgramGroups = query({
@@ -34,7 +18,10 @@ export const getAllProgramGroups = query({
         updatedAt: v.number(),
     })),
     handler: async (ctx) => {
-        await checkAdminAuth(ctx)
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
+        }
         return await ctx.db
             .query("programGroups")
             .order("asc")
@@ -89,12 +76,15 @@ export const getProgramGroupById = query({
         if (!programGroup) {
             return null
         }
-        
+
         // If not public, check admin auth
         if (!programGroup.isPublic) {
-            await checkAdminAuth(ctx)
+            const user = await getCurrentUserOrThrow(ctx)
+            if (!user.atLeastAuthorized) {
+                throw new Error("Insufficient permissions");
+            }
         }
-        
+
         return programGroup
     },
 })
@@ -110,12 +100,15 @@ export const createProgramGroup = mutation({
     },
     returns: v.id("programGroups"),
     handler: async (ctx, args) => {
-        const userId = await checkAdminAuth(ctx)
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
+        }
         const now = Date.now()
-        
+
         return await ctx.db.insert("programGroups", {
             ...args,
-            createdBy: userId,
+            createdBy: user._id,
             createdAt: now,
             updatedAt: now,
         })
@@ -134,9 +127,12 @@ export const updateProgramGroup = mutation({
     },
     returns: v.null(),
     handler: async (ctx, args) => {
-        await checkAdminAuth(ctx)
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
+        }
         const { id, ...updates } = args
-        
+
         const existingProgramGroup = await ctx.db.get(id)
         if (!existingProgramGroup) {
             throw new Error("Program group not found")
@@ -155,8 +151,11 @@ export const deleteProgramGroup = mutation({
     args: { id: v.id("programGroups") },
     returns: v.null(),
     handler: async (ctx, args) => {
-        await checkAdminAuth(ctx)
-        
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
+        }
+
         const existingProgramGroup = await ctx.db.get(args.id)
         if (!existingProgramGroup) {
             throw new Error("Program group not found")
@@ -167,7 +166,7 @@ export const deleteProgramGroup = mutation({
             .query("programs")
             .withIndex("by_program_group", (q) => q.eq("programGroupId", args.id))
             .collect()
-        
+
         if (programsInGroup.length > 0) {
             throw new Error("Cannot delete program group that contains programs")
         }

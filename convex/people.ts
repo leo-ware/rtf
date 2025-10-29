@@ -2,6 +2,7 @@ import { GenericId, v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { indexArray } from "./utils";
+import { getCurrentUserOrThrow } from "./users";
 
 
 export const listPeople = query({
@@ -142,21 +143,6 @@ export const getPersonWithAdvisoryBoards = query({
     },
 });
 
-const hasEditPermission = async (ctx: any) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-        return false;
-    }
-
-    const user = await ctx.db.get(userId);
-    if (!user) {
-        return false;
-    }
-
-    const userRole = user.role || "authorized";
-    return userRole === "admin" || userRole === "dev" || userRole === "authorized";
-};
-
 export const createPerson = mutation({
     args: {
         name: v.string(),
@@ -172,13 +158,9 @@ export const createPerson = mutation({
         advisoryBoardIds: v.optional(v.array(v.id("advisoryBoards"))),
     },
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("Must be authenticated to create people");
-        }
-
-        if (!(await hasEditPermission(ctx))) {
-            throw new Error("Insufficient permissions to create people");
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         const now = Date.now();
@@ -194,7 +176,7 @@ export const createPerson = mutation({
             isStoryTeller: args.isStoryTeller ?? false,
             isAmbassador: args.isAmbassador ?? false,
             inMemoriam: args.inMemoriam,
-            createdBy: userId,
+            createdBy: user._id,
             createdAt: now,
             updatedAt: now,
         });
@@ -206,7 +188,7 @@ export const createPerson = mutation({
                     await ctx.db.insert("peopleAdvisoryBoards", {
                         personId,
                         advisoryBoardId: boardId,
-                        createdBy: userId,
+                        createdBy: user._id,
                         createdAt: now,
                     });
                 })
@@ -233,13 +215,9 @@ export const updatePerson = mutation({
         advisoryBoardIds: v.optional(v.array(v.id("advisoryBoards"))),
     },
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("Must be authenticated to update people");
-        }
-
-        if (!(await hasEditPermission(ctx))) {
-            throw new Error("Insufficient permissions to update people");
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         const existingPerson = await ctx.db.get(args.id);
@@ -285,7 +263,7 @@ export const updatePerson = mutation({
                         await ctx.db.insert("peopleAdvisoryBoards", {
                             personId: args.id,
                             advisoryBoardId: boardId,
-                            createdBy: userId,
+                            createdBy: user._id,
                             createdAt: Date.now(),
                         });
                     })
@@ -302,13 +280,9 @@ export const deletePerson = mutation({
         id: v.id("people"),
     },
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("Must be authenticated to delete people");
-        }
-
-        if (!(await hasEditPermission(ctx))) {
-            throw new Error("Insufficient permissions to delete people");
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         const person = await ctx.db.get(args.id);

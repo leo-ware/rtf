@@ -1,27 +1,14 @@
 import { query, mutation } from "./_generated/server"
 import { v } from "convex/values"
-import { Id } from "./_generated/dataModel"
-import { getAuthUserId } from "@convex-dev/auth/server"
-
-// Helper function to check if user has admin privileges
-const checkAdminAuth = async (ctx: any) => {
-    const userId = await getAuthUserId(ctx)
-    if (!userId) {
-        throw new Error("User not authenticated")
-    }
-
-    const user = await ctx.db.get(userId)
-    if (!user || !user.role || !["authorized", "admin", "dev"].includes(user.role)) {
-        throw new Error("User not authorized")
-    }
-
-    return userId
-}
+import { getCurrentUserOrThrow } from "./users"
 
 export const getProgramGroups = query({
     args: {},
     handler: async (ctx) => {
-        await checkAdminAuth(ctx)
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
+        }
         return await ctx.db
             .query("programGroups")
             .order("asc")
@@ -49,9 +36,9 @@ export const getProgramGroupById = query({
             .withIndex("by_program_group", (q) => q.eq("programGroupId", args.id))
             .order("asc")
             .collect()
-        
+
         const [group, programs] = await Promise.all([groupPromise, programsPromise])
-        
+
         return {
             ...group,
             programs: programs.filter((program) => program.isPublic),
@@ -79,7 +66,10 @@ export const getAllPrograms = query({
         updatedAt: v.number(),
     })),
     handler: async (ctx) => {
-        await checkAdminAuth(ctx)
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
+        }
         return await ctx.db
             .query("programs")
             .order("asc")
@@ -142,7 +132,10 @@ export const getProgramsByGroup = query({
 
         // If program group is not public, check admin auth
         if (!programGroup.isPublic) {
-            await checkAdminAuth(ctx)
+            const user = await getCurrentUserOrThrow(ctx)
+            if (!user.atLeastAuthorized) {
+                throw new Error("Insufficient permissions");
+            }
         }
 
         return await ctx.db
@@ -183,7 +176,10 @@ export const getProgramById = query({
 
         // If not public, check admin auth
         if (!program.isPublic) {
-            await checkAdminAuth(ctx)
+            const user = await getCurrentUserOrThrow(ctx)
+            if (!user.atLeastAuthorized) {
+                throw new Error("Insufficient permissions");
+            }
         }
 
         return program
@@ -231,7 +227,10 @@ export const getEventsByProgram = query({
 
         // If program is not public, check admin auth
         if (!program.isPublic) {
-            await checkAdminAuth(ctx)
+            const user = await getCurrentUserOrThrow(ctx)
+            if (!user.atLeastAuthorized) {
+                throw new Error("Insufficient permissions");
+            }
         }
 
         return await ctx.db
@@ -257,7 +256,10 @@ export const createProgram = mutation({
     },
     returns: v.id("programs"),
     handler: async (ctx, args) => {
-        const userId = await checkAdminAuth(ctx)
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
+        }
 
         // Verify program group exists
         const programGroup = await ctx.db.get(args.programGroupId)
@@ -268,7 +270,7 @@ export const createProgram = mutation({
         const now = Date.now()
         return await ctx.db.insert("programs", {
             ...args,
-            createdBy: userId,
+            createdBy: user._id,
             createdAt: now,
             updatedAt: now,
         })
@@ -291,7 +293,10 @@ export const updateProgram = mutation({
     },
     returns: v.null(),
     handler: async (ctx, args) => {
-        await checkAdminAuth(ctx)
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
+        }
         const { id, ...updates } = args
 
         const existingProgram = await ctx.db.get(id)
@@ -320,7 +325,10 @@ export const deleteProgram = mutation({
     args: { id: v.id("programs") },
     returns: v.null(),
     handler: async (ctx, args) => {
-        await checkAdminAuth(ctx)
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
+        }
 
         const existingProgram = await ctx.db.get(args.id)
         if (!existingProgram) {
@@ -353,7 +361,10 @@ export const createEventFromProgram = mutation({
     },
     returns: v.id("events"),
     handler: async (ctx, args) => {
-        const userId = await checkAdminAuth(ctx)
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
+        }
 
         const program = await ctx.db.get(args.programId)
         if (!program) {
@@ -380,7 +391,7 @@ export const createEventFromProgram = mutation({
             contactPhone: undefined,
             imageUrl: undefined,
             programId: args.programId,
-            createdBy: userId,
+            createdBy: user._id,
             createdAt: now,
             updatedAt: now,
         })

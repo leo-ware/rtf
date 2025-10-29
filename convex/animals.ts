@@ -2,6 +2,7 @@ import { query, mutation } from "./_generated/server"
 import { v } from "convex/values"
 import { Id } from "./_generated/dataModel"
 import { getAuthUserId } from "@convex-dev/auth/server"
+import { getCurrentUserOrThrow } from "./users"
 
 // Helper function to generate slug
 function generateSlug(name: string): string {
@@ -276,9 +277,9 @@ export const createAnimal = mutation({
     },
     returns: v.id("animals"),
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx)
-        if (!userId) {
-            throw new Error("Must be authenticated to create animals")
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         // Verify the herd exists
@@ -311,7 +312,7 @@ export const createAnimal = mutation({
             ambassador: args.ambassador ?? false,
             inMemoriam: args.inMemoriam ?? false,
             public: args.public ?? false,
-            createdBy: userId,
+            createdBy: user._id,
             createdAt: now,
             updatedAt: now,
         })
@@ -334,9 +335,9 @@ export const updateAnimal = mutation({
     },
     returns: v.null(),
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx)
-        if (!userId) {
-            throw new Error("Must be authenticated to update animals")
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         const animal = await ctx.db.get(args.id)
@@ -414,9 +415,9 @@ export const deleteAnimal = mutation({
     args: { id: v.id("animals") },
     returns: v.null(),
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx)
-        if (!userId) {
-            throw new Error("Must be authenticated to delete animals")
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         await ctx.db.delete(args.id)

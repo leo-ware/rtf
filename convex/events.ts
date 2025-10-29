@@ -1,22 +1,6 @@
 import { query, mutation } from "./_generated/server"
 import { v } from "convex/values"
-import { Id } from "./_generated/dataModel"
-import { getAuthUserId } from "@convex-dev/auth/server"
-
-// Helper function to check if user has admin privileges
-const checkAdminAuth = async (ctx: any) => {
-    const userId = await getAuthUserId(ctx)
-    if (!userId) {
-        throw new Error("User not authenticated")
-    }
-    
-    const user = await ctx.db.get(userId)
-    if (!user || !user.role || !["authorized", "admin", "dev"].includes(user.role)) {
-        throw new Error("User not authorized")
-    }
-    
-    return userId
-}
+import { getCurrentUserOrThrow } from "./users"
 
 // Get all events (admin only)
 export const getAllEvents = query({
@@ -52,7 +36,10 @@ export const getAllEvents = query({
         updatedAt: v.number(),
     })),
     handler: async (ctx) => {
-        await checkAdminAuth(ctx)
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
+        }
         return await ctx.db
             .query("events")
             .order("desc")
@@ -141,7 +128,7 @@ export const getEventsByDateRange = query({
     handler: async (ctx, args) => {
         return await ctx.db
             .query("events")
-            .withIndex("by_start_date", (q) => 
+            .withIndex("by_start_date", (q) =>
                 q.gte("startDate", args.startDate).lte("startDate", args.endDate)
             )
             .filter((q) => q.eq(q.field("isPublic"), true))
@@ -191,12 +178,15 @@ export const getEventById = query({
         if (!event) {
             return null
         }
-        
+
         // If not public, check admin auth
         if (!event.isPublic) {
-            await checkAdminAuth(ctx)
+            const user = await getCurrentUserOrThrow(ctx)
+            if (!user.atLeastAuthorized) {
+                throw new Error("Insufficient permissions");
+            }
         }
-        
+
         return event
     },
 })
@@ -229,15 +219,18 @@ export const createEvent = mutation({
     },
     returns: v.id("events"),
     handler: async (ctx, args) => {
-        const userId = await checkAdminAuth(ctx)
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
+        }
         const now = Date.now()
-        
+
         return await ctx.db.insert("events", {
             ...args,
             currentAttendees: 0,
             createdAt: now,
             updatedAt: now,
-            createdBy: userId,
+            createdBy: user._id,
         })
     },
 })
@@ -271,9 +264,12 @@ export const updateEvent = mutation({
     },
     returns: v.null(),
     handler: async (ctx, args) => {
-        await checkAdminAuth(ctx)
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
+        }
         const { id, ...updates } = args
-        
+
         const existingEvent = await ctx.db.get(id)
         if (!existingEvent) {
             throw new Error("Event not found")
@@ -292,8 +288,11 @@ export const deleteEvent = mutation({
     args: { id: v.id("events") },
     returns: v.null(),
     handler: async (ctx, args) => {
-        await checkAdminAuth(ctx)
-        
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
+        }
+
         const existingEvent = await ctx.db.get(args.id)
         if (!existingEvent) {
             throw new Error("Event not found")
@@ -312,8 +311,11 @@ export const updateAttendeeCount = mutation({
     },
     returns: v.null(),
     handler: async (ctx, args) => {
-        await checkAdminAuth(ctx)
-        
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
+        }
+
         const existingEvent = await ctx.db.get(args.id)
         if (!existingEvent) {
             throw new Error("Event not found")

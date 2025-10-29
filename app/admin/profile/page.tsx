@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ProfileDropdown } from "@/components/ProfileDropdown";
 import { ImageUpload } from "@/components/ImageUpload";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
@@ -27,7 +26,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 
 const AdminProfilePage = () => {
-    const currentUser = useQuery(api.users.getCurrentUser);
+    const currentUser = useQuery(api.users.current);
     // const updateProfile = useMutation(api.users.updateProfile);
 
     const [formData, setFormData] = useState({
@@ -39,16 +38,16 @@ const AdminProfilePage = () => {
     const [isSaving, setIsSaving] = useState(false);
     const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
 
-    // Initialize form data when user loads
-    useEffect(() => {
-        if (currentUser) {
-            setFormData({
-                name: currentUser.name || "",
-                email: currentUser.email || "",
-            });
-            setSelectedImage(currentUser.image || "");
-        }
-    }, [currentUser]);
+    // // Initialize form data when user loads
+    // useEffect(() => {
+    //     if (currentUser) {
+    //         setFormData({
+    //             name: currentUser.name || "",
+    //             email: currentUser.email || "",
+    //         });
+    //         setSelectedImage(currentUser.image || "");
+    //     }
+    // }, [currentUser]);
 
     const handleSaveProfile = async () => {
         // if (!currentUser) return;
@@ -146,9 +145,9 @@ const AdminProfilePage = () => {
         );
     }
 
-    const hasChanges =
-        formData.name !== (currentUser.name || "") ||
-        selectedImage !== (currentUser.image || "");
+    const hasChanges = false
+        // formData.name !== (currentUser.name || "") ||
+        // selectedImage !== (currentUser.image || "");
 
     return (
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -167,12 +166,12 @@ const AdminProfilePage = () => {
                         </CardHeader>
                         <CardContent className="flex flex-col items-center space-y-4">
                             <Avatar className="h-32 w-32">
-                                <AvatarImage
+                                {/* <AvatarImage
                                     src={selectedImage || currentUser.image || "/placeholder-avatar.jpg"}
                                     alt={currentUser.name || currentUser.email || "User"}
-                                />
+                                /> */}
                                 <AvatarFallback className="text-2xl">
-                                    {getInitials(currentUser.name, currentUser.email)}
+                                    {getInitials(currentUser.name, currentUser.email[0])}
                                 </AvatarFallback>
                             </Avatar>
 

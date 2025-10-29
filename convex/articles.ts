@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { getCurrentUserOrThrow } from "./users";
 
 export const listArticles = query({
     args: {
@@ -152,14 +153,9 @@ export const createArticle = mutation({
         publishedAt: v.optional(v.number()),
     },
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("User not authenticated");
-        }
-        
-        const user = await ctx.db.get(userId);
-        if (!user || !user.role || !["authorized", "admin", "dev"].includes(user.role)) {
-            throw new Error("User not authorized");
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         // Generate slug from title if not provided
@@ -183,8 +179,8 @@ export const createArticle = mutation({
             content: args.content,
             excerpt: args.excerpt,
             imageId: args.imageId,
-            authorId: userId,
-            authorCredit: args.authorCredit || user.name || user.email || "Unknown Author",
+            authorId: user._id,
+            authorCredit: args.authorCredit || user.name || "Unknown Author",
             published: args.published ?? false,
             publishedAt: args.publishedAt || (args.published ? now : undefined),
             createdAt: now,
@@ -208,14 +204,9 @@ export const updateArticle = mutation({
         publishedAt: v.optional(v.number()),
     },
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("User not authenticated");
-        }
-        
-        const user = await ctx.db.get(userId);
-        if (!user || !user.role || !["authorized", "admin", "dev"].includes(user.role)) {
-            throw new Error("User not authorized");
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         const existingArticle = await ctx.db.get(args.id);
@@ -259,14 +250,9 @@ export const deleteArticle = mutation({
         id: v.id("articles"),
     },
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("User not authenticated");
-        }
-        
-        const user = await ctx.db.get(userId);
-        if (!user || !user.role || !["authorized", "admin", "dev"].includes(user.role)) {
-            throw new Error("User not authorized");
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         const article = await ctx.db.get(args.id);
@@ -284,8 +270,8 @@ export const listUserArticles = query({
         limit: v.optional(v.number()),
     },
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user._id) {
             return [];
         }
 
@@ -293,7 +279,7 @@ export const listUserArticles = query({
 
         const articles = await ctx.db
             .query("articles")
-            .withIndex("by_author", (q) => q.eq("authorId", userId))
+            .withIndex("by_author", (q) => q.eq("authorId", user._id))
             .order("desc")
             .take(limit);
 

@@ -1,168 +1,85 @@
-import { query, mutation } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
-import { GenericMutationCtx, GenericQueryCtx } from "convex/server";
-import { v } from "convex/values";
-import { DataModel } from "./_generated/dataModel";
+import { internalMutation, query, QueryCtx } from "./_generated/server";
+import { UserJSON } from "@clerk/backend";
+import { v, Validator } from "convex/values";
 
-export type CtxType = GenericQueryCtx<DataModel> | GenericMutationCtx<DataModel>
-export const RoleEnum = v.union(
-    v.literal("authorized"),
-    v.literal("admin"),
-    v.literal("dev")
-)
+export const current = query({
+    args: {},
+    handler: async (ctx) => {
+        return await getCurrentUser(ctx);
+    },
+});
 
-export const getAuthCurrentUser = async (ctx: CtxType) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-        return null
+export const upsertFromClerk = internalMutation({
+    args: { data: v.any() as Validator<UserJSON> }, // no runtime validation, trust Clerk
+    async handler(ctx, { data }) {
+
+        let role: "authorized" | "admin" | "dev" = "authorized";
+
+        // Check if we need to bootstrap a dev user
+        if (process.env.BOOTSTRAP_DEV_EMAIL) {
+            const matchingEmail = data.email_addresses.find((email) => (
+                email.email_address === process.env.BOOTSTRAP_DEV_EMAIL
+            ));
+            if (matchingEmail && matchingEmail.verification?.status === "verified") {
+                role = "dev";
+            }
+        }
+
+        const userAttributes = {
+            name: `${data.first_name || "FNU"} ${data.last_name || "LNU"}`,
+            firstName: data.first_name || "FNU",
+            lastName: data.last_name || "LNU",
+            externalId: data.id,
+            email: data.email_addresses.map((email) => email.email_address),
+            role: role,
+        };
+
+        const user = await userByExternalId(ctx, data.id);
+        if (user === null) {
+            await ctx.db.insert("users", userAttributes);
+        } else {
+            await ctx.db.patch(user._id, userAttributes);
+        }
+    },
+});
+
+export const deleteFromClerk = internalMutation({
+    args: { clerkUserId: v.string() },
+    async handler(ctx, { clerkUserId }) {
+        const user = await userByExternalId(ctx, clerkUserId);
+
+        if (user !== null) {
+            await ctx.db.delete(user._id);
+        } else {
+            console.warn(
+                `Can't delete user, there is none for Clerk user ID: ${clerkUserId}`,
+            );
+        }
+    },
+});
+
+export async function getCurrentUserOrThrow(ctx: QueryCtx) {
+    const userRecord = await getCurrentUser(ctx);
+    if (!userRecord) throw new Error("Can't get current user");
+    return userRecord;
+}
+
+export async function getCurrentUser(ctx: QueryCtx) {
+    const identity = await ctx.auth.getUserIdentity();
+    if (identity === null) {
+        return null;
     }
-    const res = await ctx.db.get(userId)
-    return res && {
-        ...res,
-        atLeastAuthorized: res.role === "authorized" || res.role === "admin" || res.role === "dev",
-        atLeastAdmin: res.role === "admin" || res.role === "dev",
+    const user = await userByExternalId(ctx, identity.subject);
+    return user && {
+        ...user,
+        atLeastAuthorized: user.role === "authorized" || user.role === "admin" || user.role === "dev",
+        atLeastAdmin: user.role === "admin" || user.role === "dev",
     }
 }
 
-export const getCurrentUser = query({
-    handler: async (ctx) => {
-        return await getAuthCurrentUser(ctx);
-    }
-})
-
-// List all users (admin/dev only)
-export const listUsers = query({
-    args: {
-        limit: v.optional(v.number()),
-    },
-    handler: async (ctx, args) => {
-        const user = await getAuthCurrentUser(ctx);
-        if (!user) {
-            throw new Error("User not authenticated");
-        }
-
-        if (!user.atLeastAdmin) {
-            throw new Error("Insufficient permissions");
-        }
-
-        const usersPromise = ctx.db
-            .query("users")
-            .order("desc")
-            .take(args.limit || 100);
-        
-        const approvedUserEmailsPromise = ctx.db
-            .query("approvedUserEmails")
-            .order("desc")
-            .take(args.limit || 100);
-
-        const [users, approvedUserEmails] = await Promise.all([usersPromise, approvedUserEmailsPromise]);
-        const res = [
-            ...users.map(u => ({...u, type: "user" as const})),
-            ...approvedUserEmails.map(u => ({...u, type: "approved" as const})),
-        ]
-        return res
-    },
-});
-
-// Update user role (admin/dev only, dev can change any role, admin cannot change dev roles)
-export const updateUserRole = mutation({
-    args: {
-        targetUserId: v.id("users"),
-        newRole: RoleEnum
-    },
-    handler: async (ctx, args) => {
-        const user = await getAuthCurrentUser(ctx);
-
-        if (!user || !user.atLeastAdmin) {
-            throw new Error("Insufficient permissions");
-        }
-
-        const targetUser = await ctx.db.get(args.targetUserId);
-        if (!targetUser) {
-            throw new Error("Target user not found");
-        }
-        if (targetUser._id === user._id) {
-            throw new Error("Cannot modify your own role");
-        }
-        if (targetUser.role === "dev" && user.role !== "dev") {
-            throw new Error("Insufficient permissions");
-        }
-
-        await ctx.db.patch(args.targetUserId, {
-            role: args.newRole,
-        } as any);
-
-        return targetUser._id;
-    },
-});
-
-// // Create a new user with role (admin/dev only)
-// export const createUser = mutation({
-//     args: {
-//         email: v.string(),
-//         name: v.string(),
-//         role: v.union(
-//             v.literal("authorized"),
-//             v.literal("admin"),
-//             v.literal("dev")
-//         ),
-//     },
-//     handler: async (ctx, args) => {
-//         const user = await getAuthCurrentUser(ctx);
-
-//         // Only admin or dev can create users
-//         if (!user || !user.atLeastAdmin) {
-//             throw new Error("Insufficient permissions");
-//         }
-
-//         // Admin users cannot create dev users
-//         if (args.role === "dev" && user.role !== "dev") {
-//             throw new Error("Admin users cannot create dev users");
-//         }
-
-//         // Check if user with this email already exists
-//         const existingUser = await ctx.db
-//             .query("users")
-//             .withIndex("email", q => q.eq("email", args.email))
-//             .first();
-
-//         if (existingUser) {
-//             throw new Error("User with this email already exists");
-//         }
-
-//         return await ctx.db.insert("users", {
-//             email: args.email,
-//             name: args.name,
-//             role: args.role,
-//         });
-//     },
-// });
-
-export const deleteUser = mutation({
-    args: {
-        targetUserId: v.id("users"),
-    },
-    handler: async (ctx, args) => {
-        const user = await getAuthCurrentUser(ctx);
-        if (!user) {
-            throw new Error("User not authenticated");
-        }
-
-        const deletingSelf = user._id === args.targetUserId;
-        if (!user.atLeastAdmin && !deletingSelf) {
-            throw new Error("Insufficient permissions");
-        }
-
-        const targetUser = await ctx.db.get(args.targetUserId);
-        if (!targetUser) {
-            throw new Error("Target user not found");
-        }
-
-        if (targetUser.role === "dev") {
-            throw new Error("Dev users cannot be deleted");
-        }
-
-        await ctx.db.delete(args.targetUserId);
-        return { success: true };
-    },
-});
+async function userByExternalId(ctx: QueryCtx, externalId: string) {
+    return await ctx.db
+        .query("users")
+        .withIndex("externalId", (q) => q.eq("externalId", externalId))
+        .unique();
+}

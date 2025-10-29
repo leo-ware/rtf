@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { getCurrentUserOrThrow } from "./users";
 
 export const listExternalArticles = query({
     args: {
@@ -78,15 +79,9 @@ export const createExternalArticle = mutation({
         organization: v.string(),
     },
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("Must be authenticated to create external articles");
-        }
-
-        // Check if user has any role (authorized, admin, or dev)
-        const user = await ctx.db.get(userId);
-        if (!user || !user.role) {
-            throw new Error("User must have a role to create external articles");
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         const now = Date.now();
@@ -97,7 +92,7 @@ export const createExternalArticle = mutation({
             imageId: args.imageId,
             blurb: args.blurb,
             organization: args.organization,
-            createdBy: userId,
+            createdBy: user._id,
             createdAt: now,
         });
 
@@ -115,15 +110,9 @@ export const updateExternalArticle = mutation({
         organization: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("Must be authenticated to update external articles");
-        }
-
-        // Check if user has any role (authorized, admin, or dev)
-        const user = await ctx.db.get(userId);
-        if (!user || !user.role) {
-            throw new Error("User must have a role to update external articles");
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         const existingArticle = await ctx.db.get(args.id);
@@ -148,15 +137,9 @@ export const deleteExternalArticle = mutation({
         id: v.id("externalArticles"),
     },
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("Must be authenticated to delete external articles");
-        }
-
-        // Check if user has any role (authorized, admin, or dev)
-        const user = await ctx.db.get(userId);
-        if (!user || !user.role) {
-            throw new Error("User must have a role to delete external articles");
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         const externalArticle = await ctx.db.get(args.id);

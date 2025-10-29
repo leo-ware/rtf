@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { getCurrentUserOrThrow } from "./users";
 
 export const listAdvisoryBoards = query({
     args: {
@@ -104,33 +105,14 @@ export const getAdvisoryBoardWithPeople = query({
     },
 });
 
-const hasEditPermission = async (ctx: any) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-        return false;
-    }
-
-    const user = await ctx.db.get(userId);
-    if (!user) {
-        return false;
-    }
-
-    const userRole = user.role || "authorized";
-    return userRole === "admin" || userRole === "dev" || userRole === "authorized";
-};
-
 export const createAdvisoryBoard = mutation({
     args: {
         name: v.string(),
         order: v.number(),
     },
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("Must be authenticated to create advisory boards");
-        }
-
-        if (!(await hasEditPermission(ctx))) {
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
             throw new Error("Insufficient permissions to create advisory boards");
         }
 
@@ -149,7 +131,7 @@ export const createAdvisoryBoard = mutation({
         const boardId = await ctx.db.insert("advisoryBoards", {
             name: args.name,
             order: args.order,
-            createdBy: userId,
+            createdBy: user._id,
             createdAt: now,
             updatedAt: now,
         });
@@ -165,13 +147,9 @@ export const updateAdvisoryBoard = mutation({
         order: v.optional(v.number()),
     },
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("Must be authenticated to update advisory boards");
-        }
-
-        if (!(await hasEditPermission(ctx))) {
-            throw new Error("Insufficient permissions to update advisory boards");
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions to create advisory boards");
         }
 
         const existingBoard = await ctx.db.get(args.id);
@@ -209,13 +187,9 @@ export const deleteAdvisoryBoard = mutation({
         id: v.id("advisoryBoards"),
     },
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("Must be authenticated to delete advisory boards");
-        }
-
-        if (!(await hasEditPermission(ctx))) {
-            throw new Error("Insufficient permissions to delete advisory boards");
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions to create advisory boards");
         }
 
         const board = await ctx.db.get(args.id);
@@ -250,13 +224,9 @@ export const reorderAdvisoryBoards = mutation({
         })),
     },
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("Must be authenticated to reorder advisory boards");
-        }
-
-        if (!(await hasEditPermission(ctx))) {
-            throw new Error("Insufficient permissions to reorder advisory boards");
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions to create advisory boards");
         }
 
         // Update all advisory boards with new order

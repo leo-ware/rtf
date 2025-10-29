@@ -41,7 +41,7 @@ import {
 import { format } from "date-fns"
 
 import Link from "next/link"
-import { ProfileDropdown } from "@/components/ProfileDropdown"
+import ProfileDropdown from "@/components/ProfileDropdown"
 import EventCalendar from "@/components/EventCalendar"
 
 type EventType = "tour" | "volunteer" | "photo_safari" | "educational" | "fundraising" | "other"

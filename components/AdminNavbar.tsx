@@ -7,11 +7,10 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ProfileDropdown } from "@/components/ProfileDropdown";
+import ProfileDropdown from "@/components/ProfileDropdown";
 import {
     Home,
     FileText,
-    DollarSign,
     Calendar,
     Camera,
     Users,
@@ -21,7 +20,6 @@ import {
     Menu,
     X,
     BarChart3,
-    Folder,
     Heart
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -38,7 +36,7 @@ interface NavItem {
 const AdminNavbar = () => {
     const pathname = usePathname();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const currentUser = useQuery(api.users.getCurrentUser)
+    const currentUser = useQuery(api.users.current)
     const hasAdminAccess = currentUser?.atLeastAdmin ?? false
     const currentUserRole = currentUser?.role
 
@@ -79,12 +77,12 @@ const AdminNavbar = () => {
             icon: Users,
             description: "Manage team members"
         },
-        {
-            name: "Analytics",
-            href: "/admin/analytics",
-            icon: BarChart3,
-            description: "View reports"
-        }
+        // {
+        //     name: "Analytics",
+        //     href: "/admin/analytics",
+        //     icon: BarChart3,
+        //     description: "View reports"
+        // }
     ].concat(hasAdminAccess ? [
         {
             name: "Users",

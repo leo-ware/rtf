@@ -2,28 +2,30 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 import { authTables } from "@convex-dev/auth/server";
 
+export const ConvexValueRole = v.union(
+    v.literal("guest"),
+    v.literal("authorized"),
+    v.literal("admin"),
+    v.literal("dev")
+)
+
+export type RoleType = "guest" | "authorized" | "admin" | "dev"
+
 // The schema is normally optional, but Convex Auth
 // requires indexes defined on `authTables`.
 // The schema provides more precise TypeScript types.
 export default defineSchema({
     ...authTables,
     users: defineTable({
-        // required fields
         name: v.string(),
-        email: v.string(),
-        emailVerificationTime: v.optional(v.number()),
-        phone: v.optional(v.string()),
-        phoneVerificationTime: v.optional(v.number()),
-        isAnonymous: v.optional(v.boolean()),
-        
-        // added fields
-        image: v.optional(v.id("images")),
-        role: v.union(
-            v.literal("authorized"),
-            v.literal("admin"),
-            v.literal("dev")
-        ),
-    }).index("email", ["email"]),
+        firstName: v.string(),
+        lastName: v.string(),
+        externalId: v.string(),
+        email: v.array(v.string()),
+        role: ConvexValueRole,
+    })
+    .index("email", ["email"])
+    .index("externalId", ["externalId"]),
 
     // Emails that are allowed to create accounts but have not yet
     approvedUserEmails: defineTable({

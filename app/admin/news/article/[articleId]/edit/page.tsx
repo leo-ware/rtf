@@ -35,7 +35,7 @@ type ArticleEditPageProps = {
 type ArticleType = {
     author: {
         id: Id<"users">;
-        email: string | undefined;
+        email: string[] | undefined;
         name: string | undefined;
     } | null;
     _id: Id<"articles">;

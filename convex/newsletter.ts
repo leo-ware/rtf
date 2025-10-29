@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { getCurrentUserOrThrow } from "./users";
 
 function generateToken(): string {
     return Math.random().toString(36).substring(2) + Date.now().toString(36);
@@ -122,9 +123,9 @@ export const listNewsletterSubscribers = query({
         )),
     },
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("Must be authenticated to view newsletter subscribers");
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         const limit = args.limit ?? 50;
@@ -149,9 +150,9 @@ export const listNewsletterSubscribers = query({
 export const getNewsletterSubscriber = query({
     args: { id: v.id("newsletterSubscribers") },
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("Must be authenticated to view newsletter subscribers");
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         const subscriber = await ctx.db.get(args.id);
@@ -170,9 +171,9 @@ export const updateSubscriberStatus = mutation({
         ),
     },
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("Must be authenticated to update newsletter subscribers");
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         const updateData: any = { status: args.status };
@@ -191,9 +192,9 @@ export const updateSubscriberStatus = mutation({
 export const deleteNewsletterSubscriber = mutation({
     args: { id: v.id("newsletterSubscribers") },
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("Must be authenticated to delete newsletter subscribers");
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         await ctx.db.delete(args.id);
@@ -204,9 +205,9 @@ export const deleteNewsletterSubscriber = mutation({
 export const getNewsletterStats = query({
     args: {},
     handler: async (ctx) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("Must be authenticated to view newsletter stats");
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         const allSubscribers = await ctx.db.query("newsletterSubscribers").collect();
@@ -232,6 +233,11 @@ export const getNewsletterStats = query({
 export const checkSubscriptionStatus = query({
     args: { email: v.string() },
     handler: async (ctx, args) => {
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
+        }
+        
         const subscriber = await ctx.db
             .query("newsletterSubscribers")
             .withIndex("by_email", (q) => q.eq("email", args.email))

@@ -2,6 +2,7 @@ import { query, mutation } from "./_generated/server"
 import { v } from "convex/values"
 import { Id } from "./_generated/dataModel"
 import { getAuthUserId } from "@convex-dev/auth/server"
+import { getCurrentUserOrThrow } from "./users"
 
 // Helper function to generate slug
 function generateSlug(name: string): string {
@@ -89,9 +90,9 @@ export const createHerd = mutation({
     },
     returns: v.id("herds"),
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx)
-        if (!userId) {
-            throw new Error("Must be authenticated to create herds")
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         const slug = generateSlug(args.name)
@@ -112,7 +113,7 @@ export const createHerd = mutation({
             slug,
             description: args.description,
             imageUrl: args.imageUrl,
-            createdBy: userId,
+            createdBy: user._id,
             createdAt: now,
             updatedAt: now,
         })
@@ -129,9 +130,9 @@ export const updateHerd = mutation({
     },
     returns: v.null(),
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx)
-        if (!userId) {
-            throw new Error("Must be authenticated to update herds")
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         const herd = await ctx.db.get(args.id)
@@ -180,9 +181,9 @@ export const deleteHerd = mutation({
     args: { id: v.id("herds") },
     returns: v.null(),
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx)
-        if (!userId) {
-            throw new Error("Must be authenticated to delete herds")
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         // Check if there are any animals in this herd

@@ -1,18 +1,30 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Work_Sans, Marcellus } from "next/font/google";
+import {
+    // Geist,
+    // Geist_Mono,
+    Work_Sans,
+    Marcellus
+} from "next/font/google";
 import "./globals.css";
-import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
-import ConvexClientProvider from "@/components/ConvexClientProvider";
+import ConvexClientProvider from "@/providers/ConvexClientProvider";
+import {
+    ClerkProvider,
+    // SignInButton,
+    // SignUpButton,
+    // SignedIn,
+    // SignedOut,
+    // UserButton,
+} from '@clerk/nextjs'
 
-const geistSans = Geist({
-    variable: "--font-geist-sans",
-    subsets: ["latin"],
-});
+// const geistSans = Geist({
+//     variable: "--font-geist-sans",
+//     subsets: ["latin"],
+// });
 
-const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
-    subsets: ["latin"],
-});
+// const geistMono = Geist_Mono({
+//     variable: "--font-geist-mono",
+//     subsets: ["latin"],
+// });
 
 const workSans = Work_Sans({
     variable: "--font-work-sans",
@@ -40,16 +52,16 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <ConvexAuthNextjsServerProvider>
-            <html className="w-screen min-h-screen overflow-x-hidden" lang="en">
-                <body
-                    className={`${workSans.variable} ${marcellus.variable} antialiased w-screen min-h-screen`}
-                >
+        <html className="w-screen min-h-screen overflow-x-hidden" lang="en">
+            <body
+                className={`${workSans.variable} ${marcellus.variable} antialiased w-screen min-h-screen`}
+            >
+                <ClerkProvider>
                     <ConvexClientProvider>
                         {children}
                     </ConvexClientProvider>
-                </body>
-            </html>
-        </ConvexAuthNextjsServerProvider>
+                </ClerkProvider>
+            </body>
+        </html>
     );
 }

@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { getCurrentUserOrThrow } from "./users";
 
 export const submitContactMessage = mutation({
     args: {
@@ -67,9 +68,9 @@ export const listContactMessages = query({
         repliedAt: v.optional(v.number()),
     })),
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("Must be authenticated to view contact messages");
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         const limit = args.limit ?? 50;
@@ -128,9 +129,9 @@ export const getContactMessage = query({
         v.null()
     ),
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("Must be authenticated to view contact messages");
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         const message = await ctx.db.get(args.id);
@@ -150,9 +151,9 @@ export const updateContactMessageStatus = mutation({
     },
     returns: v.id("contactMessages"),
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("Must be authenticated to update contact messages");
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         const updateData: any = { status: args.status };
@@ -180,9 +181,9 @@ export const updateContactMessagePriority = mutation({
     },
     returns: v.id("contactMessages"),
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("Must be authenticated to update contact messages");
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         await ctx.db.patch(args.id, { priority: args.priority });
@@ -194,9 +195,9 @@ export const deleteContactMessage = mutation({
     args: { id: v.id("contactMessages") },
     returns: v.object({ success: v.boolean() }),
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("Must be authenticated to delete contact messages");
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         await ctx.db.delete(args.id);
@@ -216,9 +217,9 @@ export const getContactStats = query({
         thisWeek: v.number(),
     }),
     handler: async (ctx) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("Must be authenticated to view contact stats");
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         const allMessages = await ctx.db.query("contactMessages").collect();

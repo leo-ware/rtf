@@ -26,7 +26,7 @@ import {
 } from "lucide-react"
 import { format } from "date-fns"
 import Link from "next/link"
-import { ProfileDropdown } from "@/components/ProfileDropdown"
+import ProfileDropdown from "@/components/ProfileDropdown"
 import { TiptapEditor } from "@/components/TiptapEditor"
 
 type EventType = "tour" | "volunteer" | "photo_safari" | "educational" | "fundraising" | "other"

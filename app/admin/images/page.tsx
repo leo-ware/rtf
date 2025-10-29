@@ -27,7 +27,7 @@ import {
     List
 } from "lucide-react";
 import Link from "next/link";
-import { ProfileDropdown } from "@/components/ProfileDropdown";
+import ProfileDropdown from "@/components/ProfileDropdown";
 import Image from "next/image";
 import ConvexImage from "@/components/ConvexImage";
 
