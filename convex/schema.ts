@@ -27,6 +27,13 @@ export default defineSchema({
     .index("email", ["email"])
     .index("externalId", ["externalId"]),
 
+    userInvites: defineTable({
+        email: v.string(),
+        role: ConvexValueRole,
+        externalId: v.string(),
+    })
+    .index("email", ["email"]),
+
     // Emails that are allowed to create accounts but have not yet
     approvedUserEmails: defineTable({
         name: v.optional(v.string()),
