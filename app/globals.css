@@ -52,6 +52,7 @@
   --color-ink: #0A2836F5;
   --color-charcoal: #292D35;
   --color-cream: #E5E1D8;
+  --color-milk: #F7F6F4;
   
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
