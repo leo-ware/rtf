@@ -6,10 +6,17 @@ type AlternatingPictureLayoutProps = {
         title?: React.ReactNode
         description: React.ReactNode
         image: StaticImageData
-    }[]
+    }[],
+    alternateTitleColors?: boolean
 }
 
-const AlternatingPictureLayout = ({ items }: AlternatingPictureLayoutProps) => {
+const AlternatingPictureLayout = ({ items, alternateTitleColors = false }: AlternatingPictureLayoutProps) => {
+    const titleColor = (idx: number) => {
+        if (alternateTitleColors) {
+            return ["text-pewter", "text-sage-green", "text-cinnamon"][idx % 3]
+        }
+        return "text-sage-green"
+    }
     return (
         <div className="w-full md:w-10/12 mx-auto h-fit flex flex-col gap-16">
             {items.map((item, index) => {
@@ -26,7 +33,7 @@ const AlternatingPictureLayout = ({ items }: AlternatingPictureLayoutProps) => {
                             px-8 md:px-0
                             ${odd ? "md:text-left md:items-start" : "md:text-right md:items-end"}`}>
                             {item.title && (
-                                <div className="text-3xl font-serif text-sage-green">{item.title}</div>
+                                <div className={`text-3xl font-serif ${titleColor(index)}`}>{item.title}</div>
                             )}
                             <div className={`text-lg flex flex-col gap-4 items-center justify-center ${odd ? "md:items-start" : "md:items-end"}`}>
                                 {item.description}

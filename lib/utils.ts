@@ -93,3 +93,47 @@ export const removeUndefined = <T extends Record<string, any>>(
         Object.entries(obj).filter(([_, value]) => value !== undefined)
     ) as RemoveUndefinedFields<T>
 }
+
+const monthStrings = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+]
+
+export const formatDate = (date: Date) => {
+    const day = date.getDate()
+    const month = date.getMonth()
+    const year = date.getFullYear()
+    const monthString = monthStrings[month]
+    return `${monthString} ${day}, ${year}`
+}
+
+export const formatDateRange = (startDate: Date, endDate: Date) => {
+    const startDay = startDate.getDate()
+    const startMonth = startDate.getMonth()
+    const startYear = startDate.getFullYear()
+    const endDay = endDate.getDate()
+    const endMonth = endDate.getMonth()
+    const endYear = endDate.getFullYear()
+    const startMonthString = monthStrings[startMonth]
+    const endMonthString = monthStrings[endMonth]
+    
+    if (startYear !== endYear) {
+        return `${formatDate(startDate)}-${formatDate(endDate)}`
+    } else if (startMonth !== endMonth) {
+        return `${startMonthString} ${startDay}-${endMonthString} ${endDay}, ${endYear}`
+    } else if (startDay !== endDay) {
+        return `${startMonthString} ${startDay}-${endDay}, ${endYear}`
+    } else {
+        return `${startMonthString} ${startDay}, ${endYear}`
+    }
+}
