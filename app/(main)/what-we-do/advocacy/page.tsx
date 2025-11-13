@@ -21,6 +21,7 @@ import Random3 from "./random3.jpg"
 import Random4 from "./random4.jpg"
 import Random5 from "./random5.jpg"
 import Random6 from "./random6.jpg"
+import TakeActionLink from "@/components/TakeActionLink"
 
 
 const policies = [
@@ -31,7 +32,7 @@ const policies = [
             for science-based, humane fertility control and ecosystem management to keep horses 
             wild and free.
         `,
-        link: "/",
+        link: "advocacy/roundups",
         image: Policy1
     },
     {
@@ -41,7 +42,7 @@ const policies = [
             each year. We're fighting to pass the SAFE Act — a permanent federal ban on horse 
             slaughter.
         `,
-        link: "/",
+        link: "advocacy/population-management",
         image: Policy2
     },
     {
@@ -51,7 +52,7 @@ const policies = [
             wild herds. We defend critical rangelands through policy reform, legal action, and 
             habitat restoration.
         `,
-        link: "/",
+        link: "advocacy/herd-management",
         image: Policy3
     },
     {
@@ -61,7 +62,7 @@ const policies = [
             each year. We're fighting to pass the SAFE Act — a permanent federal ban on horse 
             slaughter and transport.
         `,
-        link: "/",
+        link: "advocacy/horse-slaughter",
         image: Policy4
     },
 ]
@@ -154,20 +155,9 @@ const AdvocacyPage = () => {
             <div className="w-full mb-12">
                 <Header color="cinnamon" className="mb-8">Take Action</Header>
                 <div className="w-full flex items-center justify-center gap-8 flex-wrap ">
-                    {takeAction.map((each, i) => {
-                        return (
-                            <div key={each.title} className="w-[350px] h-[400px] bg-seashell">
-                                <div className="relative w-full h-8/12">
-                                    <Image src={each.image} alt={each.title} className="w-full h-full object-cover object-center" />
-                                </div>
-                                <div className="px-6 py-2 w-full h-4/12 flex items-center justify-center">
-                                    <div className="text-2xl font-serif text-pewter text-center">
-                                        {each.title}
-                                    </div>
-                                </div>
-                            </div>
-                        )
-                    })}
+                    {takeAction.map((each, i) => (
+                        <TakeActionLink key={each.title} title={each.title} image={each.image} />
+                    ))}
                 </div>
             </div>
         </div>
