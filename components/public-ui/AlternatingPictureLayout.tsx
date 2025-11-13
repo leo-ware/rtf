@@ -3,7 +3,7 @@ import Image from "next/image"
 
 type AlternatingPictureLayoutProps = {
     items: {
-        title: React.ReactNode
+        title?: React.ReactNode
         description: React.ReactNode
         image: StaticImageData
     }[]
@@ -25,7 +25,9 @@ const AlternatingPictureLayout = ({ items }: AlternatingPictureLayoutProps) => {
                             md:w-1/2 flex flex-col gap-4 text-center
                             px-8 md:px-0
                             ${odd ? "md:text-left md:items-start" : "md:text-right md:items-end"}`}>
-                            <div className="text-3xl font-serif text-sage-green">{item.title}</div>
+                            {item.title && (
+                                <div className="text-3xl font-serif text-sage-green">{item.title}</div>
+                            )}
                             <div className={`text-lg flex flex-col gap-4 items-center justify-center ${odd ? "md:items-start" : "md:items-end"}`}>
                                 {item.description}
                             </div>
