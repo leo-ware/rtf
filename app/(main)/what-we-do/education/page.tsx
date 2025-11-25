@@ -187,7 +187,7 @@ const EducationPage = () => {
                     },
                 ]} />
 
-            <NewsCarousel />
+            <NewsCarousel topic="education" />
 
             <div className="w-10/12 mx-auto flex flex-col items-center justify-center gap-4">
                 <Header level={2} className="text-sage-green">

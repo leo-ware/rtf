@@ -1,10 +1,17 @@
+"use client"
+
 import Image from "next/image";
+import {
+    Dialog,
+    DialogContent,
+    DialogTrigger,
+} from "@/components/public-ui/Dialog";
 
 import SponsorAHorseImg from "./isadora.jpg";
 import Button from "@/components/public-ui/Button";
 import CardLayout from "@/components/public-ui/CardLayout";
 
-const SponsorAHorseWidget = ({ htype }: { htype: "horse" | "burro" }) => {
+const SponsorAHorseWidgetInner = ({ htype }: { htype: "horse" | "burro" }) => {
     return (
         <div className="w-full h-fit relative bg-sage-green rounded-md overflow-hidden">
             <div className="relative w-full h-[400px] grow-0">
@@ -57,4 +64,17 @@ const SponsorAHorseWidget = ({ htype }: { htype: "horse" | "burro" }) => {
     )
 }
 
-export default SponsorAHorseWidget;
+const SponsorAHorseDialog = ({ children }: { children: React.ReactNode }) => {
+    return (
+        <Dialog>
+            <DialogContent>
+                <SponsorAHorseWidgetInner htype="horse" />
+            </DialogContent>
+            <DialogTrigger>
+                {children}
+            </DialogTrigger>
+        </Dialog>
+    )
+}
+
+export default SponsorAHorseDialog

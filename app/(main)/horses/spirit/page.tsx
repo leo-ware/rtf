@@ -2,6 +2,7 @@ import Hero from "@/components/public-ui/Hero"
 import Header from "@/components/public-ui/Header"
 import Image from "next/image"
 import AlternatingPictureLayout from "@/components/public-ui/AlternatingPictureLayout"
+import GenericDonateDialogue from "@/components/donation-widgets/GenericDonateDialogue"
 
 import SpiritHero from "./spirit-hero.png"
 import SpiritAnimated from "./spirit-animated.png"
@@ -112,7 +113,7 @@ const SpiritPage = () => {
 
                 <div className="w-1/2 h-full text-white text-left p-16 flex flex-col items-start justify-center gap-4">
                     <div className="text-4xl font-serif">
-                        Donate to Spirit’s Legacy Fund
+                        Donate to Spirit's Legacy Fund
                     </div>
                     <div className="text-xl">
                         Lorem ipsum dolor sit amet consectetur. A euismod ipsum nec porttitor mi non et bibendum.
@@ -121,9 +122,11 @@ const SpiritPage = () => {
                         metus. Id vel urna gravida vel. Elit purus congue sollicitudin auctor volutpat iaculis
                         pellentesque ipsum posuere.
                     </div>
-                    <Button color="cinnamon" className="mt-8">
-                        Donate
-                    </Button>
+                    <GenericDonateDialogue>
+                        <Button color="cinnamon" className="mt-8">
+                            Donate
+                        </Button>
+                    </GenericDonateDialogue>
                 </div>
             </div>
 

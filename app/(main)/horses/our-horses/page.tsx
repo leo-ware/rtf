@@ -3,12 +3,15 @@
 import Hero from "@/components/public-ui/Hero"
 import Button from "@/components/public-ui/Button"
 import Image from "next/image"
-import SponsorAHorseMenu from "./SponsorAHorseMenu"
+import SponsorAHorseMenu from "../../../../components/donation-widgets/SponsorAHorseMenu"
 import OurHorsesHeroImage from "./our-horses-hero.jpg"
 
 import SpiritImage from "./spirit.png"
 import AdoptBanner from "./adopt-banner.jpg"
 import MysticImage from "./mystic.png"
+import Link from "next/link"
+import GenericDonateDialogue from "@/components/donation-widgets/GenericDonateDialogue"
+import HerdsCarousel from "@/components/HerdsCarousel"
 
 const OurHorsesPage = () => {
     return (
@@ -40,9 +43,11 @@ const OurHorsesPage = () => {
                     adults alike connect with the beauty, strength, and freedom
                     that define America's mustangs.
                 </div>
-                <Button color="cinnamon" className="py-1 px-4">
-                    LEARN MORE ABOUT SPIRIT
-                </Button>
+                <Link href="/horses/spirit">
+                    <Button color="cinnamon" className="py-1 px-4">
+                        LEARN MORE ABOUT SPIRIT
+                    </Button>
+                </Link>
             </div>
 
             <div className="relative w-full h-[500px] flex flex-col items-center justify-center">
@@ -54,39 +59,7 @@ const OurHorsesPage = () => {
                 />
             </div>
 
-            <div className="w-full h-fit flex flex-col items-center justify-center gap-8">
-                <div className="text-sage-green text-[48px] font-serif">
-                    Our Herds
-                </div>
-                <div className="w-full h-fit">
-                    <div className="w-10/12 mx-auto h-fit flex items-center justify-center gap-6">
-                        <div className="relative w-1/2 h-[450px]">
-                            <Image
-                                src={SpiritImage}
-                                alt="Spirit"
-                                className="w-full h-full object-cover object-center"
-                                fill
-                            />
-                        </div>
-                        <div className="w-1/2 h-fit flex flex-col items-start justify-center gap-2">
-                            <div className="text-pewter text-3xl font-serif">
-                                Alpine Herd
-                            </div>
-                            <div className="text-lg text-left">
-                                In one of the largest equine rescues in California's history, RTF
-                                partnered with county officials to care for over 425 neglected and
-                                starving horses seized from a local ranch. Within days, RTF
-                                mobilized emergency crews, coordinated medical care, and provided
-                                refuge for many of the animals. This response helped establish RTF
-                                as a trusted national voice in large-scale rescue and rehabilitation.
-                            </div>
-                            <Button color="cinnamon" className="py-1 px-4">
-                                LEARN MORE ABOUT THE ALPINE HERD
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <HerdsCarousel />
 
             <SponsorAHorseMenu />
 
@@ -102,7 +75,9 @@ const OurHorsesPage = () => {
                     <div className="text-white text-2xl font-serif">
                         Give a horse a forever home.
                     </div>
-                    <Button color="cinnamon" className="py-1 px-4">Learn more</Button>
+                    <Link href="/horses/adopt-a-horse">
+                        <Button color="cinnamon" className="py-1 px-4">Learn more</Button>
+                    </Link>
                 </div>
             </div>
 
@@ -128,9 +103,11 @@ const OurHorsesPage = () => {
                                 Return to Freedom in 1999. He was captured during the total removal of 279
                                 horses from the Hart Mountain National Antelope Refuge in Oregon.
                             </div>
-                            <Button color="cinnamon" className="py-1 px-4">
-                                Donate in Memory of Mystic
-                            </Button>
+                            <GenericDonateDialogue>
+                                <Button color="cinnamon" className="py-1 px-4">
+                                    Donate in Memory of Mystic
+                                </Button>
+                            </GenericDonateDialogue>
                         </div>
                     </div>
                 </div>

@@ -48,6 +48,7 @@ const AdminNewsPage = () => {
     const [confirmDeleteId, setConfirmDeleteId] = useState<Id<"articles"> | null>(null);
     const [confirmDeleteExternalId, setConfirmDeleteExternalId] = useState<Id<"externalArticles"> | null>(null);
     const [fetchingUrl, setFetchingUrl] = useState(false);
+    const [hasFinishedFetching, setHasFinishedFetching] = useState(false);
 
     const articles = useQuery(api.articles.listArticles, {
         publishedOnly: false,
@@ -70,12 +71,14 @@ const AdminNewsPage = () => {
         publishedAt: "",
     });
     const [isImagePickerOpen, setIsImagePickerOpen] = useState(false);
+    const [isExternalImagePickerOpen, setIsExternalImagePickerOpen] = useState(false);
 
     const [externalFormData, setExternalFormData] = useState({
         url: "",
         title: "",
         blurb: "",
         organization: "",
+        imageId: "" as Id<"images"> | "",
     });
 
     const handleCreateArticle = async () => {
@@ -148,7 +151,9 @@ const AdminNewsPage = () => {
             title: "",
             blurb: "",
             organization: "",
+            imageId: "",
         });
+        setHasFinishedFetching(false);
     };
 
     const fetchUrlMetadata = async (url: string) => {
@@ -164,8 +169,10 @@ const AdminNewsPage = () => {
                     organization: data.siteName || prev.organization,
                 }));
             }
+            setHasFinishedFetching(true);
         } catch (error) {
             console.error("Error fetching URL metadata:", error);
+            setHasFinishedFetching(true);
         } finally {
             setFetchingUrl(false);
         }
@@ -178,6 +185,7 @@ const AdminNewsPage = () => {
                 title: externalFormData.title,
                 blurb: externalFormData.blurb,
                 organization: externalFormData.organization,
+                imageId: externalFormData.imageId || undefined,
             });
 
             setIsCreateExternalDialogOpen(false);
@@ -221,6 +229,10 @@ const AdminNewsPage = () => {
 
     const handleImageSelect = (imageData: { imageId: string; imageUrl: string }) => {
         setFormData(prev => ({ ...prev, imageId: imageData.imageId as Id<"images"> }));
+    };
+
+    const handleExternalImageSelect = (imageData: { imageId: string; imageUrl: string }) => {
+        setExternalFormData(prev => ({ ...prev, imageId: imageData.imageId as Id<"images"> }));
     };
 
     if (articles === undefined || externalArticles === undefined) {
@@ -344,7 +356,12 @@ const AdminNewsPage = () => {
                     </DialogContent>
                 </Dialog>
 
-                        <Dialog open={isCreateExternalDialogOpen} onOpenChange={setIsCreateExternalDialogOpen}>
+                        <Dialog open={isCreateExternalDialogOpen} onOpenChange={(open) => {
+                            setIsCreateExternalDialogOpen(open);
+                            if (!open) {
+                                resetExternalForm();
+                            }
+                        }}>
                             <DialogTrigger asChild>
                                 <Button variant="outline" onClick={resetExternalForm}>
                                     <LinkIcon className="h-4 w-4 mr-2" />
@@ -367,60 +384,89 @@ const AdminNewsPage = () => {
                                                 value={externalFormData.url}
                                                 onChange={(e) => setExternalFormData({ ...externalFormData, url: e.target.value })}
                                                 placeholder="https://example.com/article"
+                                                disabled={hasFinishedFetching}
                                             />
+                                            {!hasFinishedFetching && (
                                             <Button
                                                 type="button"
-                                                variant="outline"
                                                 onClick={() => fetchUrlMetadata(externalFormData.url)}
                                                 disabled={!externalFormData.url || fetchingUrl}
                                             >
                                                 {fetchingUrl ? "Fetching..." : "Fetch"}
                                             </Button>
+                                            )}
                                         </div>
                                     </div>
 
-                                    <div>
-                                        <Label htmlFor="externalTitle">Article Title</Label>
-                                        <Input
-                                            id="externalTitle"
-                                            value={externalFormData.title}
-                                            onChange={(e) => setExternalFormData({ ...externalFormData, title: e.target.value })}
-                                            placeholder="Enter article title"
-                                        />
-                                    </div>
+                                    {hasFinishedFetching && (
+                                        <>
+                                            <div>
+                                                <Label htmlFor="externalTitle">Article Title</Label>
+                                                <Input
+                                                    id="externalTitle"
+                                                    value={externalFormData.title}
+                                                    onChange={(e) => setExternalFormData({ ...externalFormData, title: e.target.value })}
+                                                    placeholder="Enter article title"
+                                                />
+                                            </div>
 
-                                    <div>
-                                        <Label htmlFor="organization">Organization</Label>
-                                        <Input
-                                            id="organization"
-                                            value={externalFormData.organization}
-                                            onChange={(e) => setExternalFormData({ ...externalFormData, organization: e.target.value })}
-                                            placeholder="Name of the organization"
-                                        />
-                                    </div>
+                                            <div>
+                                                <Label htmlFor="organization">Organization</Label>
+                                                <Input
+                                                    id="organization"
+                                                    value={externalFormData.organization}
+                                                    onChange={(e) => setExternalFormData({ ...externalFormData, organization: e.target.value })}
+                                                    placeholder="Name of the organization"
+                                                />
+                                            </div>
 
-                                    <div>
-                                        <Label htmlFor="blurb">Description</Label>
-                                        <Textarea
-                                            id="blurb"
-                                            value={externalFormData.blurb}
-                                            onChange={(e) => setExternalFormData({ ...externalFormData, blurb: e.target.value })}
-                                            placeholder="Brief description of the article"
-                                            rows={3}
-                                        />
-                                    </div>
+                                            <div>
+                                                <Label htmlFor="blurb">Description</Label>
+                                                <Textarea
+                                                    id="blurb"
+                                                    value={externalFormData.blurb}
+                                                    onChange={(e) => setExternalFormData({ ...externalFormData, blurb: e.target.value })}
+                                                    placeholder="Brief description of the article"
+                                                    rows={3}
+                                                />
+                                            </div>
 
-                                    <div className="flex justify-end space-x-2 pt-4">
-                                        <Button variant="outline" onClick={resetExternalForm}>
-                                            Reset
-                                        </Button>
-                                        <Button
-                                            onClick={handleCreateExternalArticle}
-                                            disabled={!externalFormData.url || !externalFormData.title || !externalFormData.organization || !externalFormData.blurb}
-                                        >
-                                            Add External Article
-                                        </Button>
-                                    </div>
+                                            <div>
+                                                <Label>Image (Optional)</Label>
+                                                <div className="flex gap-2">
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        onClick={() => setIsExternalImagePickerOpen(true)}
+                                                        className="flex-1"
+                                                    >
+                                                        {externalFormData.imageId ? "Change Image" : "Select Image"}
+                                                    </Button>
+                                                    {externalFormData.imageId && (
+                                                        <Button
+                                                            type="button"
+                                                            variant="outline"
+                                                            onClick={() => setExternalFormData(prev => ({ ...prev, imageId: "" }))}
+                                                        >
+                                                            Remove
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div className="flex justify-end space-x-2 pt-4">
+                                                <Button variant="outline" onClick={resetExternalForm}>
+                                                    Reset
+                                                </Button>
+                                                <Button
+                                                    onClick={handleCreateExternalArticle}
+                                                    disabled={!externalFormData.url || !externalFormData.title || !externalFormData.organization || !externalFormData.blurb}
+                                                >
+                                                    Add External Article
+                                                </Button>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             </DialogContent>
                         </Dialog>
@@ -623,6 +669,19 @@ const AdminNewsPage = () => {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="space-y-3">
+                                        {externalArticle.image && (
+                                            <div className="w-full h-32 bg-gray-200 rounded-md overflow-hidden">
+                                                <img
+                                                    src={externalArticle.image.url || ""}
+                                                    alt={externalArticle.image.altText || externalArticle.title}
+                                                    className="w-full h-full object-cover"
+                                                    onError={(e) => {
+                                                        e.currentTarget.style.display = 'none';
+                                                    }}
+                                                />
+                                            </div>
+                                        )}
+
                                         <p className="text-sm text-gray-600 line-clamp-3">
                                             {externalArticle.blurb}
                                         </p>
@@ -710,6 +769,15 @@ const AdminNewsPage = () => {
                 onImageSelect={handleImageSelect}
                 title="Select Featured Image"
                 description="Choose an image for your article from your library or upload a new one"
+            />
+
+            {/* External Article Image Picker */}
+            <ImagePicker
+                isOpen={isExternalImagePickerOpen}
+                onClose={() => setIsExternalImagePickerOpen(false)}
+                onImageSelect={handleExternalImageSelect}
+                title="Select Image for External Article"
+                description="Choose an image for the external article from your library or upload a new one"
             />
         </div>
 

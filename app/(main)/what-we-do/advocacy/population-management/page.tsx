@@ -161,7 +161,8 @@ const PopulationManagementPage = () => {
 
             <NewsCarousel
                 title="Latest News on Population Management"
-                bgColor="seashell" />
+                bgColor="seashell"
+                topic="population-management" />
 
             <div className="w-10/12 mx-auto">
                 <BlurredImageCard image={BlurredBg}>

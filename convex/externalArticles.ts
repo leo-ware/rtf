@@ -33,6 +33,7 @@ export const listExternalArticles = query({
                         fileName: image.fileName,
                         storageId: image.storageId,
                         altText: image.altText,
+                        url: await ctx.storage.getUrl(image.storageId),
                     } : null,
                 };
             })
@@ -65,6 +66,7 @@ export const getExternalArticle = query({
                 fileName: image.fileName,
                 storageId: image.storageId,
                 altText: image.altText,
+                url: await ctx.storage.getUrl(image.storageId),
             } : null,
         };
     },

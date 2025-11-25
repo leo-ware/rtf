@@ -1,14 +1,27 @@
 import { v } from "convex/values";
+import { Id } from "./_generated/dataModel";
 import { query, mutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { getCurrentUserOrThrow } from "./users";
+import { QMCtxType } from "./types";
+
+export const resolveImageId = async (ctx: QMCtxType, imageId: Id<"images">) => {
+    const image = await ctx.db.get(imageId)
+    const imageUrl = image ? await ctx.storage.getUrl(image.storageId) : undefined
+    return {
+        ...image,
+        url: imageUrl,
+    }
+}
 
 export const generateUploadUrl = mutation({
+    args: {},
+    returns: v.string(),
     handler: async (ctx) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("Must be authenticated to upload images");
+        const user = await getCurrentUserOrThrow(ctx);
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
-
         return await ctx.storage.generateUploadUrl();
     },
 });
@@ -27,15 +40,16 @@ export const createImage = mutation({
         width: v.optional(v.number()),
         height: v.optional(v.number()),
     },
+    returns: v.id("images"),
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
-        if (!userId) {
-            throw new Error("Must be authenticated to create image records");
+        const user = await getCurrentUserOrThrow(ctx);
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
         }
 
         const imageId = await ctx.db.insert("images", {
             ...args,
-            uploadedBy: userId,
+            uploadedBy: user._id,
             isPublic: args.isPublic ?? true,
             uploadedAt: Date.now(),
         });
@@ -51,6 +65,29 @@ export const listImages = query({
         uploadedBy: v.optional(v.id("users")),
         tags: v.optional(v.array(v.string())),
     },
+    returns: v.array(v.object({
+        _id: v.id("images"),
+        _creationTime: v.number(),
+        fileName: v.string(),
+        originalName: v.string(),
+        mimeType: v.string(),
+        size: v.number(),
+        storageId: v.id("_storage"),
+        uploadedBy: v.id("users"),
+        altText: v.optional(v.string()),
+        description: v.optional(v.string()),
+        tags: v.optional(v.array(v.string())),
+        isPublic: v.boolean(),
+        width: v.optional(v.number()),
+        height: v.optional(v.number()),
+        uploadedAt: v.number(),
+        url: v.union(v.string(), v.null()),
+        uploader: v.union(v.object({
+            id: v.id("users"),
+            email: v.array(v.string()),
+            name: v.string(),
+        }), v.null()),
+    })),
     handler: async (ctx, args) => {
         const userId = await getAuthUserId(ctx);
         const limit = args.limit ?? 50;
@@ -108,6 +145,29 @@ export const listImages = query({
 
 export const getImage = query({
     args: { id: v.id("images") },
+    returns: v.union(v.object({
+        _id: v.id("images"),
+        _creationTime: v.number(),
+        fileName: v.string(),
+        originalName: v.string(),
+        mimeType: v.string(),
+        size: v.number(),
+        storageId: v.id("_storage"),
+        uploadedBy: v.id("users"),
+        altText: v.optional(v.string()),
+        description: v.optional(v.string()),
+        tags: v.optional(v.array(v.string())),
+        isPublic: v.boolean(),
+        width: v.optional(v.number()),
+        height: v.optional(v.number()),
+        uploadedAt: v.number(),
+        url: v.union(v.string(), v.null()),
+        uploader: v.union(v.object({
+            id: v.id("users"),
+            email: v.array(v.string()),
+            name: v.string(),
+        }), v.null()),
+    }), v.null()),
     handler: async (ctx, args) => {
         const image = await ctx.db.get(args.id);
         if (!image) {
@@ -145,6 +205,7 @@ export const updateImage = mutation({
         tags: v.optional(v.array(v.string())),
         isPublic: v.optional(v.boolean()),
     },
+    returns: v.id("images"),
     handler: async (ctx, args) => {
         const userId = await getAuthUserId(ctx);
         if (!userId) {
@@ -161,11 +222,16 @@ export const updateImage = mutation({
             throw new Error("Only the uploader can edit this image");
         }
 
-        const updateData: any = {};
-        if (args.altText !== undefined) updateData.altText = args.altText;
-        if (args.description !== undefined) updateData.description = args.description;
-        if (args.tags !== undefined) updateData.tags = args.tags;
-        if (args.isPublic !== undefined) updateData.isPublic = args.isPublic;
+        const updateData: Partial<{
+            altText: string
+            description: string
+            tags: Array<string>
+            isPublic: boolean
+        }> = {}
+        if (args.altText !== undefined) updateData.altText = args.altText
+        if (args.description !== undefined) updateData.description = args.description
+        if (args.tags !== undefined) updateData.tags = args.tags
+        if (args.isPublic !== undefined) updateData.isPublic = args.isPublic
 
         await ctx.db.patch(args.id, updateData);
         return args.id;
@@ -176,6 +242,9 @@ export const deleteImage = mutation({
     args: {
         id: v.id("images"),
     },
+    returns: v.object({
+        success: v.boolean(),
+    }),
     handler: async (ctx, args) => {
         const userId = await getAuthUserId(ctx);
         if (!userId) {
@@ -206,6 +275,24 @@ export const listUserImages = query({
     args: {
         limit: v.optional(v.number()),
     },
+    returns: v.array(v.object({
+        _id: v.id("images"),
+        _creationTime: v.number(),
+        fileName: v.string(),
+        originalName: v.string(),
+        mimeType: v.string(),
+        size: v.number(),
+        storageId: v.id("_storage"),
+        uploadedBy: v.id("users"),
+        altText: v.optional(v.string()),
+        description: v.optional(v.string()),
+        tags: v.optional(v.array(v.string())),
+        isPublic: v.boolean(),
+        width: v.optional(v.number()),
+        height: v.optional(v.number()),
+        uploadedAt: v.number(),
+        url: v.union(v.string(), v.null()),
+    })),
     handler: async (ctx, args) => {
         const userId = await getAuthUserId(ctx);
         if (!userId) {
@@ -237,6 +324,7 @@ export const listUserImages = query({
 
 export const getImageUrl = query({
     args: { storageId: v.id("_storage") },
+    returns: v.union(v.string(), v.null()),
     handler: async (ctx, args) => {
         return await ctx.storage.getUrl(args.storageId);
     },
@@ -244,6 +332,7 @@ export const getImageUrl = query({
 
 export const getImageUrlById = query({
     args: { imageId: v.id("images") },
+    returns: v.union(v.string(), v.null()),
     handler: async (ctx, args) => {
         const image = await ctx.db.get(args.imageId);
         if (!image) {
@@ -259,8 +348,35 @@ export const searchImages = query({
         limit: v.optional(v.number()),
         publicOnly: v.optional(v.boolean()),
     },
+    returns: v.array(v.object({
+        _id: v.id("images"),
+        _creationTime: v.number(),
+        fileName: v.string(),
+        originalName: v.string(),
+        mimeType: v.string(),
+        size: v.number(),
+        storageId: v.id("_storage"),
+        uploadedBy: v.id("users"),
+        altText: v.optional(v.string()),
+        description: v.optional(v.string()),
+        tags: v.optional(v.array(v.string())),
+        isPublic: v.boolean(),
+        width: v.optional(v.number()),
+        height: v.optional(v.number()),
+        uploadedAt: v.number(),
+        url: v.union(v.string(), v.null()),
+        uploader: v.union(v.object({
+            id: v.id("users"),
+            email: v.array(v.string()),
+            name: v.string(),
+        }), v.null()),
+    })),
     handler: async (ctx, args) => {
-        const userId = await getAuthUserId(ctx);
+        const user = await getCurrentUserOrThrow(ctx);
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
+        }
+        const userId = user._id;
         const limit = args.limit ?? 20;
         const publicOnly = args.publicOnly ?? false;
 

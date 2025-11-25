@@ -167,7 +167,8 @@ const RoundupsPage = () => {
 
             <NewsCarousel
                 title="Latest News on Roundups"
-                bgColor="seashell" />
+                bgColor="seashell"
+                topic="roundups" />
 
             <div className="w-10/12 mx-auto">
                 <BlurredImageCard image={BlurredBg}>

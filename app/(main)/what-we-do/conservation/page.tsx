@@ -255,7 +255,7 @@ const ConservationPage = () => {
                 />
             </div>
 
-            <NewsCarousel />
+            <NewsCarousel topic="conservation" />
 
             <div className="w-10/12 mx-auto">
                 <Header color="sage-green" className="mb-8">

@@ -1,10 +1,20 @@
-import Image from "next/image"
-import isadora from "./isadora.jpg"
-import Button from "@/components/public-ui/Button"
+"use client"
 
-const GenericDonateDialogue = () => {
+import Image from "next/image"
+import Button from "@/components/public-ui/Button"
+import {
+    Dialog,
+    DialogContent,
+    DialogTrigger,
+} from "@/components/public-ui/Dialog"
+
+import isadora from "./isadora.jpg"
+import { useState } from "react"
+
+
+const GenericDonateDialogueInner = () => {
     return (
-        <div className="w-full h-fit relative bg-sage-green rounded-md overflow-hidden
+        <div className="w-[75vw] z-1000 h-fit relative bg-sage-green rounded-md overflow-hidden
             flex items-center gap-8 text-milk text-left">
             <div className="w-1/2 h-fit flex flex-col gap-8 p-8">
                 <div className="flex flex-col gap-2">
@@ -71,6 +81,25 @@ const GenericDonateDialogue = () => {
                 <Image src={isadora} alt="Isadora" fill className="object-cover object-center" />
             </div>
         </div>
+    )
+}
+
+type GenericDonateDialogueProps = {
+    children?: React.ReactNode
+}
+
+const GenericDonateDialogue = ({ children }: GenericDonateDialogueProps) => {
+    return (
+        <Dialog>
+            <DialogContent>
+                <GenericDonateDialogueInner />
+            </DialogContent>
+            <DialogTrigger>
+                <div className="relative z-[0]">
+                    {children || <Button color="cinnamon" className="py-1 px-4">Donate</Button>}
+                </div>
+            </DialogTrigger>
+        </Dialog>
     )
 }
 

@@ -161,7 +161,8 @@ const HerdManagementPage = () => {
 
             <NewsCarousel
                 title="Latest News on Herd Management Areas"
-                bgColor="seashell" />
+                bgColor="seashell"
+                topic="herd-management" />
 
             <div className="w-10/12 mx-auto">
                 <BlurredImageCard image={BlurredBg}>

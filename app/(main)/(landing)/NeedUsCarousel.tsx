@@ -62,7 +62,7 @@ const items = [
             horses into traps in violent roundups. Over 60,000 wild horses are now confined in government 
             holding pens — more than live wild and free.
         `,
-        link: "/",
+        link: "/what-we-do/advocacy/roundups",
         image: ThunderingHerd
     },
     {
@@ -72,7 +72,7 @@ const items = [
             their federal protection under outdated laws, leaving them vulnerable to slaughter. This broken 
             system removes horses from the wild without addressing the real causes of imbalance on our public lands.
         `,
-        link: "/",
+        link: "/what-we-do/advocacy/herd-management",
         image: SexyBoy
     },
     {
@@ -82,7 +82,7 @@ const items = [
             vaccine that stabilizes herds on the range—without roundups. With the right investment, this 
             approach can save wild horses, save money, and restore balance to our public lands.
         `,
-        link: "/",
+        link: "/what-we-do/advocacy/population-management",
         image: Munchers
     },
     {
@@ -92,7 +92,7 @@ const items = [
             horses and burros. Our team works in Washington and on the range—pushing for humane management, 
             stronger laws, and a permanent end to slaughter.
         `,
-        link: "/",
+        link: "/what-we-do/advocacy",
         image: OnTheMove
     },
 ]

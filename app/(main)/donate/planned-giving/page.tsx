@@ -6,7 +6,7 @@ import pgHero from "./pg-hero.jpg"
 import pg1 from "./img1.png"
 import EmailLink from "@/components/public-ui/EmailLink"
 import Header from "@/components/public-ui/Header"
-import MoreWaysWidget from "../widgets/MoreWaysWidget"
+import MoreWaysWidget from "../../../../components/donation-widgets/MoreWaysWidget"
 
 const PlannedGivingPage = () => {
     return (

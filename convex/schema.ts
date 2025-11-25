@@ -24,15 +24,15 @@ export default defineSchema({
         email: v.array(v.string()),
         role: ConvexValueRole,
     })
-    .index("email", ["email"])
-    .index("externalId", ["externalId"]),
+        .index("email", ["email"])
+        .index("externalId", ["externalId"]),
 
     userInvites: defineTable({
         email: v.string(),
         role: ConvexValueRole,
         externalId: v.string(),
     })
-    .index("email", ["email"]),
+        .index("email", ["email"]),
 
     // Emails that are allowed to create accounts but have not yet
     approvedUserEmails: defineTable({
@@ -59,6 +59,20 @@ export default defineSchema({
         publishedAt: v.optional(v.number()),
         createdAt: v.number(),
         updatedAt: v.number(),
+        // Tags
+        herdIds: v.optional(v.array(v.id("herds"))),
+        animalIds: v.optional(v.array(v.id("animals"))),
+        topics: v.optional(v.array(v.union(
+            v.literal("conservation"),
+            v.literal("sanctuary"),
+            v.literal("advocacy"),
+            v.literal("education"),
+            v.literal("herd-management"),
+            v.literal("population-management"),
+            v.literal("roundups"),
+            v.literal("horse-slaughter"),
+            v.literal("spirit")
+        ))),
     }).index("by_published", ["published"])
         .index("by_author", ["authorId"])
         .index("by_published_date", ["published", "publishedAt"])
@@ -271,39 +285,46 @@ export default defineSchema({
         .index("by_last_edited_by", ["lastEditedBy"])
         .index("by_image", ["imageId"]),
 
+    timelineItem: defineTable({
+        order: v.number(),
+        date: v.string(),
+        title: v.string(),
+        description: v.string(),
+        imageId: v.optional(v.id("images")),
+        createdAt: v.number(),
+        updatedAt: v.number(),
+    }),
+
     herds: defineTable({
         name: v.string(),
         slug: v.string(),
         description: v.optional(v.string()),
-        imageUrl: v.optional(v.string()),
-        createdBy: v.id("users"),
+        imageId: v.optional(v.id("images")),
+        timeline: v.optional(v.array(v.id("timelineItem"))),
         createdAt: v.number(),
         updatedAt: v.number(),
-    }).index("by_slug", ["slug"])
-        .index("by_created_by", ["createdBy"])
-        .index("by_created_at", ["createdAt"]),
+    }).index("by_slug", ["slug"]),
 
     animals: defineTable({
         name: v.string(),
         slug: v.string(),
+        imageId: v.id("images"),
         type: v.union(v.literal("horse"), v.literal("burro")),
-        herdId: v.id("herds"),
         description: v.string(),
+
+        herdId: v.optional(v.id("herds")),
         content: v.optional(v.string()),
-        imageId: v.optional(v.id("images")),
-        ambassador: v.boolean(),
-        inMemoriam: v.boolean(),
-        public: v.boolean(),
-        createdBy: v.id("users"),
+        gallery: v.optional(v.array(v.id("images"))),
+        gender: v.optional(v.string()),
+        dob: v.optional(v.number()),
+        sanctuary: v.optional(v.string()),
+        inMemoriam: v.optional(v.boolean()),
         createdAt: v.number(),
         updatedAt: v.number(),
     }).index("by_slug", ["slug"])
         .index("by_type", ["type"])
         .index("by_herd", ["herdId"])
-        .index("by_public", ["public"])
-        .index("by_ambassador", ["ambassador"])
         .index("by_in_memoriam", ["inMemoriam"])
-        .index("by_created_by", ["createdBy"])
         .index("by_updated_at", ["updatedAt"])
         .index("by_image", ["imageId"]),
 

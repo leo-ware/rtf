@@ -3,10 +3,9 @@
 import Hero from "@/components/public-ui/Hero"
 import CardLayout from "@/components/public-ui/CardLayout"
 import { useState } from "react";
-import { DonatePanel } from "./widgets/DonationLinks"
-import SponsorAHorseWidget from "./widgets/SponsorAHorseWidget"
-import SponsorAHerdWidget from "./widgets/SponsorAHerdWidget"
-import GenericDonateDialogue from "./widgets/GenericDonateDialogue"
+import { DonatePanel } from "../../../components/donation-widgets/DonationLinks"
+import GenericDonateDialogue from "../../../components/donation-widgets/GenericDonateDialogue"
+import SponsorAHerdDialog from "../../../components/donation-widgets/sponsor-a-herd-dialog"
 
 import HeroImg from "./donate_hero.jpg"
 
@@ -35,85 +34,44 @@ const DonatePage = () => {
 
             <div className="w-10/12 h-fit my-16">
                 <CardLayout className="gap-8">
-                    {(activeWidget !== "Sponsor a Horse")
-                        ? (
-                            <div onClick={() => setActiveWidget("Sponsor a Horse")}>
-                                <DonatePanel title="Sponsor a Horse" link={false} />
-                            </div>
-                        )
-                        : (
-                            <div className="col-span-full">
-                                <SponsorAHorseWidget htype="horse" />
-                            </div>
-                        )}
+                    <DonatePanel title="Sponsor a Horse" />
 
-                    {activeWidget !== "Sponsor a Burro"
-                        ? (
-                            <div onClick={() => setActiveWidget("Sponsor a Burro")}>
-                                <DonatePanel title="Sponsor a Burro" link={false} />
-                            </div>
-                        )
-                        : (
-                            <div className="col-span-full">
-                                <SponsorAHorseWidget htype="burro" />
-                            </div>
-                        )}
+                    <DonatePanel title="Sponsor a Burro" />
 
-                    {activeWidget !== "Sponsor a Herd"
-                        ? (
-                            <div onClick={() => setActiveWidget("Sponsor a Herd")}>
-                                <DonatePanel title="Sponsor a Herd" link={false} />
-                            </div>
-                        )
-                        : (
-                            <div className="col-span-full">
-                                <SponsorAHerdWidget />
-                            </div>
-                        )}
+                    <SponsorAHerdDialog>
+                        <DonatePanel title="Sponsor a Herd" />
+                    </SponsorAHerdDialog>
 
                     <DonatePanel title="Capital Campaign In Honor of Robert Redford" />
                     <DonatePanel title="Planned Giving in Honor of Bill Demayo" />
                     <DonatePanel title="Matching Gifts and Corporate Giving" />
 
-                    {activeWidget !== "Sanctuary Fund"
-                        ? <div onClick={() => setActiveWidget("Sanctuary Fund")}>
-                            <DonatePanel title="Sanctuary Fund" />
-                        </div>
-                        : <div className="col-span-full">
-                            <GenericDonateDialogue />
-                        </div>}
-                    {activeWidget !== "Wild Horse Defense Fund"
-                        ? <DonatePanel title="Wild Horse Defense Fund" />
-                        : <div className="col-span-full">
-                            <GenericDonateDialogue />
-                        </div>}
-                    {activeWidget !== "Spirit's Legacy Fund"
-                        ? <div onClick={() => setActiveWidget("Spirit's Legacy Fund")}>
-                            <DonatePanel title="Spirit's Legacy Fund" />
-                        </div>
-                        : <div className="col-span-full">
-                            <GenericDonateDialogue />
-                        </div>}
+                    <GenericDonateDialogue>
+                        <DonatePanel title="Sanctuary Fund" />
+                    </GenericDonateDialogue>
+
+                    <GenericDonateDialogue>
+                        <DonatePanel title="Wild Horse Defense Fund" />
+                    </GenericDonateDialogue>
+
+                    <GenericDonateDialogue>
+                        <DonatePanel title="Spirit's Legacy Fund" />
+                    </GenericDonateDialogue>
                     
-                    {activeWidget !== "Sponsor a Bale of Hay"
-                        ? <div onClick={() => setActiveWidget("Sponsor a Bale of Hay")}>
+                    <GenericDonateDialogue>
                             <DonatePanel title="Sponsor a Bale of Hay" />
-                        </div>
-                        : <div className="col-span-full">
-                            <GenericDonateDialogue />
-                        </div>}
+                    </GenericDonateDialogue>
+
                     <DonatePanel title="Veterinary Fund In honor of Stella Demayo" />
-                    {activeWidget !== "In Honor and Memory Gifts"
-                        ? <div onClick={() => setActiveWidget("In Honor and Memory Gifts")}>
-                            <DonatePanel title="In Honor and Memory Gifts" />
-                        </div>
-                        : <div className="col-span-full">
-                            <GenericDonateDialogue />
-                        </div>}
+
+                    <GenericDonateDialogue>
+                        <DonatePanel title="In Honor and Memory Gifts" />
+                    </GenericDonateDialogue>
 
                     <DonatePanel title="Wishlist" />
                     <DonatePanel title="Shop" />
                     <DonatePanel title="Other Ways to Give" />
+
                 </CardLayout>
             </div>
         </div>

@@ -11,7 +11,7 @@ import img4 from "./img4.png"
 import EmailLink from "@/components/public-ui/EmailLink"
 import AlternatingPictureLayout from "@/components/public-ui/AlternatingPictureLayout"
 import Link from "next/link"
-import MoreWaysWidget from "../widgets/MoreWaysWidget"
+import MoreWaysWidget from "../../../../components/donation-widgets/MoreWaysWidget"
 
 const CorporateGivingPage = () => {
     return (

@@ -7,7 +7,7 @@ import Azure from "./azure.jpg"
 import Stella from "./stella.png"
 import hero from "./hero.jpg"
 import Button from "@/components/public-ui/Button"
-import MoreWaysWidget from "../widgets/MoreWaysWidget"
+import MoreWaysWidget from "../../../../components/donation-widgets/MoreWaysWidget"
 
 
 const VeterinaryFundPage = () => {

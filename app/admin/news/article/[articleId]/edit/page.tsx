@@ -25,6 +25,8 @@ import {
 import Link from "next/link";
 import { Id } from "@/convex/_generated/dataModel";
 import { ImagePicker } from "@/components/ImagePicker";
+import { TagSelector } from "@/components/TagSelector";
+import { TopicSelector } from "@/components/TopicSelector";
 
 type ArticleEditPageProps = {
     params: Promise<{
@@ -64,6 +66,19 @@ type ArticleType = {
     publishedAt?: number;
     createdAt: number;
     updatedAt: number;
+    herdIds?: Array<Id<"herds">>;
+    animalIds?: Array<Id<"animals">>;
+    topics?: Array<"conservation" | "sanctuary" | "advocacy" | "education" | "herd-management" | "population-management" | "roundups" | "horse-slaughter" | "spirit">;
+    herds?: Array<{
+        _id: Id<"herds">;
+        name: string;
+        slug: string;
+    }>;
+    animals?: Array<{
+        _id: Id<"animals">;
+        name: string;
+        slug: string;
+    }>;
 }
 
 const ArticleEditPage = ({ params }: ArticleEditPageProps) => {
@@ -83,6 +98,8 @@ const ArticleEditPage = ({ params }: ArticleEditPageProps) => {
 const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
     
     const updateArticle = useMutation(api.articles.updateArticle);
+    const herds = useQuery(api.articles.searchHerds, { limit: 100 });
+    const animals = useQuery(api.articles.searchAnimals, { limit: 100 });
 
     const [formData, setFormData] = useState({
         title: article.title,
@@ -92,6 +109,9 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
         authorCredit: article.authorCredit || "",
         published: article.published,
         publishedAt: article.publishedAt || "",
+        herdIds: article.herdIds || [],
+        animalIds: article.animalIds || [],
+        topics: article.topics || [],
     });
     const [isImagePickerOpen, setIsImagePickerOpen] = useState(false);
     const [content, setContent] = useState(article.content);
@@ -115,6 +135,10 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
     // Track changes
     useEffect(() => {
         if (article) {
+            const herdIdsChanged = JSON.stringify(formData.herdIds) !== JSON.stringify(article.herdIds || [])
+            const animalIdsChanged = JSON.stringify(formData.animalIds) !== JSON.stringify(article.animalIds || [])
+            const topicsChanged = JSON.stringify(formData.topics) !== JSON.stringify(article.topics || [])
+            
             const hasChanges =
                 formData.title !== article.title ||
                 formData.slug !== article.slug ||
@@ -123,7 +147,10 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
                 formData.authorCredit !== (article.authorCredit || "") ||
                 formData.published !== article.published ||
                 formData.publishedAt !== (article.publishedAt || "") ||
-                content !== article.content;
+                content !== article.content ||
+                herdIdsChanged ||
+                animalIdsChanged ||
+                topicsChanged;
             setHasUnsavedChanges(hasChanges);
         }
     }, [formData, content, article]);
@@ -149,6 +176,9 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
                 content,
                 published: publishNow ? true : formData.published,
                 publishedAt: publishedAtValue,
+                herdIds: formData.herdIds.length > 0 ? formData.herdIds : undefined,
+                animalIds: formData.animalIds.length > 0 ? formData.animalIds : undefined,
+                topics: formData.topics.length > 0 ? formData.topics : undefined,
             });
 
             if (publishNow) {
@@ -446,6 +476,55 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
                                         </p>
                                     </div>
                                 )}
+                            </CardContent>
+                        </Card>
+
+                        {/* Tags Section */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Tags & Categories</CardTitle>
+                                <CardDescription>
+                                    Associate this article with herds, animals, and topics
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <TagSelector
+                                    label="Herds"
+                                    description="Select one or more herds related to this article"
+                                    selectedIds={formData.herdIds}
+                                    availableItems={herds?.map(h => ({ _id: h._id, name: h.name })) || []}
+                                    onSelectionChange={(ids) => setFormData(prev => ({ 
+                                        ...prev, 
+                                        herdIds: ids as Array<Id<"herds">> 
+                                    }))}
+                                    placeholder="Select herds..."
+                                    searchPlaceholder="Search herds..."
+                                />
+
+                                <TagSelector
+                                    label="Animals"
+                                    description="Select one or more animals related to this article"
+                                    selectedIds={formData.animalIds}
+                                    availableItems={animals?.map(a => ({ _id: a._id, name: a.name })) || []}
+                                    onSelectionChange={(ids) => setFormData(prev => ({ 
+                                        ...prev, 
+                                        animalIds: ids as Array<Id<"animals">> 
+                                    }))}
+                                    placeholder="Select animals..."
+                                    searchPlaceholder="Search animals..."
+                                />
+
+                                <TopicSelector
+                                    label="Topics"
+                                    description="Select one or more topics for this article"
+                                    selectedTopics={formData.topics}
+                                    onSelectionChange={(topics) => setFormData(prev => ({ 
+                                        ...prev, 
+                                        topics 
+                                    }))}
+                                    placeholder="Select topics..."
+                                    searchPlaceholder="Search topics..."
+                                />
                             </CardContent>
                         </Card>
 

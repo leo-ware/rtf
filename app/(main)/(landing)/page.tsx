@@ -1,7 +1,6 @@
 "use client"
 
 import Button from "@/components/public-ui/Button"
-import VideoStandin from "./landing_hero_video_preview.png"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -25,7 +24,6 @@ import { api } from "@/convex/_generated/api"
 
 
 const HomePage = () => {
-    const landingVideoUrl = useQuery(api.video.getLandingVideoUrl)
     return (
         <div className="w-full">
 
@@ -53,14 +51,14 @@ const HomePage = () => {
                 </div>
                 <div className="text-center text-ink text-sm">
                     Return to Freedom is dedicated to preserving the freedom, diversity, and habitat of
-                    America’s wild horses and burros through sanctuary, education, advocacy, and conservation,
+                    America's wild horses and burros through sanctuary, education, advocacy, and conservation,
                     while enriching the human spirit through direct experience with the natural world.
                 </div>
-                <div>
+                <Link href="/about">
                     <Button color="pewter" className="py-1 px-4">
                         About Us
                     </Button>
-                </div>
+                </Link>
             </div>
 
             <div className="w-full h-fit md:py-16 flex flex-col items-center justify-center gap-8">
@@ -90,25 +88,25 @@ const HomePage = () => {
                                     keeps herds healthy and intact without roundups. These initiatives prove that 
                                     science and compassion can coexist.
                                 `,
-                                link: "/"
+                                link: "/what-we-do/conservation"
                             },
                             {
                                 title: "Advocacy",
                                 image: AdvocacyImage,
                                 description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                                link: "/advocacy"
+                                link: "/what-we-do/advocacy"
                             },
                             {
                                 title: "Sanctuary",
                                 image: SanctuaryImage,
                                 description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                                link: "/sanctuary"
+                                link: "/what-we-do/sanctuary"
                             },
                             {
                                 title: "Education",
                                 image: EducationImage,
                                 description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                                link: "/education"
+                                link: "/what-we-do/education"
                             }
                         ].map(({ title, image, description, link }) => (
                             <>
@@ -199,7 +197,7 @@ const HomePage = () => {
                                     Defense Fund
                                 </div>
                                 <div className="text-md">
-                                    The Wild Horse Defense Fund fuels Return to Freedom’s frontline work to end cruel
+                                    The Wild Horse Defense Fund fuels Return to Freedom's frontline work to end cruel
                                     roundups, advance humane on-range management, and defend wild horses through
                                     advocacy, legal action, and education.
                                 </div>
@@ -288,7 +286,9 @@ const HomePage = () => {
                             the DreamWork animation
                         </div>
                     </div>
-                    <Button color="burnt-orange px-4">READ MORE about Spirit</Button>
+                    <Link href="/horses/spirit">
+                        <Button color="burnt-orange px-4">READ MORE about Spirit</Button>
+                    </Link>
                 </div>
             </div>
 

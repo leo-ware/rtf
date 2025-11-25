@@ -250,7 +250,7 @@ const SanctuaryPage = () => {
             ].map(each => ({...each, isYoutube: true}))}/> */}
 
             <div className="w-full">
-                <NewsCarousel bgColor="transparent" title="Sanctuary News" />
+                <NewsCarousel bgColor="transparent" title="Sanctuary News" topic="sanctuary" />
             </div>
         </div>
     )

@@ -135,7 +135,7 @@ const AdvocacyPage = () => {
                 })}
             </div>
 
-            <NewsCarousel title="RTF's Advocacy Work" />
+            <NewsCarousel title="RTF's Advocacy Work" topic="advocacy" />
 
             <div className="w-full px-8">
                 <BlurredImageCard image={BlurredImage} className="flex items-center justify-between py-16 px-20">

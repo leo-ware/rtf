@@ -1,7 +1,7 @@
 import Hero from "@/components/public-ui/Hero"
 import Callout from "@/components/public-ui/Callout"
 import List from "@/components/public-ui/List"
-import MoreWaysWidget from "../widgets/MoreWaysWidget"
+import MoreWaysWidget from "../../../../components/donation-widgets/MoreWaysWidget"
 import Header from "@/components/public-ui/Header"
 
 import hero from "./hero.jpg"

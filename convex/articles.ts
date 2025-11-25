@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { getCurrentUserOrThrow } from "./users";
+import { Doc } from "./_generated/dataModel";
 
 export const listArticles = query({
     args: {
@@ -67,6 +68,19 @@ export const getArticle = query({
 
         const author = await ctx.db.get(article.authorId);
         const image = article.imageId ? await ctx.db.get(article.imageId) : null;
+        
+        // Get herds information
+        const herds = article.herdIds ? 
+            await Promise.all(article.herdIds.map(id => ctx.db.get(id))) : 
+            []
+        const validHerds = herds.filter((h): h is NonNullable<typeof h> => h !== null)
+        
+        // Get animals information
+        const animals = article.animalIds ? 
+            await Promise.all(article.animalIds.map(id => ctx.db.get(id))) : 
+            []
+        const validAnimals = animals.filter((a): a is NonNullable<typeof a> => a !== null)
+        
         return {
             ...article,
             author: author ? {
@@ -88,6 +102,16 @@ export const getArticle = query({
                 height: image.height,
                 url: await ctx.storage.getUrl(image.storageId)
             } : null,
+            herds: validHerds.map(h => ({
+                _id: h._id,
+                name: h.name,
+                slug: h.slug,
+            })),
+            animals: validAnimals.map(a => ({
+                _id: a._id,
+                name: a.name,
+                slug: a.slug,
+            })),
         };
     },
 });
@@ -151,6 +175,19 @@ export const createArticle = mutation({
         authorCredit: v.optional(v.string()),
         published: v.optional(v.boolean()),
         publishedAt: v.optional(v.number()),
+        herdIds: v.optional(v.array(v.id("herds"))),
+        animalIds: v.optional(v.array(v.id("animals"))),
+        topics: v.optional(v.array(v.union(
+            v.literal("conservation"),
+            v.literal("sanctuary"),
+            v.literal("advocacy"),
+            v.literal("education"),
+            v.literal("herd-management"),
+            v.literal("population-management"),
+            v.literal("roundups"),
+            v.literal("horse-slaughter"),
+            v.literal("spirit")
+        ))),
     },
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
@@ -185,6 +222,9 @@ export const createArticle = mutation({
             publishedAt: args.publishedAt || (args.published ? now : undefined),
             createdAt: now,
             updatedAt: now,
+            herdIds: args.herdIds,
+            animalIds: args.animalIds,
+            topics: args.topics,
         });
 
         return articleId;
@@ -202,6 +242,19 @@ export const updateArticle = mutation({
         authorCredit: v.optional(v.string()),
         published: v.optional(v.boolean()),
         publishedAt: v.optional(v.number()),
+        herdIds: v.optional(v.array(v.id("herds"))),
+        animalIds: v.optional(v.array(v.id("animals"))),
+        topics: v.optional(v.array(v.union(
+            v.literal("conservation"),
+            v.literal("sanctuary"),
+            v.literal("advocacy"),
+            v.literal("education"),
+            v.literal("herd-management"),
+            v.literal("population-management"),
+            v.literal("roundups"),
+            v.literal("horse-slaughter"),
+            v.literal("spirit")
+        ))),
     },
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
@@ -222,6 +275,9 @@ export const updateArticle = mutation({
         if (args.authorCredit !== undefined) updateData.authorCredit = args.authorCredit;
         if (args.published !== undefined) updateData.published = args.published;
         if (args.publishedAt !== undefined) updateData.publishedAt = args.publishedAt;
+        if (args.herdIds !== undefined) updateData.herdIds = args.herdIds;
+        if (args.animalIds !== undefined) updateData.animalIds = args.animalIds;
+        if (args.topics !== undefined) updateData.topics = args.topics;
 
         // Handle slug update
         if (args.slug !== undefined) {
@@ -286,3 +342,229 @@ export const listUserArticles = query({
         return articles;
     },
 });
+
+// Helper query to search herds for tag selection
+export const searchHerds = query({
+    args: {
+        searchTerm: v.optional(v.string()),
+        limit: v.optional(v.number()),
+    },
+    returns: v.array(v.object({
+        _id: v.id("herds"),
+        name: v.string(),
+        slug: v.string(),
+    })),
+    handler: async (ctx, args) => {
+        const limit = args.limit ?? 20
+        const herds = await ctx.db
+            .query("herds")
+            .order("desc")
+            .take(limit)
+        
+        if (!args.searchTerm) {
+            return herds.map(h => ({
+                _id: h._id,
+                name: h.name,
+                slug: h.slug,
+            }))
+        }
+        
+        const searchLower = args.searchTerm.toLowerCase()
+        return herds
+            .filter(h => h.name.toLowerCase().includes(searchLower))
+            .map(h => ({
+                _id: h._id,
+                name: h.name,
+                slug: h.slug,
+            }))
+    },
+})
+
+// Helper query to search animals for tag selection
+export const searchAnimals = query({
+    args: {
+        searchTerm: v.optional(v.string()),
+        limit: v.optional(v.number()),
+    },
+    returns: v.array(v.object({
+        _id: v.id("animals"),
+        name: v.string(),
+        slug: v.string(),
+        type: v.union(v.literal("horse"), v.literal("burro")),
+    })),
+    handler: async (ctx, args) => {
+        const limit = args.limit ?? 20
+        const animals = await ctx.db
+            .query("animals")
+            .order("desc")
+            .take(limit)
+        
+        if (!args.searchTerm) {
+            return animals.map(a => ({
+                _id: a._id,
+                name: a.name,
+                slug: a.slug,
+                type: a.type,
+            }))
+        }
+        
+        const searchLower = args.searchTerm.toLowerCase()
+        return animals
+            .filter(a => a.name.toLowerCase().includes(searchLower))
+            .map(a => ({
+                _id: a._id,
+                name: a.name,
+                slug: a.slug,
+                type: a.type,
+            }))
+    },
+})
+
+// Query articles by tags (herds, animals, topics)
+export const getArticlesByTags = query({
+    args: {
+        herdId: v.optional(v.id("herds")),
+        animalId: v.optional(v.id("animals")),
+        topic: v.optional(v.union(
+            v.literal("conservation"),
+            v.literal("sanctuary"),
+            v.literal("advocacy"),
+            v.literal("education"),
+            v.literal("herd-management"),
+            v.literal("population-management"),
+            v.literal("roundups"),
+            v.literal("horse-slaughter"),
+            v.literal("spirit")
+        )),
+        limit: v.optional(v.number()),
+    },
+    returns: v.array(v.object({
+        _id: v.id("articles"),
+        _creationTime: v.number(),
+        title: v.string(),
+        slug: v.string(),
+        excerpt: v.string(),
+        published: v.boolean(),
+        publishedAt: v.optional(v.number()),
+        imageId: v.optional(v.id("images")),
+        image: v.optional(v.object({
+            _id: v.id("images"),
+            url: v.union(v.string(), v.null()),
+            altText: v.optional(v.string()),
+        })),
+    })),
+    handler: async (ctx, args) => {
+        const limit = args.limit ?? 6
+        const hasFilters = args.herdId || args.animalId || args.topic
+        
+        // If no filters, return latest published articles
+        if (!hasFilters) {
+            const articles = await ctx.db
+                .query("articles")
+                .withIndex("by_published", (q) => q.eq("published", true))
+                .order("desc")
+                .take(limit)
+            
+            return await Promise.all(articles.map(async (article) => {
+                const image = article.imageId ? await ctx.db.get(article.imageId) : null
+                const imageUrl = image ? await ctx.storage.getUrl(image.storageId) : null
+                
+                return {
+                    _id: article._id,
+                    _creationTime: article._creationTime,
+                    title: article.title,
+                    slug: article.slug,
+                    excerpt: article.excerpt,
+                    published: article.published,
+                    publishedAt: article.publishedAt,
+                    imageId: article.imageId,
+                    image: (image && imageUrl) ? {
+                        _id: image._id,
+                        url: imageUrl,
+                        altText: image.altText,
+                    } : undefined,
+                }
+            }))
+        }
+        
+        // With filters, get articles from each category and combine
+        const articleMap = new Map<string, Doc<"articles">>()
+        
+        // Get articles by herd
+        if (args.herdId) {
+            const allArticles = await ctx.db
+                .query("articles")
+                .withIndex("by_published", (q) => q.eq("published", true))
+                .order("desc")
+                .take(100)
+            
+            const herdArticles = allArticles
+                .filter(a => a.herdIds?.includes(args.herdId!))
+                .slice(0, 3)
+            
+            for (const article of herdArticles) {
+                articleMap.set(article._id, article)
+            }
+        }
+        
+        // Get articles by animal
+        if (args.animalId) {
+            const allArticles = await ctx.db
+                .query("articles")
+                .withIndex("by_published", (q) => q.eq("published", true))
+                .order("desc")
+                .take(100)
+            
+            const animalArticles = allArticles
+                .filter(a => a.animalIds?.includes(args.animalId!))
+                .slice(0, 3)
+            
+            for (const article of animalArticles) {
+                articleMap.set(article._id, article)
+            }
+        }
+        
+        // Get articles by topic
+        if (args.topic) {
+            const allArticles = await ctx.db
+                .query("articles")
+                .withIndex("by_published", (q) => q.eq("published", true))
+                .order("desc")
+                .take(100)
+            
+            const topicArticles = allArticles
+                .filter(a => a.topics?.includes(args.topic!))
+                .slice(0, 3)
+            
+            for (const article of topicArticles) {
+                articleMap.set(article._id, article)
+            }
+        }
+        
+        // Convert to array and sort by publishedAt (descending)
+        const uniqueArticles = Array.from(articleMap.values())
+            .sort((a, b) => (b.publishedAt || b._creationTime) - (a.publishedAt || a._creationTime))
+        
+        // Add image data
+        return await Promise.all(uniqueArticles.map(async (article) => {
+            const image = article.imageId ? await ctx.db.get(article.imageId) : null
+            const imageUrl = image ? await ctx.storage.getUrl(image.storageId) : null
+            
+            return {
+                _id: article._id,
+                _creationTime: article._creationTime,
+                title: article.title,
+                slug: article.slug,
+                excerpt: article.excerpt,
+                published: article.published,
+                publishedAt: article.publishedAt,
+                imageId: article.imageId,
+                image: (image && imageUrl) ? {
+                    _id: image._id,
+                    url: imageUrl,
+                    altText: image.altText,
+                } : undefined,
+            }
+        }))
+    },
+})

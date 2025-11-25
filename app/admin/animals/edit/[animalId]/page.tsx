@@ -16,21 +16,95 @@ import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import {
+    Alert,
+    AlertTitle,
+    AlertDescription,
+} from "@/components/ui/alert"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle
+} from "@/components/ui/alert-dialog"
+import {
     Save,
-    Eye,
-    EyeOff,
     ArrowLeft,
-    ExternalLink,
     Calendar,
     User,
     Settings,
-    Award,
+    ExternalLink,
     Heart,
-    Image as ImageIcon
+    Image as ImageIcon,
+    Trash2
 } from "lucide-react"
 import Link from "next/link"
 import { Id } from "@/convex/_generated/dataModel"
 import ConvexImage from "@/components/ConvexImage"
+
+type GalleryPickerProps = {
+    open: boolean
+    image?: { imageId: string, imageUrl: string }
+    onOpen: () => void
+    onClose: () => void
+    onDelete: () => void
+    onImageSelect: (imageData: { imageId: string, imageUrl: string }) => void
+}
+
+const GalleryPicker = (props: GalleryPickerProps) => {
+    return (
+        <div className="flex items-center gap-3 p-3 border rounded-lg">
+            <div className="w-16 h-16 rounded overflow-hidden bg-gray-100 flex-shrink-0">
+                {props.image ? (
+                    <ConvexImage
+                        src={props.image.imageUrl}
+                        alt={`Gallery image`}
+                        width={64}
+                        height={64}
+                        className="object-cover w-full h-full"
+                    />
+                ) : (
+                    <div className="flex items-center justify-center w-full h-full">
+                        <ImageIcon className="h-6 w-6 text-gray-400" />
+                    </div>
+                )}
+            </div>
+            <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium">
+                    Gallery Image
+                </p>
+                <p className="text-xs text-gray-500">
+                    {props.image ? "Image selected" : "No image selected"}
+                </p>
+            </div>
+            <div className="flex gap-2">
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={props.onOpen}
+                >
+                    {props.image ? "Change" : "Select"}
+                </Button>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={props.onDelete}
+                >
+                    <Trash2 className="h-4 w-4" />
+                </Button>
+            </div>
+            <ImagePicker
+                isOpen={props.open}
+                onClose={props.onClose}
+                onImageSelect={props.onImageSelect}
+                title="Select Gallery Image"
+                description="Choose an image for this gallery slot"
+            />
+        </div>
+    )
+}
 
 type AnimalEditPageProps = {
     params: Promise<{
@@ -38,80 +112,94 @@ type AnimalEditPageProps = {
     }>
 }
 
-type AnimalType = {
-    _id: Id<"animals">
-    _creationTime: number
+type FormDataType = {
+    _initialized: boolean
     name: string
     slug: string
     type: "horse" | "burro"
-    herdId: Id<"herds">
+    herdId: Id<"herds"> | undefined
     description: string
-    content?: string
-    imageId?: Id<"images">
-    ambassador: boolean
-    inMemoriam: boolean
-    public: boolean
-    createdBy: Id<"users">
-    createdAt: number
-    updatedAt: number
-    herd: {
-        _id: Id<"herds">
-        name: string
-        slug: string
-    }
-    image?: {
-        _id: Id<"images">
-        fileName: string
-        originalName: string
-        mimeType: string
-        size: number
-        storageId: Id<"_storage">
-        altText?: string
-        description?: string
-        isPublic: boolean
-        width?: number
-        height?: number
-        url: string
-    }
+    imageId: string | Id<"images">
+    gallery: Array<{
+        imageId: Id<"images">,
+        imageUrl: string,
+    }>
+    gender: string
+    dob: number | undefined
+    sanctuary: string
+    inMemoriam: boolean | undefined
+    content: string
 }
 
 const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
     const resolvedParams = React.use(params)
-    const animal: AnimalType | null | undefined = useQuery(api.animals.getAnimal, {
-        id: resolvedParams.animalId as any,
+    const animal = useQuery(api.animals.getAnimal, {
+        id: resolvedParams.animalId as Id<"animals">,
     })
     const herds = useQuery(api.herds.listHerds, { limit: 100 })
-    
-    return (
-        animal && herds ? (
-            <AnimalEditPageInner animal={animal} herds={herds} />
-        ) : (
-            <div>Loading...</div>
-        )
-    )
-}
-
-const AnimalEditPageInner = ({ animal, herds }: { animal: AnimalType, herds: any[] }) => {
     const updateAnimal = useMutation(api.animals.updateAnimal)
+    const galleryImagesRaw = useQuery(api.animals.getAnimalGalleryImages,
+        { ids: (animal && animal._id) ? [animal._id] : [] as Id<"animals">[] }
+    )
+    const galleryImagesServer = galleryImagesRaw?.[0]?.images || []
 
-    const [formData, setFormData] = useState({
-        name: animal.name,
-        slug: animal.slug,
-        type: animal.type,
-        herdId: animal.herdId,
-        description: animal.description,
-        imageId: animal.imageId || "",
-        ambassador: animal.ambassador,
-        inMemoriam: animal.inMemoriam,
-        public: animal.public,
+    const [formData, setFormData] = useState<FormDataType>({
+        _initialized: false,
+        name: "",
+        slug: "",
+        type: "horse",
+        herdId: "" as Id<"herds">,
+        description: "",
+        imageId: "",
+        gallery: [],
+        gender: "",
+        dob: undefined,
+        sanctuary: "",
+        inMemoriam: undefined,
+        content: "",
     })
-    const [content, setContent] = useState(animal.content || "")
+
+    useEffect(() => {
+        if (galleryImagesServer) {
+            setFormData(prev => ({
+                ...prev,
+                gallery: galleryImagesServer
+                    .map(image => ({ imageId: image._id!, imageUrl: image.url! }))
+                    .filter(image => !!image.imageId && !!image.imageUrl)
+            }))
+        }
+    }, [galleryImagesServer.map(image => image._id).sort().join(",")])
+
     const [isSaving, setIsSaving] = useState(false)
     const [lastSaved, setLastSaved] = useState<Date | null>(null)
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
-    const [isImagePickerOpen, setIsImagePickerOpen] = useState(false)
+    const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-    // Track changes
+    const [isPrimaryImagePickerOpen, setIsPrimaryImagePickerOpen] = useState(false)
+    const [idxGalleryImagePickerOpen, setIdxGalleryImagePickerOpen] = useState<number | null>(null)
+    const [emptyPickerOpen, setEmptyPickerOpen] = useState(false)
+
+    useEffect(() => {
+        if (animal && !formData._initialized) {
+            setFormData(prev => ({
+                ...prev,
+                _initialized: !!animal._id,
+                name: animal.name,
+                slug: animal.slug,
+                type: animal.type,
+                herdId: animal.herdId,
+                description: animal.description,
+                imageId: animal.imageId || "",
+                gender: animal.gender || "",
+                dob: animal.dob || undefined,
+                sanctuary: animal.sanctuary || "",
+                inMemoriam: animal.inMemoriam,
+                content: animal.content || "",
+            }))
+        }
+    }, [animal])
+
+    // Determine if there are unsaved changes
     useEffect(() => {
         if (animal) {
             const hasChanges =
@@ -121,53 +209,50 @@ const AnimalEditPageInner = ({ animal, herds }: { animal: AnimalType, herds: any
                 formData.herdId !== animal.herdId ||
                 formData.description !== animal.description ||
                 formData.imageId !== (animal.imageId || "") ||
-                formData.ambassador !== animal.ambassador ||
+                formData.gallery.map(each => each.imageId).sort().join(",") !== animal.gallery?.sort().join(",") ||
+                formData.gender !== (animal.gender || "") ||
+                formData.dob !== (animal.dob || undefined) ||
+                formData.sanctuary !== (animal.sanctuary || "") ||
                 formData.inMemoriam !== animal.inMemoriam ||
-                formData.public !== animal.public ||
-                content !== (animal.content || "")
+                formData.content !== (animal.content || "")
             setHasUnsavedChanges(hasChanges)
         }
-    }, [formData, content, animal])
+    }, [formData, animal])
 
-    const handleSave = async (publishNow = false) => {
+    const handleSave = async () => {
         if (!animal) return
 
         setIsSaving(true)
         try {
+            // Filter out empty gallery slots
+            const validGallery = formData.gallery
+                .map(image => image.imageId)
+                .filter(id => id !== "")
+
             await updateAnimal({
                 id: animal._id,
                 name: formData.name,
+                slug: formData.slug,
                 type: formData.type,
                 herdId: formData.herdId,
                 description: formData.description,
-                content: content || undefined,
+                content: formData.content || undefined,
                 imageId: formData.imageId as Id<"images"> || undefined,
-                ambassador: formData.ambassador,
+                gallery: validGallery.length > 0 ? validGallery : undefined,
+                gender: formData.gender || undefined,
+                dob: formData.dob || undefined,
+                sanctuary: formData.sanctuary || undefined,
                 inMemoriam: formData.inMemoriam,
-                public: publishNow ? true : formData.public,
             })
-
-            if (publishNow) {
-                setFormData(prev => ({ ...prev, public: true }))
-            }
 
             setLastSaved(new Date())
             setHasUnsavedChanges(false)
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error saving animal:", error)
-            alert("Failed to save animal. Please try again.")
+            setErrorMessage(error?.message || "Failed to save animal. Please try again.")
         } finally {
             setIsSaving(false)
         }
-    }
-
-    const handlePublicToggle = async () => {
-        const newPublicState = !formData.public
-        setFormData(prev => ({ ...prev, public: newPublicState }))
-        await updateAnimal({
-            id: animal._id,
-            public: newPublicState,
-        })
     }
 
     const formatDate = (timestamp: number) => {
@@ -213,6 +298,15 @@ const AnimalEditPageInner = ({ animal, herds }: { animal: AnimalType, herds: any
 
     return (
         <div className="min-h-screen bg-gray-50">
+            {errorMessage && (
+                <Alert variant="destructive">
+                    <AlertTitle>Error Saving Animal</AlertTitle>
+                    <AlertDescription>
+                        {errorMessage}
+                    </AlertDescription>
+                    <Button size="sm" onClick={() => setErrorMessage(null)}>OK</Button>
+                </Alert>
+            )}
             {/* Header */}
             <div className="bg-white border-b sticky top-0 z-10">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -238,25 +332,12 @@ const AnimalEditPageInner = ({ animal, herds }: { animal: AnimalType, herds: any
                         </div>
 
                         <div className="flex items-center space-x-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={handlePublicToggle}
-                                disabled={isSaving}
-                            >
-                                {formData.public ? (
-                                    <>
-                                        <EyeOff className="h-4 w-4 mr-2" />
-                                        Make Private
-                                    </>
-                                ) : (
-                                    <>
-                                        <Eye className="h-4 w-4 mr-2" />
-                                        Make Public
-                                    </>
-                                )}
-                            </Button>
-
+                            <Link href={`/horses/our-horses/${animal.slug}`} target="_blank">
+                                <Button variant="outline" size="sm">
+                                    <ExternalLink className="h-4 w-4 mr-2" />
+                                    View Live
+                                </Button>
+                            </Link>
                             <Button
                                 onClick={() => handleSave()}
                                 disabled={isSaving || !hasUnsavedChanges}
@@ -283,11 +364,73 @@ const AnimalEditPageInner = ({ animal, herds }: { animal: AnimalType, herds: any
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <TiptapEditor
-                                    content={content}
-                                    onChange={setContent}
-                                    placeholder="Tell this animal's story..."
-                                />
+                                {formData._initialized && (
+                                    <TiptapEditor
+                                        content={formData.content}
+                                        onChange={(content) => setFormData(prev => ({ ...prev, content: content }))}
+                                        placeholder="Tell this animal's story..."
+                                    />
+                                )}
+                            </CardContent>
+                        </Card>
+
+                        {/* Gallery Management */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Gallery Images</CardTitle>
+                                <CardDescription>
+                                    Manage additional images for the animal's gallery
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="space-y-3">
+                                    {formData.gallery.map((image, index) => {
+                                        return (
+                                            <GalleryPicker
+                                                open={idxGalleryImagePickerOpen === index}
+                                                onOpen={() => setIdxGalleryImagePickerOpen(index)}
+                                                onClose={() => setIdxGalleryImagePickerOpen(null)}
+                                                onDelete={() => setFormData(prev => ({ ...prev, gallery: prev.gallery.filter((_, i) => i !== index) }))}
+                                                onImageSelect={handleImageSelect}
+                                                image={image}
+                                            />
+                                        )
+                                    })}
+                                    {emptyPickerOpen && (
+                                        <GalleryPicker
+                                            open={idxGalleryImagePickerOpen === -1}
+                                            onOpen={() => setIdxGalleryImagePickerOpen(-1)}
+                                            onClose={() => setIdxGalleryImagePickerOpen(null)}
+                                            onDelete={() => setEmptyPickerOpen(false)}
+                                            onImageSelect={(newImage) => {
+                                                setFormData(prev => ({
+                                                    ...prev,
+                                                    gallery: [...prev.gallery, newImage as any]
+                                                }))
+                                                setEmptyPickerOpen(false)
+                                                // setIdxImagePickerOpen(null)
+                                            }}
+                                        />
+                                    )}
+                                </div>
+
+                                {!emptyPickerOpen && (
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => setEmptyPickerOpen(true)}
+                                        className="w-full"
+                                    >
+                                        <ImageIcon className="h-4 w-4 mr-2" />
+                                        Add Gallery Image
+                                    </Button>
+                                )}
+
+                                {formData.gallery.length === 0 && (
+                                    <div className="text-center py-8 border-2 border-dashed rounded-lg">
+                                        <ImageIcon className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                                        <p className="text-sm text-gray-500">No gallery images yet</p>
+                                    </div>
+                                )}
                             </CardContent>
                         </Card>
                     </div>
@@ -317,6 +460,24 @@ const AnimalEditPageInner = ({ animal, herds }: { animal: AnimalType, herds: any
                                         }}
                                         placeholder="Animal name"
                                     />
+                                </div>
+
+                                <div>
+                                    <Label htmlFor="slug">Slug (URL)</Label>
+                                    <Input
+                                        id="slug"
+                                        value={formData.slug}
+                                        onChange={(e) => {
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                slug: e.target.value
+                                            }))
+                                        }}
+                                        placeholder="animal-slug"
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        URL: /horses/our-horses/{formData.slug || "animal-slug"}
+                                    </p>
                                 </div>
 
                                 <div>
@@ -361,19 +522,40 @@ const AnimalEditPageInner = ({ animal, herds }: { animal: AnimalType, herds: any
 
                                 <Separator />
 
-                                <div className="space-y-4">
-                                    <div className="flex items-center space-x-2">
-                                        <Switch
-                                            id="ambassador"
-                                            checked={formData.ambassador}
-                                            onCheckedChange={(checked) => setFormData(prev => ({ ...prev, ambassador: checked }))}
-                                        />
-                                        <Label htmlFor="ambassador" className="flex items-center">
-                                            <Award className="h-4 w-4 mr-1 text-yellow-500" />
-                                            Ambassador
-                                        </Label>
-                                    </div>
+                                <div>
+                                    <Label htmlFor="gender">Gender</Label>
+                                    <Input
+                                        id="gender"
+                                        value={formData.gender}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, gender: e.target.value }))}
+                                        placeholder="e.g., Male, Female, Stallion, Mare"
+                                    />
+                                </div>
 
+                                <div>
+                                    <Label htmlFor="dob">Date of Birth</Label>
+                                    <Input
+                                        id="dob"
+                                        type="date"
+                                        value={formData.dob ? new Date(formData.dob).toISOString().split('T')[0] : ""}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, dob: e.target.value ? new Date(e.target.value).getTime() : undefined }))}
+                                        placeholder="Date of Birth"
+                                    />
+                                </div>
+
+                                <div>
+                                    <Label htmlFor="sanctuary">Sanctuary</Label>
+                                    <Input
+                                        id="sanctuary"
+                                        value={formData.sanctuary}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, sanctuary: e.target.value }))}
+                                        placeholder="e.g., Lompoc Sanctuary"
+                                    />
+                                </div>
+
+                                <Separator />
+
+                                <div className="space-y-4">
                                     <div className="flex items-center space-x-2">
                                         <Switch
                                             id="inMemoriam"
@@ -384,45 +566,6 @@ const AnimalEditPageInner = ({ animal, herds }: { animal: AnimalType, herds: any
                                             <Heart className="h-4 w-4 mr-1 text-red-500" />
                                             In Memoriam
                                         </Label>
-                                    </div>
-
-                                    <div className="flex items-center space-x-2">
-                                        <Switch
-                                            id="public"
-                                            checked={formData.public}
-                                            onCheckedChange={(checked) => setFormData(prev => ({ ...prev, public: checked }))}
-                                        />
-                                        <Label htmlFor="public" className="flex items-center">
-                                            {formData.public ? (
-                                                <Eye className="h-4 w-4 mr-1 text-green-500" />
-                                            ) : (
-                                                <EyeOff className="h-4 w-4 mr-1 text-gray-500" />
-                                            )}
-                                            Public
-                                        </Label>
-                                    </div>
-                                </div>
-
-                                <Separator />
-
-                                <div className="space-y-2">
-                                    <Label>Status</Label>
-                                    <div className="flex flex-wrap gap-1">
-                                        <Badge variant={formData.public ? "default" : "secondary"}>
-                                            {formData.public ? "Public" : "Private"}
-                                        </Badge>
-                                        {formData.ambassador && (
-                                            <Badge variant="outline" className="text-yellow-600">
-                                                <Award className="h-3 w-3 mr-1" />
-                                                Ambassador
-                                            </Badge>
-                                        )}
-                                        {formData.inMemoriam && (
-                                            <Badge variant="outline" className="text-red-600">
-                                                <Heart className="h-3 w-3 mr-1" />
-                                                In Memoriam
-                                            </Badge>
-                                        )}
                                     </div>
                                 </div>
                             </CardContent>
@@ -452,16 +595,23 @@ const AnimalEditPageInner = ({ animal, herds }: { animal: AnimalType, herds: any
                                         </div>
                                     </div>
                                 )}
-                                
+
                                 <div className="flex gap-2">
                                     <Button
                                         variant="outline"
-                                        onClick={() => setIsImagePickerOpen(true)}
+                                        onClick={() => setIsPrimaryImagePickerOpen(true)}
                                         className="flex-1"
                                     >
                                         <ImageIcon className="h-4 w-4 mr-2" />
                                         {formData.imageId ? "Change" : "Select"} Image
                                     </Button>
+                                    <ImagePicker
+                                        isOpen={isPrimaryImagePickerOpen}
+                                        onClose={() => setIsPrimaryImagePickerOpen(false)}
+                                        onImageSelect={handleImageSelect}
+                                        title="Select Primary Image"
+                                        description="Choose an image for the animal's primary image"
+                                    />
                                     {formData.imageId && (
                                         <Button
                                             variant="outline"
@@ -482,7 +632,7 @@ const AnimalEditPageInner = ({ animal, herds }: { animal: AnimalType, herds: any
                             <CardContent className="space-y-3">
                                 <div className="flex items-center space-x-2 text-sm">
                                     <User className="h-4 w-4 text-gray-400" />
-                                    <span>Herd: {animal.herd.name}</span>
+                                    <span>Herd: {animal.herd ? animal.herd.name : "None"}</span>
                                 </div>
 
                                 <div className="flex items-center space-x-2 text-sm">
@@ -498,8 +648,8 @@ const AnimalEditPageInner = ({ animal, herds }: { animal: AnimalType, herds: any
                                 <Separator />
 
                                 <div className="text-sm text-gray-600">
-                                    <p>Words: {content.replace(/<[^>]*>/g, '').split(/\s+/).filter(word => word.length > 0).length}</p>
-                                    <p>Characters: {content.replace(/<[^>]*>/g, '').length}</p>
+                                    <p>Words: {formData.content.replace(/<[^>]*>/g, '').split(/\s+/).filter(word => word.length > 0).length}</p>
+                                    <p>Characters: {formData.content.replace(/<[^>]*>/g, '').length}</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -507,14 +657,22 @@ const AnimalEditPageInner = ({ animal, herds }: { animal: AnimalType, herds: any
                 </div>
             </div>
 
-            {/* Image Picker Modal */}
-            <ImagePicker
-                isOpen={isImagePickerOpen}
-                onClose={() => setIsImagePickerOpen(false)}
-                onImageSelect={handleImageSelect}
-                title="Select Animal Image"
-                description="Choose an image for this animal"
-            />
+            {/* Error Dialog */}
+            <AlertDialog open={!!errorMessage} onOpenChange={() => setErrorMessage(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Error Saving Animal</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {errorMessage}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogAction onClick={() => setErrorMessage(null)}>
+                            OK
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }
