@@ -24,6 +24,7 @@ import type * as pages from "../pages.js";
 import type * as people from "../people.js";
 import type * as programGroups from "../programGroups.js";
 import type * as programs from "../programs.js";
+import type * as socialLinks from "../socialLinks.js";
 import type * as timelineItems from "../timelineItems.js";
 import type * as types from "../types.js";
 import type * as userInvites from "../userInvites.js";
@@ -62,6 +63,7 @@ declare const fullApi: ApiFromModules<{
   people: typeof people;
   programGroups: typeof programGroups;
   programs: typeof programs;
+  socialLinks: typeof socialLinks;
   timelineItems: typeof timelineItems;
   types: typeof types;
   userInvites: typeof userInvites;

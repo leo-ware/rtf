@@ -1,10 +1,8 @@
 import Link from "next/link"
 import Image from "next/image"
-import { FaFacebook, FaInstagram, FaYoutube, FaVimeo } from "react-icons/fa"
-import { FaXTwitter } from "react-icons/fa6"
 import { MdOutlineEmail } from "react-icons/md"
-
 import RTFLogoWhite from "@/public/img/rtf_logo_white.svg"
+import SocialLinks from "@/components/socialLinks"
 
 export default function Footer() {
     return (
@@ -36,19 +34,8 @@ export default function Footer() {
 
                 <div className="flex items-center md:mx-4">
                     <div className="flex items-center gap-3 text-white">
-                        <Link href="/">
-                            <FaInstagram size={30}/>
-                        </Link>
-                        <Link href="/">
-                            <FaFacebook size={30}/>
-                        </Link>
-                        <Link href="/">
-                            <FaYoutube size={30}/>
-                        </Link>
-                        <Link href="/">
-                            <FaXTwitter size={30}/>
-                        </Link>
-                        <Link href="/">
+                        <SocialLinks />
+                        <Link href="/contact">
                             <MdOutlineEmail size={30}/>
                         </Link>
                     </div>

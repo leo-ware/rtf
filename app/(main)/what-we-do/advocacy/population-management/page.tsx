@@ -16,15 +16,16 @@ import TakeActionImage1 from "../imgs/take-action-1.jpg"
 import TakeActionImage2 from "../imgs/take-action-2.jpg"
 import TakeActionImage3 from "../imgs/take-action-3.jpg"
 import BlurredBg from "../imgs/blurred-bg.jpg"
+import GenericDonateDialogue from "@/components/donation-widgets/GenericDonateDialogue"
 
 const PopulationManagementPage = () => {
     return (
         <div className="w-full h-fit flex flex-col items-center justify-center gap-16 mb-16">
             <Hero title="Population Management" image={PopulationManagementHero} />
             <Callout className="text-cinnamon">
-                Managing wild horse populations is about balance—between freedom and care, between 
-                open land and limited resources. Return to Freedom demonstrates that humane, 
-                science-based fertility control can replace roundups, reduce costs, and allow wild 
+                Managing wild horse populations is about balance—between freedom and care, between
+                open land and limited resources. Return to Freedom demonstrates that humane,
+                science-based fertility control can replace roundups, reduce costs, and allow wild
                 herds to live naturally on the range.
             </Callout>
 
@@ -34,9 +35,9 @@ const PopulationManagementPage = () => {
                     src="https://www.youtube.com/embed/Oo9EbArcQ1c?si=6r6KR7I0x0F0PVGy"
                     title="YouTube video player"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen/>
+                    allowFullScreen />
             </div>
-            
+
             <div className="md:w-10/12 mx-auto">
                 <Carousel
                     nDisplayItems={1}
@@ -171,11 +172,13 @@ const PopulationManagementPage = () => {
                             Donate to the Wild Horse Defense Fund
                         </div>
                         <div className="max-w-[650px] text-lg text-white text-center">
-                            The Wild Horse Defense Fund fuels Return to Freedom’s frontline work to 
-                            end cruel roundups, advance humane on-range management, and defend wild 
+                            The Wild Horse Defense Fund fuels Return to Freedom’s frontline work to
+                            end cruel roundups, advance humane on-range management, and defend wild
                             horses through advocacy, legal action, and education.
                         </div>
-                        <Button color="cinnamon">Donate Now</Button>
+                        <GenericDonateDialogue>
+                            <Button color="cinnamon">Donate Now</Button>
+                        </GenericDonateDialogue>
                     </div>
                 </BlurredImageCard>
             </div>

@@ -17,17 +17,18 @@ import TakeActionImage2 from "../imgs/take-action-2.jpg"
 import TakeActionImage3 from "../imgs/take-action-3.jpg"
 import BlurredBg from "../imgs/blurred-bg.jpg"
 import List from "@/components/public-ui/List"
+import GenericDonateDialogue from "@/components/donation-widgets/GenericDonateDialogue"
 
 const HorseSlaughterPage = () => {
     return (
         <div className="w-full h-fit flex flex-col items-center justify-center gap-16 mb-16">
             <Hero title="Horse Slaughter" image={HeroImage} />
             <Callout className="text-cinnamon">
-                Though horse slaughter is banned in the U.S., thousands of horses are still exported 
-                across our borders for slaughter each year. Return to Freedom advocates for a lasting 
+                Though horse slaughter is banned in the U.S., thousands of horses are still exported
+                across our borders for slaughter each year. Return to Freedom advocates for a lasting
                 solution through the SAFE Act and stronger enforcement of existing protections.
             </Callout>
-            
+
             <div className="md:w-10/12 mx-auto">
                 <Carousel
                     nDisplayItems={1}
@@ -70,15 +71,15 @@ const HorseSlaughterPage = () => {
                                 title: "Scale and Consequences",
                                 description: (
                                     <div>
-                                    Each year, between 20,000 and 40,000 U.S. horses are exported for slaughter. The 
-                                    trade is fueled by overseas demand for horse meat, particularly in parts of Europe 
-                                    and Asia. This practice raises multiple concerns:
-                                    <List>{[
-                                        "Animal welfare: Horses endure immense stress, injury, and fear during transport and slaughter.",
-                                        "Public safety: Many horses have been treated with veterinary drugs and dewormers that render their meat unsafe for human consumption.",
-                                        "Economic waste: Taxpayer-funded programs to manage and protect wild horses lose meaning if animals ultimately end up in the slaughter pipeline."
-                                    ]}</List>
-                                        </div>
+                                        Each year, between 20,000 and 40,000 U.S. horses are exported for slaughter. The
+                                        trade is fueled by overseas demand for horse meat, particularly in parts of Europe
+                                        and Asia. This practice raises multiple concerns:
+                                        <List>{[
+                                            "Animal welfare: Horses endure immense stress, injury, and fear during transport and slaughter.",
+                                            "Public safety: Many horses have been treated with veterinary drugs and dewormers that render their meat unsafe for human consumption.",
+                                            "Economic waste: Taxpayer-funded programs to manage and protect wild horses lose meaning if animals ultimately end up in the slaughter pipeline."
+                                        ]}</List>
+                                    </div>
                                 ),
                                 image: RoundupsImage1
                             },
@@ -161,11 +162,13 @@ const HorseSlaughterPage = () => {
                             Donate to the Wild Horse Defense Fund
                         </div>
                         <div className="max-w-[650px] text-lg text-white text-center">
-                            The Wild Horse Defense Fund fuels Return to Freedom’s frontline work to 
-                            end cruel roundups, advance humane on-range management, and defend wild 
+                            The Wild Horse Defense Fund fuels Return to Freedom’s frontline work to
+                            end cruel roundups, advance humane on-range management, and defend wild
                             horses through advocacy, legal action, and education.
                         </div>
-                        <Button color="cinnamon">Donate Now</Button>
+                        <GenericDonateDialogue>
+                            <Button color="cinnamon">Donate Now</Button>
+                        </GenericDonateDialogue>
                     </div>
                 </BlurredImageCard>
             </div>

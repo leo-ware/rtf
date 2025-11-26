@@ -108,7 +108,7 @@ export default function NewsPage() {
                                         <div className="grow basis-0 h-fit py-4 flex flex-col gap-[6px]">
                                             <Link
                                                 className="text-2xl font-serif hover:underline line-clamp-1"
-                                                href={`/news/article/${article.slug}`}
+                                                href={`/resources/news/article/${article.slug}`}
                                             >
                                                 {article.title}
                                             </Link>

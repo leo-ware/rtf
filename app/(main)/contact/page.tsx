@@ -1,19 +1,15 @@
 import Hero from "@/components/public-ui/Hero"
-import Link from "next/link"
 import Button from "@/components/public-ui/Button"
 import Header from "@/components/public-ui/Header"
 import AlternatingPictureLayout from "@/components/public-ui/AlternatingPictureLayout"
 import EmailLink from "@/components/public-ui/EmailLink"
+import SocialLinks from "@/components/socialLinks"
 
 import hero from "./hero.jpg"
 import img1 from "./img1.jpg"
 import img2 from "./img2.png"
 import img3 from "./img3.png"
 import LongRightArrow from "@/components/LongRightArrow"
-import { FaInstagram, FaFacebook, FaYoutube } from "react-icons/fa"
-import { FaXTwitter } from "react-icons/fa6"
-import { ImWondering2 } from "react-icons/im"
-
 
 const ContactPage = () => {
     return (
@@ -42,18 +38,7 @@ const ContactPage = () => {
                             Connect with us on Social Media
                         </div>
                         <div className="flex justify-start gap-4 text-sage-green">
-                            <Link href="/">
-                                <FaInstagram size={30} />
-                            </Link>
-                            <Link href="/">
-                                <FaFacebook size={30} />
-                            </Link>
-                            <Link href="/">
-                                <FaYoutube size={30} />
-                            </Link>
-                            <Link href="/">
-                                <FaXTwitter size={30} />
-                            </Link>
+                            <SocialLinks />
                         </div>
                     </div>
                 </div>

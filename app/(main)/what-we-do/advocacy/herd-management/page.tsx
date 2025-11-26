@@ -18,19 +18,20 @@ import TakeActionImage2 from "../imgs/take-action-2.jpg"
 import TakeActionImage3 from "../imgs/take-action-3.jpg"
 import BlurredBg from "../imgs/blurred-bg.jpg"
 import List from "@/components/public-ui/List"
+import GenericDonateDialogue from "@/components/donation-widgets/GenericDonateDialogue"
 
 const HerdManagementPage = () => {
     return (
         <div className="w-full h-fit flex flex-col items-center justify-center gap-16 mb-16">
             <Hero title="Herd Management" image={HeroImage} />
             <Callout className="text-cinnamon">
-                Designated by the Bureau of Land Management, Herd Management Areas were created to balance 
-                wild horse populations with other public-land uses. But decades of over-allocation to private 
-                livestock and development have eroded this balance, threatening the future of wild herds. 
-                Return to Freedom advocates for fair, science-based management that protects wild horses 
+                Designated by the Bureau of Land Management, Herd Management Areas were created to balance
+                wild horse populations with other public-land uses. But decades of over-allocation to private
+                livestock and development have eroded this balance, threatening the future of wild herds.
+                Return to Freedom advocates for fair, science-based management that protects wild horses
                 while supporting sustainable public lands.
             </Callout>
-            
+
             <div className="md:w-10/12 mx-auto">
                 <Carousel
                     nDisplayItems={1}
@@ -90,7 +91,7 @@ const HerdManagementPage = () => {
                                 title: "RTF's Ongoing Efforts",
                                 description: (
                                     <div>
-                                        Through litigation, policy reform, and collaboration with agencies and scientists, RTF 
+                                        Through litigation, policy reform, and collaboration with agencies and scientists, RTF
                                         works to protect the integrity of all remaining HMAs. Our priorities include:
                                         <List>{[
                                             "Ensuring fair resource allocation between livestock and wild horses.",
@@ -171,11 +172,13 @@ const HerdManagementPage = () => {
                             Donate to the Wild Horse Defense Fund
                         </div>
                         <div className="max-w-[650px] text-lg text-white text-center">
-                            The Wild Horse Defense Fund fuels Return to Freedom’s frontline work to 
-                            end cruel roundups, advance humane on-range management, and defend wild 
+                            The Wild Horse Defense Fund fuels Return to Freedom’s frontline work to
+                            end cruel roundups, advance humane on-range management, and defend wild
                             horses through advocacy, legal action, and education.
                         </div>
-                        <Button color="cinnamon">Donate Now</Button>
+                        <GenericDonateDialogue>
+                            <Button color="cinnamon">Donate Now</Button>
+                        </GenericDonateDialogue>
                     </div>
                 </BlurredImageCard>
             </div>

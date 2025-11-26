@@ -26,10 +26,10 @@ const AboutPage = () => {
 
             <div className="w-full h-fit py-12 px-4 flex flex-col items-center justify-center gap-4">
                 <div className="max-w-11/12 md:max-w-1/2 text-center">
-                    Return to Freedom is a 501(c)(3) nonprofit wild horse sanctuary founded in the
+                    Return to Freedom is a 501(c)(3) nonprofit wild horse sanctuary founded in the
                     late 1990s by equine enthusiast Neda DeMayo. What began as a childhood dream
                     blossomed into a thriving sanctuary dedicated to preserving the freedom, diversity,
-                    and natural habitats of America’s wild horses and burros.
+                    and natural habitats of America's wild horses and burros.
                 </div>
                 <Link href="/about/history" className="w-fit">
                     <Button color="pewter">OUR HISTORY</Button>
@@ -72,7 +72,7 @@ const AboutPage = () => {
                             and conservation, while enriching the human spirit through direct experience with the
                             natural world.
                         </div>
-                        <Link href="/people">
+                        <Link href="/about/people">
                             <Button color="burnt-orange" className="py-1">MEET THE TEAM</Button>
                         </Link>
                     </div>

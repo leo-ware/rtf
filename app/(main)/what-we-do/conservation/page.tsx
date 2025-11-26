@@ -5,6 +5,13 @@ import Callout from "@/components/public-ui/Callout"
 import Header from "@/components/public-ui/Header"
 import AlternatingPictureLayout from "@/components/public-ui/AlternatingPictureLayout"
 import Image from "next/image"
+import Carousel from "@/components/Carousel"
+import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
+import Button from "@/components/public-ui/Button"
+import NewsCarousel from "@/components/NewsCarousel"
+import BlurredImageCard from "@/components/public-ui/BlurredImageCard"
+import SponsorAHerdDialog from "@/components/donation-widgets/sponsor-a-herd-dialog"
+import GenericDonateDialogue from "@/components/donation-widgets/GenericDonateDialogue"
 
 import HeroImg from "./hero.jpg"
 import BlurredBg from "./blurred-bg.jpg"
@@ -17,11 +24,7 @@ import Img4 from "./img4.jpg"
 import Img3 from "./img3.png"
 import Img2 from "./im2.png"
 import Img1 from "./img1.png"
-import Carousel from "@/components/Carousel"
-import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
-import Button from "@/components/public-ui/Button"
-import NewsCarousel from "@/components/NewsCarousel"
-import BlurredImageCard from "@/components/public-ui/BlurredImageCard"
+
 
 const ConservationPage = () => {
     return (
@@ -167,7 +170,7 @@ const ConservationPage = () => {
                                     sanctuary habitat where their lineage can be preserved without the threat of removal 
                                     or fragmentation.
                                 `,
-                                image: CarouselDummy,
+                                image: CarouselDummy
                             },
                             {
                                 title: "Choctaw Horses",
@@ -177,9 +180,11 @@ const ConservationPage = () => {
                                         Spanish stock brought to the Southeast. Choctaws are known for their endurance, agility,
                                         and distinctive Spanish-type traits. RTF protects several Choctaw family bands, helping
                                         maintain one of the few remaining sources of genetic diversity for this rare lineage.
-                                        <Button color="cinnamon" className="mt-4">
-                                            Donate to Protect Choctaw Horses
-                                        </Button>
+                                        <SponsorAHerdDialog>
+                                            <Button color="cinnamon" className="mt-4">
+                                                Donate to Protect Choctaw Horses
+                                            </Button>
+                                        </SponsorAHerdDialog>
                                     </div>
                                 ),
                                 image: CarouselDummy,
@@ -192,9 +197,11 @@ const ConservationPage = () => {
                                         late 1600s. Their lineage represents one of the earliest established horse populations in
                                         the American West. At RTF, they live in cohesive family groups, preserving both their heritage
                                         and their social structure.
-                                        <Button color="cinnamon" className="mt-4">
-                                            Donate to Protect the Mission Herd
-                                        </Button>
+                                        <SponsorAHerdDialog>
+                                            <Button color="cinnamon" className="mt-4">
+                                                Donate to Protect the Mission Herd
+                                            </Button>
+                                        </SponsorAHerdDialog>
                                     </div>
                                 ),
                                 image: CarouselDummy,
@@ -207,9 +214,11 @@ const ConservationPage = () => {
                                         leg barring, and dun coloration. Originating from the remote Sulphur Herd Management Area
                                         in Utah, they closely resemble early Spanish horses in conformation and behavior. RTF provides
                                         a safe haven for these horses to live naturally and maintain their rare genetic profile.
-                                        <Button color="cinnamon" className="mt-4">
-                                            Donate to the Sulphur Springs Herd
-                                        </Button>
+                                        <SponsorAHerdDialog>
+                                            <Button color="cinnamon" className="mt-4">
+                                                Donate to the Sulphur Springs Herd
+                                            </Button>
+                                        </SponsorAHerdDialog>
                                     </div>
                                 ),
                                 image: CarouselDummy,
@@ -222,9 +231,11 @@ const ConservationPage = () => {
                                         For generations, their lineage remained relatively isolated, preserving strong Old World
                                         Spanish characteristics. RTF protects Cerbat family bands to ensure this ancient lineage
                                         continues into the future.
-                                        <Button color="cinnamon" className="mt-4">
-                                            Learn more about the Hart Mountain Herd
-                                        </Button>
+                                        <SponsorAHerdDialog>
+                                            <Button color="cinnamon" className="mt-4">
+                                                Learn more about the Hart Mountain Herd
+                                            </Button>
+                                        </SponsorAHerdDialog>
                                     </div>
                                 ),
                                 image: CarouselDummy,
@@ -296,11 +307,13 @@ const ConservationPage = () => {
                             Support our conservation efforts by donating to our Sanctuary Fund
                         </div>
                         <div className="max-w-[650px] text-lg text-white text-center">
-                            The Wild Horse Defense Fund fuels Return to Freedom’s frontline work to end cruel 
-                            roundups, advance humane on-range management, and defend wild horses through advocacy, 
+                            The Wild Horse Defense Fund fuels Return to Freedom’s frontline work to end cruel
+                            roundups, advance humane on-range management, and defend wild horses through advocacy,
                             legal action, and education.
                         </div>
-                        <Button color="cinnamon">Donate Now</Button>
+                        <GenericDonateDialogue>
+                            <Button color="cinnamon">Donate Now</Button>
+                        </GenericDonateDialogue>
                     </div>
                 </BlurredImageCard>
             </div>

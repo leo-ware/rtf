@@ -62,7 +62,7 @@ export default function Navbar() {
                             </Link>
 
                             <Link
-                                href="/take-action/subscribe"
+                                href="/contact"
                                 className={`rounded-lg border-1 border-white w-[100px] flex items-center 
                                     justify-center py-1 text-white text-sm`}
                             >

@@ -16,6 +16,7 @@ import TakeActionImage1 from "../imgs/take-action-1.jpg"
 import TakeActionImage2 from "../imgs/take-action-2.jpg"
 import TakeActionImage3 from "../imgs/take-action-3.jpg"
 import BlurredBg from "../imgs/blurred-bg.jpg"
+import GenericDonateDialogue from "@/components/donation-widgets/GenericDonateDialogue"
 
 
 const RoundupsPage = () => {
@@ -37,9 +38,9 @@ const RoundupsPage = () => {
                     src="https://www.youtube.com/embed/Oo9EbArcQ1c?si=6r6KR7I0x0F0PVGy"
                     title="YouTube video player"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen/>
+                    allowFullScreen />
             </div>
-            
+
             <div className="md:w-10/12 mx-auto">
                 <Carousel
                     nDisplayItems={1}
@@ -177,11 +178,13 @@ const RoundupsPage = () => {
                             Donate to the Wild Horse Defense Fund
                         </div>
                         <div className="max-w-[650px] text-lg text-white text-center">
-                            The Wild Horse Defense Fund fuels Return to Freedom’s frontline work to 
-                            end cruel roundups, advance humane on-range management, and defend wild 
+                            The Wild Horse Defense Fund fuels Return to Freedom’s frontline work to
+                            end cruel roundups, advance humane on-range management, and defend wild
                             horses through advocacy, legal action, and education.
                         </div>
-                        <Button color="cinnamon">Donate Now</Button>
+                        <GenericDonateDialogue>
+                            <Button color="cinnamon">Donate Now</Button>
+                        </GenericDonateDialogue>
                     </div>
                 </BlurredImageCard>
             </div>
