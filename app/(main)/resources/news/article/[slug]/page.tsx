@@ -5,14 +5,9 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { notFound } from "next/navigation";
 import { CalendarIcon, UserIcon } from "lucide-react";
+import { PageProps } from "@/lib/types";
 
-interface ArticlePageProps {
-    params: Promise<{
-        slug: string;
-    }>;
-}
-
-export default function ArticlePage({ params }: ArticlePageProps) {
+export default function ArticlePage({ params }: PageProps<{ slug: string }>) {
     const resolvedParams = React.use(params)
     const article = useQuery(api.articles.getArticleBySlug, {
         slug: resolvedParams.slug,
@@ -78,15 +73,14 @@ export default function ArticlePage({ params }: ArticlePageProps) {
                         <img
                             src={article.image.url || ""}
                             alt={article.image.altText || article.title}
-                            className="w-full h-auto rounded-lg shadow-md"
+                            className="max-w-full max-h-[400px] aspect-video object-cover mx-auto rounded-lg"
                         />
                     </div>
                 )}
 
                 <div
-                    className="prose prose-lg prose-headings:auto max-w-none"
+                    className="prose prose-lg max-w-none"
                     dangerouslySetInnerHTML={{ __html: article.content }} />
-
             </div>
         </div>
     );

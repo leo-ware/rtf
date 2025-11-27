@@ -2,7 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { MdOutlineEmail } from "react-icons/md"
 import RTFLogoWhite from "@/public/img/rtf_logo_white.svg"
-import SocialLinks from "@/components/socialLinks"
+import SocialLinks from "@/components/SocialLinks"
 
 export default function Footer() {
     return (

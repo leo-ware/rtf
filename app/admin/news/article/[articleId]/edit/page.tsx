@@ -27,6 +27,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { ImagePicker } from "@/components/ImagePicker";
 import { TagSelector } from "@/components/TagSelector";
 import { TopicSelector } from "@/components/TopicSelector";
+import { isNull } from "node:util";
 
 type ArticleEditPageProps = {
     params: Promise<{
@@ -90,13 +91,21 @@ const ArticleEditPage = ({ params }: ArticleEditPageProps) => {
         article ? (
             <ArticleEditPageInner article={article} />
         ) : (
-            <div>Loading...</div>
+            <div className="min-h-screen bg-gray-50 p-8">
+                <div className="max-w-6xl mx-auto">
+                    <div className="animate-pulse">
+                        <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+                        <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
+                        <div className="h-96 bg-gray-200 rounded"></div>
+                    </div>
+                </div>
+            </div>
         )
     )
 }
 
 const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
-    
+
     const updateArticle = useMutation(api.articles.updateArticle);
     const herds = useQuery(api.articles.searchHerds, { limit: 100 });
     const animals = useQuery(api.articles.searchAnimals, { limit: 100 });
@@ -119,26 +128,13 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
     const [lastSaved, setLastSaved] = useState<Date | null>(null);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-    // useEffect(() => {
-    //     if (article) {
-    //         setFormData({
-    //             title: article.title,
-    //             slug: article.slug,
-    //             excerpt: article.excerpt,
-    //             imageUrl: article.imageUrl || "",
-    //             published: article.published,
-    //         });
-    //         setContent(article.content);
-    //     }
-    // }, [article]);
-
     // Track changes
     useEffect(() => {
         if (article) {
             const herdIdsChanged = JSON.stringify(formData.herdIds) !== JSON.stringify(article.herdIds || [])
             const animalIdsChanged = JSON.stringify(formData.animalIds) !== JSON.stringify(article.animalIds || [])
             const topicsChanged = JSON.stringify(formData.topics) !== JSON.stringify(article.topics || [])
-            
+
             const hasChanges =
                 formData.title !== article.title ||
                 formData.slug !== article.slug ||
@@ -160,10 +156,10 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
 
         setIsSaving(true);
         try {
-            const publishedAtValue = formData.publishedAt ? 
-                (typeof formData.publishedAt === 'string' ? 
-                    new Date(formData.publishedAt).getTime() : 
-                    formData.publishedAt) : 
+            const publishedAtValue = formData.publishedAt ?
+                (typeof formData.publishedAt === 'string' ?
+                    new Date(formData.publishedAt).getTime() :
+                    formData.publishedAt) :
                 undefined;
 
             await updateArticle({
@@ -277,7 +273,7 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
 
                         <div className="flex items-center space-x-2">
                             {article.published && (
-                                <Link href={`/news/article/${article.slug}`} target="_blank">
+                                <Link href={`/resources/news/article/${article.slug}`} target="_blank">
                                     <Button variant="outline" size="sm">
                                         <ExternalLink className="h-4 w-4 mr-2" />
                                         View Live
@@ -388,6 +384,9 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
                                         placeholder="Brief description of the article"
                                         rows={3}
                                     />
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        Appears in search results and article listings.
+                                    </p>
                                 </div>
 
                                 <div>
@@ -399,7 +398,7 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
                                         placeholder="Author name for display"
                                     />
                                     <p className="text-xs text-gray-500 mt-1">
-                                        The name that will be displayed as the author. Defaults to the user who created the article.
+                                        The name that will be displayed as the author. Leave blank to show nothing.
                                     </p>
                                 </div>
 
@@ -462,8 +461,8 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
                                         <Input
                                             id="publishedAt"
                                             type="datetime-local"
-                                            value={formData.publishedAt ? 
-                                                new Date(formData.publishedAt).toISOString().slice(0, 16) : 
+                                            value={formData.publishedAt ?
+                                                new Date(formData.publishedAt).toISOString().slice(0, 16) :
                                                 ""
                                             }
                                             onChange={(e) => {
@@ -472,7 +471,7 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
                                             }}
                                         />
                                         <p className="text-xs text-gray-500 mt-1">
-                                            Set a custom publish date for backdating articles.
+                                            Set a custom publish date to backdate the article.
                                         </p>
                                     </div>
                                 )}
@@ -493,9 +492,9 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
                                     description="Select one or more herds related to this article"
                                     selectedIds={formData.herdIds}
                                     availableItems={herds?.map(h => ({ _id: h._id, name: h.name })) || []}
-                                    onSelectionChange={(ids) => setFormData(prev => ({ 
-                                        ...prev, 
-                                        herdIds: ids as Array<Id<"herds">> 
+                                    onSelectionChange={(ids) => setFormData(prev => ({
+                                        ...prev,
+                                        herdIds: ids as Array<Id<"herds">>
                                     }))}
                                     placeholder="Select herds..."
                                     searchPlaceholder="Search herds..."
@@ -506,9 +505,9 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
                                     description="Select one or more animals related to this article"
                                     selectedIds={formData.animalIds}
                                     availableItems={animals?.map(a => ({ _id: a._id, name: a.name })) || []}
-                                    onSelectionChange={(ids) => setFormData(prev => ({ 
-                                        ...prev, 
-                                        animalIds: ids as Array<Id<"animals">> 
+                                    onSelectionChange={(ids) => setFormData(prev => ({
+                                        ...prev,
+                                        animalIds: ids as Array<Id<"animals">>
                                     }))}
                                     placeholder="Select animals..."
                                     searchPlaceholder="Search animals..."
@@ -518,9 +517,9 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
                                     label="Topics"
                                     description="Select one or more topics for this article"
                                     selectedTopics={formData.topics}
-                                    onSelectionChange={(topics) => setFormData(prev => ({ 
-                                        ...prev, 
-                                        topics 
+                                    onSelectionChange={(topics) => setFormData(prev => ({
+                                        ...prev,
+                                        topics
                                     }))}
                                     placeholder="Select topics..."
                                     searchPlaceholder="Search topics..."

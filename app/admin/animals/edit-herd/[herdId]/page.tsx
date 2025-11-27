@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 import { useQuery, useMutation } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Id } from "@/convex/_generated/dataModel"
@@ -35,14 +35,14 @@ import { ImagePicker } from "@/components/ImagePicker"
 import ConvexImage from "@/components/ConvexImage"
 
 interface EditHerdPageProps {
-    params: {
+    params: Promise<{
         herdId: string
-    }
+    }>
 }
 
 const EditHerdPage = ({ params }: EditHerdPageProps) => {
     const router = useRouter()
-    const herdId = params.herdId as Id<"herds">
+    const herdId = use(params).herdId as Id<"herds">
     
     const herd = useQuery(api.herds.getHerd, { id: herdId })
     const timeline = useQuery(api.herds.getHerdTimeline, { herdId })

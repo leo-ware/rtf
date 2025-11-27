@@ -26,6 +26,8 @@ import {
 //     subsets: ["latin"],
 // });
 
+import { TooltipProvider } from "@/components/ui/tooltip"
+
 const workSans = Work_Sans({
     variable: "--font-work-sans",
     subsets: ["latin"],
@@ -58,7 +60,9 @@ export default function RootLayout({
             >
                 <ClerkProvider>
                     <ConvexClientProvider>
-                        {children}
+                        <TooltipProvider>
+                            {children}
+                        </TooltipProvider>
                     </ConvexClientProvider>
                 </ClerkProvider>
             </body>

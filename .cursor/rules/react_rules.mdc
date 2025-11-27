@@ -1,4 +1,5 @@
 ---
+globs: *.tsx,*.jsx
 alwaysApply: false
 ---
 # React rules
@@ -7,6 +8,12 @@ alwaysApply: false
 
 Don't import React, e.g. `import React from 'react'`. Instead use statements like `import { useState } from 'react'`.
 
+## Build system
+
+I'm using yarn. You should use yarn instead of npm.
+
+Running the build takes a long time, so you should be reluctant to run this unless necessary.
+In general, you should pause and ask me to run a build, then i will show you the error, or you can access the build output in ./.next
 
 ## Components
 
@@ -14,6 +21,7 @@ Use const/ES6 arrow functions for component defintions by default.
 
 ## Props
 
+Always use the `PageProps` type in ./lib/types.ts for components which are pages. Do not modify this type, use a generic with specifics parameters for expected parameters and search params if these are expected.
 Use `type` statements for props.
 Comply with ESLint prefer-destructuring rule
 

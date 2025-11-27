@@ -8,15 +8,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { 
-    AlertDialog, 
-    AlertDialogAction, 
-    AlertDialogCancel, 
-    AlertDialogContent, 
-    AlertDialogDescription, 
-    AlertDialogFooter, 
-    AlertDialogHeader, 
-    AlertDialogTitle 
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,6 +34,12 @@ import {
     ExternalLink,
     Link as LinkIcon
 } from "lucide-react";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { handleConvexError, handleNotFoundError } from "@/lib/errorHandler";
@@ -55,7 +61,6 @@ const AdminNewsPage = () => {
         limit: 100
     });
     const externalArticles = useQuery(api.externalArticles.listExternalArticles, { limit: 100 });
-    const userArticles = useQuery(api.articles.listUserArticles, { limit: 100 });
     const deleteArticle = useMutation(api.articles.deleteArticle);
     const deleteExternalArticle = useMutation(api.externalArticles.deleteExternalArticle);
     const createArticle = useMutation(api.articles.createArticle);
@@ -83,10 +88,10 @@ const AdminNewsPage = () => {
 
     const handleCreateArticle = async () => {
         try {
-            const publishedAtValue = formData.publishedAt ? 
-                (typeof formData.publishedAt === 'string' ? 
-                    new Date(formData.publishedAt).getTime() : 
-                    formData.publishedAt) : 
+            const publishedAtValue = formData.publishedAt ?
+                (typeof formData.publishedAt === 'string' ?
+                    new Date(formData.publishedAt).getTime() :
+                    formData.publishedAt) :
                 undefined;
 
             const articleId = await createArticle({
@@ -268,93 +273,93 @@ const AdminNewsPage = () => {
                                     Create Article
                                 </Button>
                             </DialogTrigger>
-                    <DialogContent className="max-w-2xl">
-                        <DialogHeader>
-                            <DialogTitle>Create New Article</DialogTitle>
-                            <DialogDescription>
-                                Create a new news article. You'll be able to add rich content in the editor after creation.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                            <div>
-                                <Label htmlFor="title">Article Title</Label>
-                                <Input
-                                    id="title"
-                                    value={formData.title}
-                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                    placeholder="Enter article title"
-                                />
-                            </div>
+                            <DialogContent className="max-w-2xl">
+                                <DialogHeader>
+                                    <DialogTitle>Create New Article</DialogTitle>
+                                    <DialogDescription>
+                                        Create a new news article. You'll be able to add rich content in the editor after creation.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="space-y-4">
+                                    <div>
+                                        <Label htmlFor="title">Article Title</Label>
+                                        <Input
+                                            id="title"
+                                            value={formData.title}
+                                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                            placeholder="Enter article title"
+                                        />
+                                    </div>
 
-                            <div>
-                                <Label htmlFor="excerpt">Excerpt</Label>
-                                <Textarea
-                                    id="excerpt"
-                                    value={formData.excerpt}
-                                    onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
-                                    placeholder="Brief description of the article"
-                                    rows={3}
-                                />
-                            </div>
+                                    <div>
+                                        <Label htmlFor="excerpt">Excerpt</Label>
+                                        <Textarea
+                                            id="excerpt"
+                                            value={formData.excerpt}
+                                            onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
+                                            placeholder="Brief description of the article"
+                                            rows={3}
+                                        />
+                                    </div>
 
-                            <div>
-                                <Label htmlFor="authorCredit">Author Credit</Label>
-                                <Input
-                                    id="authorCredit"
-                                    value={formData.authorCredit}
-                                    onChange={(e) => setFormData({ ...formData, authorCredit: e.target.value })}
-                                    placeholder="Author name for display (optional)"
-                                />
-                                <p className="text-xs text-gray-500 mt-1">
-                                    The name that will be displayed as the author. If left empty, defaults to your name.
-                                </p>
-                            </div>
+                                    <div>
+                                        <Label htmlFor="authorCredit">Author Credit</Label>
+                                        <Input
+                                            id="authorCredit"
+                                            value={formData.authorCredit}
+                                            onChange={(e) => setFormData({ ...formData, authorCredit: e.target.value })}
+                                            placeholder="Author name for display (optional)"
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            The name that will be displayed as the author. If left empty, defaults to your name.
+                                        </p>
+                                    </div>
 
-                            <div>
-                                <Label>Featured Image</Label>
-                                <div className="flex gap-2">
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={() => setIsImagePickerOpen(true)}
-                                        className="flex-1"
-                                    >
-                                        {formData.imageId ? "Change Image" : "Select Image"}
-                                    </Button>
-                                    {formData.imageId && (
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            onClick={() => setFormData(prev => ({ ...prev, imageId: "" }))}
-                                        >
-                                            Remove
+                                    <div>
+                                        <Label>Featured Image</Label>
+                                        <div className="flex gap-2">
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={() => setIsImagePickerOpen(true)}
+                                                className="flex-1"
+                                            >
+                                                {formData.imageId ? "Change Image" : "Select Image"}
+                                            </Button>
+                                            {formData.imageId && (
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    onClick={() => setFormData(prev => ({ ...prev, imageId: "" }))}
+                                                >
+                                                    Remove
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center space-x-2">
+                                        <input
+                                            type="checkbox"
+                                            id="published"
+                                            checked={formData.published}
+                                            onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
+                                            className="rounded"
+                                        />
+                                        <Label htmlFor="published">Publish immediately</Label>
+                                    </div>
+
+                                    <div className="flex justify-end space-x-2 pt-4">
+                                        <Button variant="outline" onClick={resetForm}>
+                                            Reset
                                         </Button>
-                                    )}
+                                        <Button onClick={handleCreateArticle} disabled={!formData.title || !formData.excerpt}>
+                                            Create Article
+                                        </Button>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div className="flex items-center space-x-2">
-                                <input
-                                    type="checkbox"
-                                    id="published"
-                                    checked={formData.published}
-                                    onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
-                                    className="rounded"
-                                />
-                                <Label htmlFor="published">Publish immediately</Label>
-                            </div>
-
-                            <div className="flex justify-end space-x-2 pt-4">
-                                <Button variant="outline" onClick={resetForm}>
-                                    Reset
-                                </Button>
-                                <Button onClick={handleCreateArticle} disabled={!formData.title || !formData.excerpt}>
-                                    Create Article
-                                </Button>
-                            </div>
-                        </div>
-                    </DialogContent>
-                </Dialog>
+                            </DialogContent>
+                        </Dialog>
 
                         <Dialog open={isCreateExternalDialogOpen} onOpenChange={(open) => {
                             setIsCreateExternalDialogOpen(open);
@@ -387,13 +392,13 @@ const AdminNewsPage = () => {
                                                 disabled={hasFinishedFetching}
                                             />
                                             {!hasFinishedFetching && (
-                                            <Button
-                                                type="button"
-                                                onClick={() => fetchUrlMetadata(externalFormData.url)}
-                                                disabled={!externalFormData.url || fetchingUrl}
-                                            >
-                                                {fetchingUrl ? "Fetching..." : "Fetch"}
-                                            </Button>
+                                                <Button
+                                                    type="button"
+                                                    onClick={() => fetchUrlMetadata(externalFormData.url)}
+                                                    disabled={!externalFormData.url || fetchingUrl}
+                                                >
+                                                    {fetchingUrl ? "Fetching..." : "Fetch"}
+                                                </Button>
                                             )}
                                         </div>
                                     </div>
@@ -474,138 +479,90 @@ const AdminNewsPage = () => {
                 </div>
 
                 <TabsContent value="articles" className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-600">
-                            Total Articles
-                        </CardTitle>
-                        <FileText className="h-4 w-4 text-gray-600" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{articles?.length || 0}</div>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-600">
-                            Published
-                        </CardTitle>
-                        <Eye className="h-4 w-4 text-gray-600" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            {articles?.filter(a => a.published).length || 0}
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-600">
-                            Drafts
-                        </CardTitle>
-                        <EyeOff className="h-4 w-4 text-gray-600" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
-                            {articles?.filter(a => !a.published).length || 0}
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-600">
-                            My Articles
-                        </CardTitle>
-                        <User className="h-4 w-4 text-gray-600" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{userArticles?.length || 0}</div>
-                    </CardContent>
-                </Card>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {articles.map((article) => (
-                    <Card key={article._id} className="hover:shadow-lg transition-shadow">
-                        <CardHeader>
-                            <div className="flex justify-between items-start">
-                                <div className="flex-1">
-                                    <CardTitle className="text-lg line-clamp-2">{article.title}</CardTitle>
-                                    <div className="flex items-center space-x-2 mt-2">
-                                        {article.published ? (
-                                            <Badge className="bg-green-100 text-green-800">
-                                                <Eye className="h-3 w-3 mr-1" />
-                                                Published
-                                            </Badge>
-                                        ) : (
-                                            <Badge variant="secondary" className="bg-gray-100 text-gray-800">
-                                                <EyeOff className="h-3 w-3 mr-1" />
-                                                Draft
-                                            </Badge>
-                                        )}
+                    <div className="flex flex-col gap-6">
+                        {articles.map((article) => (
+                            <Card key={article._id} className="w-full px-8 py-4 flex flex-row gap-6 justify-between items-start">
+                                <div>
+                                    <div className="flex flex-col gap-2 py-2">
+                                        <div className="flex items-center gap-2">
+                                            <FileText className="w-5 h-5 text-muted-foreground" />
+                                            <div className="text-lg font-semibold">{article.title}</div>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                                            <Calendar className="w-4 h-4" />
+                                            {article.publishedAt
+                                                ? new Date(article.publishedAt).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })
+                                                : "Not Published"}
+                                            <span className="mx-2">•</span>
+                                            <User className="w-4 h-4" />
+                                            {article.authorCredit || "Unknown Author"}
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="flex space-x-1">
-                                    <Link href={`/admin/news/article/${article._id}/edit`}>
-                                        <Button variant="outline" size="sm">
-                                            <Edit className="h-4 w-4" />
-                                        </Button>
-                                    </Link>
-                                    {article.published && (
-                                        <Link href={`/news/article/${article.slug}`} target="_blank">
-                                            <Button variant="outline" size="sm">
-                                                <ExternalLink className="h-4 w-4" />
-                                            </Button>
-                                        </Link>
-                                    )}
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => setConfirmDeleteId(article._id)}
-                                        disabled={deletingArticle === article._id}
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-3">
-                                {article.image && (
-                                    <div className="w-full h-32 bg-gray-200 rounded-md overflow-hidden">
-                                        <img
-                                            src={article.image.url || ""}
-                                            alt={article.image.altText || article.title}
-                                            className="w-full h-full object-cover"
-                                            onError={(e) => {
-                                                e.currentTarget.style.display = 'none';
-                                            }}
-                                        />
-                                    </div>
-                                )}
 
-                                <p className="text-sm text-gray-600 line-clamp-3">
-                                    {article.excerpt}
-                                </p>
+                                <div>
+                                    <div className="flex space-x-1 pt-1">
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Button variant="outline" size="sm">
+                                                        {article.published ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                                                    </Button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    {article.published ? "Unpublish" : "Publish"}
+                                                </TooltipContent>
+                                            </Tooltip>
 
-                                <div className="flex items-center justify-between text-xs text-gray-500">
-                                    <div className="flex items-center">
-                                        <User className="h-3 w-3 mr-1" />
-                                        {article.author?.name || 'Unknown'}
-                                    </div>
-                                    <div className="flex items-center">
-                                        <Calendar className="h-3 w-3 mr-1" />
-                                        {article.publishedAt ? formatDate(article.publishedAt) : formatDate(article._creationTime)}
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Link href={`/admin/news/article/${article._id}/edit`}>
+                                                        <Button variant="outline" size="sm">
+                                                            <Edit className="h-4 w-4" />
+                                                        </Button>
+                                                    </Link>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    Edit Article
+                                                </TooltipContent>
+                                            </Tooltip>
+
+                                            {article.published && (
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Link href={`/news/article/${article.slug}`} target="_blank">
+                                                            <Button variant="outline" size="sm">
+                                                                <ExternalLink className="h-4 w-4" />
+                                                            </Button>
+                                                        </Link>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        View On Site
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            )}
+
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => setConfirmDeleteId(article._id)}
+                                                        disabled={deletingArticle === article._id}
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    Delete Article
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
                                     </div>
                                 </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                ))}
+                            </Card>
+                        ))}
+
                     </div>
 
                     {articles.length === 0 && (
@@ -622,40 +579,52 @@ const AdminNewsPage = () => {
                 </TabsContent>
 
                 <TabsContent value="external" className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <Card>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-gray-600">
-                                    Total External Articles
-                                </CardTitle>
-                                <LinkIcon className="h-4 w-4 text-gray-600" />
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold">{externalArticles?.length || 0}</div>
-                            </CardContent>
-                        </Card>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="flex flex-col gap-6">
                         {externalArticles.map((externalArticle) => (
-                            <Card key={externalArticle._id} className="hover:shadow-lg transition-shadow">
-                                <CardHeader>
-                                    <div className="flex justify-between items-start">
-                                        <div className="flex-1">
-                                            <CardTitle className="text-lg line-clamp-2">{externalArticle.title}</CardTitle>
-                                            <div className="flex items-center space-x-2 mt-2">
+                            <Card key={externalArticle._id} className="w-full px-8 py-4 flex flex-row gap-6 justify-between items-start">
+                                <div>
+                                    <div className="flex flex-col gap-2 py-2">
+                                        <div className="flex items-center gap-2">
+                                            <LinkIcon className="w-5 h-5 text-muted-foreground" />
+                                            <div className="text-lg font-semibold">{externalArticle.title}</div>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-muted-foreground text-sm">
                                                 <Badge variant="outline" className="bg-blue-50 text-blue-800">
-                                                    <LinkIcon className="h-3 w-3 mr-1" />
                                                     {externalArticle.organization}
                                                 </Badge>
-                                            </div>
+                                            <span className="mx-2">•</span>
+                                            <Calendar className="w-4 h-4" />
+                                            {formatDate(externalArticle.createdAt)}
+                                            <span className="mx-2">•</span>
+                                            <User className="w-4 h-4" />
+                                            {externalArticle.creator?.name || 'Unknown'}
                                         </div>
-                                        <div className="flex space-x-1">
+                                        {externalArticle.blurb && (
+                                            <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                                                {externalArticle.blurb}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div className="flex space-x-1 pt-1">
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
                                             <Link href={externalArticle.link} target="_blank">
                                                 <Button variant="outline" size="sm">
                                                     <ExternalLink className="h-4 w-4" />
                                                 </Button>
                                             </Link>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    View External Article
+                                                </TooltipContent>
+                                            </Tooltip>
+
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
                                             <Button
                                                 variant="outline"
                                                 size="sm"
@@ -664,40 +633,14 @@ const AdminNewsPage = () => {
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    Delete External Article
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
                                         </div>
                                     </div>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-3">
-                                        {externalArticle.image && (
-                                            <div className="w-full h-32 bg-gray-200 rounded-md overflow-hidden">
-                                                <img
-                                                    src={externalArticle.image.url || ""}
-                                                    alt={externalArticle.image.altText || externalArticle.title}
-                                                    className="w-full h-full object-cover"
-                                                    onError={(e) => {
-                                                        e.currentTarget.style.display = 'none';
-                                                    }}
-                                                />
-                                            </div>
-                                        )}
-
-                                        <p className="text-sm text-gray-600 line-clamp-3">
-                                            {externalArticle.blurb}
-                                        </p>
-
-                                        <div className="flex items-center justify-between text-xs text-gray-500">
-                                            <div className="flex items-center">
-                                                <User className="h-3 w-3 mr-1" />
-                                                {externalArticle.creator?.name || 'Unknown'}
-                                            </div>
-                                            <div className="flex items-center">
-                                                <Calendar className="h-3 w-3 mr-1" />
-                                                {formatDate(externalArticle.createdAt)}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </CardContent>
                             </Card>
                         ))}
                     </div>
@@ -729,7 +672,7 @@ const AdminNewsPage = () => {
                         <AlertDialogCancel onClick={() => setConfirmDeleteId(null)}>
                             Cancel
                         </AlertDialogCancel>
-                        <AlertDialogAction 
+                        <AlertDialogAction
                             onClick={() => confirmDeleteId && handleDeleteArticle(confirmDeleteId)}
                             disabled={deletingArticle !== null}
                         >

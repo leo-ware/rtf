@@ -7,15 +7,17 @@ import Typography from "@tiptap/extension-typography";
 import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
-import { Table } from "@tiptap/extension-table";
-import { TableRow } from "@tiptap/extension-table-row";
-import { TableCell } from "@tiptap/extension-table-cell";
-import { TableHeader } from "@tiptap/extension-table-header";
-import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
-import { createLowlight } from "lowlight";
+import Youtube from "@tiptap/extension-youtube";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { ImagePicker } from "@/components/ImagePicker";
 import {
@@ -30,8 +32,8 @@ import {
     Redo,
     Link as LinkIcon,
     Image as ImageIcon,
-    Table as TableIcon,
-    Type
+    Type,
+    YoutubeIcon
 } from "lucide-react";
 import { useState } from "react";
 
@@ -49,12 +51,12 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
     className = ""
 }) => {
     const [linkUrl, setLinkUrl] = useState("");
-    const [imageUrl, setImageUrl] = useState("");
     const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false);
-    const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
-    const [isImagePickerOpen, setIsImagePickerOpen] = useState(false);
 
-    const lowlight = createLowlight();
+    const [youtubeURL, setYoutubeURL] = useState("");
+    const [isYoutubeDialogOpen, setIsYoutubeDialogOpen] = useState(false);
+
+    const [isImagePickerOpen, setIsImagePickerOpen] = useState(false);
 
     const editor = useEditor({
         immediatelyRender: false,
@@ -74,9 +76,23 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
             }),
             Image.configure({
                 HTMLAttributes: {
-                    class: "max-w-full h-auto rounded-lg my-4",
+                    class: "max-w-full max-h-[400px] aspect-video object-cover mx-auto rounded-lg",
+                },
+                resize: {
+                    enabled: true,
+                    directions: ['top', 'bottom', 'left', 'right'], // can be any direction or diagonal combination
+                    minWidth: 50,
+                    minHeight: 50,
+                    alwaysPreserveAspectRatio: true,
                 },
             }),
+            Youtube.configure({
+                HTMLAttributes: {
+                    class: "mx-auto",
+                },
+                inline: false,
+                nocookie: true,
+            })
         ],
         content,
         onUpdate: ({ editor }) => {
@@ -102,12 +118,12 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
         setIsLinkDialogOpen(false);
     };
 
-    const addImage = () => {
-        if (imageUrl) {
-            editor.chain().focus().setImage({ src: imageUrl }).run();
+    const addYoutubeVideo = () => {
+        if (youtubeURL) {
+            editor.commands.setYoutubeVideo({ src: youtubeURL })
         }
-        setImageUrl("");
-        setIsImageDialogOpen(false);
+        setYoutubeURL("");
+        setIsYoutubeDialogOpen(false);
     };
 
     const handleImagePickerSelect = (imageData: { imageId: string; imageUrl: string }) => {
@@ -237,6 +253,39 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
                     >
                         <ImageIcon className="h-4 w-4" />
                     </Button>
+
+                    <Dialog open={isYoutubeDialogOpen} onOpenChange={setIsYoutubeDialogOpen}>
+                        <DialogTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                                <YoutubeIcon className="h-4 w-4" />
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-md">
+                            <DialogHeader>
+                                <DialogTitle>Add Youtube Video</DialogTitle>
+                                <DialogDescription>
+                                    Enter the URL for the video
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                                <div>
+                                    <Label htmlFor="linkUrl">URL</Label>
+                                    <Input
+                                        id="linkUrl"
+                                        value={youtubeURL}
+                                        onChange={(e) => setYoutubeURL(e.target.value)}
+                                        placeholder="https://example.com"
+                                    />
+                                </div>
+                                <div className="flex justify-end space-x-2">
+                                    <Button variant="outline" onClick={() => setIsYoutubeDialogOpen(false)}>
+                                        Cancel
+                                    </Button>
+                                    <Button onClick={addYoutubeVideo}>Add Video</Button>
+                                </div>
+                            </div>
+                        </DialogContent>
+                    </Dialog>
                 </div>
 
                 {/* History */}
@@ -261,7 +310,7 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
             </div>
 
             {/* Editor Content */}
-            <div className="bg-white">
+            <div className="bg-white prose">
                 <EditorContent editor={editor} />
             </div>
 

@@ -8,7 +8,6 @@ import React, { useState, useMemo } from "react"
 import { format } from "date-fns"
 
 import { IoIosSearch } from "react-icons/io"
-import { FaRegFileImage } from "react-icons/fa"
 import NewsHeroImage from "./news-hero-image.jpg"
 import { FaCaretDown } from "react-icons/fa6"
 import { cn } from "@/lib/utils"
@@ -83,60 +82,54 @@ export default function NewsPage() {
                                 No articles
                             </div>
                         ) : (
-                            <div className="flex flex-col gap-4">
-                                {filteredArticles.map((article) => (
-                                    <div
-                                        key={article._id}
-                                        className="w-full h-fit bg-seashell flex items-start gap-6"
-                                    >
-                                        <div className="relative h-48 aspect-[4/3] grow-0 shrink-0
-                                            overflow-hidden flex items-center justify-center">
-                                            {article.image ? (
-                                                <Image
-                                                    src={article.image.url || ""}
-                                                    alt={article.image.altText || article.title}
-                                                    fill
-                                                    className="w-full h-full object-cover object-center"
-                                                />
-                                            ) : (
-                                                <div className="w-full h-full rounded-md flex items-center justify-center">
-                                                    <FaRegFileImage className="h-6 w-6" />
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <div className="grow basis-0 h-fit py-4 flex flex-col gap-[6px]">
-                                            <Link
-                                                className="text-2xl font-serif hover:underline line-clamp-1"
-                                                href={`/resources/news/article/${article.slug}`}
-                                            >
-                                                {article.title}
-                                            </Link>
-
-                                            <div className="flex items-center gap-1 text-xs uppercase font-semibold">
-                                                <div>
-                                                    {(article.authorCredit) || "RTF Staff"}
-                                                </div>
-                                                <>
-                                                    <div className="w-1 h-2 border-l border-gray-500" />
-                                                    <div>RTF News</div>
-                                                </>
-                                                {article.publishedAt && (
-                                                    <>
-                                                        <div className="w-1 h-3 border-l border-gray-500" />
+                            <div className="bg-white rounded-lg border overflow-hidden">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead className="border-b bg-gray-50">
+                                            <tr>
+                                                <th className="text-left py-3 px-4 font-medium text-gray-900">Title</th>
+                                                <th className="text-left py-3 px-4 font-medium text-gray-900">Author</th>
+                                                <th className="text-left py-3 px-4 font-medium text-gray-900">Date</th>
+                                                <th className="text-right py-3 px-4 font-medium text-gray-900">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-200">
+                                            {filteredArticles.map((article) => (
+                                                <tr key={article._id} className="hover:bg-gray-50">
+                                                    <td className="py-3 px-4">
                                                         <div>
-                                                            {format(new Date(article.publishedAt), "MMM dd, yyyy")}
+                                                            <div className="font-medium text-gray-900 line-clamp-1">
+                                                                {article.title}
+                                                            </div>
+                                                            {article.excerpt && (
+                                                                <div className="text-sm text-gray-500 line-clamp-1 mt-1">
+                                                                    {article.excerpt}
+                                                                </div>
+                                                            )}
                                                         </div>
-                                                    </>
-                                                )}
-                                            </div>
-
-                                            <p className="text-md line-clamp-4 pr-2">
-                                                {article.excerpt}
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))}
+                                                    </td>
+                                                    <td className="py-3 px-4 text-sm text-gray-600">
+                                                        {(article.authorCredit) || "RTF Staff"}
+                                                    </td>
+                                                    <td className="py-3 px-4 text-sm text-gray-600">
+                                                        {article.publishedAt
+                                                            ? format(new Date(article.publishedAt), "MMM dd, yyyy")
+                                                            : "—"
+                                                        }
+                                                    </td>
+                                                    <td className="py-3 px-4 text-right">
+                                                        <Link
+                                                            href={`/resources/news/article/${article.slug}`}
+                                                            className="text-burnt-orange hover:text-burnt-orange/80 font-medium text-sm"
+                                                        >
+                                                            Read Article →
+                                                        </Link>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         )}
                 </div>

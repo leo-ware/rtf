@@ -1,4 +1,5 @@
 ---
+globs: *.ts
 alwaysApply: false
 ---
 # Typescript rules
