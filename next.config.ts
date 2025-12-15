@@ -8,7 +8,10 @@ const nextConfig: NextConfig = {
                 hostname: "*.convex.cloud",
             },
         ],
-    }
+    },
+    turbopack: {
+        root: process.cwd(),
+    },
 };
 
 export default nextConfig;
