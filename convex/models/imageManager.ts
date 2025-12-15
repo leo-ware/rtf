@@ -1,0 +1,100 @@
+import { PaginationOptions, PaginationResult } from "convex/server";
+import { Doc, Id } from "../_generated/dataModel";
+import { MutationCtx, QMCtxType } from "../types";
+import { removeUndefinedFields } from "../utils";
+
+type CreateArgs = {
+    storageId: Id<"_storage">,
+    title: string,
+    fileName: string,
+    originalName: string,
+    mimeType: string,
+    size: number,
+    altText?: string,
+    width?: number,
+    height?: number,
+}
+
+type UpdateArgs = {
+    title?: string,
+    altText?: string,
+    width?: number,
+    height?: number,
+}
+
+export const resolveImageId = async (ctx: QMCtxType, imageId: Id<"images">) => {
+    const manager = new ImageManager(imageId);
+    return await manager.get(ctx);
+}
+
+export type ResolvedImage = Awaited<ReturnType<typeof resolveImageId>>;
+
+const resolvePaginationResult = async (
+    ctx: QMCtxType,
+    result: PaginationResult<Doc<"images">>
+): Promise<PaginationResult<ResolvedImage>> => {
+    const images = await Promise.all(result.page.map(async (image) => (
+        resolveImageId(ctx, image._id)
+    )))
+    return {
+        ...result,
+        page: images,
+    }
+}
+
+export default class ImageManager {
+    id: Id<"images">
+    constructor(id: Id<"images">) {
+        this.id = id;
+    }
+
+    static async generateUploadUrl(ctx: MutationCtx) {
+        return await ctx.storage.generateUploadUrl();
+    }
+
+    static async create(ctx: MutationCtx, args: CreateArgs) {
+        const imageId = await ctx.db.insert("images", {
+            ...args,
+        });
+        return new ImageManager(imageId);
+    }
+
+    static async list(ctx: QMCtxType, args: {paginationOpts: PaginationOptions}) {
+        const pagination = await ctx.db.query("images")
+            .order("desc")
+            .paginate(args.paginationOpts)
+        return await resolvePaginationResult(ctx, pagination);
+    }
+
+    static async search(ctx: QMCtxType, args: {query: string, paginationOpts: PaginationOptions}) {
+        const pagination = await ctx.db.query("images")
+            .withSearchIndex("searchTitle", (q) => q.search("title", args.query))
+            .paginate(args.paginationOpts)
+        return await resolvePaginationResult(ctx, pagination);
+    }
+
+    async get(ctx: QMCtxType) {
+        const image = await ctx.db.get(this.id)
+        if (!image) {
+            return null;
+        }
+        const imageUrl = await ctx.storage.getUrl(image.storageId)
+        return {
+            ...image,
+            url: imageUrl || null,
+        }
+    }
+
+    async update(ctx: MutationCtx, args: UpdateArgs) {
+        await ctx.db.patch(this.id, removeUndefinedFields(args));
+    }
+
+    async delete(ctx: MutationCtx) {
+        const image = await this.get(ctx);
+        if (!image) {
+            throw new Error("Image not found");
+        }
+        await ctx.storage.delete(image.storageId);
+        await ctx.db.delete(this.id);
+    }
+}

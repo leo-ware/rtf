@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { Id } from "@/convex/_generated/dataModel";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Typography from "@tiptap/extension-typography";
@@ -19,7 +20,7 @@ import {
     DialogTrigger
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { ImagePicker } from "@/components/ImagePicker";
+import { ImagePicker } from "@/components/images/ImagePicker";
 import {
     Bold,
     Italic,
@@ -126,8 +127,8 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
         setIsYoutubeDialogOpen(false);
     };
 
-    const handleImagePickerSelect = (imageData: { imageId: string; imageUrl: string }) => {
-        editor.chain().focus().setImage({ src: imageData.imageUrl }).run();
+    const handleImagePickerSelect = (imageData: { imageId: Id<"images">; url: string }) => {
+        editor.chain().focus().setImage({ src: imageData.url }).run();
         setIsImagePickerOpen(false);
     };
 
@@ -319,8 +320,6 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
                 isOpen={isImagePickerOpen}
                 onClose={() => setIsImagePickerOpen(false)}
                 onImageSelect={handleImagePickerSelect}
-                title="Insert Image"
-                description="Choose an image from your library or upload a new one"
             />
         </div>
     );

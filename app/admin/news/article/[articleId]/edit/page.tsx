@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useQuery, useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
+import { api } from "@/convex/_generated/api"
 import { notFound } from "next/navigation";
 import { TiptapEditor } from "@/components/TiptapEditor";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,214 +20,176 @@ import {
     ExternalLink,
     Calendar,
     User,
-    Settings
+    Settings,
+    Loader2
 } from "lucide-react";
 import Link from "next/link";
 import { Id } from "@/convex/_generated/dataModel";
-import { ImagePicker } from "@/components/ImagePicker";
 import { TagSelector } from "@/components/TagSelector";
 import { TopicSelector } from "@/components/TopicSelector";
-import { isNull } from "node:util";
+import { PageProps } from "@/lib/types";
+import { deepEqual, generateSlug, removeUndefined, formatDate } from "@/lib/utils";
+import ImagePickerDialog from "@/components/images/ImagePickerDialog";
+import InfoWidget from "@/components/InfoWidget";
 
-type ArticleEditPageProps = {
-    params: Promise<{
-        articleId: string;
-    }>;
-}
 
-type ArticleType = {
-    author: {
-        id: Id<"users">;
-        email: string[] | undefined;
-        name: string | undefined;
-    } | null;
-    _id: Id<"articles">;
-    _creationTime: number;
-    content: string;
-    title: string;
-    slug: string;
-    excerpt: string;
-    imageId?: Id<"images">;
-    image?: {
-        _id: Id<"images">;
-        fileName: string;
-        originalName: string;
-        mimeType: string;
-        size: number;
-        storageId: Id<"_storage">;
-        altText?: string;
-        description?: string;
-        isPublic: boolean;
-        width?: number;
-        height?: number;
-        url: string | null;
-    } | null;
-    authorCredit?: string;
-    published: boolean;
-    publishedAt?: number;
-    createdAt: number;
-    updatedAt: number;
-    herdIds?: Array<Id<"herds">>;
-    animalIds?: Array<Id<"animals">>;
-    topics?: Array<"conservation" | "sanctuary" | "advocacy" | "education" | "herd-management" | "population-management" | "roundups" | "horse-slaughter" | "spirit">;
-    herds?: Array<{
-        _id: Id<"herds">;
-        name: string;
-        slug: string;
-    }>;
-    animals?: Array<{
-        _id: Id<"animals">;
-        name: string;
-        slug: string;
-    }>;
-}
-
-const ArticleEditPage = ({ params }: ArticleEditPageProps) => {
+const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
     const resolvedParams = React.use(params);
-    const article: ArticleType | null | undefined = useQuery(api.articles.getArticle, {
-        id: resolvedParams.articleId as any,
+    const article = useQuery(api.articles.getArticleWithRelations, {
+        id: resolvedParams.articleId as Id<"articles">,
     });
-    return (
-        article ? (
-            <ArticleEditPageInner article={article} />
-        ) : (
-            <div className="min-h-screen bg-gray-50 p-8">
-                <div className="max-w-6xl mx-auto">
-                    <div className="animate-pulse">
-                        <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
-                        <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
-                        <div className="h-96 bg-gray-200 rounded"></div>
-                    </div>
-                </div>
-            </div>
-        )
-    )
-}
-
-const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
+    const articleStatus = !!article
+        ? "loaded"
+        : article === null
+            ? "not_found"
+            : "loading";
 
     const updateArticle = useMutation(api.articles.updateArticle);
-    const herds = useQuery(api.articles.searchHerds, { limit: 100 });
-    const animals = useQuery(api.articles.searchAnimals, { limit: 100 });
+    const updateArticleMetadata = useMutation(api.articleMetadata.updateArticleMetadata)
 
-    const [formData, setFormData] = useState({
-        title: article.title,
-        slug: article.slug,
-        excerpt: article.excerpt,
-        imageId: article.imageId || ("" as Id<"images"> | ""),
-        authorCredit: article.authorCredit || "",
-        published: article.published,
-        publishedAt: article.publishedAt || "",
-        herdIds: article.herdIds || [],
-        animalIds: article.animalIds || [],
-        topics: article.topics || [],
-    });
-    const [isImagePickerOpen, setIsImagePickerOpen] = useState(false);
-    const [content, setContent] = useState(article.content);
     const [isSaving, setIsSaving] = useState(false);
-    const [lastSaved, setLastSaved] = useState<Date | null>(null);
-    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    // Track changes
+    // const herds = useQuery(api.articles.searchHerds, { limit: 100 });
+    // const animals = useQuery(api.articles.searchAnimals, { limit: 100 });
+
+    const [articleFormData, setArticleFormData] = useState({
+        slug: undefined as string | undefined,
+        imageId: undefined as Id<"images"> | undefined,
+        authorCredit: undefined as string | undefined,
+        content: undefined as string | undefined,
+    });
+    const [articleMetadataFormData, setArticleMetadataFormData] = useState({
+        date: undefined as number | undefined,
+        public: undefined as boolean | undefined,
+        title: undefined as string | undefined,
+        excerpt: undefined as string | undefined,
+        herdIds: undefined as Id<"herds">[] | undefined,
+        animalIds: undefined as Id<"animals">[] | undefined,
+        topic_homepage: undefined as boolean | undefined,
+        topic_conservation: undefined as boolean | undefined,
+        topic_sanctuary: undefined as boolean | undefined,
+        topic_advocacy: undefined as boolean | undefined,
+        topic_education: undefined as boolean | undefined,
+        topic_herd_management: undefined as boolean | undefined,
+        topic_population_management: undefined as boolean | undefined,
+        topic_roundups: undefined as boolean | undefined,
+        topic_horse_slaughter: undefined as boolean | undefined,
+        topic_spirit: undefined as boolean | undefined,
+    })
+    const localInitialized = useRef(false);
+
+
+    const articleToArticleFormData = (a: typeof article): typeof articleFormData => ({
+        slug: a?.slug,
+        imageId: a?.imageId,
+        authorCredit: a?.authorCredit,
+        content: a?.content,
+    })
+    const articleToArticleMetadataFormData = (a: typeof article): typeof articleMetadataFormData => ({
+        date: a?.articleMetadata?.date,
+        public: a?.articleMetadata?.public,
+        title: a?.articleMetadata?.title,
+        excerpt: a?.articleMetadata?.excerpt,
+        herdIds: a?.articleMetadata?.herdIds,
+        animalIds: a?.articleMetadata?.animalIds,
+        topic_homepage: a?.articleMetadata?.topic_homepage,
+        topic_conservation: a?.articleMetadata?.topic_conservation,
+        topic_sanctuary: a?.articleMetadata?.topic_sanctuary,
+        topic_advocacy: a?.articleMetadata?.topic_advocacy,
+        topic_education: a?.articleMetadata?.topic_education,
+        topic_herd_management: a?.articleMetadata?.topic_herd_management,
+        topic_population_management: a?.articleMetadata?.topic_population_management,
+        topic_roundups: a?.articleMetadata?.topic_roundups,
+        topic_horse_slaughter: a?.articleMetadata?.topic_horse_slaughter,
+        topic_spirit: a?.articleMetadata?.topic_spirit,
+    })
+
+    // Initialize the form data from the article and article metadata
     useEffect(() => {
-        if (article) {
-            const herdIdsChanged = JSON.stringify(formData.herdIds) !== JSON.stringify(article.herdIds || [])
-            const animalIdsChanged = JSON.stringify(formData.animalIds) !== JSON.stringify(article.animalIds || [])
-            const topicsChanged = JSON.stringify(formData.topics) !== JSON.stringify(article.topics || [])
-
-            const hasChanges =
-                formData.title !== article.title ||
-                formData.slug !== article.slug ||
-                formData.excerpt !== article.excerpt ||
-                formData.imageId !== (article.imageId || "") ||
-                formData.authorCredit !== (article.authorCredit || "") ||
-                formData.published !== article.published ||
-                formData.publishedAt !== (article.publishedAt || "") ||
-                content !== article.content ||
-                herdIdsChanged ||
-                animalIdsChanged ||
-                topicsChanged;
-            setHasUnsavedChanges(hasChanges);
+        if (article && !localInitialized.current) {
+            localInitialized.current = true;
+            setArticleFormData(prev => ({
+                ...prev,
+                ...articleToArticleFormData(article),
+            }));
+            setArticleMetadataFormData(prev => ({
+                ...prev,
+                ...articleToArticleMetadataFormData(article),
+            }));
+            setIsLoading(false);
         }
-    }, [formData, content, article]);
+    })
 
-    const handleSave = async (publishNow = false) => {
+    console.log("articleFormData", articleFormData)
+    console.log("articleInferred", articleToArticleFormData(article))
+    console.log("articleMetadataFormData", articleMetadataFormData)
+    console.log("articleMetadataInferred", articleToArticleMetadataFormData(article))
+
+    const hasUnsavedChanges = useMemo(() => {
+        return !(
+            deepEqual(articleFormData, articleToArticleFormData(article)) &&
+            deepEqual(articleMetadataFormData, articleToArticleMetadataFormData(article))
+        )
+    }, [articleFormData, articleMetadataFormData, article])
+
+    const handleError = (error?: string) => {
+        setError(error || "Failed to save article. Please try again.");
+    }
+
+    const handleSave = async () => {
         if (!article) return;
+        if (isSaving) {
+            handleError("Already saving article. Please wait for the current save to complete.");
+            return
+        }
 
         setIsSaving(true);
         try {
-            const publishedAtValue = formData.publishedAt ?
-                (typeof formData.publishedAt === 'string' ?
-                    new Date(formData.publishedAt).getTime() :
-                    formData.publishedAt) :
-                undefined;
+            setError(null);
 
-            await updateArticle({
-                id: article._id,
-                title: formData.title,
-                slug: formData.slug,
-                excerpt: formData.excerpt,
-                imageId: formData.imageId || undefined,
-                authorCredit: formData.authorCredit || undefined,
-                content,
-                published: publishNow ? true : formData.published,
-                publishedAt: publishedAtValue,
-                herdIds: formData.herdIds.length > 0 ? formData.herdIds : undefined,
-                animalIds: formData.animalIds.length > 0 ? formData.animalIds : undefined,
-                topics: formData.topics.length > 0 ? formData.topics : undefined,
-            });
-
-            if (publishNow) {
-                setFormData(prev => ({ ...prev, published: true }));
-            }
-
-            setLastSaved(new Date());
-            setHasUnsavedChanges(false);
-
-            if (formData.slug !== article.slug) {
-                // code here
-            }
+            await Promise.all([
+                updateArticle(removeUndefined({
+                    id: article._id,
+                    slug: articleFormData.slug,
+                    content: articleFormData.content,
+                    imageId: articleFormData.imageId,
+                    authorCredit: articleFormData.authorCredit,
+                })),
+                // articleMetadataFormData
+                updateArticleMetadata(removeUndefined({
+                    id: article.articleMetadata._id,
+                    title: articleMetadataFormData.title,
+                    imageId: articleFormData.imageId,
+                    excerpt: articleMetadataFormData.excerpt,
+                    date: articleMetadataFormData.date,
+                    public: articleMetadataFormData.public,
+                    herdIds: articleMetadataFormData.herdIds,
+                    animalIds: articleMetadataFormData.animalIds,
+                    topics: ([
+                        articleMetadataFormData.topic_homepage ? ("homepage" as const) : undefined,
+                        articleMetadataFormData.topic_conservation ? ("conservation" as const) : undefined,
+                        articleMetadataFormData.topic_sanctuary ? ("sanctuary" as const) : undefined,
+                        articleMetadataFormData.topic_advocacy ? ("advocacy" as const) : undefined,
+                        articleMetadataFormData.topic_education ? ("education" as const) : undefined,
+                        articleMetadataFormData.topic_herd_management ? ("herd_management" as const) : undefined,
+                        articleMetadataFormData.topic_population_management ? ("population_management" as const) : undefined,
+                        articleMetadataFormData.topic_roundups ? ("roundups" as const) : undefined,
+                        articleMetadataFormData.topic_horse_slaughter ? ("horse_slaughter" as const) : undefined,
+                        articleMetadataFormData.topic_spirit ? ("spirit" as const) : undefined,
+                    ]).filter(topic => topic !== undefined),
+                })),
+            ])
         } catch (error) {
             console.error("Error saving article:", error);
-            alert("Failed to save article. Please try again.");
+            setError("Failed to save article. Please try again.");
         } finally {
             setIsSaving(false);
         }
     };
 
-    const handlePublishToggle = async () => {
-        const newPublishedState = !formData.published;
-        setFormData(prev => ({ ...prev, published: newPublishedState }));
-        await updateArticle({
-            id: article._id,
-            published: newPublishedState,
-        })
-    };
-
-    const formatDate = (timestamp: number) => {
-        return new Date(timestamp).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        });
-    };
-
-    const generateSlug = (title: string) => {
-        return title
-            .toLowerCase()
-            .replace(/[^a-z0-9\s-]/g, "")
-            .replace(/\s+/g, "-")
-            .replace(/-+/g, "-")
-            .trim();
-    };
-
-    const handleImageSelect = (imageData: { imageId: string; imageUrl: string }) => {
-        setFormData(prev => ({ ...prev, imageId: imageData.imageId as Id<"images"> }));
-    };
-
-    if (article === undefined) {
+    if (articleStatus === "loading" || !article || !articleFormData || !articleMetadataFormData) {
         return (
             <div className="min-h-screen bg-gray-50 p-8">
                 <div className="max-w-6xl mx-auto">
@@ -241,7 +203,7 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
         );
     }
 
-    if (article === null) {
+    if (articleStatus === "not_found") {
         notFound();
     }
 
@@ -261,9 +223,9 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
                             <div>
                                 <h1 className="text-xl font-semibold text-gray-900">Edit Article</h1>
                                 <div className="flex items-center space-x-2 text-sm text-gray-600">
-                                    {lastSaved && (
+                                    {/* {lastSaved && (
                                         <span>Last saved {lastSaved.toLocaleTimeString()}</span>
-                                    )}
+                                    )} */}
                                     {hasUnsavedChanges && (
                                         <Badge variant="secondary">Unsaved changes</Badge>
                                     )}
@@ -272,8 +234,8 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
                         </div>
 
                         <div className="flex items-center space-x-2">
-                            {article.published && (
-                                <Link href={`/resources/news/article/${article.slug}`} target="_blank">
+                            {article.articleMetadata.public && (
+                                <Link href={`/resources/news/article/${article?.slug}`} target="_blank">
                                     <Button variant="outline" size="sm">
                                         <ExternalLink className="h-4 w-4 mr-2" />
                                         View Live
@@ -284,10 +246,15 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
                             <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={handlePublishToggle}
+                                onClick={() => {
+                                    setArticleMetadataFormData(prev => ({
+                                        ...prev,
+                                        public: !prev.public,
+                                    }));
+                                }}
                                 disabled={isSaving}
                             >
-                                {formData.published ? (
+                                {articleMetadataFormData.public ? (
                                     <>
                                         <EyeOff className="h-4 w-4 mr-2" />
                                         Unpublish
@@ -305,8 +272,15 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
                                 disabled={isSaving || !hasUnsavedChanges}
                                 size="sm"
                             >
-                                <Save className="h-4 w-4 mr-2" />
-                                {isSaving ? "Saving..." : "Save"}
+                                {isSaving
+                                    ? (<>
+                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                        Saving...
+                                    </>)
+                                    : (<>
+                                        <Save className="h-4 w-4 mr-2" />
+                                        Save
+                                    </>)}
                             </Button>
                         </div>
                     </div>
@@ -326,11 +300,13 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <TiptapEditor
-                                    content={content}
-                                    onChange={setContent}
-                                    placeholder="Start writing your article..."
-                                />
+                                {articleFormData.content && (
+                                    <TiptapEditor
+                                        content={articleFormData.content!}
+                                        onChange={(content) => setArticleFormData(prev => ({ ...prev, content: content }))}
+                                        placeholder="Start writing your article..."
+                                    />
+                                )}
                             </CardContent>
                         </Card>
                     </div>
@@ -350,98 +326,82 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
                                     <Label htmlFor="title">Title</Label>
                                     <Input
                                         id="title"
-                                        value={formData.title}
+                                        value={articleMetadataFormData.title}
                                         onChange={(e) => {
-                                            setFormData(prev => ({
+                                            setArticleMetadataFormData(prev => ({
                                                 ...prev,
                                                 title: e.target.value,
-                                                slug: generateSlug(e.target.value)
                                             }));
+                                            // setArticleFormData(prev => ({
+                                            //     ...prev,
+                                            //     slug: generateSlug(e.target.value),
+                                            // }));
                                         }}
                                         placeholder="Article title"
                                     />
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="slug">Slug (URL)</Label>
+                                    <Label htmlFor="slug">
+                                        Slug
+                                        <InfoWidget>
+                                            The slug is used in the article URL (/news/article/{articleFormData.slug})
+                                        </InfoWidget>
+                                    </Label>
                                     <Input
                                         id="slug"
-                                        value={formData.slug}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
+                                        value={articleFormData.slug}
+                                        onChange={(e) => setArticleFormData(prev => ({ ...prev, slug: e.target.value }))}
                                         placeholder="article-url-slug"
                                     />
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        Used in the article URL: /news/article/{formData.slug}
-                                    </p>
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="excerpt">Excerpt</Label>
+                                    <Label htmlFor="excerpt">
+                                        Excerpt
+                                        <InfoWidget>
+                                            Appears in search results and article listings.
+                                        </InfoWidget>
+                                    </Label>
                                     <Textarea
                                         id="excerpt"
-                                        value={formData.excerpt}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
+                                        value={articleMetadataFormData.excerpt}
+                                        onChange={(e) => setArticleMetadataFormData(prev => ({ ...prev, excerpt: e.target.value }))}
                                         placeholder="Brief description of the article"
                                         rows={3}
                                     />
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        Appears in search results and article listings.
-                                    </p>
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="authorCredit">Author Credit</Label>
+                                    <Label htmlFor="authorCredit">
+                                        Author Credit
+                                        <InfoWidget>
+                                            The name that will be displayed as the
+                                            author. Leave blank to show nothing.
+                                        </InfoWidget>
+                                    </Label>
                                     <Input
                                         id="authorCredit"
-                                        value={formData.authorCredit}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, authorCredit: e.target.value }))}
+                                        value={articleFormData.authorCredit}
+                                        onChange={(e) => setArticleFormData(prev => ({ ...prev, authorCredit: e.target.value }))}
                                         placeholder="Author name for display"
                                     />
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        The name that will be displayed as the author. Leave blank to show nothing.
-                                    </p>
                                 </div>
 
                                 <div>
                                     <Label>Featured Image</Label>
-                                    <div className="space-y-2">
-                                        {article.image && (
-                                            <div className="w-full h-32 bg-gray-200 rounded-md overflow-hidden">
-                                                <img
-                                                    src={article.image.url || ""}
-                                                    alt={article.image.altText || article.title}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            </div>
+                                    <ImagePickerDialog
+                                        imageId={articleFormData.imageId || null}
+                                        onImageSelect={(imageId) => (
+                                            setArticleFormData(prev => ({ ...prev, imageId: imageId || undefined }))
                                         )}
-                                        <div className="flex gap-2">
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                onClick={() => setIsImagePickerOpen(true)}
-                                                className="flex-1"
-                                            >
-                                                {formData.imageId ? "Change Image" : "Select Image"}
-                                            </Button>
-                                            {formData.imageId && (
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    onClick={() => setFormData(prev => ({ ...prev, imageId: "" }))}
-                                                >
-                                                    Remove
-                                                </Button>
-                                            )}
-                                        </div>
-                                    </div>
+                                    />
                                 </div>
-
-                                <Separator />
 
                                 <div className="space-y-2">
                                     <Label>Status</Label>
                                     <div className="flex items-center space-x-2">
-                                        {formData.published ? (
+                                        {articleMetadataFormData.public ? (
                                             <Badge className="bg-green-100 text-green-800">
                                                 <Eye className="h-3 w-3 mr-1" />
                                                 Published
@@ -454,32 +414,11 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
                                         )}
                                     </div>
                                 </div>
-
-                                {formData.published && (
-                                    <div>
-                                        <Label htmlFor="publishedAt">Published Date</Label>
-                                        <Input
-                                            id="publishedAt"
-                                            type="datetime-local"
-                                            value={formData.publishedAt ?
-                                                new Date(formData.publishedAt).toISOString().slice(0, 16) :
-                                                ""
-                                            }
-                                            onChange={(e) => {
-                                                const value = e.target.value ? new Date(e.target.value).getTime() : "";
-                                                setFormData(prev => ({ ...prev, publishedAt: value }));
-                                            }}
-                                        />
-                                        <p className="text-xs text-gray-500 mt-1">
-                                            Set a custom publish date to backdate the article.
-                                        </p>
-                                    </div>
-                                )}
                             </CardContent>
                         </Card>
 
                         {/* Tags Section */}
-                        <Card>
+                        {/* <Card>
                             <CardHeader>
                                 <CardTitle>Tags & Categories</CardTitle>
                                 <CardDescription>
@@ -525,7 +464,7 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
                                     searchPlaceholder="Search topics..."
                                 />
                             </CardContent>
-                        </Card>
+                        </Card> */}
 
                         {/* Article Info */}
                         <Card>
@@ -533,57 +472,36 @@ const ArticleEditPageInner = ({ article }: { article: ArticleType }) => {
                                 <CardTitle>Article Information</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-3">
-                                {article.author && (
+                                {articleFormData.authorCredit && (
                                     <div className="flex items-center space-x-2 text-sm">
                                         <User className="h-4 w-4 text-gray-400" />
-                                        <span>Created by: {article.author.name}</span>
-                                    </div>
-                                )}
-
-                                {article.authorCredit && (
-                                    <div className="flex items-center space-x-2 text-sm">
-                                        <User className="h-4 w-4 text-gray-400" />
-                                        <span>Author Credit: {article.authorCredit}</span>
+                                        <span>Author Credit: {articleFormData.authorCredit}</span>
                                     </div>
                                 )}
 
                                 <div className="flex items-center space-x-2 text-sm">
                                     <Calendar className="h-4 w-4 text-gray-400" />
-                                    <span>Created: {formatDate(article.createdAt)}</span>
+                                    <span>Created: {formatDate(new Date(article._creationTime))}</span>
                                 </div>
-
-                                <div className="flex items-center space-x-2 text-sm">
-                                    <Calendar className="h-4 w-4 text-gray-400" />
-                                    <span>Last Updated: {formatDate(article.updatedAt)}</span>
-                                </div>
-
-                                {article.publishedAt && (
-                                    <div className="flex items-center space-x-2 text-sm">
-                                        <Calendar className="h-4 w-4 text-gray-400" />
-                                        <span>Published: {formatDate(article.publishedAt)}</span>
-                                    </div>
-                                )}
 
                                 <Separator />
 
                                 <div className="text-sm text-gray-600">
-                                    <p>Words: {content.replace(/<[^>]*>/g, '').split(/\s+/).filter(word => word.length > 0).length}</p>
-                                    <p>Characters: {content.replace(/<[^>]*>/g, '').length}</p>
+                                    <p>
+                                        Words: {(
+                                            (articleFormData.content || "")
+                                                .replace(/<[^>]*>/g, '')
+                                                .split(/\s+/)
+                                                .filter(word => word.length > 0).length
+                                        )}
+                                    </p>
+                                    <p>Characters: {(articleFormData.content || "").replace(/<[^>]*>/g, '').length}</p>
                                 </div>
                             </CardContent>
                         </Card>
                     </div>
                 </div>
             </div>
-
-            {/* Image Picker */}
-            <ImagePicker
-                isOpen={isImagePickerOpen}
-                onClose={() => setIsImagePickerOpen(false)}
-                onImageSelect={handleImageSelect}
-                title="Select Featured Image"
-                description="Choose an image for your article from your library or upload a new one"
-            />
         </div>
     );
 }

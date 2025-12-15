@@ -2,6 +2,7 @@ import { query, mutation } from "./_generated/server"
 import { v } from "convex/values"
 import { getCurrentUserOrThrow } from "./users"
 import { Id } from "./_generated/dataModel"
+import { resolveImageId } from "./images"
 
 function generateSlug(name: string): string {
     return name
@@ -292,7 +293,6 @@ const timelineItemReturnValidator = v.object({
 
 export const getHerdTimeline = query({
     args: { herdId: v.id("herds") },
-    returns: v.array(timelineItemReturnValidator),
     handler: async (ctx, args) => {
         const herd = await ctx.db.get(args.herdId)
         if (!herd) {
@@ -309,29 +309,14 @@ export const getHerdTimeline = query({
             timelineItems
                 .filter((item): item is NonNullable<typeof item> => item !== null)
                 .map(async (item) => {
-                    const image = item.imageId ? await ctx.db.get(item.imageId) : null
-                    const imageUrl = image ? await ctx.storage.getUrl(image.storageId) : undefined
-                    return {
-                        ...item,
-                        image: (image && imageUrl) ? {
-                            _id: image._id,
-                            fileName: image.fileName,
-                            originalName: image.originalName,
-                            mimeType: image.mimeType,
-                            size: image.size,
-                            storageId: image.storageId,
-                            altText: image.altText,
-                            description: image.description,
-                            isPublic: image.isPublic,
-                            width: image.width,
-                            height: image.height,
-                            url: imageUrl,
-                        } : undefined,
-                    }
+                    const image = item.imageId ? await resolveImageId(ctx, item.imageId) : null
+                    return {...item, image}
                 })
+                .filter(x => !!x)
         )
 
-        return itemsWithImages.sort((a, b) => a.order - b.order)
+        const sortedItems = itemsWithImages.sort((a, b) => a.order - b.order)
+        return sortedItems
     },
 })
 

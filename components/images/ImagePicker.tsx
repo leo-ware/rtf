@@ -1,87 +1,118 @@
 "use client";
 
 import React, { useState } from "react";
-import { useQuery } from "convex/react";
+import { usePaginatedQuery, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { ImageUpload } from "@/components/ImageUpload";
+import { ImageUpload } from "@/components/images/ImageUpload";
 import {
     Search,
     Upload,
     Image as ImageIcon,
     Check,
-    Eye,
-    EyeOff
+    Edit,
 } from "lucide-react";
+import { Id } from "@/convex/_generated/dataModel";
+import ImageMetadataEditDialog from "./ImageMetadataEditDialog";
 
-interface ImagePickerProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onImageSelect: (imageData: { imageId: string; imageUrl: string }) => void;
-    title?: string;
-    description?: string;
-    currentImageUrl?: string;
+const ImageSelectWidget = ({ imageId, isSelected, select }: { imageId: Id<"images">, isSelected: boolean, select: () => void }) => {
+    const image = useQuery(api.images.getImage, { id: imageId });
+    return (
+        <div
+            className={`
+                relative z-0 aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer border-2 transition-all
+                ${isSelected
+                    ? "border-blue-500 ring-2 ring-blue-500 ring-opacity-50"
+                    : "border-transparent hover:border-gray-300"
+                }`}
+            onClick={() => select()}
+        >
+            <div className="z-10 absolute top-2 right-2">
+                <ImageMetadataEditDialog imageId={imageId}>
+                    <Button variant="outline" size="sm">
+                        <Edit className="h-4 w-4" />
+                    </Button>
+                </ImageMetadataEditDialog>
+            </div>
+
+            {(image && image.url) ? (
+                <img
+                    src={image.url}
+                    alt={image.altText || image.originalName}
+                    className="w-full h-full object-cover"
+                />
+            ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                    <ImageIcon className="h-8 w-8 text-gray-400" />
+                </div>
+            )}
+
+            {isSelected && (
+                <div className="absolute inset-0 bg-blue-500 bg-opacity-20 flex items-center justify-center">
+                    <div className="bg-blue-500 rounded-full p-1">
+                        <Check className="h-4 w-4 text-white" />
+                    </div>
+                </div>
+            )}
+
+            {/* Image Info Overlay */}
+            <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2">
+                <p className="text-xs truncate">{image?.originalName}</p>
+            </div>
+        </div>
+    )
 }
 
-export const ImagePicker: React.FC<ImagePickerProps> = ({
-    isOpen,
-    onClose,
-    onImageSelect,
-    title = "Select Image",
-    description = "Choose an image from your library or upload a new one",
-    currentImageUrl
-}) => {
+type ImagePickerProps = {
+    onClose: () => void;
+    isOpen: boolean;
+    onImageSelect: (args: {imageId: Id<"images">, url: string}) => void;
+}
+
+export const ImagePicker = ({onClose, onImageSelect, isOpen}: ImagePickerProps) => {
+
     const [searchTerm, setSearchTerm] = useState("");
-    const [selectedImageData, setSelectedImageData] = useState<{ imageId: string; imageUrl: string } | null>(null);
+    const [selectedImage, setSelectedImage] = useState<{imageId: Id<"images">, url: string} | null>(null);
     const [activeTab, setActiveTab] = useState<"library" | "upload">("library");
 
-    const images = useQuery(api.images.listImages, {
-        limit: 50,
-        publicOnly: false
-    });
-
-    const searchResults = useQuery(
-        api.images.searchImages,
-        searchTerm
-            ? {
-                searchTerm,
-                limit: 30,
-                publicOnly: false,
-            }
-            : "skip"
+    const { results: listResults, loadMore: loadMoreListImages, isLoading: isLoadingListImages } = usePaginatedQuery(
+        api.images.listImages,
+        {},
+        { initialNumItems: 50 }
+    );
+    const { results: searchResults, loadMore: loadMoreSearchResults, isLoading: isLoadingSearchResults } = usePaginatedQuery(
+        api.images.searchImagesByTitle,
+        { query: searchTerm },
+        { initialNumItems: 30 }
     );
 
-    const displayImages = searchTerm && searchResults ? searchResults : images || [];
-
-    const handleImageSelect = (imageId: string, imageUrl: string) => {
-        setSelectedImageData({ imageId, imageUrl });
-    };
+    const shouldDisplaySearchResults = searchTerm && searchResults && searchResults.length > 0;
+    const displayImages = (shouldDisplaySearchResults
+        ? searchResults
+        : listResults || []
+    ).filter((image) => !!image && image !== null)
+    const loadMore = shouldDisplaySearchResults ? loadMoreSearchResults : loadMoreListImages;
+    const isLoading = shouldDisplaySearchResults ? isLoadingSearchResults : isLoadingListImages;
+    const canLoadMore = !isLoading && displayImages && displayImages.length > 0;
 
     const handleConfirmSelection = () => {
-        if (selectedImageData) {
-            onImageSelect(selectedImageData);
+        if (selectedImage) {
+            onImageSelect(selectedImage);
             onClose();
-            setSelectedImageData(null);
+            setSelectedImage(null);
             setSearchTerm("");
         }
     };
 
-    const handleUploadComplete = (imageData: { url: string; imageId: string }) => {
-        // Auto-select newly uploaded image
-        setSelectedImageData({ imageId: imageData.imageId, imageUrl: imageData.url });
-        setActiveTab("library");
-    };
-
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
+        <Dialog open={isOpen} onOpenChange={(open) => open && onClose()}>
             <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
-                <DialogHeader>
+                {/* <DialogHeader>
                     <DialogTitle>{title}</DialogTitle>
                     <DialogDescription>{description}</DialogDescription>
-                </DialogHeader>
+                </DialogHeader> */}
 
                 <div className="flex flex-col h-[60vh]">
                     {/* Tabs */}
@@ -106,7 +137,7 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
                         </Button>
                     </div>
 
-                    {activeTab === "library" ? (
+                    {activeTab === "library" && (
                         <>
                             {/* Search */}
                             <div className="relative mb-4">
@@ -124,54 +155,12 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
                                 {displayImages.length > 0 ? (
                                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                                         {displayImages.map((image) => (
-                                            <div
+                                            <ImageSelectWidget
                                                 key={image._id}
-                                                className={`relative aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${selectedImageData?.imageId === image._id
-                                                        ? "border-blue-500 ring-2 ring-blue-500 ring-opacity-50"
-                                                        : "border-transparent hover:border-gray-300"
-                                                    }`}
-                                                onClick={() => handleImageSelect(image._id, image.url || "")}
-                                            >
-                                                {image.url ? (
-                                                    <img
-                                                        src={image.url}
-                                                        alt={image.altText || image.originalName}
-                                                        className="w-full h-full object-cover"
-                                                    />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center">
-                                                        <ImageIcon className="h-8 w-8 text-gray-400" />
-                                                    </div>
-                                                )}
-
-                                                {/* Selection Indicator */}
-                                                {selectedImageData?.imageId === image._id && (
-                                                    <div className="absolute inset-0 bg-blue-500 bg-opacity-20 flex items-center justify-center">
-                                                        <div className="bg-blue-500 rounded-full p-1">
-                                                            <Check className="h-4 w-4 text-white" />
-                                                        </div>
-                                                    </div>
-                                                )}
-
-                                                {/* Privacy Badge */}
-                                                <div className="absolute top-1 left-1">
-                                                    <Badge
-                                                        variant={image.isPublic ? "default" : "secondary"}
-                                                        className="text-xs"
-                                                    >
-                                                        {image.isPublic ? (
-                                                            <Eye className="h-2 w-2" />
-                                                        ) : (
-                                                            <EyeOff className="h-2 w-2" />
-                                                        )}
-                                                    </Badge>
-                                                </div>
-
-                                                {/* Image Info Overlay */}
-                                                <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2">
-                                                    <p className="text-xs truncate">{image.originalName}</p>
-                                                </div>
-                                            </div>
+                                               imageId={image._id}
+                                               isSelected={selectedImage?.imageId === image._id}
+                                               select={() => setSelectedImage({imageId: image._id, url: image.url || ''})}
+                                               />
                                         ))}
                                     </div>
                                 ) : (
@@ -194,11 +183,21 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
                                     </div>
                                 )}
                             </div>
+                            {displayImages && displayImages.length > 0 && (
+                                <Button
+                                    variant="outline"
+                                    onClick={() => canLoadMore && loadMore(20)}
+                                    disabled={!canLoadMore}>
+                                    Load More
+                                </Button>
+                            )}
                         </>
-                    ) : (
+                    )}
+
+                    {activeTab === "upload" && (
                         <div className="flex-1">
                             <ImageUpload
-                                onImageUploaded={handleUploadComplete}
+                                onImageUploaded={(imageData) => setSelectedImage({imageId: imageData._id, url: imageData.url || ''})}
                                 multiple={false}
                                 maxSizeInMB={10}
                             />
@@ -206,7 +205,7 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
                     )}
 
                     {/* Current Image Preview */}
-                    {currentImageUrl && !selectedImageData && (
+                    {/* {currentImageUrl && !selectedImageData && (
                         <div className="pt-4 border-t">
                             <p className="text-sm font-medium mb-2">Current Image:</p>
                             <div className="relative rounded-lg overflow-hidden border border-gray-200">
@@ -217,7 +216,7 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
                                 />
                             </div>
                         </div>
-                    )}
+                    )} */}
 
                     {/* Action Buttons */}
                     <div className="flex justify-end space-x-2 pt-4 border-t">
@@ -226,7 +225,7 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
                         </Button>
                         <Button
                             onClick={handleConfirmSelection}
-                            disabled={!selectedImageData}
+                            disabled={!selectedImage}
                         >
                             Select Image
                         </Button>

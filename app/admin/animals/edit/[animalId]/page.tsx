@@ -5,7 +5,7 @@ import { useQuery, useMutation } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { notFound } from "next/navigation"
 import { TiptapEditor } from "@/components/TiptapEditor"
-import { ImagePicker } from "@/components/ImagePicker"
+import { ImagePicker } from "@/components/images/ImagePicker"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -42,15 +42,15 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { Id } from "@/convex/_generated/dataModel"
-import ConvexImage from "@/components/ConvexImage"
+import ConvexImage from "@/components/images/ConvexImage"
 
 type GalleryPickerProps = {
     open: boolean
-    image?: { imageId: string, imageUrl: string }
+    image?: { imageId: Id<"images">, url: string }
     onOpen: () => void
     onClose: () => void
     onDelete: () => void
-    onImageSelect: (imageData: { imageId: string, imageUrl: string }) => void
+    onImageSelect: (imageData: { imageId: Id<"images">, url: string }) => void
 }
 
 const GalleryPicker = (props: GalleryPickerProps) => {
@@ -59,7 +59,7 @@ const GalleryPicker = (props: GalleryPickerProps) => {
             <div className="w-16 h-16 rounded overflow-hidden bg-gray-100 flex-shrink-0">
                 {props.image ? (
                     <ConvexImage
-                        src={props.image.imageUrl}
+                        src={props.image.url}
                         alt={`Gallery image`}
                         width={64}
                         height={64}
@@ -99,8 +99,6 @@ const GalleryPicker = (props: GalleryPickerProps) => {
                 isOpen={props.open}
                 onClose={props.onClose}
                 onImageSelect={props.onImageSelect}
-                title="Select Gallery Image"
-                description="Choose an image for this gallery slot"
             />
         </div>
     )
@@ -122,7 +120,7 @@ type FormDataType = {
     imageId: string | Id<"images">
     gallery: Array<{
         imageId: Id<"images">,
-        imageUrl: string,
+        url: string,
     }>
     gender: string
     dob: number | undefined
@@ -161,14 +159,15 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
 
     useEffect(() => {
         if (galleryImagesServer) {
+            const validImages = galleryImagesServer.filter(
+                (image): image is NonNullable<typeof image> => image !== null && image._id !== undefined && image.url !== null
+            )
             setFormData(prev => ({
                 ...prev,
-                gallery: galleryImagesServer
-                    .map(image => ({ imageId: image._id!, imageUrl: image.url! }))
-                    .filter(image => !!image.imageId && !!image.imageUrl)
+                gallery: validImages.map(image => ({ imageId: image._id, url: image.url! }))
             }))
         }
-    }, [galleryImagesServer.map(image => image._id).sort().join(",")])
+    }, [galleryImagesServer.filter(img => img !== null).map(image => image?._id).sort().join(",")])
 
     const [isSaving, setIsSaving] = useState(false)
     const [lastSaved, setLastSaved] = useState<Date | null>(null)
@@ -274,7 +273,7 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
             .trim()
     }
 
-    const handleImageSelect = (imageData: { imageId: string; imageUrl: string }) => {
+    const handleImageSelect = (imageData: { imageId: Id<"images">; url: string }) => {
         setFormData(prev => ({ ...prev, imageId: imageData.imageId }))
     }
 
@@ -609,8 +608,6 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
                                         isOpen={isPrimaryImagePickerOpen}
                                         onClose={() => setIsPrimaryImagePickerOpen(false)}
                                         onImageSelect={handleImageSelect}
-                                        title="Select Primary Image"
-                                        description="Choose an image for the animal's primary image"
                                     />
                                     {formData.imageId && (
                                         <Button

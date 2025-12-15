@@ -17,7 +17,7 @@ import FlipCard from "@/components/public-ui/FlipCard"
 import { IoPersonOutline } from "react-icons/io5"
 import { PersonCard } from "./PersonCard"
 import PeopleHero from "./people-hero.png"
-import ConvexImage, { ConvexImageProps } from "@/components/ConvexImage";
+import ConvexImage, { ConvexImageProps } from "@/components/images/ConvexImage";
 import { useState } from "react";
 import { dedupArray, indexArrayUnique, multipleIndexArray } from "@/lib/utils";
 

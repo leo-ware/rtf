@@ -1,29 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation, usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle
-} from "@/components/ui/alert-dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-    Plus,
     Edit,
     Trash2,
     Eye,
@@ -32,7 +16,8 @@ import {
     User,
     FileText,
     ExternalLink,
-    Link as LinkIcon
+    LinkIcon,
+    Badge,
 } from "lucide-react";
 import {
     Tooltip,
@@ -42,205 +27,40 @@ import {
 } from "@/components/ui/tooltip"
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { handleConvexError, handleNotFoundError } from "@/lib/errorHandler";
-import { ImagePicker } from "@/components/ImagePicker";
+import ArticleCreateDialog from "./ArticleCreateDialog";
+import ExternalArticleCreateDialog from "./ExternalArticleCreateDialog";
+import ArticleDeleteDialog from "./ArticleDeleteDialog";
+import ExternalArticleDeleteDialog from "./ExternalArticleDeleteDialog";
+import { formatDate } from "@/lib/utils";
 
 const AdminNewsPage = () => {
-    const router = useRouter();
-    const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-    const [isCreateExternalDialogOpen, setIsCreateExternalDialogOpen] = useState(false);
-    const [deletingArticle, setDeletingArticle] = useState<Id<"articles"> | null>(null);
-    const [deletingExternalArticle, setDeletingExternalArticle] = useState<Id<"externalArticles"> | null>(null);
-    const [confirmDeleteId, setConfirmDeleteId] = useState<Id<"articles"> | null>(null);
-    const [confirmDeleteExternalId, setConfirmDeleteExternalId] = useState<Id<"externalArticles"> | null>(null);
-    const [fetchingUrl, setFetchingUrl] = useState(false);
-    const [hasFinishedFetching, setHasFinishedFetching] = useState(false);
+    const {
+        results: allArticles,
+        loadMore: loadMoreArticles,
+        status: articleSearchStatus
+    } = usePaginatedQuery(
+        api.articleMetadata.search,
+        {
+            publicOnly: false,
+            query: undefined,
+            topics: undefined,
+            external: undefined,
+            dateMin: undefined,
+            dateMax: undefined,
+        },
+        { initialNumItems: 100 }
+    );
 
-    const articles = useQuery(api.articles.listArticles, {
-        publishedOnly: false,
-        limit: 100
-    });
-    const externalArticles = useQuery(api.externalArticles.listExternalArticles, { limit: 100 });
-    const deleteArticle = useMutation(api.articles.deleteArticle);
-    const deleteExternalArticle = useMutation(api.externalArticles.deleteExternalArticle);
-    const createArticle = useMutation(api.articles.createArticle);
-    const createExternalArticle = useMutation(api.externalArticles.createExternalArticle);
+    const updateArticleMetadata = useMutation(api.articleMetadata.updateArticleMetadata);
 
-    const [formData, setFormData] = useState({
-        title: "",
-        excerpt: "",
-        content: "Start writing your article...",
-        imageId: "" as Id<"images"> | "",
-        authorCredit: "",
-        published: false,
-        publishedAt: "",
-    });
-    const [isImagePickerOpen, setIsImagePickerOpen] = useState(false);
-    const [isExternalImagePickerOpen, setIsExternalImagePickerOpen] = useState(false);
-
-    const [externalFormData, setExternalFormData] = useState({
-        url: "",
-        title: "",
-        blurb: "",
-        organization: "",
-        imageId: "" as Id<"images"> | "",
-    });
-
-    const handleCreateArticle = async () => {
-        try {
-            const publishedAtValue = formData.publishedAt ?
-                (typeof formData.publishedAt === 'string' ?
-                    new Date(formData.publishedAt).getTime() :
-                    formData.publishedAt) :
-                undefined;
-
-            const articleId = await createArticle({
-                title: formData.title,
-                excerpt: formData.excerpt,
-                content: formData.content,
-                imageId: formData.imageId || undefined,
-                authorCredit: formData.authorCredit || undefined,
-                published: formData.published,
-                publishedAt: publishedAtValue,
-            });
-
-            setIsCreateDialogOpen(false);
-            resetForm();
-
-            // Navigate to edit page for the new article
-            router.push(`/admin/news/article/${articleId}/edit`);
-        } catch (error: any) {
-            console.error("Error creating article:", error);
-            if (error?.message?.includes('permission') || error?.message?.includes('not authenticated')) {
-                handleConvexError(error, "create article", router);
-            } else {
-                alert("Failed to create article: " + (error?.message || "Unknown error"));
-            }
-        }
-    };
-
-    const handleDeleteArticle = async (articleId: Id<"articles">) => {
-        try {
-            setDeletingArticle(articleId);
-            await deleteArticle({ id: articleId });
-            setConfirmDeleteId(null);
-        } catch (error: any) {
-            console.error("Error deleting article:", error);
-            if (error?.message?.includes('not found')) {
-                handleNotFoundError("article", articleId, undefined, router);
-            } else if (error?.message?.includes('permission')) {
-                handleConvexError(error, "delete article", router);
-            } else {
-                alert("Failed to delete article: " + (error?.message || "Unknown error"));
-            }
-        } finally {
-            setDeletingArticle(null);
-        }
-    };
-
-    const resetForm = () => {
-        setFormData({
-            title: "",
-            excerpt: "",
-            content: "Start writing your article...",
-            imageId: "",
-            authorCredit: "",
-            published: false,
-            publishedAt: "",
+    const setArticlePublic = async (articleMetadataId: Id<"articleMetadata">, published: boolean) => {
+        await updateArticleMetadata({
+            id: articleMetadataId,
+            public: published,
         });
-    };
+    }
 
-    const resetExternalForm = () => {
-        setExternalFormData({
-            url: "",
-            title: "",
-            blurb: "",
-            organization: "",
-            imageId: "",
-        });
-        setHasFinishedFetching(false);
-    };
-
-    const fetchUrlMetadata = async (url: string) => {
-        setFetchingUrl(true);
-        try {
-            const response = await fetch(`/api/fetch-url-metadata?url=${encodeURIComponent(url)}`);
-            if (response.ok) {
-                const data = await response.json();
-                setExternalFormData(prev => ({
-                    ...prev,
-                    title: data.title || prev.title,
-                    blurb: data.description || prev.blurb,
-                    organization: data.siteName || prev.organization,
-                }));
-            }
-            setHasFinishedFetching(true);
-        } catch (error) {
-            console.error("Error fetching URL metadata:", error);
-            setHasFinishedFetching(true);
-        } finally {
-            setFetchingUrl(false);
-        }
-    };
-
-    const handleCreateExternalArticle = async () => {
-        try {
-            await createExternalArticle({
-                link: externalFormData.url,
-                title: externalFormData.title,
-                blurb: externalFormData.blurb,
-                organization: externalFormData.organization,
-                imageId: externalFormData.imageId || undefined,
-            });
-
-            setIsCreateExternalDialogOpen(false);
-            resetExternalForm();
-        } catch (error: any) {
-            console.error("Error creating external article:", error);
-            if (error?.message?.includes('permission') || error?.message?.includes('not authenticated')) {
-                handleConvexError(error, "create external article", router);
-            } else {
-                alert("Failed to create external article: " + (error?.message || "Unknown error"));
-            }
-        }
-    };
-
-    const handleDeleteExternalArticle = async (externalArticleId: Id<"externalArticles">) => {
-        try {
-            setDeletingExternalArticle(externalArticleId);
-            await deleteExternalArticle({ id: externalArticleId });
-            setConfirmDeleteExternalId(null);
-        } catch (error: any) {
-            console.error("Error deleting external article:", error);
-            if (error?.message?.includes('not found')) {
-                handleNotFoundError("external article", externalArticleId, undefined, router);
-            } else if (error?.message?.includes('permission')) {
-                handleConvexError(error, "delete external article", router);
-            } else {
-                alert("Failed to delete external article: " + (error?.message || "Unknown error"));
-            }
-        } finally {
-            setDeletingExternalArticle(null);
-        }
-    };
-
-    const formatDate = (timestamp: number) => {
-        return new Date(timestamp).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-        });
-    };
-
-    const handleImageSelect = (imageData: { imageId: string; imageUrl: string }) => {
-        setFormData(prev => ({ ...prev, imageId: imageData.imageId as Id<"images"> }));
-    };
-
-    const handleExternalImageSelect = (imageData: { imageId: string; imageUrl: string }) => {
-        setExternalFormData(prev => ({ ...prev, imageId: imageData.imageId as Id<"images"> }));
-    };
-
-    if (articles === undefined || externalArticles === undefined) {
+    if (allArticles === undefined) {
         return (
             <div className="min-h-screen bg-gray-50 p-8">
                 <div className="animate-pulse">
@@ -255,6 +75,8 @@ const AdminNewsPage = () => {
             </div>
         );
     }
+    const articles = allArticles.filter(article => article.isExternal === false);
+    const externalArticles = allArticles.filter(article => article.isExternal === true);
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -266,215 +88,8 @@ const AdminNewsPage = () => {
                     </TabsList>
 
                     <div className="flex gap-2">
-                        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-                            <DialogTrigger asChild>
-                                <Button onClick={resetForm}>
-                                    <Plus className="h-4 w-4 mr-2" />
-                                    Create Article
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-2xl">
-                                <DialogHeader>
-                                    <DialogTitle>Create New Article</DialogTitle>
-                                    <DialogDescription>
-                                        Create a new news article. You'll be able to add rich content in the editor after creation.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <div className="space-y-4">
-                                    <div>
-                                        <Label htmlFor="title">Article Title</Label>
-                                        <Input
-                                            id="title"
-                                            value={formData.title}
-                                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                            placeholder="Enter article title"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <Label htmlFor="excerpt">Excerpt</Label>
-                                        <Textarea
-                                            id="excerpt"
-                                            value={formData.excerpt}
-                                            onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
-                                            placeholder="Brief description of the article"
-                                            rows={3}
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <Label htmlFor="authorCredit">Author Credit</Label>
-                                        <Input
-                                            id="authorCredit"
-                                            value={formData.authorCredit}
-                                            onChange={(e) => setFormData({ ...formData, authorCredit: e.target.value })}
-                                            placeholder="Author name for display (optional)"
-                                        />
-                                        <p className="text-xs text-gray-500 mt-1">
-                                            The name that will be displayed as the author. If left empty, defaults to your name.
-                                        </p>
-                                    </div>
-
-                                    <div>
-                                        <Label>Featured Image</Label>
-                                        <div className="flex gap-2">
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                onClick={() => setIsImagePickerOpen(true)}
-                                                className="flex-1"
-                                            >
-                                                {formData.imageId ? "Change Image" : "Select Image"}
-                                            </Button>
-                                            {formData.imageId && (
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    onClick={() => setFormData(prev => ({ ...prev, imageId: "" }))}
-                                                >
-                                                    Remove
-                                                </Button>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center space-x-2">
-                                        <input
-                                            type="checkbox"
-                                            id="published"
-                                            checked={formData.published}
-                                            onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
-                                            className="rounded"
-                                        />
-                                        <Label htmlFor="published">Publish immediately</Label>
-                                    </div>
-
-                                    <div className="flex justify-end space-x-2 pt-4">
-                                        <Button variant="outline" onClick={resetForm}>
-                                            Reset
-                                        </Button>
-                                        <Button onClick={handleCreateArticle} disabled={!formData.title || !formData.excerpt}>
-                                            Create Article
-                                        </Button>
-                                    </div>
-                                </div>
-                            </DialogContent>
-                        </Dialog>
-
-                        <Dialog open={isCreateExternalDialogOpen} onOpenChange={(open) => {
-                            setIsCreateExternalDialogOpen(open);
-                            if (!open) {
-                                resetExternalForm();
-                            }
-                        }}>
-                            <DialogTrigger asChild>
-                                <Button variant="outline" onClick={resetExternalForm}>
-                                    <LinkIcon className="h-4 w-4 mr-2" />
-                                    Add External Article
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-2xl">
-                                <DialogHeader>
-                                    <DialogTitle>Add External Article</DialogTitle>
-                                    <DialogDescription>
-                                        Add a reference to an external article from another organization.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <div className="space-y-4">
-                                    <div>
-                                        <Label htmlFor="url">Article URL</Label>
-                                        <div className="flex gap-2">
-                                            <Input
-                                                id="url"
-                                                value={externalFormData.url}
-                                                onChange={(e) => setExternalFormData({ ...externalFormData, url: e.target.value })}
-                                                placeholder="https://example.com/article"
-                                                disabled={hasFinishedFetching}
-                                            />
-                                            {!hasFinishedFetching && (
-                                                <Button
-                                                    type="button"
-                                                    onClick={() => fetchUrlMetadata(externalFormData.url)}
-                                                    disabled={!externalFormData.url || fetchingUrl}
-                                                >
-                                                    {fetchingUrl ? "Fetching..." : "Fetch"}
-                                                </Button>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {hasFinishedFetching && (
-                                        <>
-                                            <div>
-                                                <Label htmlFor="externalTitle">Article Title</Label>
-                                                <Input
-                                                    id="externalTitle"
-                                                    value={externalFormData.title}
-                                                    onChange={(e) => setExternalFormData({ ...externalFormData, title: e.target.value })}
-                                                    placeholder="Enter article title"
-                                                />
-                                            </div>
-
-                                            <div>
-                                                <Label htmlFor="organization">Organization</Label>
-                                                <Input
-                                                    id="organization"
-                                                    value={externalFormData.organization}
-                                                    onChange={(e) => setExternalFormData({ ...externalFormData, organization: e.target.value })}
-                                                    placeholder="Name of the organization"
-                                                />
-                                            </div>
-
-                                            <div>
-                                                <Label htmlFor="blurb">Description</Label>
-                                                <Textarea
-                                                    id="blurb"
-                                                    value={externalFormData.blurb}
-                                                    onChange={(e) => setExternalFormData({ ...externalFormData, blurb: e.target.value })}
-                                                    placeholder="Brief description of the article"
-                                                    rows={3}
-                                                />
-                                            </div>
-
-                                            <div>
-                                                <Label>Image (Optional)</Label>
-                                                <div className="flex gap-2">
-                                                    <Button
-                                                        type="button"
-                                                        variant="outline"
-                                                        onClick={() => setIsExternalImagePickerOpen(true)}
-                                                        className="flex-1"
-                                                    >
-                                                        {externalFormData.imageId ? "Change Image" : "Select Image"}
-                                                    </Button>
-                                                    {externalFormData.imageId && (
-                                                        <Button
-                                                            type="button"
-                                                            variant="outline"
-                                                            onClick={() => setExternalFormData(prev => ({ ...prev, imageId: "" }))}
-                                                        >
-                                                            Remove
-                                                        </Button>
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                            <div className="flex justify-end space-x-2 pt-4">
-                                                <Button variant="outline" onClick={resetExternalForm}>
-                                                    Reset
-                                                </Button>
-                                                <Button
-                                                    onClick={handleCreateExternalArticle}
-                                                    disabled={!externalFormData.url || !externalFormData.title || !externalFormData.organization || !externalFormData.blurb}
-                                                >
-                                                    Add External Article
-                                                </Button>
-                                            </div>
-                                        </>
-                                    )}
-                                </div>
-                            </DialogContent>
-                        </Dialog>
+                        <ArticleCreateDialog />
+                        <ExternalArticleCreateDialog />
                     </div>
                 </div>
 
@@ -488,81 +103,62 @@ const AdminNewsPage = () => {
                                             <FileText className="w-5 h-5 text-muted-foreground" />
                                             <div className="text-lg font-semibold">{article.title}</div>
                                         </div>
-                                        <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                                            <Calendar className="w-4 h-4" />
-                                            {article.publishedAt
-                                                ? new Date(article.publishedAt).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })
-                                                : "Not Published"}
-                                            <span className="mx-2">•</span>
-                                            <User className="w-4 h-4" />
-                                            {article.authorCredit || "Unknown Author"}
-                                        </div>
                                     </div>
                                 </div>
 
                                 <div>
                                     <div className="flex space-x-1 pt-1">
-                                        <TooltipProvider>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
+
+                                        {article.public && (
+                                            <Link href={article.link} target="_blank">
+                                                <Button variant="outline" size="sm">
+                                                    <ExternalLink className="h-4 w-4" />
+                                                    View On Site
+                                                </Button>
+                                            </Link>
+                                        )}
+
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => setArticlePublic(article._id, !article.public)}
+                                                >
+                                                    {article.public
+                                                        ? <Eye className="h-4 w-4" />
+                                                        : <EyeOff className="h-4 w-4" />
+                                                    }
+                                                </Button>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                {article.public
+                                                    ? "Unpublish"
+                                                    : "Publish"
+                                                }
+                                            </TooltipContent>
+                                        </Tooltip>
+
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <Link href={`/admin/news/article/${article._id}/edit`}>
                                                     <Button variant="outline" size="sm">
-                                                        {article.published ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                                                        <Edit className="h-4 w-4" />
                                                     </Button>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    {article.published ? "Unpublish" : "Publish"}
-                                                </TooltipContent>
-                                            </Tooltip>
+                                                </Link>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                Edit Article
+                                            </TooltipContent>
+                                        </Tooltip>
 
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Link href={`/admin/news/article/${article._id}/edit`}>
-                                                        <Button variant="outline" size="sm">
-                                                            <Edit className="h-4 w-4" />
-                                                        </Button>
-                                                    </Link>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    Edit Article
-                                                </TooltipContent>
-                                            </Tooltip>
-
-                                            {article.published && (
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <Link href={`/news/article/${article.slug}`} target="_blank">
-                                                            <Button variant="outline" size="sm">
-                                                                <ExternalLink className="h-4 w-4" />
-                                                            </Button>
-                                                        </Link>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent>
-                                                        View On Site
-                                                    </TooltipContent>
-                                                </Tooltip>
-                                            )}
-
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() => setConfirmDeleteId(article._id)}
-                                                        disabled={deletingArticle === article._id}
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    Delete Article
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </TooltipProvider>
+                                        {article.articleId && (
+                                            <ArticleDeleteDialog articleId={article.articleId!} />
+                                        )}
                                     </div>
                                 </div>
                             </Card>
                         ))}
-
                     </div>
 
                     {articles.length === 0 && (
@@ -570,10 +166,7 @@ const AdminNewsPage = () => {
                             <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                             <h3 className="text-lg font-medium text-gray-900 mb-2">No articles yet</h3>
                             <p className="text-gray-600 mb-4">Get started by creating your first news article</p>
-                            <Button onClick={() => setIsCreateDialogOpen(true)}>
-                                <Plus className="h-4 w-4 mr-2" />
-                                Create Article
-                            </Button>
+                            <ArticleCreateDialog />
                         </div>
                     )}
                 </TabsContent>
@@ -588,20 +181,20 @@ const AdminNewsPage = () => {
                                             <LinkIcon className="w-5 h-5 text-muted-foreground" />
                                             <div className="text-lg font-semibold">{externalArticle.title}</div>
                                         </div>
-                                        <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                                                <Badge variant="outline" className="bg-blue-50 text-blue-800">
-                                                    {externalArticle.organization}
-                                                </Badge>
+                                        {/* <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                                            <Badge variant="outline" className="bg-blue-50 text-blue-800">
+                                                {externalArticle.organization}
+                                            </Badge>
                                             <span className="mx-2">•</span>
                                             <Calendar className="w-4 h-4" />
                                             {formatDate(externalArticle.createdAt)}
                                             <span className="mx-2">•</span>
                                             <User className="w-4 h-4" />
                                             {externalArticle.creator?.name || 'Unknown'}
-                                        </div>
-                                        {externalArticle.blurb && (
+                                        </div> */}
+                                        {externalArticle.excerpt && (
                                             <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                                                {externalArticle.blurb}
+                                                {externalArticle.excerpt}
                                             </p>
                                         )}
                                     </div>
@@ -609,38 +202,25 @@ const AdminNewsPage = () => {
 
                                 <div>
                                     <div className="flex space-x-1 pt-1">
-                                        <TooltipProvider>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                            <Link href={externalArticle.link} target="_blank">
-                                                <Button variant="outline" size="sm">
-                                                    <ExternalLink className="h-4 w-4" />
-                                                </Button>
-                                            </Link>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    View External Article
-                                                </TooltipContent>
-                                            </Tooltip>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <Link href={externalArticle.link} target="_blank">
+                                                    <Button variant="outline" size="sm">
+                                                        <ExternalLink className="h-4 w-4" />
+                                                    </Button>
+                                                </Link>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                View External Article
+                                            </TooltipContent>
+                                        </Tooltip>
 
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => setConfirmDeleteExternalId(externalArticle._id)}
-                                                disabled={deletingExternalArticle === externalArticle._id}
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    Delete External Article
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </TooltipProvider>
-                                        </div>
+                                        {externalArticle.externalArticleId && (
+                                            <ExternalArticleDeleteDialog
+                                                externalArticleId={externalArticle.externalArticleId} />
+                                        )}
                                     </div>
+                                </div>
                             </Card>
                         ))}
                     </div>
@@ -650,78 +230,22 @@ const AdminNewsPage = () => {
                             <LinkIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                             <h3 className="text-lg font-medium text-gray-900 mb-2">No external articles yet</h3>
                             <p className="text-gray-600 mb-4">Get started by adding your first external article reference</p>
-                            <Button onClick={() => setIsCreateExternalDialogOpen(true)}>
-                                <LinkIcon className="h-4 w-4 mr-2" />
-                                Add External Article
-                            </Button>
+                            <ExternalArticleCreateDialog>
+                                <Button>
+                                    <LinkIcon className="h-4 w-4 mr-2" />
+                                    Add External Article
+                                </Button>
+                            </ExternalArticleCreateDialog>
                         </div>
                     )}
                 </TabsContent>
             </Tabs>
 
-            {/* Delete Confirmation Dialog */}
-            <AlertDialog open={confirmDeleteId !== null} onOpenChange={(open) => !open && setConfirmDeleteId(null)}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Article</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Are you sure you want to delete this article? This action cannot be undone and will permanently remove the article from your site.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel onClick={() => setConfirmDeleteId(null)}>
-                            Cancel
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={() => confirmDeleteId && handleDeleteArticle(confirmDeleteId)}
-                            disabled={deletingArticle !== null}
-                        >
-                            {deletingArticle === confirmDeleteId ? "Deleting..." : "Delete Article"}
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
-
-            {/* Delete External Article Confirmation Dialog */}
-            <AlertDialog open={confirmDeleteExternalId !== null} onOpenChange={(open) => !open && setConfirmDeleteExternalId(null)}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Delete External Article</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Are you sure you want to delete this external article reference? This action cannot be undone.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel onClick={() => setConfirmDeleteExternalId(null)}>
-                            Cancel
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={() => confirmDeleteExternalId && handleDeleteExternalArticle(confirmDeleteExternalId)}
-                            disabled={deletingExternalArticle !== null}
-                        >
-                            {deletingExternalArticle === confirmDeleteExternalId ? "Deleting..." : "Delete External Article"}
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
-
-            {/* Image Picker */}
-            <ImagePicker
-                isOpen={isImagePickerOpen}
-                onClose={() => setIsImagePickerOpen(false)}
-                onImageSelect={handleImageSelect}
-                title="Select Featured Image"
-                description="Choose an image for your article from your library or upload a new one"
-            />
-
-            {/* External Article Image Picker */}
-            <ImagePicker
-                isOpen={isExternalImagePickerOpen}
-                onClose={() => setIsExternalImagePickerOpen(false)}
-                onImageSelect={handleExternalImageSelect}
-                title="Select Image for External Article"
-                description="Choose an image for the external article from your library or upload a new one"
-            />
+            {articleSearchStatus === "CanLoadMore" && (
+                <Button variant="outline" onClick={() => loadMoreArticles(20)}>
+                    Load More
+                </Button>
+            )}
         </div>
 
     );

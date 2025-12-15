@@ -59,7 +59,7 @@ const HerdContent = ({ herdId }: { herdId: Id<"herds"> }) => {
                                         <div className="text-ink">{tm.description}</div>
                                     </div>
                                     <div className="relative basis-0 grow h-72 flex flex-col">
-                                        {tm.image && (<Image
+                                        {tm.image && tm.image.url && (<Image
                                             src={tm.image.url}
                                             alt={tm.image.altText || tm.title}
                                             className="w-full h-full object-cover object-center"

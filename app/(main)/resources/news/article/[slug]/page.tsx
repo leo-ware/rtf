@@ -32,7 +32,7 @@ export default function ArticlePage({ params }: PageProps<{ slug: string }>) {
         );
     }
 
-    if (article === null || !article.published) {
+    if (article === null) {
         notFound();
     }
 
@@ -49,20 +49,20 @@ export default function ArticlePage({ params }: PageProps<{ slug: string }>) {
             <div className="max-w-4xl mx-auto px-4">
                 <header className="mb-8">
                     <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                        {article.title}
+                        {article.articleMetadata.title}
                     </h1>
 
                     <div className="flex items-center space-x-6 text-gray-600 mb-6">
-                        {article.author && (
+                        {article.authorCredit && (
                             <div className="flex items-center space-x-2">
                                 <UserIcon className="w-4 h-4" />
                                 <span>{article.authorCredit}</span>
                             </div>
                         )}
-                        {article.publishedAt && (
+                        {article.articleMetadata.date && (
                             <div className="flex items-center space-x-2">
                                 <CalendarIcon className="w-4 h-4" />
-                                <span>{formatDate(article.publishedAt)}</span>
+                                <span>{formatDate(article.articleMetadata.date)}</span>
                             </div>
                         )}
                     </div>
@@ -72,7 +72,7 @@ export default function ArticlePage({ params }: PageProps<{ slug: string }>) {
                     <div className="mb-8">
                         <img
                             src={article.image.url || ""}
-                            alt={article.image.altText || article.title}
+                            alt={article.image.altText || article.articleMetadata.title}
                             className="max-w-full max-h-[400px] aspect-video object-cover mx-auto rounded-lg"
                         />
                     </div>

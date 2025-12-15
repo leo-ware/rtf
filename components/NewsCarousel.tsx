@@ -3,59 +3,46 @@
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
 import Image from "next/image"
 import Link from "next/link"
-import { useQuery } from "convex/react"
+import { usePaginatedQuery, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Id } from "@/convex/_generated/dataModel"
-import { FunctionReturnType } from "convex/server"
+import { formatDate } from "@/lib/utils"
 
 import BrosChilling from "@/public/img/bros-chilling.png"
 import Carosel from "@/components/Carousel"
-
-type Article = FunctionReturnType<typeof api.articles.getArticlesByTags>[number]
 
 type NewsCarouselProps = {
     title?: string
     bgColor?: string
     herdId?: Id<"herds">
     animalId?: Id<"animals">
-    topic?: "conservation" | "sanctuary" | "advocacy" | "education" | "herd-management" | "population-management" | "roundups" | "horse-slaughter" | "spirit"
+    topic?: "homepage" | "conservation" | "sanctuary" | "advocacy" | "education" | "herd_management" | "population_management" | "roundups" | "horse_slaughter" | "spirit"
 }
 
 const NewsCarousel = ({
     title = "Latest News", 
     bgColor = "seashell",
-    herdId,
-    animalId,
     topic
 }: NewsCarouselProps) => {
-    const articles = useQuery(api.articles.getArticlesByTags, {
-        herdId,
-        animalId,
+    const { results: topicArticles } = usePaginatedQuery(api.articleMetadata.carouselSearch, {
         topic,
-        limit: 6,
-    })
+    }, { initialNumItems: 4 })
+
+    const articles = topicArticles
 
     if (!articles || articles.length === 0) {
         return null
     }
     
-    const items = articles.map((article: Article) => {
-        const formattedDate = article.publishedAt 
-            ? new Date(article.publishedAt).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric"
-            })
-            : new Date(article._creationTime).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric"
-            })
+    const items = articles.map((article) => {
+        const formattedDate = article.date 
+            ? formatDate(new Date(article.date))
+            : formatDate(new Date(article._creationTime))
 
         return {
             id: article._id,
             widget: (
-                <Link href={`/news/article/${article.slug}`}>
+                <Link href={article.link}>
                     <div className="w-full md:w-[75vw] h-[300px] md:h-[200px] flex md:flex-row flex-col stretch cursor-pointer hover:opacity-90 transition-opacity">
                         <div className="basis-0 grow overflow-hidden">
                             <Image

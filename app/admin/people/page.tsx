@@ -38,7 +38,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { handleConvexError, handleNotFoundError } from "@/lib/errorHandler";
-import { ImagePicker } from "@/components/ImagePicker";
+import { ImagePicker } from "@/components/images/ImagePicker";
 
 const AdminPeoplePage = () => {
     const router = useRouter();
@@ -275,11 +275,11 @@ const AdminPeoplePage = () => {
         }
     };
 
-    const handleImageSelect = (imageData: { imageId: string; imageUrl: string }) => {
+    const handleImageSelect = (imageData: { imageId: Id<"images">; url: string }) => {
         setPersonFormData(prev => ({
             ...prev,
-            imageId: imageData.imageId,
-            imageUrl: imageData.imageUrl,
+            imageId: imageData.imageId as string,
+            imageUrl: imageData.url,
         }));
         setIsImagePickerOpen(false);
     };
@@ -1049,8 +1049,6 @@ const AdminPeoplePage = () => {
                 isOpen={isImagePickerOpen}
                 onClose={() => setIsImagePickerOpen(false)}
                 onImageSelect={handleImageSelect}
-                title="Select Profile Image"
-                description="Choose an image for this person's profile"
             />
         </div>
     );

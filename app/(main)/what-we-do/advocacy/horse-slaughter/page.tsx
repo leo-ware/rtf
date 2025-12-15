@@ -153,7 +153,7 @@ const HorseSlaughterPage = () => {
             <NewsCarousel
                 title="Latest News on Horse Slaughter"
                 bgColor="seashell"
-                topic="horse-slaughter" />
+                topic="horse_slaughter" />
 
             <div className="w-10/12 mx-auto">
                 <BlurredImageCard image={BlurredBg}>

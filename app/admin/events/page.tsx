@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { ImagePicker } from "@/components/ImagePicker"
+import { ImagePicker } from "@/components/images/ImagePicker"
 import {
     Plus,
     Edit,
@@ -57,7 +57,7 @@ const AdminEventsPage = () => {
     const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list')
     const [searchTerm, setSearchTerm] = useState("")
     const [isImagePickerOpen, setIsImagePickerOpen] = useState(false)
-    const [selectedImageData, setSelectedImageData] = useState<{ imageId: string; imageUrl: string } | null>(null)
+    const [selectedImageData, setSelectedImageData] = useState<{ imageId: Id<"images">; url: string } | null>(null)
     const [isScheduleEventDialogOpen, setIsScheduleEventDialogOpen] = useState(false)
     const [selectedProgramForEvent, setSelectedProgramForEvent] = useState<Id<"programs"> | null>(null)
 
@@ -830,8 +830,6 @@ const AdminEventsPage = () => {
                     setSelectedImageData(imageData)
                     setIsImagePickerOpen(false)
                 }}
-                title="Select Image"
-                description="Choose an image for this item"
             />
 
             {/* Schedule Event Dialog */}
@@ -1133,8 +1131,8 @@ const ProgramGroupForm = ({
 }: {
     formData: any
     setFormData: (data: any) => void
-    selectedImageData: { imageId: string; imageUrl: string } | null
-    setSelectedImageData: (data: { imageId: string; imageUrl: string } | null) => void
+    selectedImageData: { imageId: Id<"images">; url: string } | null
+    setSelectedImageData: (data: { imageId: Id<"images">; url: string } | null) => void
     isImagePickerOpen: boolean
     setIsImagePickerOpen: (open: boolean) => void
     onSubmit: () => void
@@ -1198,7 +1196,7 @@ const ProgramGroupForm = ({
                     {selectedImageData && (
                         <div className="mt-2">
                             <img
-                                src={selectedImageData.imageUrl}
+                                src={selectedImageData.url}
                                 alt="Selected"
                                 className="w-20 h-20 object-cover rounded"
                             />
@@ -1244,8 +1242,8 @@ const ProgramForm = ({
 }: {
     formData: any
     setFormData: (data: any) => void
-    selectedImageData: { imageId: string; imageUrl: string } | null
-    setSelectedImageData: (data: { imageId: string; imageUrl: string } | null) => void
+    selectedImageData: { imageId: Id<"images">; url: string } | null
+    setSelectedImageData: (data: { imageId: Id<"images">; url: string } | null) => void
     isImagePickerOpen: boolean
     setIsImagePickerOpen: (open: boolean) => void
     programGroups: any[]
@@ -1362,7 +1360,7 @@ const ProgramForm = ({
                     {selectedImageData && (
                         <div className="mt-2">
                             <img
-                                src={selectedImageData.imageUrl}
+                                src={selectedImageData.url}
                                 alt="Selected"
                                 className="w-20 h-20 object-cover rounded"
                             />

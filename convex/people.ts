@@ -1,8 +1,9 @@
-import { GenericId, v } from "convex/values";
-import { query, mutation } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
-import { indexArray } from "./utils";
-import { getCurrentUserOrThrow } from "./users";
+import { GenericId, v } from "convex/values"
+import { query, mutation } from "./_generated/server"
+import { getAuthUserId } from "@convex-dev/auth/server"
+import { indexArray } from "./utils"
+import { getCurrentUserOrThrow } from "./users"
+import { peopleAggregate } from "./aggregates"
 
 
 export const listPeople = query({
@@ -160,10 +161,10 @@ export const createPerson = mutation({
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
-            throw new Error("Insufficient permissions");
+            throw new Error("Insufficient permissions")
         }
 
-        const now = Date.now();
+        const now = Date.now()
 
         const personId = await ctx.db.insert("people", {
             name: args.name,
@@ -179,7 +180,12 @@ export const createPerson = mutation({
             createdBy: user._id,
             createdAt: now,
             updatedAt: now,
-        });
+        })
+
+        const person = await ctx.db.get(personId)
+        if (person) {
+            await peopleAggregate.insert(ctx, person)
+        }
 
         // Add advisory board associations if provided
         if (args.advisoryBoardIds && args.advisoryBoardIds.length > 0) {
@@ -190,14 +196,14 @@ export const createPerson = mutation({
                         advisoryBoardId: boardId,
                         createdBy: user._id,
                         createdAt: now,
-                    });
+                    })
                 })
-            );
+            )
         }
 
-        return personId;
+        return personId
     },
-});
+})
 
 export const updatePerson = mutation({
     args: {
@@ -282,32 +288,33 @@ export const deletePerson = mutation({
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
-            throw new Error("Insufficient permissions");
+            throw new Error("Insufficient permissions")
         }
 
-        const person = await ctx.db.get(args.id);
+        const person = await ctx.db.get(args.id)
         if (!person) {
-            throw new Error("Person not found");
+            throw new Error("Person not found")
         }
 
         // Remove advisory board associations
         const associations = await ctx.db
             .query("peopleAdvisoryBoards")
             .withIndex("by_person", (q) => q.eq("personId", args.id))
-            .collect();
+            .collect()
 
         await Promise.all(
             associations.map(async (association) => {
-                await ctx.db.delete(association._id);
+                await ctx.db.delete(association._id)
             })
-        );
+        )
 
         // Delete the person
-        await ctx.db.delete(args.id);
+        await peopleAggregate.delete(ctx, person)
+        await ctx.db.delete(args.id)
 
-        return { success: true };
+        return { success: true }
     },
-});
+})
 
 export const listPeopleByAdvisoryBoard = query({
     args: {

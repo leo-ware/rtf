@@ -47,39 +47,75 @@ export default defineSchema({
         updatedAt: v.number(),
     }).index("email", ["email"]),
 
-    articles: defineTable({
+    articleMetadata: defineTable({
+        date: v.number(),
+        public: v.boolean(),
+        imageId: v.id("images"),
+
         title: v.string(),
+        excerpt: v.string(),
+        herdIds: v.array(v.id("herds")),
+        animalIds: v.array(v.id("animals")),
+        searchText: v.string(),
+
+        topic_homepage: v.optional(v.boolean()),
+        topic_conservation: v.optional(v.boolean()),
+        topic_sanctuary: v.optional(v.boolean()),
+        topic_advocacy: v.optional(v.boolean()),
+        topic_education: v.optional(v.boolean()),
+        topic_herd_management: v.optional(v.boolean()),
+        topic_population_management: v.optional(v.boolean()),
+        topic_roundups: v.optional(v.boolean()),
+        topic_horse_slaughter: v.optional(v.boolean()),
+        topic_spirit: v.optional(v.boolean()),
+
+        articleId: v.optional(v.id("articles")),
+        externalArticleId: v.optional(v.id("externalArticles")),
+        isExternal: v.boolean(),
+    })
+        .searchIndex(
+            "searchText", {
+            searchField: "searchText",
+            filterFields: [
+                "isExternal",
+                "date",
+                "topic_homepage",
+                "topic_conservation",
+                "topic_sanctuary",
+                "topic_advocacy",
+                "topic_education",
+                "topic_herd_management",
+                "topic_population_management",
+                "topic_roundups",
+                "topic_horse_slaughter",
+                "topic_spirit",
+            ]
+        },
+        )
+        .index("topic_filter", [
+            // "date",
+            "isExternal",
+            "topic_homepage",
+            "topic_conservation",
+            "topic_sanctuary",
+            "topic_advocacy",
+            "topic_education",
+            "topic_herd_management",
+            "topic_population_management",
+            "topic_roundups",
+            "topic_horse_slaughter",
+            "topic_spirit",
+        ]),
+
+    articles: defineTable({
         slug: v.string(),
         content: v.string(),
-        excerpt: v.string(),
-        imageId: v.optional(v.id("images")),
-        authorId: v.id("users"),
         authorCredit: v.optional(v.string()),
-        published: v.boolean(),
-        publishedAt: v.optional(v.number()),
-        createdAt: v.number(),
-        updatedAt: v.number(),
-        // Tags
-        herdIds: v.optional(v.array(v.id("herds"))),
-        animalIds: v.optional(v.array(v.id("animals"))),
-        topics: v.optional(v.array(v.union(
-            v.literal("conservation"),
-            v.literal("sanctuary"),
-            v.literal("advocacy"),
-            v.literal("education"),
-            v.literal("herd-management"),
-            v.literal("population-management"),
-            v.literal("roundups"),
-            v.literal("horse-slaughter"),
-            v.literal("spirit")
-        ))),
-    }).index("by_published", ["published"])
-        .index("by_author", ["authorId"])
-        .index("by_published_date", ["published", "publishedAt"])
+        articleMetadataId: v.id("articleMetadata"),
+        imageId: v.id("images"),
+    })
         .index("by_slug", ["slug"])
-        .index("by_image", ["imageId"])
-        .index("by_created_at", ["createdAt"])
-        .index("by_updated_at", ["updatedAt"]),
+    ,
 
     externalArticles: defineTable({
         link: v.string(),
@@ -87,38 +123,10 @@ export default defineSchema({
         imageId: v.optional(v.id("images")),
         blurb: v.string(),
         organization: v.string(),
-        createdBy: v.id("users"),
-        createdAt: v.number(),
-    }).index("by_organization", ["organization"])
-        .index("by_created_by", ["createdBy"])
-        .index("by_created_at", ["createdAt"])
+        articleMetadataId: v.id("articleMetadata"),
+    })
+        .index("by_organization", ["organization"])
         .index("by_image", ["imageId"]),
-
-    donations: defineTable({
-        amount: v.number(),
-        currency: v.string(),
-        donorName: v.string(),
-        donorEmail: v.string(),
-        donorPhone: v.optional(v.string()),
-        isAnonymous: v.boolean(),
-        isRecurring: v.boolean(),
-        dedicationType: v.optional(v.union(v.literal("honor"), v.literal("memory"))),
-        dedicationName: v.optional(v.string()),
-        dedicationMessage: v.optional(v.string()),
-        paymentMethod: v.string(),
-        paymentStatus: v.union(
-            v.literal("pending"),
-            v.literal("processing"),
-            v.literal("completed"),
-            v.literal("failed")
-        ),
-        transactionId: v.optional(v.string()),
-        failureReason: v.optional(v.string()),
-        createdAt: v.number(),
-        completedAt: v.optional(v.number()),
-    }).index("by_status", ["paymentStatus"])
-        .index("by_created_at", ["createdAt"])
-        .index("by_donor_email", ["donorEmail"]),
 
     programGroups: defineTable({
         name: v.string(),
@@ -191,47 +199,43 @@ export default defineSchema({
     images: defineTable({
         fileName: v.string(),
         originalName: v.string(),
+        title: v.string(),
         mimeType: v.string(),
         size: v.number(),
         storageId: v.id("_storage"),
-        uploadedBy: v.id("users"),
         altText: v.optional(v.string()),
-        description: v.optional(v.string()),
-        tags: v.optional(v.array(v.string())),
-        isPublic: v.boolean(),
         width: v.optional(v.number()),
         height: v.optional(v.number()),
-        uploadedAt: v.number(),
-    }).index("by_uploaded_by", ["uploadedBy"])
-        .index("by_uploaded_at", ["uploadedAt"])
-        .index("by_public", ["isPublic"])
-        .index("by_tags", ["tags"]),
+    })
+        .searchIndex("searchTitle", {
+            searchField: "title"
+        }),
 
     contactMessages: defineTable({
-        name: v.string(),
-        email: v.string(),
-        phone: v.optional(v.string()),
-        subject: v.string(),
-        message: v.string(),
-        status: v.union(
-            v.literal("new"),
-            v.literal("read"),
-            v.literal("replied"),
-            v.literal("archived")
-        ),
-        priority: v.union(
-            v.literal("low"),
-            v.literal("normal"),
-            v.literal("high"),
-            v.literal("urgent")
-        ),
-        source: v.optional(v.string()),
-        ipAddress: v.optional(v.string()),
-        userAgent: v.optional(v.string()),
-        createdAt: v.number(),
-        readAt: v.optional(v.number()),
-        repliedAt: v.optional(v.number()),
-    }).index("by_status", ["status"])
+            name: v.string(),
+            email: v.string(),
+            phone: v.optional(v.string()),
+            subject: v.string(),
+            message: v.string(),
+            status: v.union(
+                v.literal("new"),
+                v.literal("read"),
+                v.literal("replied"),
+                v.literal("archived")
+            ),
+            priority: v.union(
+                v.literal("low"),
+                v.literal("normal"),
+                v.literal("high"),
+                v.literal("urgent")
+            ),
+            source: v.optional(v.string()),
+            ipAddress: v.optional(v.string()),
+            userAgent: v.optional(v.string()),
+            createdAt: v.number(),
+            readAt: v.optional(v.number()),
+            repliedAt: v.optional(v.number()),
+        }).index("by_status", ["status"])
         .index("by_created_at", ["createdAt"])
         .index("by_email", ["email"])
         .index("by_priority", ["priority"]),
@@ -260,31 +264,6 @@ export default defineSchema({
         .index("by_confirmation_token", ["confirmationToken"])
         .index("by_unsubscribe_token", ["unsubscribeToken"]),
 
-    pages: defineTable({
-        title: v.string(),
-        slug: v.string(),
-        content: v.string(),
-        excerpt: v.optional(v.string()),
-        category: v.union(
-            v.literal("about"),
-            v.literal("what-we-do"),
-            v.literal("learn"),
-            v.literal("take-action")
-        ),
-        imageId: v.optional(v.id("images")),
-        isPublished: v.boolean(),
-        metaTitle: v.optional(v.string()),
-        metaDescription: v.optional(v.string()),
-        lastEditedBy: v.id("users"),
-        createdAt: v.number(),
-        updatedAt: v.number(),
-    }).index("by_category", ["category"])
-        .index("by_published", ["isPublished"])
-        .index("by_slug", ["slug"])
-        .index("by_updated_at", ["updatedAt"])
-        .index("by_last_edited_by", ["lastEditedBy"])
-        .index("by_image", ["imageId"]),
-
     timelineItem: defineTable({
         order: v.number(),
         date: v.string(),
@@ -303,6 +282,8 @@ export default defineSchema({
         timeline: v.optional(v.array(v.id("timelineItem"))),
         createdAt: v.number(),
         updatedAt: v.number(),
+
+        articleMetadataIds: v.optional(v.array(v.id("articleMetadata"))),
     }).index("by_slug", ["slug"]),
 
     animals: defineTable({
@@ -321,6 +302,8 @@ export default defineSchema({
         inMemoriam: v.optional(v.boolean()),
         createdAt: v.number(),
         updatedAt: v.number(),
+
+        articleMetadataIds: v.optional(v.array(v.id("articleMetadata"))),
     }).index("by_slug", ["slug"])
         .index("by_type", ["type"])
         .index("by_herd", ["herdId"])
@@ -371,4 +354,33 @@ export default defineSchema({
         .index("by_created_by", ["createdBy"])
         .index("by_created_at", ["createdAt"])
         .index("by_person_and_board", ["personId", "advisoryBoardId"]),
-});
+    
+    sponsors: defineTable({
+        name: v.string(),
+        imageId: v.optional(v.id("images")),
+    }),
+
+    documents: defineTable({
+        name: v.string(),
+        type: v.union(
+            v.literal("annual_report"),
+            v.literal("financial_documents"),
+            v.literal("form_990"),
+            v.literal("other")
+        ),
+        year: v.number(),
+        fileId: v.id("_storage"),
+        isPublic: v.boolean(),
+    })
+        .index("by_type", ["type"])
+        .index("by_public", ["isPublic"])
+        .index("by_year", ["year"])
+        .searchIndex("searchName", {
+            searchField: "name",
+            filterFields: [
+                "type",
+                "isPublic",
+                "year",
+            ]
+        }),
+})

@@ -21,14 +21,16 @@ const ConvexImage: React.FC<ConvexImageProps> = ({ src, width, height, alt, obje
 
     return (
         <div className={classes}>
-            <Image
-                src={src}
-                width={width}
-                height={height}
-                alt={alt}
-                style={{ objectFit }}
-                className="w-full h-full"
-                loader={loader} />
+            {src && src.length > 0 && (
+                <Image
+                    src={src}
+                    width={width}
+                    height={height}
+                    alt={alt}
+                    style={{ objectFit }}
+                    className="w-full h-full"
+                    loader={loader} />
+            )}
         </div>
     )
 }

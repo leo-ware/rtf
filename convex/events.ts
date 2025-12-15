@@ -1,6 +1,7 @@
 import { query, mutation } from "./_generated/server"
 import { v } from "convex/values"
 import { getCurrentUserOrThrow } from "./users"
+import { eventsAggregate } from "./aggregates"
 
 // Get all events (admin only)
 export const getAllEvents = query({
@@ -221,17 +222,22 @@ export const createEvent = mutation({
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
-            throw new Error("Insufficient permissions");
+            throw new Error("Insufficient permissions")
         }
         const now = Date.now()
 
-        return await ctx.db.insert("events", {
+        const eventId = await ctx.db.insert("events", {
             ...args,
             currentAttendees: 0,
             createdAt: now,
             updatedAt: now,
             createdBy: user._id,
         })
+        const event = await ctx.db.get(eventId)
+        if (event) {
+            await eventsAggregate.insert(ctx, event)
+        }
+        return eventId
     },
 })
 
@@ -290,7 +296,7 @@ export const deleteEvent = mutation({
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
-            throw new Error("Insufficient permissions");
+            throw new Error("Insufficient permissions")
         }
 
         const existingEvent = await ctx.db.get(args.id)
@@ -298,6 +304,7 @@ export const deleteEvent = mutation({
             throw new Error("Event not found")
         }
 
+        await eventsAggregate.delete(ctx, existingEvent)
         await ctx.db.delete(args.id)
         return null
     },

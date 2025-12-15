@@ -115,7 +115,7 @@ const AdminUsersPage = () => {
 
     return (
         <div className="flex flex-col items-start justify-start gap-8 w-full mx-auto lg:w-2/3 py-12 px-8 lg:px-2">
-            <div className="w-full flex flex-row items-center justify-end">
+            {/* <div className="w-full flex flex-row items-center justify-end">
                 <Dialog>
                     <DialogTrigger>
                         <Button>
@@ -174,7 +174,7 @@ const AdminUsersPage = () => {
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
-            </div>
+            </div> */}
 
             <h1 className="text-2xl font-bold">Current Users</h1>
 
@@ -282,7 +282,7 @@ const AdminUsersPage = () => {
                 ))}
             </div>
 
-            {invitedUsers && invitedUsers.length > 0 && (
+            {/* {invitedUsers && invitedUsers.length > 0 && (
                 <>
                     <h1 className="text-2xl font-bold">Invited Users</h1>
                     <div className="w-full flex flex-col items-start justify-start gap-4">
@@ -334,7 +334,7 @@ const AdminUsersPage = () => {
                         ))}
                     </div>
                 </>
-            )}
+            )} */}
         </div>
     )
 }

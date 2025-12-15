@@ -21,7 +21,9 @@ import {
     X,
     BarChart3,
     Heart,
-    Code
+    Code,
+    Building2,
+    FolderOpen
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -77,6 +79,18 @@ const AdminNavbar = () => {
             href: "/admin/people",
             icon: Users,
             description: "Manage team members"
+        },
+        {
+            name: "Sponsors",
+            href: "/admin/sponsors",
+            icon: Building2,
+            description: "Manage sponsors"
+        },
+        {
+            name: "Documents",
+            href: "/admin/documents",
+            icon: FolderOpen,
+            description: "Manage documents"
         },
         // {
         //     name: "Analytics",

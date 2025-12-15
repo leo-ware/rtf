@@ -1,6 +1,6 @@
 "use client"
 
-import { ConvexImageProps } from "@/components/ConvexImage";
+import { ConvexImageProps } from "@/components/images/ConvexImage";
 import { IoPersonOutline } from "react-icons/io5";
 import { useState } from "react";
 import Image from "next/image";

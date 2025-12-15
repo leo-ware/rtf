@@ -137,3 +137,31 @@ export const formatDateRange = (startDate: Date, endDate: Date) => {
         return `${startMonthString} ${startDay}, ${endYear}`
     }
 }
+
+export const generateSlug = (name: string): string => {
+    return name
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-")
+        .trim()
+}
+
+export const deepEqual = (a: any, b: any): boolean => {
+    return JSON.stringify(normalize(a)) === JSON.stringify(normalize(b));
+  }
+  
+  function normalize(obj: any): any {
+    if (obj === null || typeof obj !== 'object') return obj;
+    
+    if (Array.isArray(obj)) {
+      return obj.map(normalize).sort();
+    }
+    
+    return Object.keys(obj)
+      .sort()
+      .reduce((acc, key) => {
+        acc[key] = normalize(obj[key]);
+        return acc;
+      }, {} as any);
+  }

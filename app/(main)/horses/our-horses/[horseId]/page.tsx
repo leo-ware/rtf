@@ -9,7 +9,7 @@ import Header from "@/components/public-ui/Header"
 import Carousel from "@/components/Carousel"
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
 import Button from "@/components/public-ui/Button"
-import ConvexImage from "@/components/ConvexImage"
+import ConvexImage from "@/components/images/ConvexImage"
 import { notFound } from "next/navigation"
 
 import { Id } from "@/convex/_generated/dataModel"

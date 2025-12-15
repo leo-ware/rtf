@@ -18,17 +18,16 @@ import NeedUsCarousel from "./NeedUsCarousel"
 import BlurredDonateBackgroundOne from "./blurred-donate-frame-1.png"
 import BlurredDonateBackgroundTwo from "./blurred-donate-frame-2.png"
 import LongRightArrow from "@/components/LongRightArrow"
+import { Fragment } from "react"
 
-import { useQuery } from "convex/react"
-import { api } from "@/convex/_generated/api"
-
+const landingVideoUrl = "https://pub-25922965d5524e8db13526bfb193c2ff.r2.dev/rtf-landing-video-v1.mp4"
 
 const HomePage = () => {
     return (
         <div className="w-full">
 
             <div className="relative w-full h-[84vh] bg-pewter">
-                {/* <video
+                <video
                     className="z-0 absolute w-full h-full object-cover"
                     autoPlay
                     loop
@@ -37,7 +36,7 @@ const HomePage = () => {
                 >
                     {landingVideoUrl
                         && <source src={landingVideoUrl} type="video/mp4" />}
-                </video> */}
+                </video>
                 <div className="relative z-10 w-full h-full flex items-center justify-center
                     text-white text-center text-[64px] font-serif">
                     Wild Horse Conservation
@@ -109,8 +108,9 @@ const HomePage = () => {
                                 link: "/what-we-do/education"
                             }
                         ].map(({ title, image, description, link }) => (
-                            <>
-                                <div className="hidden md:block
+                            <Fragment key={title}>
+                                <div
+                                    className="hidden md:block
                                     relative group transition-all duration-500 flex-grow hover:flex-grow-2 basis-0
                                     h-full bg-pewter flex flex-col items-center justify-center gap-2">
                                     <Image
@@ -147,7 +147,8 @@ const HomePage = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="block md:hidden relative w-1/2 aspect-square flex items-center justify-center">
+                                <div
+                                    className="block md:hidden relative w-1/2 aspect-square flex items-center justify-center">
                                     <Image
                                         src={image}
                                         alt={title + " image"}
@@ -158,7 +159,7 @@ const HomePage = () => {
                                         {title}
                                     </Link>
                                 </div>
-                            </>
+                            </Fragment>
                         ))}
 
                     </div>
@@ -233,8 +234,8 @@ const HomePage = () => {
                 <div className="w-11/12 md:w-full flex flex-col items-start md:items-center justify-center gap-2">
                     <div className="text-pewter text-4xl font-serif mb-4">Take Action</div>
                     <div className="w-10/12 mx-auto h-fit flex gap-6">
-                        {Array(3).fill(null).map(() => (
-                            <div className="basis-0 grow aspect-square flex flex-col bg-seashell rounded-sm overflow-hidden">
+                        {Array(3).fill(null).map((_, i) => (
+                            <div key={i} className="basis-0 grow aspect-square flex flex-col bg-seashell rounded-sm overflow-hidden">
                                 <div className="grow bg-pewter">
                                     <Image
                                         src={OminouseHorses}
@@ -292,7 +293,7 @@ const HomePage = () => {
                 </div>
             </div>
 
-            <NewsCarousel />
+            <NewsCarousel topic="homepage" />
 
             <VideoCarousel carouselItems={[
                 {

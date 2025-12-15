@@ -26,8 +26,8 @@ export const indexArray = <T>(array: T[], keyFn: (item: T) => string) => {
 type RemoveUndefinedFields<T> = {
     [K in keyof T as undefined extends T[K]
     ? T[K] extends undefined
-    ? never
-    : K
+        ? never
+        : K
     : K
     ]: T[K]
 }

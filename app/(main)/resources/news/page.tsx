@@ -1,16 +1,15 @@
 "use client"
 
-import { useQuery } from "convex/react"
+import { usePaginatedQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import Link from "next/link"
 import Image from "next/image"
-import React, { useState, useMemo } from "react"
-import { format } from "date-fns"
-
-import { IoIosSearch } from "react-icons/io"
+import React, { useState } from "react"
+import Input from "@/components/public-ui/form/Input"
+import Select, { SelectOption } from "@/components/public-ui/form/Select"
 import NewsHeroImage from "./news-hero-image.jpg"
-import { FaCaretDown } from "react-icons/fa6"
 import { cn } from "@/lib/utils"
+import { FaSearch } from "react-icons/fa"
 
 
 const NewsOptionBox = (props: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>) => (
@@ -25,10 +24,20 @@ const NewsOptionBox = (props: React.DetailedHTMLProps<React.HTMLAttributes<HTMLD
 )
 
 export default function NewsPage() {
-    const articles = useQuery(api.articles.listArticles, {
-        limit: 50,
-        publishedOnly: true
-    })
+
+    const [searchTerm, setSearchTerm] = useState<string | null>(null)
+    const [external, setExternal] = useState<SelectOption<boolean | undefined> | null>(null)
+
+    const resetSearch = () => {
+        setSearchTerm(null)
+        setExternal(null)
+    }
+
+    const { results: articles, loadMore: loadMoreArticles } = usePaginatedQuery(api.articleMetadata.search, {
+        publicOnly: true,
+        query: !!searchTerm ? searchTerm : undefined,
+        external: external?.value ?? undefined,
+    }, { initialNumItems: 50 })
 
     const filteredArticles = articles || []
 
@@ -49,28 +58,34 @@ export default function NewsPage() {
             <div className="h-fit w-10/12 mx-auto flex flex-col gap-8 py-8">
                 {/* Search */}
                 <div className="w-full h-10 flex justify-between gap-8">
-                    <NewsOptionBox className="w-56">
-                        Search
-                        <IoIosSearch className="text-[#618596]" size={16} />
-                    </NewsOptionBox>
-                    <div className="flex gap-4">
-                        <NewsOptionBox className="w-40">
-                            News Type
-                            <FaCaretDown className="text-[#618596]" size={16} />
-                        </NewsOptionBox>
-                        <NewsOptionBox className="w-40">
-                            Source
-                            <FaCaretDown className="text-[#618596]" size={16} />
-                        </NewsOptionBox>
-                        <NewsOptionBox className="w-40">
-                            Issue
-                            <FaCaretDown className="text-[#618596]" size={16} />
-                        </NewsOptionBox>
+                    <div className="w-1/3">
+                        <Input
+                            value={searchTerm ?? ""}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Search"
+                            icon={
+                                <FaSearch
+                                    className="text-pewter shrink-0 w-full"
+                                    size={16} />
+                            }
+                        />
                     </div>
-                    <div />
-                    <div className="flex gap-8">
-                        <NewsOptionBox className="w-fit">Sort By</NewsOptionBox>
-                        <NewsOptionBox className="w-fit border-none">Reset</NewsOptionBox>
+                    <div className="flex gap-4">
+                        <Select
+                            placeholder="Source"
+                            options={[
+                                { label: "All", value: undefined },
+                                { label: "RTF", value: false },
+                                { label: "External", value: true },
+                            ]}
+                            selectedValue={external ?? null}
+                            onSelect={setExternal}
+                        />
+                        <NewsOptionBox
+                            className="w-fit h-10 border-none"
+                            onClick={resetSearch}>
+                            Reset
+                        </NewsOptionBox>
                     </div>
                 </div>
 
@@ -108,7 +123,7 @@ export default function NewsPage() {
                                                             )}
                                                         </div>
                                                     </td>
-                                                    <td className="py-3 px-4 text-sm text-gray-600">
+                                                    {/* <td className="py-3 px-4 text-sm text-gray-600">
                                                         {(article.authorCredit) || "RTF Staff"}
                                                     </td>
                                                     <td className="py-3 px-4 text-sm text-gray-600">
@@ -116,10 +131,10 @@ export default function NewsPage() {
                                                             ? format(new Date(article.publishedAt), "MMM dd, yyyy")
                                                             : "—"
                                                         }
-                                                    </td>
+                                                    </td> */}
                                                     <td className="py-3 px-4 text-right">
                                                         <Link
-                                                            href={`/resources/news/article/${article.slug}`}
+                                                            href={article.link}
                                                             className="text-burnt-orange hover:text-burnt-orange/80 font-medium text-sm"
                                                         >
                                                             Read Article →
@@ -129,6 +144,12 @@ export default function NewsPage() {
                                             ))}
                                         </tbody>
                                     </table>
+                                </div>
+                                <div
+                                    className="text-pewter underline cursor-pointer text-sm mt-4"
+                                    onClick={() => loadMoreArticles(50)}
+                                >
+                                    Load More
                                 </div>
                             </div>
                         )}

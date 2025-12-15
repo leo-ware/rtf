@@ -1,6 +1,7 @@
 import { UserJSON } from "@clerk/backend";
 import { createClerkClient } from "./clerkClient";
 import { v, Validator } from "convex/values";
+import { QMCtxType } from "./types";
 
 import {
     internalMutation,
@@ -14,13 +15,13 @@ import { api } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
 
 
-export async function getCurrentUserOrThrow(ctx: QueryCtx) {
+export async function getCurrentUserOrThrow(ctx: QMCtxType) {
     const userRecord = await getCurrentUser(ctx);
     if (!userRecord) throw new Error("Can't get current user");
     return userRecord;
 }
 
-export async function getCurrentUser(ctx: QueryCtx) {
+export async function getCurrentUser(ctx: QMCtxType) {
     const identity = await ctx.auth.getUserIdentity();
     if (identity === null) {
         return null;
@@ -33,11 +34,11 @@ export async function getCurrentUser(ctx: QueryCtx) {
     }
 }
 
-export const userById = async (ctx: QueryCtx | MutationCtx, userId: Id<"users">) => {
+export const userById = async (ctx: QMCtxType, userId: Id<"users">) => {
     return await ctx.db.get(userId);
 }
 
-async function userByExternalId(ctx: QueryCtx, externalId: string) {
+async function userByExternalId(ctx: QMCtxType, externalId: string) {
     return await ctx.db
         .query("users")
         .withIndex("externalId", (q) => q.eq("externalId", externalId))

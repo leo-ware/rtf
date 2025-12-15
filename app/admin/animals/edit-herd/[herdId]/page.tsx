@@ -31,8 +31,8 @@ import {
 import { ArrowLeft, Plus, Edit, Trash2, Save, Calendar } from "lucide-react"
 import Link from "next/link"
 import { handleConvexError } from "@/lib/errorHandler"
-import { ImagePicker } from "@/components/ImagePicker"
-import ConvexImage from "@/components/ConvexImage"
+import { ImagePicker } from "@/components/images/ImagePicker"
+import ConvexImage from "@/components/images/ConvexImage"
 
 interface EditHerdPageProps {
     params: Promise<{
@@ -437,8 +437,6 @@ const EditHerdPage = ({ params }: EditHerdPageProps) => {
                 onImageSelect={(imageData) => {
                     setFormData(prev => ({ ...prev, imageId: imageData.imageId }))
                 }}
-                title="Select Herd Image"
-                description="Choose an image for this herd"
             />
 
             {/* Timeline Dialog */}
@@ -554,8 +552,6 @@ const EditHerdPage = ({ params }: EditHerdPageProps) => {
                 onImageSelect={(imageData) => {
                     setTimelineFormData(prev => ({ ...prev, imageId: imageData.imageId }))
                 }}
-                title="Select Timeline Image"
-                description="Choose an image for this timeline item"
             />
 
             {/* Delete Timeline Confirmation Dialog */}

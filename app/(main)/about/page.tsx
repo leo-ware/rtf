@@ -1,13 +1,11 @@
 import Image from "next/image"
 import Link from "next/link"
 import Button from "@/components/public-ui/Button"
-import { chunk } from "@/lib/utils"
 
 import NewsCarousel from "../../../components/NewsCarousel"
-
+import DocumentsWidget from "./DocumentsWidget"
 import AboutHeroImg from "@/public/img/about_hero.jpg"
 import NedaAndSpirit from "@/public/img/neda-and-spirit.jpg"
-import AresMares from "@/public/img/ares-mares-cropped.png"
 
 const AboutPage = () => {
     return (
@@ -41,7 +39,7 @@ const AboutPage = () => {
                     <div className="text-3xl font-bold text-burnt-orange">Mission</div>
                     <div>
                         Return to Freedom is dedicated to preserving the freedom, diversity, and habitat
-                        of America’s wild horses and burros through sanctuary, education, advocacy, and
+                        of America's wild horses and burros through sanctuary, education, advocacy, and
                         conservation, while enriching the human spirit through direct experience with
                         the natural world.
                     </div>
@@ -68,7 +66,7 @@ const AboutPage = () => {
                         <div className="text-xl font-bold text-white">Our People</div>
                         <div className="text-white text-sm">
                             The RTF team is dedicated to preserving the freedom, diversity,
-                            and habitat of America’s wild horses and burros through sanctuary, education, advocacy,
+                            and habitat of America's wild horses and burros through sanctuary, education, advocacy,
                             and conservation, while enriching the human spirit through direct experience with the
                             natural world.
                         </div>
@@ -81,57 +79,7 @@ const AboutPage = () => {
 
             <NewsCarousel />
 
-            <div className="relative w-full h-[325px] md:pl-36 py-8 flex items-center justify-center md:justify-start">
-                <Image
-                    src={AresMares}
-                    alt="Ares Mares"
-                    className="z-0 absolute w-full h-full object-cover object-center"
-                    fill />
-                <div className="z-10 flex flex-col items-start justify-center gap-4">
-                    <div className="text-white text-3xl font-bold">
-                        Read our latest<br />
-                        Annual Report
-                    </div>
-                    <Button color="burnt-orange">2024 Annual Report</Button>
-                </div>
-            </div>
-
-            <div className="w-full h-fit bg-pewter py-8 px-8 md:px-1/12 flex flex-col md:flex-row items-start md:items-center justify-center gap-8">
-                <div className="flex flex-col items-start justify-start gap-2 md:max-w-[150px]">
-                    <div className="text-white text-2xl font-bold">Financials</div>
-                    <div className="text-white text-sm">
-                        Return to Freedom is a 501(c)3 nonprofit organization. Tax ID: #06-1484961
-                    </div>
-                </div>
-
-                <div className="w-full md:w-1/2 h-fit flex flex-col items-center justify-center gap-4">
-                    <div className="w-full flex stretch gap-4">
-                        <div className="grow basis-10 md:basis-auto bg-white rounded py-2 md:py-1 px-2 text-pewter text-xs flex items-center justify-center">
-                            FORM 990
-                        </div>
-                        <div className="grow basis-10 md:basis-auto bg-white rounded py-2 md:py-1 px-2 text-pewter text-xs flex items-center justify-center">
-                            <div className="hidden md:block">FINANCIAL STATEMENTS</div>
-                            <div className="block md:hidden">FINANCIALs</div>
-                        </div>
-                        <div className="grow basis-10 md:basis-auto bg-white rounded py-2 md:py-1 px-2 text-pewter text-xs flex items-center justify-center">
-                            <div className="hidden md:block">ANNUAL REPORTS</div>
-                            <div className="block md:hidden">REPORTS</div>
-                        </div>
-                    </div>
-
-                    <div className="w-full bg-white rounded p-8 flex flex-col md:flex-row">
-                        {chunk([...Array(10)].map((_, index) => 2023 - index), 8).map(rl => (
-                            <div className="w-full md:w-1/3 flex flex-col items-start justify-start gap-1">
-                                {rl.map(r => (
-                                    <Link href="/" className="text-pewter text-sm">
-                                        {r} Annual Report
-                                    </Link>
-                                ))}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
+            <DocumentsWidget />
 
         </div>
     )

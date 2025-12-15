@@ -46,8 +46,8 @@ import {
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { handleConvexError, handleNotFoundError } from "@/lib/errorHandler"
-import ConvexImage from "@/components/ConvexImage"
-import { ImagePicker } from "@/components/ImagePicker"
+import ConvexImage from "@/components/images/ConvexImage"
+import { ImagePicker } from "@/components/images/ImagePicker"
 
 const AdminAnimalsPage = () => {
     const router = useRouter()
@@ -732,8 +732,6 @@ const AdminAnimalsPage = () => {
                         onImageSelect={(imageData) => {
                             setFormData(prev => ({ ...prev, imageId: imageData.imageId }))
                         }}
-                        title="Select Animal Image"
-                        description="Choose an image for this animal"
                     />
 
                 </TabsContent>
@@ -940,8 +938,6 @@ const AdminAnimalsPage = () => {
                         onImageSelect={(imageData) => {
                             setHerdFormData(prev => ({ ...prev, imageId: imageData.imageId }))
                         }}
-                        title="Select Herd Image"
-                        description="Choose an image for this herd"
                     />
                 </TabsContent>
             </Tabs>

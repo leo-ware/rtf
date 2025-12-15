@@ -1,4 +1,4 @@
-import { query, mutation } from "./_generated/server"
+import { query } from "./_generated/server"
 
 export const fetchSocialLinks = query({
     handler: async () => {

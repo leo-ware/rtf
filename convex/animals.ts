@@ -4,6 +4,7 @@ import { Id } from "./_generated/dataModel"
 import { getCurrentUserOrThrow } from "./users"
 import { resolveImageId } from "./images"
 import { generateSlug } from "./utils"
+import { animalsAggregate } from "./aggregates"
 
 // List all animals with optional filters
 export const listAnimals = query({
@@ -100,7 +101,7 @@ export const createAnimal = mutation({
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
-            throw new Error("Insufficient permissions");
+            throw new Error("Insufficient permissions")
         }
 
         const slug = args.slug || generateSlug(args.name)
@@ -116,7 +117,7 @@ export const createAnimal = mutation({
         }
 
         const now = Date.now()
-        return await ctx.db.insert("animals", {
+        const animalId = await ctx.db.insert("animals", {
             name: args.name,
             slug,
             type: args.type,
@@ -125,6 +126,11 @@ export const createAnimal = mutation({
             createdAt: now,
             updatedAt: now,
         })
+        const animal = await ctx.db.get(animalId)
+        if (animal) {
+            await animalsAggregate.insert(ctx, animal)
+        }
+        return animalId
     },
 })
 
@@ -240,9 +246,13 @@ export const deleteAnimal = mutation({
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
-            throw new Error("Insufficient permissions");
+            throw new Error("Insufficient permissions")
         }
 
+        const animal = await ctx.db.get(args.id)
+        if (animal) {
+            await animalsAggregate.delete(ctx, animal)
+        }
         await ctx.db.delete(args.id)
         return null
     },
