@@ -5,6 +5,7 @@ import { PaginationOptions } from "convex/server";
 import ArticleSearchManager, { ArticleSearchParams } from "./articleSearchManager";
 import { resolveImageId } from "./imageManager";
 
+// keep in sync with lib/topicType.ts
 export const topicNameList = [
     "homepage",
     "conservation",
@@ -23,9 +24,24 @@ export const convexTopicEnum = v.union(
 export type TopicNameType = (typeof topicNameList)[number];
 
 export const topicNameToAttributeName = (topic: TopicNameType) => (`topic_${topic}` as const);
+export const attributeNameToTopicName = (attribute: TopicAttributeType) => {
+    return attribute.replace("topic_", "") as TopicNameType;
+}
 const topicAttributeList = topicNameList.map(topicNameToAttributeName)
 type TopicAttributeType = (typeof topicAttributeList)[number];
+// end of necessary sync
 
+export const extractTopicsList = <T extends Partial<Record<TopicAttributeType, boolean | undefined>>>(obj: T) => {
+    const topics: TopicNameType[] = []
+    topicAttributeList.forEach(attribute => {
+        if (attribute in obj) {
+            if (obj[attribute]) {
+                topics.push(attributeNameToTopicName(attribute))
+            }
+        }
+    })
+    return topics
+}
 
 type CreateArgs = {
     title: string,

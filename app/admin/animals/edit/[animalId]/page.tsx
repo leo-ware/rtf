@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { useQuery, useMutation } from "convex/react"
+import { useQuery, useMutation, usePaginatedQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { notFound } from "next/navigation"
 import { TiptapEditor } from "@/components/TiptapEditor"
@@ -134,7 +134,7 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
     const animal = useQuery(api.animals.getAnimal, {
         id: resolvedParams.animalId as Id<"animals">,
     })
-    const herds = useQuery(api.herds.listHerds, { limit: 100 })
+    const {results: herds} = usePaginatedQuery(api.herds.listHerds, {}, {initialNumItems: 100})
     const updateAnimal = useMutation(api.animals.updateAnimal)
     const galleryImagesRaw = useQuery(api.animals.getAnimalGalleryImages,
         { ids: (animal && animal._id) ? [animal._id] : [] as Id<"animals">[] }

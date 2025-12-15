@@ -141,7 +141,7 @@ const AdminNewsPage = () => {
 
                                         <Tooltip>
                                             <TooltipTrigger asChild>
-                                                <Link href={`/admin/news/article/${article._id}/edit`}>
+                                                <Link href={`/admin/news/article/${article.articleId}/edit`}>
                                                     <Button variant="outline" size="sm">
                                                         <Edit className="h-4 w-4" />
                                                     </Button>

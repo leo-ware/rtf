@@ -8,8 +8,11 @@ import React, { useState } from "react"
 import Input from "@/components/public-ui/form/Input"
 import Select, { SelectOption } from "@/components/public-ui/form/Select"
 import NewsHeroImage from "./news-hero-image.jpg"
-import { cn } from "@/lib/utils"
+import { cn, formatDate } from "@/lib/utils"
 import { FaSearch } from "react-icons/fa"
+import ConvexImage from "@/components/images/ConvexImage"
+import Button from "@/components/public-ui/Button"
+import { Loader2 } from "lucide-react"
 
 
 const NewsOptionBox = (props: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>) => (
@@ -33,11 +36,11 @@ export default function NewsPage() {
         setExternal(null)
     }
 
-    const { results: articles, loadMore: loadMoreArticles } = usePaginatedQuery(api.articleMetadata.search, {
+    const { results: articles, loadMore: loadMoreArticles, status: articleSearchStatus } = usePaginatedQuery(api.articleMetadata.search, {
         publicOnly: true,
         query: !!searchTerm ? searchTerm : undefined,
         external: external?.value ?? undefined,
-    }, { initialNumItems: 50 })
+    }, { initialNumItems: 20 })
 
     const filteredArticles = articles || []
 
@@ -93,64 +96,51 @@ export default function NewsPage() {
                 <div className="w-full h-fit min-h-[400px]">
                     {filteredArticles.length === 0
                         ? (
-                            <div className="text-center py-12">
-                                No articles
+                            <div className="font-serif text-2xl text-center py-16">
+                                {articleSearchStatus === "LoadingFirstPage" ? "Loading..." : "No articles found"}
                             </div>
                         ) : (
-                            <div className="bg-white rounded-lg border overflow-hidden">
-                                <div className="overflow-x-auto">
-                                    <table className="w-full">
-                                        <thead className="border-b bg-gray-50">
-                                            <tr>
-                                                <th className="text-left py-3 px-4 font-medium text-gray-900">Title</th>
-                                                <th className="text-left py-3 px-4 font-medium text-gray-900">Author</th>
-                                                <th className="text-left py-3 px-4 font-medium text-gray-900">Date</th>
-                                                <th className="text-right py-3 px-4 font-medium text-gray-900">Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-200">
-                                            {filteredArticles.map((article) => (
-                                                <tr key={article._id} className="hover:bg-gray-50">
-                                                    <td className="py-3 px-4">
-                                                        <div>
-                                                            <div className="font-medium text-gray-900 line-clamp-1">
-                                                                {article.title}
-                                                            </div>
-                                                            {article.excerpt && (
-                                                                <div className="text-sm text-gray-500 line-clamp-1 mt-1">
-                                                                    {article.excerpt}
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </td>
-                                                    {/* <td className="py-3 px-4 text-sm text-gray-600">
-                                                        {(article.authorCredit) || "RTF Staff"}
-                                                    </td>
-                                                    <td className="py-3 px-4 text-sm text-gray-600">
-                                                        {article.publishedAt
-                                                            ? format(new Date(article.publishedAt), "MMM dd, yyyy")
-                                                            : "—"
-                                                        }
-                                                    </td> */}
-                                                    <td className="py-3 px-4 text-right">
-                                                        <Link
-                                                            href={article.link}
-                                                            className="text-burnt-orange hover:text-burnt-orange/80 font-medium text-sm"
-                                                        >
-                                                            Read Article →
-                                                        </Link>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                            <div className="w-full h-fit min-h-[400px] flex flex-col gap-4">
+                                <div className="w-full flex flex-col gap-4">
+                                    {filteredArticles.map((article) => (
+                                        <div key={article._id} className="w-full h-[200px] bg-gray-50 flex flex-row justify-between items-center">
+                                            <div className="w-1/4 h-full bg-gray-100">
+                                                {article.image?.url && (
+                                                    <ConvexImage
+                                                        src={article.image?.url}
+                                                        alt={article.title}
+                                                        width={article.image?.width}
+                                                        height={article.image?.height}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                )}
+                                            </div>
+                                            <div className="w-3/4 px-10 flex flex-col gap-2 items-start justify-center">
+                                                <Link href={`/api/redirect/article/${article.articleId}`} className="text-lg font-serif">
+                                                    {article.title}
+                                                </Link>
+                                                <div className="text-sm uppercase font-semibold">
+                                                    {article.date ? formatDate(new Date(article.date)) : formatDate(new Date(article._creationTime))}
+                                                </div>
+                                                <div className="text-sm">
+                                                    {article.excerpt}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
-                                <div
-                                    className="text-pewter underline cursor-pointer text-sm mt-4"
-                                    onClick={() => loadMoreArticles(50)}
-                                >
-                                    Load More
-                                </div>
+
+                                {!["LoadingFirstPage", "Exhausted"].includes(articleSearchStatus) && (
+                                    <Button
+                                        onClick={() => loadMoreArticles(50)}
+                                        color={articleSearchStatus === "Exhausted" ? "gray-100" : "cinnamon"}>
+                                        {articleSearchStatus === "CanLoadMore" && "Load More"}
+                                        {articleSearchStatus === "LoadingMore" && (<>
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                            Loading...
+                                        </>)}
+                                    </Button>
+                                )}
                             </div>
                         )}
                 </div>

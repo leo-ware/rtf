@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation, usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api"
 import { notFound } from "next/navigation";
 import { TiptapEditor } from "@/components/TiptapEditor";
@@ -11,7 +11,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import {
     Save,
     Eye,
@@ -26,12 +25,11 @@ import {
 import Link from "next/link";
 import { Id } from "@/convex/_generated/dataModel";
 import { TagSelector } from "@/components/TagSelector";
-import { TopicSelector } from "@/components/TopicSelector";
 import { PageProps } from "@/lib/types";
-import { deepEqual, generateSlug, removeUndefined, formatDate } from "@/lib/utils";
+import { deepEqual, removeUndefined, formatDate } from "@/lib/utils";
 import ImagePickerDialog from "@/components/images/ImagePickerDialog";
 import InfoWidget from "@/components/InfoWidget";
-
+import { topicNameList, TopicNameType } from "@/lib/topicType";
 
 const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
     const resolvedParams = React.use(params);
@@ -51,8 +49,18 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // const herds = useQuery(api.articles.searchHerds, { limit: 100 });
-    // const animals = useQuery(api.articles.searchAnimals, { limit: 100 });
+    const { results: herds, loadMore: loadMoreHerds, status: herdSearchStatus } = usePaginatedQuery(
+        api.herds.listHerds,
+        {},
+        { initialNumItems: 100 }
+    );
+    const { results: animals, loadMore: loadMoreAnimals, status: animalSearchStatus } = usePaginatedQuery(
+        api.animals.listAnimals,
+        {},
+        { initialNumItems: 100 }
+    );
+    const canLoadMoreHerds = herdSearchStatus === "CanLoadMore";
+    const canLoadMoreAnimals = animalSearchStatus === "CanLoadMore";
 
     const [articleFormData, setArticleFormData] = useState({
         slug: undefined as string | undefined,
@@ -67,16 +75,7 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
         excerpt: undefined as string | undefined,
         herdIds: undefined as Id<"herds">[] | undefined,
         animalIds: undefined as Id<"animals">[] | undefined,
-        topic_homepage: undefined as boolean | undefined,
-        topic_conservation: undefined as boolean | undefined,
-        topic_sanctuary: undefined as boolean | undefined,
-        topic_advocacy: undefined as boolean | undefined,
-        topic_education: undefined as boolean | undefined,
-        topic_herd_management: undefined as boolean | undefined,
-        topic_population_management: undefined as boolean | undefined,
-        topic_roundups: undefined as boolean | undefined,
-        topic_horse_slaughter: undefined as boolean | undefined,
-        topic_spirit: undefined as boolean | undefined,
+        topics: undefined as TopicNameType[] | undefined,
     })
     const localInitialized = useRef(false);
 
@@ -94,16 +93,7 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
         excerpt: a?.articleMetadata?.excerpt,
         herdIds: a?.articleMetadata?.herdIds,
         animalIds: a?.articleMetadata?.animalIds,
-        topic_homepage: a?.articleMetadata?.topic_homepage,
-        topic_conservation: a?.articleMetadata?.topic_conservation,
-        topic_sanctuary: a?.articleMetadata?.topic_sanctuary,
-        topic_advocacy: a?.articleMetadata?.topic_advocacy,
-        topic_education: a?.articleMetadata?.topic_education,
-        topic_herd_management: a?.articleMetadata?.topic_herd_management,
-        topic_population_management: a?.articleMetadata?.topic_population_management,
-        topic_roundups: a?.articleMetadata?.topic_roundups,
-        topic_horse_slaughter: a?.articleMetadata?.topic_horse_slaughter,
-        topic_spirit: a?.articleMetadata?.topic_spirit,
+        topics: a?.articleMetadata?.topics
     })
 
     // Initialize the form data from the article and article metadata
@@ -121,11 +111,6 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
             setIsLoading(false);
         }
     })
-
-    console.log("articleFormData", articleFormData)
-    console.log("articleInferred", articleToArticleFormData(article))
-    console.log("articleMetadataFormData", articleMetadataFormData)
-    console.log("articleMetadataInferred", articleToArticleMetadataFormData(article))
 
     const hasUnsavedChanges = useMemo(() => {
         return !(
@@ -167,18 +152,7 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
                     public: articleMetadataFormData.public,
                     herdIds: articleMetadataFormData.herdIds,
                     animalIds: articleMetadataFormData.animalIds,
-                    topics: ([
-                        articleMetadataFormData.topic_homepage ? ("homepage" as const) : undefined,
-                        articleMetadataFormData.topic_conservation ? ("conservation" as const) : undefined,
-                        articleMetadataFormData.topic_sanctuary ? ("sanctuary" as const) : undefined,
-                        articleMetadataFormData.topic_advocacy ? ("advocacy" as const) : undefined,
-                        articleMetadataFormData.topic_education ? ("education" as const) : undefined,
-                        articleMetadataFormData.topic_herd_management ? ("herd_management" as const) : undefined,
-                        articleMetadataFormData.topic_population_management ? ("population_management" as const) : undefined,
-                        articleMetadataFormData.topic_roundups ? ("roundups" as const) : undefined,
-                        articleMetadataFormData.topic_horse_slaughter ? ("horse_slaughter" as const) : undefined,
-                        articleMetadataFormData.topic_spirit ? ("spirit" as const) : undefined,
-                    ]).filter(topic => topic !== undefined),
+                    topics: articleMetadataFormData.topics
                 })),
             ])
         } catch (error) {
@@ -300,7 +274,7 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                {articleFormData.content && (
+                                {(typeof articleFormData.content === "string") && (
                                     <TiptapEditor
                                         content={articleFormData.content!}
                                         onChange={(content) => setArticleFormData(prev => ({ ...prev, content: content }))}
@@ -322,7 +296,37 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                <div>
+                                <div className="space-y-2">
+                                    <Label>Status</Label>
+                                    <div className="flex items-center space-x-2">
+                                        {(articleMetadataFormData.public && article.articleMetadata.public) && (
+                                            <Badge className="bg-green-100 text-green-800">
+                                                <Eye className="h-3 w-3 mr-1" />
+                                                Published
+                                            </Badge>
+                                        )}
+                                        {(!articleMetadataFormData.public && !article.articleMetadata.public) && (
+                                            <Badge variant="secondary">
+                                                <EyeOff className="h-3 w-3 mr-1" />
+                                                Draft
+                                            </Badge>
+                                        )}
+                                        {(articleMetadataFormData.public && !article.articleMetadata.public) && (
+                                            <Badge className="bg-blue-100 text-blue-800">
+                                                <EyeOff className="h-3 w-3 mr-1" />
+                                                Will Publish on Save
+                                            </Badge>
+                                        )}
+                                        {(!articleMetadataFormData.public && article.articleMetadata.public) && (
+                                            <Badge className="bg-blue-100 text-blue-800">
+                                                <Eye className="h-3 w-3 mr-1" />
+                                                Will Unpublish on Save
+                                            </Badge>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
                                     <Label htmlFor="title">Title</Label>
                                     <Input
                                         id="title"
@@ -341,7 +345,7 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
                                     />
                                 </div>
 
-                                <div>
+                                <div className="space-y-2">
                                     <Label htmlFor="slug">
                                         Slug
                                         <InfoWidget>
@@ -356,7 +360,7 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
                                     />
                                 </div>
 
-                                <div>
+                                <div className="space-y-2">
                                     <Label htmlFor="excerpt">
                                         Excerpt
                                         <InfoWidget>
@@ -372,7 +376,7 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
                                     />
                                 </div>
 
-                                <div>
+                                <div className="space-y-2">
                                     <Label htmlFor="authorCredit">
                                         Author Credit
                                         <InfoWidget>
@@ -388,7 +392,7 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
                                     />
                                 </div>
 
-                                <div>
+                                <div className="space-y-2">
                                     <Label>Featured Image</Label>
                                     <ImagePickerDialog
                                         imageId={articleFormData.imageId || null}
@@ -397,28 +401,11 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
                                         )}
                                     />
                                 </div>
-
-                                <div className="space-y-2">
-                                    <Label>Status</Label>
-                                    <div className="flex items-center space-x-2">
-                                        {articleMetadataFormData.public ? (
-                                            <Badge className="bg-green-100 text-green-800">
-                                                <Eye className="h-3 w-3 mr-1" />
-                                                Published
-                                            </Badge>
-                                        ) : (
-                                            <Badge variant="secondary">
-                                                <EyeOff className="h-3 w-3 mr-1" />
-                                                Draft
-                                            </Badge>
-                                        )}
-                                    </div>
-                                </div>
                             </CardContent>
                         </Card>
 
                         {/* Tags Section */}
-                        {/* <Card>
+                        <Card>
                             <CardHeader>
                                 <CardTitle>Tags & Categories</CardTitle>
                                 <CardDescription>
@@ -429,11 +416,12 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
                                 <TagSelector
                                     label="Herds"
                                     description="Select one or more herds related to this article"
-                                    selectedIds={formData.herdIds}
+                                    selectedIds={articleMetadataFormData.herdIds || []}
                                     availableItems={herds?.map(h => ({ _id: h._id, name: h.name })) || []}
-                                    onSelectionChange={(ids) => setFormData(prev => ({
+                                    loadMore={() => loadMoreHerds(20)}
+                                    onSelectionChange={(ids) => setArticleMetadataFormData(prev => ({
                                         ...prev,
-                                        herdIds: ids as Array<Id<"herds">>
+                                        herdIds: ids as Array<Id<"herds">>,
                                     }))}
                                     placeholder="Select herds..."
                                     searchPlaceholder="Search herds..."
@@ -442,9 +430,10 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
                                 <TagSelector
                                     label="Animals"
                                     description="Select one or more animals related to this article"
-                                    selectedIds={formData.animalIds}
+                                    selectedIds={articleMetadataFormData.animalIds || []}
                                     availableItems={animals?.map(a => ({ _id: a._id, name: a.name })) || []}
-                                    onSelectionChange={(ids) => setFormData(prev => ({
+                                    loadMore={() => loadMoreAnimals(20)}
+                                    onSelectionChange={(ids) => setArticleMetadataFormData(prev => ({
                                         ...prev,
                                         animalIds: ids as Array<Id<"animals">>
                                     }))}
@@ -452,19 +441,23 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
                                     searchPlaceholder="Search animals..."
                                 />
 
-                                <TopicSelector
+                                <TagSelector
                                     label="Topics"
                                     description="Select one or more topics for this article"
-                                    selectedTopics={formData.topics}
-                                    onSelectionChange={(topics) => setFormData(prev => ({
+                                    selectedIds={articleMetadataFormData.topics || []}
+                                    availableItems={topicNameList.map(topic => ({
+                                        _id: topic,
+                                        name: (topic.charAt(0).toUpperCase() + topic.slice(1)).replaceAll("_", " ")
+                                    }))}
+                                    onSelectionChange={(topics) => setArticleMetadataFormData(prev => ({
                                         ...prev,
-                                        topics
+                                        topics: topics as TopicNameType[],
                                     }))}
                                     placeholder="Select topics..."
                                     searchPlaceholder="Search topics..."
                                 />
                             </CardContent>
-                        </Card> */}
+                        </Card>
 
                         {/* Article Info */}
                         <Card>
@@ -484,8 +477,6 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
                                     <span>Created: {formatDate(new Date(article._creationTime))}</span>
                                 </div>
 
-                                <Separator />
-
                                 <div className="text-sm text-gray-600">
                                     <p>
                                         Words: {(
@@ -502,7 +493,7 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
 

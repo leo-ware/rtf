@@ -48,7 +48,7 @@ export default function ArticlePage({ params }: PageProps<{ slug: string }>) {
         <div className="py-16">
             <div className="max-w-4xl mx-auto px-4">
                 <header className="mb-8">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                    <h1 className="text-4xl font-serif mb-4">
                         {article.articleMetadata.title}
                     </h1>
 
@@ -61,7 +61,6 @@ export default function ArticlePage({ params }: PageProps<{ slug: string }>) {
                         )}
                         {article.articleMetadata.date && (
                             <div className="flex items-center space-x-2">
-                                <CalendarIcon className="w-4 h-4" />
                                 <span>{formatDate(article.articleMetadata.date)}</span>
                             </div>
                         )}

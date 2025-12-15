@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useQuery, useMutation } from "convex/react"
+import { useQuery, useMutation, usePaginatedQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Id } from "@/convex/_generated/dataModel"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -22,20 +22,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
     Plus,
     Edit,
     Trash2,
-    Eye,
-    EyeOff,
     Calendar,
-    User,
     FileText,
-    ExternalLink,
     Heart,
-    Award,
     Filter,
     Search,
     X,
@@ -45,7 +39,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { handleConvexError, handleNotFoundError } from "@/lib/errorHandler"
+import { handleConvexError } from "@/lib/errorHandler"
 import ConvexImage from "@/components/images/ConvexImage"
 import { ImagePicker } from "@/components/images/ImagePicker"
 
@@ -68,11 +62,14 @@ const AdminAnimalsPage = () => {
     const [confirmDeleteHerdId, setConfirmDeleteHerdId] = useState<Id<"herds"> | null>(null)
     const [herdSearchTerm, setHerdSearchTerm] = useState("")
 
-    const animals = useQuery(api.animals.listAnimals, {
-        limit: 100,
-        ...(filterType !== "all" && { type: filterType as "horse" | "burro" })
-    })
-    const herds = useQuery(api.herds.listHerds, { limit: 100 })
+    const {results: animals} = usePaginatedQuery(
+        api.animals.listAnimals,
+        {...(filterType !== "all" && { type: filterType as "horse" | "burro" })},
+        {initialNumItems: 100}
+    )
+
+    const {results: herds} = usePaginatedQuery(api.herds.listHerds, {}, {initialNumItems: 100})
+    
     const deleteAnimal = useMutation(api.animals.deleteAnimal)
     const createAnimal = useMutation(api.animals.createAnimal)
     const createHerd = useMutation(api.herds.createHerd)

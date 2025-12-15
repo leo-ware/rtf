@@ -4,12 +4,12 @@ import Image from "next/image"
 import Link from "next/link"
 import Button from "@/components/public-ui/Button"
 import Carousel from "@/components/Carousel"
-import { useQuery } from "convex/react"
+import { usePaginatedQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
 
 const HerdsCarousel = () => {
-    const herds = useQuery(api.herds.listHerds, {})
+    const {results: herds} = usePaginatedQuery(api.herds.listHerds, {}, { initialNumItems: 100 })
 
     if (!herds || herds.length === 0) {
         return null

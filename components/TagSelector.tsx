@@ -33,6 +33,7 @@ type TagSelectorProps = {
     onSelectionChange: (selectedIds: Array<string>) => void
     placeholder?: string
     searchPlaceholder?: string
+    loadMore?: () => void
 }
 
 export const TagSelector: React.FC<TagSelectorProps> = ({

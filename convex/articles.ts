@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { getCurrentUserOrThrow } from "./users";
 import ArticleManager from "./models/articleManager";
+import { extractTopicsList } from "./models/articleMetadataManager";
 
 
 export const getArticle = query({
@@ -16,7 +17,15 @@ export const getArticleWithRelations = query({
     args: { id: v.id("articles") },
     handler: async (ctx, args) => {
         const manager = new ArticleManager(args.id);
-        return await manager.getWithRelations(ctx);
+        const objWithRelations = await manager.getWithRelations(ctx);
+        return objWithRelations
+            ? {
+                ...objWithRelations,
+                articleMetadata: {
+                    ...objWithRelations.articleMetadata,
+                    topics: extractTopicsList(objWithRelations.articleMetadata),
+                },
+            } : null
     },
 });
 

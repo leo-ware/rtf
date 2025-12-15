@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Tabs from "@/components/public-ui/Tabs"
-import { useQuery } from "convex/react"
+import { useQuery, usePaginatedQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Id } from "@/convex/_generated/dataModel"
 import SponsorHerdBg from "./imgs/sponsor-herd-bg.jpg"
@@ -95,7 +95,7 @@ const HerdContent = ({ herdId }: { herdId: Id<"herds"> }) => {
 }
 
 const HerdsTabsSection = ({ defaultSlug }: { defaultSlug?: string }) => {
-    const herds = useQuery(api.herds.listHerds, {})
+    const {results: herds} = usePaginatedQuery(api.herds.listHerds, {}, {initialNumItems: 100})
 
     if (!herds) {
         return (

@@ -1,17 +1,36 @@
 import { query, mutation } from "./_generated/server"
 import { v } from "convex/values"
-import { Id } from "./_generated/dataModel"
+import { Doc, Id } from "./_generated/dataModel"
 import { getCurrentUserOrThrow } from "./users"
 import { resolveImageId } from "./images"
 import { generateSlug } from "./utils"
 import { animalsAggregate } from "./aggregates"
+import { QMCtxType } from "./types"
+import { paginationOptsValidator } from "convex/server"
+
+const resolveAnimalRelations = async (ctx: QMCtxType, animals: Doc<"animals">[]) => {
+    const [herds, images] = await Promise.all([
+        Promise.all(animals.map(async (animal) => {
+            return animal.herdId ? ctx.db.get(animal.herdId) : null
+        })),
+        Promise.all(animals.map(async (animal) => {
+            return animal.imageId ? resolveImageId(ctx, animal.imageId) : null
+        })),
+    ])
+
+    return animals.map((animal, index) => ({
+        ...animal,
+        herd: herds[index],
+        image: images[index],
+    }))
+}
 
 // List all animals with optional filters
 export const listAnimals = query({
     args: {
-        limit: v.optional(v.number()),
         type: v.optional(v.union(v.literal("horse"), v.literal("burro"))),
         herdId: v.optional(v.id("herds")),
+        paginationOpts: paginationOptsValidator,
     },
     handler: async (ctx, args) => {
         let query = ctx.db.query("animals")
@@ -25,23 +44,12 @@ export const listAnimals = query({
 
         const animals = await query
             .order("desc")
-            .take(args.limit || 100)
-
-        // Get herd and image information for each animal
-        const [herds, images] = await Promise.all([
-            Promise.all(animals.map(async (animal) => {
-                return animal.herdId ? ctx.db.get(animal.herdId) : null
-            })),
-            Promise.all(animals.map(async (animal) => {
-                return animal.imageId ? resolveImageId(ctx, animal.imageId) : null
-            })),
-        ])
-
-        return animals.map((animal, index) => ({
-            ...animal,
-            herd: herds[index],
-            image: images[index],
-        }))
+            .paginate(args.paginationOpts)
+        
+        return {
+            ...animals,
+            page: await resolveAnimalRelations(ctx, animals.page),
+        }
     },
 })
 

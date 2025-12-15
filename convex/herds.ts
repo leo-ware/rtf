@@ -3,6 +3,7 @@ import { v } from "convex/values"
 import { getCurrentUserOrThrow } from "./users"
 import { Id } from "./_generated/dataModel"
 import { resolveImageId } from "./images"
+import { paginationOptsValidator } from "convex/server"
 
 function generateSlug(name: string): string {
     return name
@@ -64,16 +65,18 @@ const herdReturnValidator = v.object({
 
 export const listHerds = query({
     args: {
-        limit: v.optional(v.number()),
+        paginationOpts: paginationOptsValidator,
     },
-    returns: v.array(herdReturnValidator),
     handler: async (ctx, args) => {
         const herds = await ctx.db
             .query("herds")
             .order("desc")
-            .take(args.limit || 100)
+            .paginate(args.paginationOpts)
         
-        return await Promise.all(herds.map(herd => addImageToHerd(ctx, herd)))
+        return {
+            ...herds,
+            page: await Promise.all(herds.page.map(herd => addImageToHerd(ctx, herd))),
+        }
     },
 })
 
