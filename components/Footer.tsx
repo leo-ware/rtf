@@ -2,7 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { MdOutlineEmail } from "react-icons/md"
 import RTFLogoWhite from "@/public/img/rtf_logo_white.svg"
-import SocialLinks from "./SocialLinks"
+// import SocialLinks from "./SocialLinks"
 
 export default function Footer() {
     return (
@@ -34,7 +34,7 @@ export default function Footer() {
 
                 <div className="flex items-center md:mx-4">
                     <div className="flex items-center gap-3 text-white">
-                        <SocialLinks />
+                        {/* <SocialLinks /> */}
                         <Link href="/contact">
                             <MdOutlineEmail size={30}/>
                         </Link>

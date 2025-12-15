@@ -3,7 +3,7 @@ import Button from "@/components/public-ui/Button"
 import Header from "@/components/public-ui/Header"
 import AlternatingPictureLayout from "@/components/public-ui/AlternatingPictureLayout"
 import EmailLink from "@/components/public-ui/EmailLink"
-import SocialLinks from "@/components/SocialLinks"
+// import SocialLinks from "@/components/SocialLinks"
 
 import hero from "./hero.jpg"
 import img1 from "./img1.jpg"
@@ -38,7 +38,7 @@ const ContactPage = () => {
                             Connect with us on Social Media
                         </div>
                         <div className="flex justify-start gap-4 text-sage-green">
-                            <SocialLinks />
+                            {/* <SocialLinks /> */}
                         </div>
                     </div>
                 </div>
