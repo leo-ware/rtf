@@ -282,6 +282,8 @@ export default defineSchema({
         timeline: v.optional(v.array(v.id("timelineItem"))),
         createdAt: v.number(),
         updatedAt: v.number(),
+        content: v.optional(v.string()),
+        donateForm: v.optional(v.string()),
 
         articleMetadataIds: v.optional(v.array(v.id("articleMetadata"))),
     }).index("by_slug", ["slug"]),

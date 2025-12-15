@@ -12,7 +12,7 @@ import { cn, formatDate } from "@/lib/utils"
 import { FaSearch } from "react-icons/fa"
 import ConvexImage from "@/components/images/ConvexImage"
 import Button from "@/components/public-ui/Button"
-import { Loader2 } from "lucide-react"
+import { ExternalLink, Loader2 } from "lucide-react"
 
 
 const NewsOptionBox = (props: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>) => (
@@ -116,9 +116,16 @@ export default function NewsPage() {
                                                 )}
                                             </div>
                                             <div className="w-3/4 px-10 flex flex-col gap-2 items-start justify-center">
-                                                <Link href={`/api/redirect/article/${article.articleId}`} className="text-lg font-serif">
-                                                    {article.title}
-                                                </Link>
+                                                {article.articleId ? (
+                                                    <Link href={`/api/redirect/article/${article.articleId}`} className="text-lg font-serif">
+                                                        {article.title}
+                                                    </Link>
+                                                ): (
+                                                    <Link href={`/api/redirect/external-article/${article.externalArticleId}`} className="text-lg font-serif">
+                                                        {article.title}
+                                                        <ExternalLink className="w-4 h-4 ml-1" />
+                                                    </Link>
+                                                )}
                                                 <div className="text-sm uppercase font-semibold">
                                                     {article.date ? formatDate(new Date(article.date)) : formatDate(new Date(article._creationTime))}
                                                 </div>

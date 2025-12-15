@@ -1,9 +1,10 @@
 import { query, mutation } from "./_generated/server"
 import { v } from "convex/values"
 import { getCurrentUserOrThrow } from "./users"
-import { Id } from "./_generated/dataModel"
+import { Doc, Id } from "./_generated/dataModel"
 import { resolveImageId } from "./images"
 import { paginationOptsValidator } from "convex/server"
+import { QMCtxType } from "./types"
 
 function generateSlug(name: string): string {
     return name
@@ -15,53 +16,12 @@ function generateSlug(name: string): string {
 }
 
 // Helper function to add image data to herd
-async function addImageToHerd(ctx: any, herd: any) {
-    const image = herd.imageId ? await ctx.db.get(herd.imageId) : null
-    const imageUrl = image ? await ctx.storage.getUrl(image.storageId) : undefined
+async function addImageToHerd(ctx: QMCtxType, herd: Doc<"herds">) {
     return {
         ...herd,
-        image: (image && imageUrl) ? {
-            _id: image._id,
-            fileName: image.fileName,
-            originalName: image.originalName,
-            mimeType: image.mimeType,
-            size: image.size,
-            storageId: image.storageId,
-            altText: image.altText,
-            description: image.description,
-            isPublic: image.isPublic,
-            width: image.width,
-            height: image.height,
-            url: imageUrl,
-        } : undefined,
+        image: herd.imageId && await resolveImageId(ctx, herd.imageId),
     }
 }
-
-const herdReturnValidator = v.object({
-    _id: v.id("herds"),
-    _creationTime: v.number(),
-    name: v.string(),
-    slug: v.string(),
-    description: v.optional(v.string()),
-    imageId: v.optional(v.id("images")),
-    timeline: v.optional(v.array(v.id("timelineItem"))),
-    createdAt: v.number(),
-    updatedAt: v.number(),
-    image: v.optional(v.object({
-        _id: v.id("images"),
-        fileName: v.string(),
-        originalName: v.string(),
-        mimeType: v.string(),
-        size: v.number(),
-        storageId: v.id("_storage"),
-        altText: v.optional(v.string()),
-        description: v.optional(v.string()),
-        isPublic: v.boolean(),
-        width: v.optional(v.number()),
-        height: v.optional(v.number()),
-        url: v.string(),
-    })),
-})
 
 export const listHerds = query({
     args: {
@@ -82,7 +42,6 @@ export const listHerds = query({
 
 export const getHerd = query({
     args: { id: v.id("herds") },
-    returns: v.union(v.null(), herdReturnValidator),
     handler: async (ctx, args) => {
         const herd = await ctx.db.get(args.id)
         if (!herd) return null
@@ -92,10 +51,7 @@ export const getHerd = query({
 
 export const getHerdByName = query({
     args: { name: v.string() },
-    returns: v.union(v.null(), herdReturnValidator),
     handler: async (ctx, args) => {
-        // Note: This loads all herds into memory and should only be used if herds count is small
-        // For better performance, use getHerdBySlug() with a generated slug
         const herds = await ctx.db.query("herds").collect()
         const herd = herds.find((h) => h.name === args.name) || null
         if (!herd) return null
@@ -105,7 +61,6 @@ export const getHerdByName = query({
 
 export const getHerdBySlug = query({
     args: { slug: v.string() },
-    returns: v.union(v.null(), herdReturnValidator),
     handler: async (ctx, args) => {
         const herd = await ctx.db
             .query("herds")
@@ -122,6 +77,8 @@ export const createHerd = mutation({
         description: v.optional(v.string()),
         imageId: v.optional(v.id("images")),
         timeline: v.optional(v.array(v.id("timelineItem"))),
+        content: v.optional(v.string()),
+        donateForm: v.optional(v.string()),
     },
     returns: v.id("herds"),
     handler: async (ctx, args) => {
@@ -161,6 +118,8 @@ export const createHerd = mutation({
             timeline: args.timeline || [],
             createdAt: now,
             updatedAt: now,
+            content: args.content || "",
+            donateForm: args.donateForm || "",
         })
     },
 })
@@ -172,6 +131,8 @@ export const updateHerd = mutation({
         description: v.optional(v.string()),
         imageId: v.optional(v.id("images")),
         timeline: v.optional(v.array(v.id("timelineItem"))),
+        content: v.optional(v.string()),
+        donateForm: v.optional(v.string()),
     },
     returns: v.null(),
     handler: async (ctx, args) => {
@@ -192,6 +153,8 @@ export const updateHerd = mutation({
             description: string | undefined
             imageId: Id<"images"> | undefined
             timeline: Array<Id<"timelineItem">> | undefined
+            content: string | undefined
+            donateForm: string | undefined
             updatedAt: number
         }> = {
             updatedAt: Date.now(),
@@ -233,6 +196,14 @@ export const updateHerd = mutation({
             updates.timeline = args.timeline
         }
 
+        if (args.content !== undefined) {
+            updates.content = args.content
+        }
+
+        if (args.donateForm !== undefined) {
+            updates.donateForm = args.donateForm
+        }
+
         await ctx.db.patch(args.id, updates)
         return null
     },
@@ -266,32 +237,6 @@ export const deleteHerd = mutation({
         await ctx.db.delete(args.id)
         return null
     },
-})
-
-const timelineItemReturnValidator = v.object({
-    _id: v.id("timelineItem"),
-    _creationTime: v.number(),
-    order: v.number(),
-    date: v.string(),
-    title: v.string(),
-    description: v.string(),
-    imageId: v.optional(v.id("images")),
-    createdAt: v.number(),
-    updatedAt: v.number(),
-    image: v.optional(v.object({
-        _id: v.id("images"),
-        fileName: v.string(),
-        originalName: v.string(),
-        mimeType: v.string(),
-        size: v.number(),
-        storageId: v.id("_storage"),
-        altText: v.optional(v.string()),
-        description: v.optional(v.string()),
-        isPublic: v.boolean(),
-        width: v.optional(v.number()),
-        height: v.optional(v.number()),
-        url: v.string(),
-    })),
 })
 
 export const getHerdTimeline = query({
@@ -328,7 +273,6 @@ export const addTimelineItem = mutation({
         herdId: v.id("herds"),
         timelineItemId: v.id("timelineItem"),
     },
-    returns: v.null(),
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
@@ -365,7 +309,6 @@ export const removeTimelineItem = mutation({
         herdId: v.id("herds"),
         timelineItemId: v.id("timelineItem"),
     },
-    returns: v.null(),
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {

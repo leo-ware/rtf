@@ -1,26 +1,47 @@
-import Image from "next/image"
-import SponsorAHerdImg from "./sponsor-a-herd.jpg"
-import Button from "@/components/public-ui/Button";
+"use client"
 
-const SponsorAHerdWidget = () => {
+import { usePaginatedQuery } from "convex/react"
+import { api } from "@/convex/_generated/api"
+import Image from "next/image"
+import SponsorAHerdImg from "./spirit.png"
+import { useEffect, useState } from "react"
+import { Id } from "@/convex/_generated/dataModel"
+import { Loader2 } from "lucide-react"
+
+const SponsorAHerdWidget = ({ defaultHerdId }: { defaultHerdId?: Id<"herds"> }) => {
+    const {results: herds} = usePaginatedQuery(api.herds.listHerds, {}, { initialNumItems: 100 })
+    const [selectedHerdId, setSelectedHerdId] = useState<Id<"herds"> | null>(null)
+    const selectedHerd = herds?.find((herd) => herd._id === selectedHerdId)
+
+    useEffect(() => {
+        if (herds && herds.length > 0) {
+            setSelectedHerdId(herds[0]._id)
+        }
+    }, [herds])
+
     return (
         <div className="w-full h-fit relative bg-sage-green rounded-md overflow-hidden text-milk">
             <div className="relative w-full h-[400px] grow-0">
-                <Image src={SponsorAHerdImg} alt="Sponsor A Herd" fill className="object-cover object-center" />
+                <Image
+                    src={SponsorAHerdImg}
+                    alt="Sponsor A Herd"
+                    fill
+                    className="w-full h-full object-cover object-center" />
             </div>
             <div className="w-full flex flex-col gap-6 px-12 py-8 basis-0 grow">
                 <div className="text-left flex flex-col gap-3">
                     <div className="text-3xl font-serif">
                         Sponsor A Herd
                     </div>
-                    <select className="w-fit uppercase font-semibold">
-                        <option value="1">Alpine Herd</option>
-                        <option value="2">Calico Herd</option>
-                        <option value="3">Lompoc Herd</option>
-                        <option value="4">San Luis Obispo Herd</option>
-                        <option value="5">Sierra Herd</option>
-                        <option value="6">Southwest Herd</option>
-                        <option value="7">Valley Herd</option>
+                    <select
+                        className="w-fit uppercase font-semibold"
+                        value={selectedHerdId ?? undefined}
+                        onChange={(e) => setSelectedHerdId(e.target.value as Id<"herds">)}>
+                        {herds?.map((herd) => (
+                            <option key={herd._id} value={herd._id}>
+                                {herd.name}
+                            </option>
+                        ))}
                     </select>
                     <div className="text-lg">
                         Lorem ipsum dolor sit amet consectetur. Lectus nunc felis morbi volutpat massa
@@ -30,7 +51,19 @@ const SponsorAHerdWidget = () => {
                 </div>
                 <div className="w-full mb-6 text-milk text-left flex gap-8">
                     <div className="w-1/2 flex flex-col gap-4">
-                        <div className="flex items-center justify-between gap-4">
+                        {selectedHerd?.donateForm
+                        ? (
+                            <div
+                                className="w-full h-full"
+                                dangerouslySetInnerHTML={{ __html: selectedHerd?.donateForm || "" }} />
+                            )
+                            : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                    <Loader2 className="w-10 h-10 animate-spin text-milk" />
+                                </div>
+                            )
+                        }
+                        {/* <div className="flex items-center justify-between gap-4">
                             <Button color="milk" className="grow rounded-md text-ink text-xs px-4">
                                 Yearly
                             </Button>
@@ -71,7 +104,7 @@ const SponsorAHerdWidget = () => {
                             <div className="text-lg text-white">
                                 Donation includes: Certificate, Sanctuary Tour
                             </div>
-                        </div>
+                        </div> */}
                     </div>
                     <div className="w-1/2 flex flex-col gap-2">
                         <div className="text-2xl font-serif text-milk">Hero Sponsor</div>

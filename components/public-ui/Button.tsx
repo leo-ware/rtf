@@ -5,7 +5,7 @@ import { twMerge } from "tailwind-merge"
 type ButtonProps = {
     className?: string
     children?: React.ReactNode
-    color: string
+    color?: string
     onClick?: () => void
 }
 

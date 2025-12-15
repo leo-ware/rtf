@@ -6,6 +6,7 @@ import { useQuery, usePaginatedQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Id } from "@/convex/_generated/dataModel"
 import SponsorHerdBg from "./imgs/sponsor-herd-bg.jpg"
+import SponsorAHerdDialog from "@/components/donation-widgets/SponsorAHerdDialog"
 
 const HerdContent = ({ herdId }: { herdId: Id<"herds"> }) => {
     const herd = useQuery(api.herds.getHerd, { id: herdId })
@@ -24,23 +25,32 @@ const HerdContent = ({ herdId }: { herdId: Id<"herds"> }) => {
 
                 {herd.image && (
                     <div className="relative w-full h-[500px]">
-                        <Image
-                            src={herd.image.url}
-                            alt={herd.image.altText || herd.name}
-                            className="w-full h-full object-cover object-center"
-                            fill
-                        />
+                        {herd.image.url && (
+                            <Image
+                                src={herd.image.url}
+                                alt={herd.image.altText || herd.name}
+                                className="w-full h-full object-cover object-center"
+                                fill
+                            />
+                        )}
                     </div>
                 )}
 
                 <div className="text-ink text-lg">{herd.description}</div>
             </div>
 
+            {herd.content && (
+                <div
+                    dangerouslySetInnerHTML={{ __html: herd.content }}
+                    className="text-lg prose prose-lg max-w-10/12"
+                />
+            )}
+
             {timeline && timeline.length > 0 && (
                 <div className="w-full flex flex-col items-center justify-center gap-8">
                     <div className="text-pewter text-[40px] font-serif">Rescue Timeline</div>
                     <div className="relative w-8/12 flex flex-col items-between gap-12">
-                        <div className="absolute top-0 left-1/2 w-1 h-full border-l-2 border-ink" />
+                        <div className={`absolute top-0 left-1/2 w-1 h-full ${timeline.length > 1 && " border-l-2 border-ink"}`} />
                         {timeline.map((tm, i) => {
                             const even = i % 2 === 0
                             return (
@@ -87,6 +97,7 @@ const HerdContent = ({ herdId }: { herdId: Id<"herds"> }) => {
                         <div className="text-white text-[20px] text-left">
                             Your sponsorship helps provide food, shelter, and care for the {herd.name}.
                         </div>
+                        <SponsorAHerdDialog title={`Sponsor the ${herd.name}`} defaultHerdId={herd._id} />
                     </div>
                 </div>
             </div>
@@ -95,7 +106,7 @@ const HerdContent = ({ herdId }: { herdId: Id<"herds"> }) => {
 }
 
 const HerdsTabsSection = ({ defaultSlug }: { defaultSlug?: string }) => {
-    const {results: herds} = usePaginatedQuery(api.herds.listHerds, {}, {initialNumItems: 100})
+    const { results: herds } = usePaginatedQuery(api.herds.listHerds, {}, { initialNumItems: 100 })
 
     if (!herds) {
         return (
@@ -119,7 +130,7 @@ const HerdsTabsSection = ({ defaultSlug }: { defaultSlug?: string }) => {
         content: <HerdContent herdId={herd._id} />
     }))
 
-    const defaultTabSelector = defaultSlug 
+    const defaultTabSelector = defaultSlug
         ? (item: { id: string, title: string, content: React.ReactNode }) => {
             const herd = herds.find(h => h._id === item.id)
             return herd?.slug === defaultSlug

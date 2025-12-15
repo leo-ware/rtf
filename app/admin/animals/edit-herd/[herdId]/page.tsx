@@ -11,30 +11,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { ArrowLeft, Plus, Edit, Trash2, Save, Calendar } from "lucide-react"
+import { ArrowLeft, Save, Calendar, Code } from "lucide-react"
 import Link from "next/link"
 import { handleConvexError } from "@/lib/errorHandler"
-import { ImagePicker } from "@/components/images/ImagePicker"
-import ConvexImage from "@/components/images/ConvexImage"
+import ImagePickerDialog from "@/components/images/ImagePickerDialog"
+import TimelineCreateDialog from "./TimelineCreateDialog"
+import TimelineDeleteDialog from "./TimelineDeleteDialog"
+import { TiptapEditor } from "@/components/TiptapEditor"
 
-interface EditHerdPageProps {
+type EditHerdPageProps = {
     params: Promise<{
         herdId: string
     }>
@@ -43,35 +28,18 @@ interface EditHerdPageProps {
 const EditHerdPage = ({ params }: EditHerdPageProps) => {
     const router = useRouter()
     const herdId = use(params).herdId as Id<"herds">
-    
+
     const herd = useQuery(api.herds.getHerd, { id: herdId })
     const timeline = useQuery(api.herds.getHerdTimeline, { herdId })
     const updateHerd = useMutation(api.herds.updateHerd)
-    const createTimelineItem = useMutation(api.timelineItems.createTimelineItem)
-    const updateTimelineItem = useMutation(api.timelineItems.updateTimelineItem)
-    const deleteTimelineItem = useMutation(api.timelineItems.deleteTimelineItem)
-    const addTimelineItem = useMutation(api.herds.addTimelineItem)
-    const removeTimelineItem = useMutation(api.herds.removeTimelineItem)
-
-    const [isImagePickerOpen, setIsImagePickerOpen] = useState(false)
-    const [isTimelineDialogOpen, setIsTimelineDialogOpen] = useState(false)
-    const [editingTimelineId, setEditingTimelineId] = useState<Id<"timelineItem"> | null>(null)
-    const [confirmDeleteTimelineId, setConfirmDeleteTimelineId] = useState<Id<"timelineItem"> | null>(null)
-    const [isTimelineImagePickerOpen, setIsTimelineImagePickerOpen] = useState(false)
 
     const [formData, setFormData] = useState({
         name: "",
         slug: "",
         description: "",
-        imageId: "",
-    })
-
-    const [timelineFormData, setTimelineFormData] = useState({
-        order: 0,
-        date: "",
-        title: "",
-        description: "",
-        imageId: "",
+        imageId: null as Id<"images"> | null,
+        content: undefined as string | undefined,
+        donateForm: undefined as string | undefined,
     })
 
     const [isSaving, setIsSaving] = useState(false)
@@ -83,7 +51,9 @@ const EditHerdPage = ({ params }: EditHerdPageProps) => {
                 name: herd.name,
                 slug: herd.slug,
                 description: herd.description || "",
-                imageId: herd.imageId || "",
+                imageId: (herd.imageId as Id<"images">) || null,
+                content: herd.content || "",
+                donateForm: herd.donateForm || "",
             })
         }
     }, [herd])
@@ -95,7 +65,9 @@ const EditHerdPage = ({ params }: EditHerdPageProps) => {
                 id: herdId,
                 name: formData.name,
                 description: formData.description || undefined,
-                imageId: formData.imageId as Id<"images"> || undefined,
+                imageId: formData.imageId || undefined,
+                content: formData.content || "",
+                donateForm: formData.donateForm || "",
             })
             alert("Herd saved successfully!")
         } catch (error: any) {
@@ -108,95 +80,6 @@ const EditHerdPage = ({ params }: EditHerdPageProps) => {
         } finally {
             setIsSaving(false)
         }
-    }
-
-    const handleCreateTimeline = async () => {
-        try {
-            const timelineItemId = await createTimelineItem({
-                order: timelineFormData.order,
-                date: timelineFormData.date,
-                title: timelineFormData.title,
-                description: timelineFormData.description,
-                imageId: timelineFormData.imageId as Id<"images"> || undefined,
-            })
-
-            await addTimelineItem({
-                herdId,
-                timelineItemId,
-            })
-
-            setIsTimelineDialogOpen(false)
-            resetTimelineForm()
-        } catch (error: any) {
-            console.error("Error creating timeline item:", error)
-            if (error?.message?.includes('permission') || error?.message?.includes('not authenticated')) {
-                handleConvexError(error, "create timeline item", router)
-            } else {
-                alert("Failed to create timeline item: " + (error?.message || "Unknown error"))
-            }
-        }
-    }
-
-    const handleUpdateTimeline = async () => {
-        if (!editingTimelineId) return
-        try {
-            await updateTimelineItem({
-                id: editingTimelineId,
-                order: timelineFormData.order,
-                date: timelineFormData.date,
-                title: timelineFormData.title,
-                description: timelineFormData.description,
-                imageId: timelineFormData.imageId as Id<"images"> || undefined,
-            })
-
-            setIsTimelineDialogOpen(false)
-            setEditingTimelineId(null)
-            resetTimelineForm()
-        } catch (error: any) {
-            console.error("Error updating timeline item:", error)
-            if (error?.message?.includes('permission') || error?.message?.includes('not authenticated')) {
-                handleConvexError(error, "update timeline item", router)
-            } else {
-                alert("Failed to update timeline item: " + (error?.message || "Unknown error"))
-            }
-        }
-    }
-
-    const handleDeleteTimeline = async (timelineId: Id<"timelineItem">) => {
-        try {
-            await removeTimelineItem({ herdId, timelineItemId: timelineId })
-            await deleteTimelineItem({ id: timelineId })
-            setConfirmDeleteTimelineId(null)
-        } catch (error: any) {
-            console.error("Error deleting timeline item:", error)
-            if (error?.message?.includes('permission') || error?.message?.includes('not authenticated')) {
-                handleConvexError(error, "delete timeline item", router)
-            } else {
-                alert("Failed to delete timeline item: " + (error?.message || "Unknown error"))
-            }
-        }
-    }
-
-    const openEditTimelineDialog = (item: any) => {
-        setEditingTimelineId(item._id)
-        setTimelineFormData({
-            order: item.order,
-            date: item.date,
-            title: item.title,
-            description: item.description,
-            imageId: item.imageId || "",
-        })
-        setIsTimelineDialogOpen(true)
-    }
-
-    const resetTimelineForm = () => {
-        setTimelineFormData({
-            order: timeline ? timeline.length : 0,
-            date: "",
-            title: "",
-            description: "",
-            imageId: "",
-        })
     }
 
     const formatDate = (timestamp: number) => {
@@ -242,28 +125,93 @@ const EditHerdPage = ({ params }: EditHerdPageProps) => {
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {/* Header */}
-            <div className="mb-8">
+            <div className="flex mb-8 justify-between items-start">
                 <Link href="/admin/animals">
                     <Button variant="outline" size="sm" className="mb-4">
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         Back to Animals
                     </Button>
                 </Link>
-                <div className="flex justify-between items-start">
-                    <div>
-                        <h1 className="text-3xl font-bold text-gray-900">{herd.name}</h1>
-                        <p className="text-gray-600 mt-1">Slug: {herd.slug}</p>
-                    </div>
-                    <Button onClick={handleSave} disabled={isSaving}>
-                        <Save className="h-4 w-4 mr-2" />
-                        {isSaving ? "Saving..." : "Save Changes"}
-                    </Button>
-                </div>
+
+                <Button onClick={handleSave} disabled={isSaving}>
+                    <Save className="h-4 w-4 mr-2" />
+                    {isSaving ? "Saving..." : "Save Changes"}
+                </Button>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Herd Details */}
+                {/* Main Content */}
                 <div className="lg:col-span-2 space-y-6">
+                    {/* Timeline */}
+                    <Card>
+                        <CardHeader>
+                            <div className="flex justify-between items-center">
+                                <CardTitle>Timeline</CardTitle>
+                                <TimelineCreateDialog
+                                    herdId={herdId}
+                                    mode="create"
+                                    defaultOrder={timeline.length}
+                                />
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            {timeline.length === 0 ? (
+                                <div className="text-center py-8 text-gray-500">
+                                    No timeline items yet. Add one to get started.
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {timeline.map((item) => (
+                                        <div
+                                            key={item._id}
+                                            className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                                        >
+                                            <div className="flex justify-between items-start mb-2">
+                                                <div className="flex items-center gap-2">
+                                                    <Badge variant="outline">Order: {item.order}</Badge>
+                                                    <div className="flex items-center text-sm text-gray-600">
+                                                        <Calendar className="h-4 w-4 mr-1" />
+                                                        {item.date}
+                                                    </div>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <TimelineCreateDialog
+                                                        herdId={herdId}
+                                                        mode="edit"
+                                                        editItem={item}
+                                                    />
+                                                    <TimelineDeleteDialog
+                                                        herdId={herdId}
+                                                        timelineItemId={item._id}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <h4 className="font-semibold text-gray-900 mb-1">{item.title}</h4>
+                                            <p className="text-gray-600 text-sm">{item.description}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Content</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {(typeof formData.content === "string") && (
+                                <TiptapEditor
+                                    content={formData.content}
+                                    onChange={(content) => setFormData(prev => ({ ...prev, content }))}
+                                />
+                            )}
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Sidebar */}
+                <div className="space-y-6">
                     <Card>
                         <CardHeader>
                             <CardTitle>Herd Details</CardTitle>
@@ -302,112 +250,33 @@ const EditHerdPage = ({ params }: EditHerdPageProps) => {
                                     rows={4}
                                 />
                             </div>
-
                             <div>
                                 <Label>Image</Label>
-                                <div className="space-y-2">
-                                    {herd.image?.url && (
-                                        <div className="relative aspect-video w-full bg-gray-100 rounded-lg overflow-hidden">
-                                            <ConvexImage
-                                                src={herd.image.url}
-                                                alt={herd.name}
-                                                width={herd.image.width || 800}
-                                                height={herd.image.height || 600}
-                                                className="object-cover w-full h-full"
-                                            />
-                                        </div>
-                                    )}
-                                    <div className="flex gap-2">
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            onClick={() => setIsImagePickerOpen(true)}
-                                            className="flex-1"
-                                        >
-                                            {formData.imageId ? "Change" : "Select"} Image
-                                        </Button>
-                                        {formData.imageId && (
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                onClick={() => setFormData(prev => ({ ...prev, imageId: "" }))}
-                                            >
-                                                Remove
-                                            </Button>
-                                        )}
-                                    </div>
-                                </div>
+                                <ImagePickerDialog
+                                    imageId={formData.imageId}
+                                    onImageSelect={(imageId) => setFormData(prev => ({ ...prev, imageId }))}
+                                />
                             </div>
                         </CardContent>
                     </Card>
 
-                    {/* Timeline */}
                     <Card>
                         <CardHeader>
-                            <div className="flex justify-between items-center">
-                                <CardTitle>Timeline</CardTitle>
-                                <Button
-                                    size="sm"
-                                    onClick={() => {
-                                        resetTimelineForm()
-                                        setEditingTimelineId(null)
-                                        setIsTimelineDialogOpen(true)
-                                    }}
-                                >
-                                    <Plus className="h-4 w-4 mr-2" />
-                                    Add Timeline Item
-                                </Button>
-                            </div>
+                            <CardTitle className="flex items-center gap-2">
+                                <Code className="h-4 w-4 mr-2" />
+                                Donate Form Embed
+                            </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            {timeline.length === 0 ? (
-                                <div className="text-center py-8 text-gray-500">
-                                    No timeline items yet. Add one to get started.
-                                </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    {timeline.map((item) => (
-                                        <div
-                                            key={item._id}
-                                            className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
-                                        >
-                                            <div className="flex justify-between items-start mb-2">
-                                                <div className="flex items-center gap-2">
-                                                    <Badge variant="outline">Order: {item.order}</Badge>
-                                                    <div className="flex items-center text-sm text-gray-600">
-                                                        <Calendar className="h-4 w-4 mr-1" />
-                                                        {item.date}
-                                                    </div>
-                                                </div>
-                                                <div className="flex gap-2">
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() => openEditTimelineDialog(item)}
-                                                    >
-                                                        <Edit className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() => setConfirmDeleteTimelineId(item._id)}
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                            <h4 className="font-semibold text-gray-900 mb-1">{item.title}</h4>
-                                            <p className="text-gray-600 text-sm">{item.description}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
+                            <Textarea
+                                id="donateForm"
+                                value={formData.donateForm}
+                                onChange={(e) => setFormData(prev => ({ ...prev, donateForm: e.target.value }))}
+                                placeholder="Donate form"
+                            />
                         </CardContent>
                     </Card>
-                </div>
 
-                {/* Sidebar */}
-                <div className="space-y-6">
                     <Card>
                         <CardHeader>
                             <CardTitle>Information</CardTitle>
@@ -429,154 +298,8 @@ const EditHerdPage = ({ params }: EditHerdPageProps) => {
                     </Card>
                 </div>
             </div>
-
-            {/* Image Picker Modal */}
-            <ImagePicker
-                isOpen={isImagePickerOpen}
-                onClose={() => setIsImagePickerOpen(false)}
-                onImageSelect={(imageData) => {
-                    setFormData(prev => ({ ...prev, imageId: imageData.imageId }))
-                }}
-            />
-
-            {/* Timeline Dialog */}
-            <Dialog open={isTimelineDialogOpen} onOpenChange={setIsTimelineDialogOpen}>
-                <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
-                    <DialogHeader>
-                        <DialogTitle>{editingTimelineId ? "Edit" : "Add"} Timeline Item</DialogTitle>
-                        <DialogDescription>
-                            {editingTimelineId ? "Update" : "Create"} a timeline item for this herd.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <Label htmlFor="order">Order</Label>
-                                <Input
-                                    id="order"
-                                    type="number"
-                                    value={timelineFormData.order}
-                                    onChange={(e) => setTimelineFormData(prev => ({ ...prev, order: parseInt(e.target.value) || 0 }))}
-                                />
-                            </div>
-                            <div>
-                                <Label htmlFor="date">Date</Label>
-                                <Input
-                                    id="date"
-                                    type="text"
-                                    value={timelineFormData.date}
-                                    onChange={(e) => setTimelineFormData(prev => ({ ...prev, date: e.target.value }))}
-                                    placeholder="e.g., October - November 2023"
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <Label htmlFor="title">Title</Label>
-                            <Input
-                                id="title"
-                                value={timelineFormData.title}
-                                onChange={(e) => setTimelineFormData(prev => ({ ...prev, title: e.target.value }))}
-                                placeholder="Timeline item title"
-                            />
-                        </div>
-
-                        <div>
-                            <Label htmlFor="timeline-description">Description</Label>
-                            <Textarea
-                                id="timeline-description"
-                                value={timelineFormData.description}
-                                onChange={(e) => setTimelineFormData(prev => ({ ...prev, description: e.target.value }))}
-                                placeholder="Describe this timeline item"
-                                rows={4}
-                            />
-                        </div>
-
-                        <div>
-                            <Label>Image (Optional)</Label>
-                            <div className="space-y-2">
-                                {timelineFormData.imageId ? (
-                                    <div className="text-sm text-gray-600">
-                                        Image selected
-                                    </div>
-                                ) : (
-                                    <div className="text-sm text-gray-500">
-                                        No image selected
-                                    </div>
-                                )}
-                                <div className="flex gap-2">
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={() => setIsTimelineImagePickerOpen(true)}
-                                        className="flex-1"
-                                    >
-                                        {timelineFormData.imageId ? "Change" : "Select"} Image
-                                    </Button>
-                                    {timelineFormData.imageId && (
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            onClick={() => setTimelineFormData(prev => ({ ...prev, imageId: "" }))}
-                                        >
-                                            Remove
-                                        </Button>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="flex justify-end space-x-2 pt-4">
-                            <Button variant="outline" onClick={() => {
-                                setIsTimelineDialogOpen(false)
-                                setEditingTimelineId(null)
-                                resetTimelineForm()
-                            }}>
-                                Cancel
-                            </Button>
-                            <Button
-                                onClick={editingTimelineId ? handleUpdateTimeline : handleCreateTimeline}
-                                disabled={!timelineFormData.title || !timelineFormData.description}
-                            >
-                                {editingTimelineId ? "Update" : "Create"} Timeline Item
-                            </Button>
-                        </div>
-                    </div>
-                </DialogContent>
-            </Dialog>
-
-            {/* Timeline Image Picker Modal */}
-            <ImagePicker
-                isOpen={isTimelineImagePickerOpen}
-                onClose={() => setIsTimelineImagePickerOpen(false)}
-                onImageSelect={(imageData) => {
-                    setTimelineFormData(prev => ({ ...prev, imageId: imageData.imageId }))
-                }}
-            />
-
-            {/* Delete Timeline Confirmation Dialog */}
-            <AlertDialog open={!!confirmDeleteTimelineId} onOpenChange={() => setConfirmDeleteTimelineId(null)}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete the timeline item.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={() => confirmDeleteTimelineId && handleDeleteTimeline(confirmDeleteTimelineId)}
-                            className="bg-red-600 hover:bg-red-700"
-                        >
-                            Delete
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
         </div>
     )
 }
 
 export default EditHerdPage
-

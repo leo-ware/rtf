@@ -20,7 +20,7 @@ const HerdsCarousel = () => {
         widget: (
             <div className="w-full h-fit flex items-center justify-center gap-6">
                 <div className="relative w-1/2 h-[450px]">
-                    {herd.image ? (
+                    {(herd.image && herd.image.url) ? (
                         <Image
                             src={herd.image.url}
                             alt={herd.image.altText || herd.name}
