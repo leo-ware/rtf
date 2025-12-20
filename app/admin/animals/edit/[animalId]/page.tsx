@@ -38,71 +38,15 @@ import {
     ExternalLink,
     Heart,
     Image as ImageIcon,
-    Trash2
+    Trash2,
+    Code
 } from "lucide-react"
 import Link from "next/link"
 import { Id } from "@/convex/_generated/dataModel"
 import ConvexImage from "@/components/images/ConvexImage"
+import { formatDate, generateSlug } from "@/lib/utils"
+import GalleryPicker, { GalleryPickerProps } from "@/components/GalleryPicker"
 
-type GalleryPickerProps = {
-    open: boolean
-    image?: { imageId: Id<"images">, url: string }
-    onOpen: () => void
-    onClose: () => void
-    onDelete: () => void
-    onImageSelect: (imageData: { imageId: Id<"images">, url: string }) => void
-}
-
-const GalleryPicker = (props: GalleryPickerProps) => {
-    return (
-        <div className="flex items-center gap-3 p-3 border rounded-lg">
-            <div className="w-16 h-16 rounded overflow-hidden bg-gray-100 flex-shrink-0">
-                {props.image ? (
-                    <ConvexImage
-                        src={props.image.url}
-                        alt={`Gallery image`}
-                        width={64}
-                        height={64}
-                        className="object-cover w-full h-full"
-                    />
-                ) : (
-                    <div className="flex items-center justify-center w-full h-full">
-                        <ImageIcon className="h-6 w-6 text-gray-400" />
-                    </div>
-                )}
-            </div>
-            <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium">
-                    Gallery Image
-                </p>
-                <p className="text-xs text-gray-500">
-                    {props.image ? "Image selected" : "No image selected"}
-                </p>
-            </div>
-            <div className="flex gap-2">
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={props.onOpen}
-                >
-                    {props.image ? "Change" : "Select"}
-                </Button>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={props.onDelete}
-                >
-                    <Trash2 className="h-4 w-4" />
-                </Button>
-            </div>
-            <ImagePicker
-                isOpen={props.open}
-                onClose={props.onClose}
-                onImageSelect={props.onImageSelect}
-            />
-        </div>
-    )
-}
 
 type AnimalEditPageProps = {
     params: Promise<{
@@ -127,6 +71,7 @@ type FormDataType = {
     sanctuary: string
     inMemoriam: boolean | undefined
     content: string
+    donateForm: string
 }
 
 const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
@@ -155,6 +100,7 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
         sanctuary: "",
         inMemoriam: undefined,
         content: "",
+        donateForm: "",
     })
 
     useEffect(() => {
@@ -194,6 +140,7 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
                 sanctuary: animal.sanctuary || "",
                 inMemoriam: animal.inMemoriam,
                 content: animal.content || "",
+                donateForm: animal.donateForm || "",
             }))
         }
     }, [animal])
@@ -213,7 +160,8 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
                 formData.dob !== (animal.dob || undefined) ||
                 formData.sanctuary !== (animal.sanctuary || "") ||
                 formData.inMemoriam !== animal.inMemoriam ||
-                formData.content !== (animal.content || "")
+                formData.content !== (animal.content || "") ||
+                formData.donateForm !== (animal.donateForm || "")
             setHasUnsavedChanges(hasChanges)
         }
     }, [formData, animal])
@@ -242,6 +190,7 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
                 dob: formData.dob || undefined,
                 sanctuary: formData.sanctuary || undefined,
                 inMemoriam: formData.inMemoriam,
+                donateForm: formData.donateForm || undefined,
             })
 
             setLastSaved(new Date())
@@ -252,25 +201,6 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
         } finally {
             setIsSaving(false)
         }
-    }
-
-    const formatDate = (timestamp: number) => {
-        return new Date(timestamp).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        })
-    }
-
-    const generateSlug = (name: string) => {
-        return name
-            .toLowerCase()
-            .replace(/[^a-z0-9\s-]/g, "")
-            .replace(/\s+/g, "-")
-            .replace(/-+/g, "-")
-            .trim()
     }
 
     const handleImageSelect = (imageData: { imageId: Id<"images">; url: string }) => {
@@ -494,11 +424,18 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
 
                                 <div>
                                     <Label htmlFor="herdId">Herd</Label>
-                                    <Select value={formData.herdId} onValueChange={(value: Id<"herds">) => setFormData(prev => ({ ...prev, herdId: value }))}>
+                                    <Select
+                                        defaultValue="__undefined"
+                                        value={formData.herdId}
+                                        onValueChange={(value: Id<"herds">) => (
+                                            setFormData(prev => ({ ...prev, herdId: value === "__undefined" ? undefined : value }))
+                                        )}
+                                        >
                                         <SelectTrigger>
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
+                                            <SelectItem value={"__undefined"}>None</SelectItem>
                                             {herds?.map((herd) => (
                                                 <SelectItem key={herd._id} value={herd._id}>
                                                     {herd.name}
@@ -621,6 +558,23 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
                             </CardContent>
                         </Card>
 
+                        <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Code className="h-4 w-4 mr-2" />
+                                Donate Form Embed
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Textarea
+                                id="donateForm"
+                                value={formData.donateForm}
+                                onChange={(e) => setFormData(prev => ({ ...prev, donateForm: e.target.value }))}
+                                placeholder="Donate form"
+                            />
+                        </CardContent>
+                    </Card>
+
                         {/* Animal Information */}
                         <Card>
                             <CardHeader>
@@ -634,12 +588,12 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
 
                                 <div className="flex items-center space-x-2 text-sm">
                                     <Calendar className="h-4 w-4 text-gray-400" />
-                                    <span>Created: {formatDate(animal._creationTime)}</span>
+                                    <span>Created: {formatDate(new Date(animal._creationTime))}</span>
                                 </div>
 
                                 <div className="flex items-center space-x-2 text-sm">
                                     <Calendar className="h-4 w-4 text-gray-400" />
-                                    <span>Updated: {formatDate(animal.updatedAt)}</span>
+                                    <span>Updated: {formatDate(new Date(animal.updatedAt))}</span>
                                 </div>
 
                                 <Separator />

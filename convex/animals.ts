@@ -104,6 +104,7 @@ export const createAnimal = mutation({
         type: v.union(v.literal("horse"), v.literal("burro")),
         slug: v.optional(v.string()),
         imageId: v.id("images"),
+        donateForm: v.optional(v.string()),
     },
     returns: v.id("animals"),
     handler: async (ctx, args) => {
@@ -133,6 +134,7 @@ export const createAnimal = mutation({
             imageId: args.imageId,
             createdAt: now,
             updatedAt: now,
+            donateForm: args.donateForm || "",
         })
         const animal = await ctx.db.get(animalId)
         if (animal) {
@@ -158,6 +160,7 @@ export const updateAnimal = mutation({
         age: v.optional(v.number()),
         sanctuary: v.optional(v.string()),
         inMemoriam: v.optional(v.boolean()),
+        donateForm: v.optional(v.string()),
     },
     returns: v.null(),
     handler: async (ctx, args) => {
@@ -241,6 +244,10 @@ export const updateAnimal = mutation({
 
         if (args.inMemoriam !== undefined) {
             updates.inMemoriam = args.inMemoriam
+        }
+
+        if (args.donateForm !== undefined) {
+            updates.donateForm = args.donateForm
         }
 
         await ctx.db.patch(args.id, updates)

@@ -304,7 +304,8 @@ export default defineSchema({
         inMemoriam: v.optional(v.boolean()),
         createdAt: v.number(),
         updatedAt: v.number(),
-
+        donateForm: v.optional(v.string()),
+        
         articleMetadataIds: v.optional(v.array(v.id("articleMetadata"))),
     }).index("by_slug", ["slug"])
         .index("by_type", ["type"])

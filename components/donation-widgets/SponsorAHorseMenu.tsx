@@ -48,7 +48,7 @@ const SponsorAHorseMenu = ({ title }: { title?: string }) => {
                                 {animal.herd?.name && ` | ${animal.herd.name}`}
                             </div>
                             <div className="w-full flex justify-center gap-4">
-                                <SponsorAHorseDialog>
+                                <SponsorAHorseDialog animalId={animal._id}>
                                     <Button color="sage-green" className="py-1 px-4">
                                         SPONSOR
                                     </Button>

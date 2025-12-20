@@ -8,20 +8,50 @@ import {
 } from "@/components/public-ui/Dialog";
 
 import SponsorAHorseImg from "./isadora.jpg";
-import Button from "@/components/public-ui/Button";
-import CardLayout from "@/components/public-ui/CardLayout";
+import { Id } from "@/convex/_generated/dataModel";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Loader2 } from "lucide-react";
+import ConvexImage from "../images/ConvexImage";
 
-const SponsorAHorseWidgetInner = ({ htype }: { htype: "horse" | "burro" }) => {
+const SponsorAHorseWidgetInner = ({ animalId }: { animalId: Id<"animals"> }) => {
+    const animal = useQuery(api.animals.getAnimal, { id: animalId })
+
     return (
-        <div className="w-full h-fit relative bg-sage-green rounded-md overflow-hidden">
-            <div className="relative w-full h-[400px] grow-0">
-                <Image
-                    src={SponsorAHorseImg}
-                    alt="Sponsor A Horse"
-                    fill
-                    className="object-cover object-center"
-                />
+        <div className="w-[50vw] h-fit relative bg-sage-green rounded-md overflow-hidden">
+            <div className="relative w-full aspect-[2/1] grow-0">
+                {animal?.image?.url
+                    ? (
+                        <ConvexImage
+                            src={animal.image.url}
+                            alt={animal.image.altText || animal.name}
+                            width={animal.image.width || 400}
+                            height={animal.image.height || 300}
+                            className="w-full h-full object-cover object-center"
+                        />
+                    ) : (
+                        <Image
+                            src={SponsorAHorseImg}
+                            alt="Sponsor A Horse"
+                            fill
+                            className="w-full h-full object-cover object-center"
+                        />
+                    )}
             </div>
+
+            {/* <div className="w-full px-12 py-12 basis-0 grow">
+                <div className="w-full mb-6 flex flex-col gap-6 items-center justify-between">
+                    <div className="text-3xl font-serif text-white">Sponsor {animal?.name}</div>
+                    {animal?.donateForm ? (
+                        <div className="w-full h-full" dangerouslySetInnerHTML={{ __html: animal.donateForm || "" }} />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                            <Loader2 className="w-10 h-10 animate-spin text-milk" />
+                        </div>
+                    )}
+                </div>
+            </div> */}
+
             <div className="w-full px-12 py-8 basis-0 grow">
                 <div className="w-full mb-6 flex items-center justify-between">
                     <div className="text-3xl font-serif text-white">Sponsor Isadora Cruz</div>
@@ -64,15 +94,15 @@ const SponsorAHorseWidgetInner = ({ htype }: { htype: "horse" | "burro" }) => {
     )
 }
 
-const SponsorAHorseDialog = ({ children }: { children: React.ReactNode }) => {
+const SponsorAHorseDialog = ({ children, animalId }: { children: React.ReactNode, animalId: Id<"animals"> }) => {
     return (
         <Dialog>
-            <DialogContent>
-                <SponsorAHorseWidgetInner htype="horse" />
-            </DialogContent>
             <DialogTrigger>
                 {children}
             </DialogTrigger>
+            <DialogContent>
+                <SponsorAHorseWidgetInner animalId={animalId} />
+            </DialogContent>
         </Dialog>
     )
 }
