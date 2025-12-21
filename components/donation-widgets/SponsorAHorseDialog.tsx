@@ -11,8 +11,9 @@ import SponsorAHorseImg from "./isadora.jpg";
 import { Id } from "@/convex/_generated/dataModel";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Loader2 } from "lucide-react";
 import ConvexImage from "../images/ConvexImage";
+import CardLayout from "../public-ui/CardLayout";
+import Button from "../public-ui/Button";
 
 const SponsorAHorseWidgetInner = ({ animalId }: { animalId: Id<"animals"> }) => {
     const animal = useQuery(api.animals.getAnimal, { id: animalId })

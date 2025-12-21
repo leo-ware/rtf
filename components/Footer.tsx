@@ -3,7 +3,7 @@ import Image from "next/image"
 import { MdOutlineEmail } from "react-icons/md"
 import RTFLogoWhite from "@/public/img/rtf_logo_white.svg"
 import { FaExternalLinkAlt } from "react-icons/fa"
-import SocialLinks from "./SocialLinks"
+import SocialLinks from "./SocialLinksWidget"
 
 import CharityNavigator from "./images/charity-navigator.png"
 import OnePercent from "./images/1_percent_planet.png"

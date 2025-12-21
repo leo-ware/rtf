@@ -3,7 +3,7 @@ import Button from "@/components/public-ui/Button"
 import Header from "@/components/public-ui/Header"
 import AlternatingPictureLayout from "@/components/public-ui/AlternatingPictureLayout"
 import EmailLink from "@/components/public-ui/EmailLink"
-import SocialLinks from "@/components/SocialLinks"
+import SocialLinks from "@/components/SocialLinksWidget"
 
 import hero from "./hero.jpg"
 import img1 from "./img1.jpg"
