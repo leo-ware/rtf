@@ -7,10 +7,10 @@ const BlurredImageCard = ({image, children, className, innerClassName}: {image: 
     return (
         <div className={cn(
             "relative w-full h-fit flex flex-col items-center justify-center gap-4 rounded-[7px] overflow-hidden",
-            className
+            className,
         )}>
             <Image
-                className="absolute blur-sm z-0 top-0 left-0 w-full h-full object-cover object-center"
+                className="scale-120 absolute blur-sm z-0 top-0 left-0 w-full h-full object-cover object-center"
                 src={image}
                 alt={"Card background image"} />
             <div className={cn(

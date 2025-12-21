@@ -12,6 +12,7 @@ import MysticImage from "./mystic.png"
 import Link from "next/link"
 import GenericDonateDialogue from "@/components/donation-widgets/GenericDonateDialogue"
 import HerdsCarousel from "@/components/HerdsCarousel"
+import Header from "@/components/public-ui/Header"
 
 const OurHorsesPage = () => {
     return (
@@ -31,9 +32,9 @@ const OurHorsesPage = () => {
             </div>
 
             <div className="w-10/12 h-fit flex flex-col items-center justify-center gap-4">
-                <div className="text-sage-green text-[48px] font-serif">
+                <Header level={1} className="text-sage-green">
                     Meet Spirit
-                </div>
+                </Header>
                 <div className="text-[20px] font-serif">
                     Spirit, the Kiger mustang who inspired DreamWorks’ Spirit:
                     Stallion of the Cimarron, found his permanent home at
@@ -63,11 +64,12 @@ const OurHorsesPage = () => {
 
             <SponsorAHorseMenu />
 
-            <div className="relative w-full h-[400px] flex flex-col items-center justify-center gap-8">
+            <div className="relative w-full h-[500px] flex flex-col items-center justify-center gap-8">
                 <Image
                     src={AdoptBanner}
                     alt="Adopt a Horse"
                     className="absolute top-0 left-0 w-full h-full object-cover object-center" />
+                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-l from-black/70 from-0% via-transparent via-60% to-transparent" />
                 <div className="relative w-full h-full py-10 px-32 z-10 flex flex-col items-end justify-center gap-2">
                     <div className="relative z-10 text-white text-[48px] font-serif">
                         Adopt a Horse
@@ -82,9 +84,9 @@ const OurHorsesPage = () => {
             </div>
 
             <div className="w-full h-fit flex flex-col items-center justify-center gap-8">
-                <div className="text-cinnamon text-[48px] font-serif">
+                <Header className="text-sage-green">
                     In Memoriam
-                </div>
+                </Header>
                 <div className="w-full h-fit flex flex-col items-center justify-center">
                     <div className="relative w-full h-[500px]">
                         <Image className="w-full h-full object-cover object-top" src={MysticImage} alt="Mystic" />

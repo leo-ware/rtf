@@ -1,9 +1,7 @@
+import {redirect} from "next/navigation"
+
 const NotFoundPage = () => {
-    return (
-        <div>
-            <h1>404 - Page Not Found</h1>
-        </div>
-    )
+    return redirect("/404")
 }
 
 export default NotFoundPage;

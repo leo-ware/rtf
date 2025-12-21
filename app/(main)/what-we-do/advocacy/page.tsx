@@ -9,6 +9,8 @@ import Link from "next/link"
 import Button from "@/components/public-ui/Button"
 import NewsCarousel from "@/components/NewsCarousel"
 import BlurredImageCard from "@/components/public-ui/BlurredImageCard"
+import GenericDonateDialogue from "@/components/donation-widgets/GenericDonateDialogue"
+import TakeActionSection from "@/components/TakeActionSection"
 
 import Policy1 from "./policy1.png"
 import Policy2 from "./policy2.jpg"
@@ -21,7 +23,7 @@ import Random3 from "./random3.jpg"
 import Random4 from "./random4.jpg"
 import Random5 from "./random5.jpg"
 import Random6 from "./random6.jpg"
-import TakeActionLink from "@/components/TakeActionLink"
+import WHDCallout from "@/components/WHDCallout"
 
 
 const policies = [
@@ -98,7 +100,7 @@ const AdvocacyPage = () => {
     return (
         <div className="w-full h-fit flex flex-col items-center justify-start gap-16">
             <Hero title="Advocacy" image={AdvocacyHero} />
-            <Callout className="font-sans text-ink">
+            <Callout className="">
                 Return to Freedom is leading the fight to protect America's wild
                 horses and burros through policy reform, legal action, and grassroots
                 mobilization. Every voice matters — together we can end roundups, stop
@@ -108,11 +110,11 @@ const AdvocacyPage = () => {
             <Header color="sage-green">
                 Our Policy & Legislative Priorities
             </Header>
-            <div className="w-8/12 mx-auto flex flex-col items-center justify-center gap-18">
+            <div className="w-9/12 mx-auto flex flex-col items-center justify-center gap-18">
                 {policies.map((each, i) => {
                     return (
                         <div key={each.title} className={`w-full flex items-center gap-8 ${i % 2 === 0 ? "flex-row-reverse" : "flex-row"}`}>
-                            <div className="relative w-1/2 h-[300px] overflow-hidden">
+                            <div className="relative w-1/2 h-[350px] overflow-hidden">
                                 <Image
                                     src={each.image}
                                     alt={each.title}
@@ -137,29 +139,11 @@ const AdvocacyPage = () => {
 
             <NewsCarousel title="RTF's Advocacy Work" topic="advocacy" />
 
-            <div className="w-full px-8">
-                <BlurredImageCard image={BlurredImage} className="flex items-center justify-between py-16 px-20">
-                    <div className="w-1/3 text-white">
-                        <div className="text-4xl font-serif mb-4">
-                            Donate to the Wild Horse Defense Fund
-                        </div>
-                        <div className="text-lg">
-                            The Wild Horse Defense Fund fuels Return to Freedom's frontline work
-                            to end cruel roundups, advance humane on-range management, and defend
-                            wild horses through advocacy, legal action, and education.
-                        </div>
-                    </div>
-                </BlurredImageCard>
-            </div>
+            <WHDCallout />
 
-            <div id="take-action" className="w-full mb-12">
-                <Header color="cinnamon" className="mb-8">Take Action</Header>
-                <div className="w-full flex items-center justify-center gap-8 flex-wrap ">
-                    {takeAction.map((each, i) => (
-                        <TakeActionLink key={each.title} title={each.title} image={each.image} />
-                    ))}
-                </div>
-            </div>
+            <TakeActionSection />
+
+            <div className="h-8"/>
         </div>
     )
 }

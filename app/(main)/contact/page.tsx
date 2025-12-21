@@ -3,7 +3,7 @@ import Button from "@/components/public-ui/Button"
 import Header from "@/components/public-ui/Header"
 import AlternatingPictureLayout from "@/components/public-ui/AlternatingPictureLayout"
 import EmailLink from "@/components/public-ui/EmailLink"
-// import SocialLinks from "@/components/SocialLinks"
+import SocialLinks from "@/components/SocialLinks"
 
 import hero from "./hero.jpg"
 import img1 from "./img1.jpg"
@@ -20,10 +20,10 @@ const ContactPage = () => {
                 <Header className="mb-8">Stay Connected</Header>
                 <div className="w-full flex flex-col md:flex-row justify-between gap-8">
                     <div className="md:w-6/12 text-left">
-                        <div className="text-2xl mb-4 font-serif text-cinnamon">
+                        <div className="text-[25px] mb-4 font-serif text-cinnamon">
                             Subscribe to receive updates on our work
                         </div>
-                        <div className="md:w-full h-8 flex border-1 border-pewter rounded-sm">
+                        <div className="md:w-full h-8 flex border-2 border-sage-green rounded-sm">
                             <input
                                 type="email"
                                 placeholder="Enter your email"
@@ -34,11 +34,11 @@ const ContactPage = () => {
                         </div>
                     </div>
                     <div className="md:w-5/12">
-                        <div className="text-left text-2xl mb-4 font-serif text-cinnamon">
+                        <div className="text-left text-[25px] mb-4 font-serif text-cinnamon">
                             Connect with us on Social Media
                         </div>
                         <div className="flex justify-start gap-4 text-sage-green">
-                            {/* <SocialLinks /> */}
+                            <SocialLinks />
                         </div>
                     </div>
                 </div>
@@ -50,8 +50,8 @@ const ContactPage = () => {
                     <div className="md:w-6/12">
                         <div className="w-full flex flex-col gap-4">
                             <div className="w-full text-left">
-                                <div className="text-lg font-serif text-cinnamon">First Name*</div>
-                                <div className="w-full h-8 flex border-1 border-pewter rounded-sm">
+                                <div className="text-[25px] font-serif text-cinnamon">First Name*</div>
+                                <div className="w-full h-8 flex border-2 border-sage-green rounded-sm">
                                     <input
                                         type="text"
                                         className="w-full h-full py-2 px-4 text-sm" />
@@ -59,8 +59,8 @@ const ContactPage = () => {
                             </div>
 
                             <div className="w-full text-left">
-                                <div className="text-lg font-serif text-cinnamon">Last Name*</div>
-                                <div className="w-full h-8 flex border-1 border-pewter rounded-sm">
+                                <div className="text-[25px] font-serif text-cinnamon">Last Name*</div>
+                                <div className="w-full h-8 flex border-2 border-sage-green rounded-sm">
                                     <input
                                         type="text"
                                         className="w-full h-full py-2 px-4 text-sm" />
@@ -68,8 +68,8 @@ const ContactPage = () => {
                             </div>
 
                             <div className="w-full text-left">
-                                <div className="text-lg font-serif text-cinnamon">Email*</div>
-                                <div className="w-full h-8 flex border-1 border-pewter rounded-sm">
+                                <div className="text-[25px] font-serif text-cinnamon">Email*</div>
+                                <div className="w-full h-8 flex border-2 border-sage-green rounded-sm">
                                     <input
                                         type="email"
                                         className="w-full h-full py-2 px-4 text-sm" />
@@ -77,8 +77,8 @@ const ContactPage = () => {
                             </div>
 
                             <div className="w-full text-left">
-                                <div className="text-lg font-serif text-cinnamon">Organization (if Relevant)</div>
-                                <div className="w-full h-8 flex border-1 border-pewter rounded-sm">
+                                <div className="text-[25px] font-serif text-cinnamon">Organization (if Relevant)</div>
+                                <div className="w-full h-8 flex border-2 border-sage-green rounded-sm">
                                     <input
                                         type="text"
                                         className="w-full h-full py-2 px-4 text-sm" />
@@ -86,8 +86,8 @@ const ContactPage = () => {
                             </div>
 
                             <div className="w-full text-left">
-                                <div className="text-lg font-serif text-cinnamon">Your Message*</div>
-                                <div className="w-full h-32 flex border-1 border-pewter rounded-sm">
+                                <div className="text-[25px] font-serif text-cinnamon">Your Message*</div>
+                                <div className="w-full h-32 flex border-2 border-sage-green rounded-sm">
                                     <input
                                         type="text"
                                         className="w-full h-full py-2 px-4 text-sm" />
@@ -96,35 +96,35 @@ const ContactPage = () => {
                         </div>
                     </div>
 
-                    <div className="relative md:w-5/12 text-left flex flex-col gap-2">
-                        <div className="text-lg font-serif text-cinnamon mb-4">
+                    <div className="relative md:w-5/12 text-left flex flex-col gap-2 text-[20px]">
+                        <div className="text-[25px] font-serif text-cinnamon mb-4">
                             Inquiry*
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-4">
                             <div className="border-1 border-pewter rounded-full h-4 w-4" />
                             <div>Sanctuary & Animal Care</div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-4">
                             <div className="border-1 border-pewter rounded-full h-4 w-4" />
                             <div>Sanctuary & Animal Care</div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-4">
                             <div className="border-1 border-pewter rounded-full h-4 w-4" />
                             <div>Sanctuary & Animal Care</div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-4">
                             <div className="border-1 border-pewter rounded-full h-4 w-4" />
                             <div>Sanctuary & Animal Care</div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-4">
                             <div className="border-1 border-pewter rounded-full h-4 w-4" />
                             <div>Sanctuary & Animal Care</div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-4">
                             <div className="border-1 border-pewter rounded-full h-4 w-4" />
                             <div>Sanctuary & Animal Care</div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-4">
                             <div className="border-1 border-pewter rounded-full h-4 w-4" />
                             <div>Sanctuary & Animal Care</div>
                         </div>

@@ -27,6 +27,9 @@ import Rescue4Img from "./rescue-4.png"
 import Rescue5Img from "./rescue-5.jpg"
 import Button from "@/components/public-ui/Button"
 import NewsCarousel from "@/components/NewsCarousel"
+import GenericDonateDialogue from "@/components/donation-widgets/GenericDonateDialogue"
+import UpcomingEventsWidget from "@/components/UpcomingEventsWidget"
+import Link from "next/link"
 
 const rescues = [
     {
@@ -126,15 +129,15 @@ const SanctuaryPage = () => {
             </TitledText>
 
             <div className="w-full">
-                <Header color="cinnamon" className="mb-8">
+                <Header color="cinnamon" className="mb-8 underline">
                     Costs of Running Our Sanctuaries
                 </Header>
-                <div className="w-8/10 mx-auto h-[600px] flex items-stretch gap-4">
+                <div className="w-[95vw] mx-auto h-[550px] flex items-stretch gap-4">
                     <BlurredImageCard image={Blurred1} className="h-full">
-                        <div className="text-white w-full h-full px-12 py-16 flex flex-col items-start justify-center gap-4">
-                            <div className="flex flex-col items-start justify-center gap-2">
-                                <div className="text-[36px] font-serif">$550,000</div>
-                                <div className="text-[32px] font-serif">on hay for the horses</div>
+                        <div className="text-white w-full h-full px-12 py-12 flex flex-col items-start justify-center gap-4">
+                            <div className="flex flex-col items-start justify-center">
+                                <div className="text-[48px] font-serif leading-none">$550,000</div>
+                                <div className="text-[28px] font-serif">on hay for the horses</div>
                             </div>
                             <div className="text-[20px]">
                                 This includes the hay and feed required to care for over 460 rescued wild horses
@@ -143,13 +146,16 @@ const SanctuaryPage = () => {
                                 At Return to Freedom, they now live safely in natural family bands, grazing
                                 freely on open pastures.
                             </div>
+                            <GenericDonateDialogue>
+                                <Button color="cinnamon" className="px-4">Donate</Button>
+                            </GenericDonateDialogue>
                         </div>
                     </BlurredImageCard>
                     <BlurredImageCard image={Blurred2} className="h-full">
-                        <div className="text-white w-full h-full px-12 py-16 flex flex-col items-start justify-center gap-4">
-                            <div className="flex flex-col items-start justify-center gap-2">
-                                <div className="text-[36px] font-serif">$1,150,000</div>
-                                <div className="text-[32px] font-serif">
+                        <div className="text-white w-full h-full px-12 py-12 flex flex-col items-start justify-center gap-4">
+                            <div className="flex flex-col items-start justify-center">
+                                <div className="text-[48px] font-serif leading-none">$1,150,000</div>
+                                <div className="text-[28px] font-serif">
                                     on daily care, staffing, land and infrastructure maintenance
                                 </div>
                             </div>
@@ -159,13 +165,16 @@ const SanctuaryPage = () => {
                                 Obispo, and the ongoing upkeep of barns, fences, and water systems that keep the herds
                                 safe.
                             </div>
+                            <GenericDonateDialogue>
+                                <Button color="cinnamon" className="px-4">Donate</Button>
+                            </GenericDonateDialogue>
                         </div>
                     </BlurredImageCard>
                 </div>
             </div>
 
             <div className="w-full px-8">
-                <Header color="pewter" className="mb-8">
+                <Header color="pewter" className="mb-8 underline">
                     Our Rescues
                 </Header>
                 <Carousel
@@ -191,7 +200,8 @@ const SanctuaryPage = () => {
                     the growing number of animals needing immediate refuge underscores an urgent reality:
                     we need more land, more resources, and a stronger foundation to sustain our mission.
                 </TitledText>
-                <div className="w-8/10 mx-auto h-[500px] flex items-stretch gap-4">
+
+                <div className="w-[95vw] mx-auto h-[500px] flex items-stretch gap-4">
                     <BlurredImageCard image={Blurred3} className="h-full">
                         <div className="text-white w-full h-full px-12 py-16 flex flex-col items-start justify-center gap-4">
                             <div className="text-[36px] font-serif">Capital Campaign</div>
@@ -203,20 +213,28 @@ const SanctuaryPage = () => {
                                 sanctuary to expand habitat, integrate regenerative grazing, and provide
                                 space for displaced herds.
                             </div>
-                            <Button color="cinnamon">Learn More About the Capital Campaign</Button>
+                            <Link href="/donate/capital-campaign">
+                                <Button color="cinnamon">
+                                    Learn More About the Capital Campaign
+                                </Button>
+                            </Link>
                         </div>
                     </BlurredImageCard>
                     <BlurredImageCard image={Blurred4} className="h-full">
                         <div className="text-white w-full h-full px-12 py-8 flex flex-col items-start justify-center gap-4">
                             <div className="text-[36px] font-serif">Planned Giving</div>
                             <div className="text-[20px]">
-                                Planned giving ensures that the work of today endures tomorrow. Through bequests, 
-                                trusts, or endowment gifts, supporters can help Return to Freedom acquire new 
-                                land, improve sanctuary infrastructure, and sustain long-term care for rescued 
-                                herds. These legacy commitments are investments in permanence—preserving open 
+                                Planned giving ensures that the work of today endures tomorrow. Through bequests,
+                                trusts, or endowment gifts, supporters can help Return to Freedom acquire new
+                                land, improve sanctuary infrastructure, and sustain long-term care for rescued
+                                herds. These legacy commitments are investments in permanence—preserving open
                                 land, freedom, and the bond between horses and the wild places they call home.
                             </div>
-                            <Button color="cinnamon">Learn More About Planned Giving</Button>
+                            <Link href="/donate/planned-giving">
+                                <Button color="cinnamon">
+                                    Learn More About Planned Giving
+                                </Button>
+                            </Link>
                         </div>
                     </BlurredImageCard>
                 </div>
@@ -251,6 +269,15 @@ const SanctuaryPage = () => {
 
             <div className="w-full">
                 <NewsCarousel bgColor="transparent" title="Sanctuary News" topic="sanctuary" />
+            </div>
+
+            <div className="w-full bg-seashell py-12">
+                <Header level={1} color="pewter" className="underline">
+                    Visit Us
+                </Header>
+                <div className="w-8/12 mx-auto">
+                    <UpcomingEventsWidget />
+                </div>
             </div>
         </div>
     )

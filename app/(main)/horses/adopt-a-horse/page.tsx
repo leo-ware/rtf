@@ -1,5 +1,6 @@
 import Hero from "@/components/public-ui/Hero"
 import Image from "next/image"
+import Header from "@/components/public-ui/Header"
 
 import HeroImg from "./adopt-a-horse-hero.jpg"
 import Heather from "./heather.png"
@@ -13,9 +14,9 @@ const AdoptAHorsePage = () => {
             <Hero title="Adopt a Horse" image={HeroImg} />
 
             <div className="w-full h-fit flex flex-col items-center justify-center gap-8">
-                <div className="w-6/12 text-pewter text-[48px] font-serif">
+                <Header className="w-6/12 text-pewter">
                     Give a Rescued Wild Horse or a Wild Burro a Forever Home.
-                </div>
+                </Header>
 
                 <div className="w-8/12 flex flex-col items-start justify-start gap-4 text-left">
                     <p>

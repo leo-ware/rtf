@@ -12,11 +12,10 @@ import Button from "@/components/public-ui/Button"
 
 import PopulationManagementHero from "./hero.jpg"
 import RoundupsImage1 from "../imgs/randomhorse.png"
-import TakeActionImage1 from "../imgs/take-action-1.jpg"
-import TakeActionImage2 from "../imgs/take-action-2.jpg"
-import TakeActionImage3 from "../imgs/take-action-3.jpg"
 import BlurredBg from "../imgs/blurred-bg.jpg"
 import GenericDonateDialogue from "@/components/donation-widgets/GenericDonateDialogue"
+import TakeActionSection from "@/components/TakeActionSection"
+import WHDCallout from "@/components/WHDCallout"
 
 const PopulationManagementPage = () => {
     return (
@@ -32,7 +31,7 @@ const PopulationManagementPage = () => {
             <div className="w-10/12 md:w-8/12 mx-auto">
                 <iframe
                     className="w-full aspect-[16/9]"
-                    src="https://www.youtube.com/embed/Oo9EbArcQ1c?si=6r6KR7I0x0F0PVGy"
+                    src="https://www.youtube.com/embed/WOTL-b4wkM8?si=X2OfmqPn8t5xn6Ja"
                     title="YouTube video player"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen />
@@ -118,7 +117,7 @@ const PopulationManagementPage = () => {
                             id: title,
                             widget: (
                                 <div className="w-full h-full flex items-center justify-center gap-8">
-                                    <div className="hidden md:block h-[300px] aspect-[4/3] relative">
+                                    <div className="hidden md:block h-[350px] aspect-[4/3] relative">
                                         <Image
                                             src={image}
                                             alt={title}
@@ -139,25 +138,8 @@ const PopulationManagementPage = () => {
                 />
             </div>
 
-            <div className="w-10/12 mx-auto flex flex-col items-center justify-center gap-8">
-                <Header level={2} className="text-cinnamon">
-                    Take Action
-                </Header>
-
-                <CardLayout >
-                    <TakeActionLink
-                        className="mx-auto"
-                        title="Sign a petition to end horse slaughter in the United States"
-                        image={TakeActionImage1} />
-                    <TakeActionLink
-                        className="mx-auto"
-                        title="Contact your representative to ensure this bill does not pass"
-                        image={TakeActionImage2} />
-                    <TakeActionLink
-                        className="mx-auto"
-                        title="Show your support protesting the BLM's actions"
-                        image={TakeActionImage3} />
-                </CardLayout>
+            <div className="w-full">
+                <TakeActionSection />
             </div>
 
             <NewsCarousel
@@ -165,23 +147,7 @@ const PopulationManagementPage = () => {
                 bgColor="seashell"
                 topic="population_management" />
 
-            <div className="w-10/12 mx-auto">
-                <BlurredImageCard image={BlurredBg}>
-                    <div className="w-full h-full py-16 px-10 flex flex-col items-center justify-center gap-4">
-                        <div className="text-4xl font-serif text-white text-center">
-                            Donate to the Wild Horse Defense Fund
-                        </div>
-                        <div className="max-w-[650px] text-lg text-white text-center">
-                            The Wild Horse Defense Fund fuels Return to Freedom’s frontline work to
-                            end cruel roundups, advance humane on-range management, and defend wild
-                            horses through advocacy, legal action, and education.
-                        </div>
-                        <GenericDonateDialogue>
-                            <Button color="cinnamon">Donate Now</Button>
-                        </GenericDonateDialogue>
-                    </div>
-                </BlurredImageCard>
-            </div>
+            <WHDCallout />
         </div>
     )
 }

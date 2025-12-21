@@ -4,8 +4,9 @@ import Image, { StaticImageData } from "next/image"
 const Hero = ({ title, image }: { title: string, image: StaticImageData }) => {
     return (
         <div
+            style={{height: "calc(100vh - 135px)"}}
             className="
-                w-full h-[50vh] xl:h-[80vh]
+                w-full
                 relative flex items-center justify-center bg-sage-green"
             // style={{height: "calc(100vh - 140px)"}}
             >

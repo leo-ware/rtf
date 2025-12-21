@@ -31,7 +31,7 @@ const ConservationPage = () => {
         <div className="w-full h-fit flex flex-col items-center justify-center gap-16 mb-16">
             <Hero title="Conservation" image={HeroImg} />
 
-            <Callout>
+            <Callout className="text-sage-green">
                 Conservation at Return to Freedom is where science meets stewardship. For more than
                 25 years, we've modeled solutions that balance the needs of wild horses, land, and
                 people—translating sanctuary-based learning into national standards for humane management.
@@ -40,7 +40,7 @@ const ConservationPage = () => {
             </Callout>
 
             <div className="w-full">
-                <Header color="cinnamon" className="mb-8">
+                <Header className="mb-8 text-cinnamon underline">
                     Fertility Control
                 </Header>
 
@@ -102,8 +102,8 @@ const ConservationPage = () => {
                 />
             </div>
 
-            <div className="w-full flex flex-col items-center justify-center gap-8">
-                <Header color="cinnamon">
+            <div className="w-full flex flex-col items-center justify-center gap-4">
+                <Header className="text-cinnamon underline">
                     Holistic Land Management
                 </Header>
                 <Callout className="text-ink">
@@ -115,12 +115,12 @@ const ConservationPage = () => {
                 <div className="w-10/12 md:w-8/12 mx-auto">
                     <iframe
                         className="w-full aspect-[16/9]"
-                        src="https://www.youtube.com/embed/Oo9EbArcQ1c?si=6r6KR7I0x0F0PVGy"
+                        src="https://www.youtube.com/embed/s6Zlpe9Xtqw?si=z0_g2P6WfS_n3I1C"
                         title="YouTube video player"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         allowFullScreen />
                 </div>
-                <Callout className="text-ink font-sans text-lg">
+                <Callout className="text-ink font-sans text-[20px]">
                     Recorded at RTF's SLO sanctuary, this video shows Rodger Savory demonstrating how wild horses
                     support land restoration in brittle environments—ecosystems with distinct wet and dry seasons
                     that cannot regenerate without animal impact and thoughtful human management. Through timed
@@ -131,20 +131,24 @@ const ConservationPage = () => {
 
             <div className="w-10/12 md:w-8/12 mx-auto flex items-center justify-center gap-8">
                 <div className="w-full md:w-1/2 mx-auto flex flex-col items-center justify-center gap-4">
-                    <div className="text-3xl font-serif text-cinnamon">Before Reseeding</div>
+                    <Header level={2} className="text-cinnamon underline">
+                        Before Reseeding
+                    </Header>
                     <div className="w-full aspect-[3/4] relative">
                         <Image src={Before} alt="Before" fill className="object-cover object-center" />
                     </div>
-                    <div className="text-ink font-sans text-lg text-center">
+                    <div className="text-ink font-sans text-[20px] text-center">
                         RTF staff seeding for the regenerative grazing project in San Luis Obispo, CA.
                     </div>
                 </div>
                 <div className="w-full md:w-1/2 mx-auto flex flex-col items-center justify-center gap-4">
-                    <div className="text-3xl font-serif text-cinnamon">After Reseeding</div>
+                    <Header level={2} className="text-cinnamon underline">
+                        After Reseeding
+                    </Header>
                     <div className="w-full aspect-[3/4] relative">
                         <Image src={After} alt="After" fill className="object-cover object-center" />
                     </div>
-                    <div className="text-ink font-sans text-lg text-center">
+                    <div className="text-ink font-sans text-[20px] text-center">
                         Grass growth at San Luis Obispo - showing progress from our regenerative grazing project.
                     </div>
                 </div>
@@ -245,7 +249,7 @@ const ConservationPage = () => {
                             id: title,
                             widget: (
                                 <div className="w-full h-full flex items-center justify-center gap-8">
-                                    <div className="hidden md:block h-[300px] aspect-[4/3] relative">
+                                    <div className="hidden md:block h-[350px] aspect-[4/3] relative">
                                         <Image
                                             src={image}
                                             alt={title}
@@ -255,7 +259,7 @@ const ConservationPage = () => {
                                         <Header level={2} className="text-left">
                                             {title}
                                         </Header>
-                                        <div className="text-lg text-ink">
+                                        <div className="text-[20px] text-ink">
                                             {description}
                                         </div>
                                     </div>
@@ -272,7 +276,20 @@ const ConservationPage = () => {
                 <Header color="sage-green" className="mb-8">
                     Conservation in Action
                 </Header>
-                <Carousel
+                <div className="w-full h-fit flex flex-col items-center justify-center bg-pewter rounded-md overflow-hidden">
+                    <div className="w-full h-[400px] relative">
+                        <Image
+                            src={CarouselDummy2}
+                            alt="Foo"
+                            fill className="w-full h-full object-cover object-center" />
+                    </div>
+                    <div className="w-full h-[95px] flex items-center justify-center">
+                        <div className="text-white text-lg text-center m-0 p-0">
+                            Celeste Carlisle, our biologist, reseeding the sanctuary
+                        </div>
+                    </div>
+                </div>
+                {/* <Carousel
                     nDisplayItems={1}
                     autoPlay={false}
                     leftButton={<FaCaretLeft size={30} className="text-pewter" />}
@@ -288,7 +305,7 @@ const ConservationPage = () => {
                                             alt="Foo"
                                             fill className="w-full h-full object-cover object-center" />
                                     </div>
-                                    <div className="w-full h-fit p-8 flex items-center justify-center">
+                                    <div className="w-full h-8 flex items-center justify-center">
                                         <div className="text-white text-lg">
                                             Celeste Carlisle, our biologist, reseeding the sanctuary
                                         </div>
@@ -297,7 +314,7 @@ const ConservationPage = () => {
                             )
                         }
                     ]}
-                />
+                /> */}
             </div>
 
             <div className="w-10/12 mx-auto">

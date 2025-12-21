@@ -4,21 +4,12 @@ import Header from "@/components/public-ui/Header"
 import Carousel from "@/components/Carousel"
 import Image from "next/image"
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
-import CardLayout from "@/components/public-ui/CardLayout"
-import TakeActionLink from "@/components/TakeActionLink"
 import NewsCarousel from "@/components/NewsCarousel"
-import BlurredImageCard from "@/components/public-ui/BlurredImageCard"
-import Button from "@/components/public-ui/Button"
-
 import HeroImage from "./hero.png"
-import MapImage from "./little-map.png"
 import RoundupsImage1 from "../imgs/randomhorse.png"
-import TakeActionImage1 from "../imgs/take-action-1.jpg"
-import TakeActionImage2 from "../imgs/take-action-2.jpg"
-import TakeActionImage3 from "../imgs/take-action-3.jpg"
-import BlurredBg from "../imgs/blurred-bg.jpg"
 import List from "@/components/public-ui/List"
-import GenericDonateDialogue from "@/components/donation-widgets/GenericDonateDialogue"
+import WHDCallout from "@/components/WHDCallout"
+import TakeActionSection from "@/components/TakeActionSection"
 
 const HerdManagementPage = () => {
     return (
@@ -139,49 +130,14 @@ const HerdManagementPage = () => {
                 />
             </div>
 
-            <div className="w-10/12 mx-auto flex flex-col items-center justify-center gap-8">
-                <Header level={2} className="text-cinnamon">
-                    Take Action
-                </Header>
-
-                <CardLayout >
-                    <TakeActionLink
-                        className="mx-auto"
-                        title="Sign a petition to end horse slaughter in the United States"
-                        image={TakeActionImage1} />
-                    <TakeActionLink
-                        className="mx-auto"
-                        title="Contact your representative to ensure this bill does not pass"
-                        image={TakeActionImage2} />
-                    <TakeActionLink
-                        className="mx-auto"
-                        title="Show your support protesting the BLM's actions"
-                        image={TakeActionImage3} />
-                </CardLayout>
-            </div>
+            <TakeActionSection />
 
             <NewsCarousel
                 title="Latest News on Herd Management Areas"
                 bgColor="seashell"
                 topic="herd_management" />
 
-            <div className="w-10/12 mx-auto">
-                <BlurredImageCard image={BlurredBg}>
-                    <div className="w-full h-full py-16 px-10 flex flex-col items-center justify-center gap-4">
-                        <div className="text-4xl font-serif text-white text-center">
-                            Donate to the Wild Horse Defense Fund
-                        </div>
-                        <div className="max-w-[650px] text-lg text-white text-center">
-                            The Wild Horse Defense Fund fuels Return to Freedom’s frontline work to
-                            end cruel roundups, advance humane on-range management, and defend wild
-                            horses through advocacy, legal action, and education.
-                        </div>
-                        <GenericDonateDialogue>
-                            <Button color="cinnamon">Donate Now</Button>
-                        </GenericDonateDialogue>
-                    </div>
-                </BlurredImageCard>
-            </div>
+            <WHDCallout />
         </div>
     )
 }

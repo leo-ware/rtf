@@ -1,6 +1,8 @@
-const EmailLink = ({ children }: { children: React.ReactNode }) => {
+import { cn } from "@/lib/utils"
+
+const EmailLink = ({ children, className }: { children: React.ReactNode, className?: string }) => {
     return (
-        <span className="text-cinnamon underline cursor-pointer px-1">
+        <span className={cn("inline text-cinnamon underline cursor-pointer", className)}>
             {children}
         </span>
     )

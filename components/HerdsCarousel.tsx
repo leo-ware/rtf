@@ -7,6 +7,7 @@ import Carousel from "@/components/Carousel"
 import { usePaginatedQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
+import Header from "./public-ui/Header"
 
 const HerdsCarousel = () => {
     const {results: herds} = usePaginatedQuery(api.herds.listHerds, {}, { initialNumItems: 100 })
@@ -52,9 +53,9 @@ const HerdsCarousel = () => {
 
     return (
         <div className="w-full h-fit flex flex-col items-center justify-center gap-8">
-            <div className="text-sage-green text-[48px] font-serif">
+            <Header className="text-pewter">
                 Our Herds
-            </div>
+            </Header>
             <div className="w-full h-fit">
                 <div className="w-10/12 mx-auto h-fit">
                     <Carousel 

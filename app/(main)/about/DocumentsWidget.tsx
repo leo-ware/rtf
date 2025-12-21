@@ -10,10 +10,10 @@ import { api } from "@/convex/_generated/api"
 import { useState } from "react"
 
 const DocumentsWidget = () => {
-    const {results: documents, status: documentsStatus} = usePaginatedQuery(
+    const { results: documents, status: documentsStatus } = usePaginatedQuery(
         api.documents.listPublicDocuments,
-        {type: undefined},
-        {initialNumItems: 500}
+        { type: undefined },
+        { initialNumItems: 500 }
     )
     const [activeTab, setActiveTab] = useState<"annual_report" | "financial_documents" | "form_990">("annual_report")
 
@@ -47,7 +47,7 @@ const DocumentsWidget = () => {
                     className="z-0 absolute w-full h-full object-cover object-center"
                     fill />
                 <div className="z-10 flex flex-col items-start justify-center gap-4">
-                    <div className="text-white text-3xl font-bold">
+                    <div className="text-white text-[48px] font-serif leading-tight">
                         Read our latest<br />
                         Annual Report
                     </div>
@@ -60,40 +60,54 @@ const DocumentsWidget = () => {
                     </Link>
                 </div>
             </div>
-            <div className="w-full h-fit bg-pewter py-8 px-8 md:px-1/12 flex flex-col md:flex-row items-start md:items-center justify-center gap-8">
-                <div className="flex flex-col items-start justify-start gap-2 md:max-w-[150px]">
-                    <div className="text-white text-2xl font-bold">Financials</div>
-                    <div className="text-white text-sm">
+            <div className="w-full h-fit bg-pewter py-20 px-8 md:px-1/12 flex flex-row items-center justify-center gap-8">
+                
+                <div className="w-fit flex flex-col items-start justify-start gap-2">
+                    <div className="text-white text-[48px] font-serif leading-tight">Financials</div>
+                    <div className="text-white text-[20px] max-w-[215px]">
                         Return to Freedom is a 501(c)3 nonprofit organization. Tax ID: #06-1484961
                     </div>
                 </div>
 
-                <div className="w-full md:w-1/2 h-fit flex flex-col items-center justify-center gap-4">
+                <div className="w-[800px] h-fit flex flex-col items-start justify-center gap-4">
                     <div className="w-full flex stretch gap-4">
-                        <div
-                            onClick={() => setActiveTab("annual_report")}
-                            className="cursor-pointer grow basis-10 md:basis-auto bg-white rounded py-2 md:py-1 px-2 text-pewter text-xs flex items-center justify-center">
-                            <div className="hidden md:block">ANNUAL REPORTS</div>
-                            <div className="block md:hidden">REPORTS</div>
-                        </div>
-                        <div
-                            onClick={() => setActiveTab("financial_documents")}
-                            className="cursor-pointer grow basis-10 md:basis-auto bg-white rounded py-2 md:py-1 px-2 text-pewter text-xs flex items-center justify-center">
-                            <div className="hidden md:block">FINANCIAL STATEMENTS</div>
-                            <div className="block md:hidden">FINANCIALs</div>
-                        </div>
-                        <div
-                            onClick={() => setActiveTab("form_990")}
-                            className="cursor-pointer grow basis-10 md:basis-auto bg-white rounded py-2 md:py-1 px-2 text-pewter text-xs flex items-center justify-center">
-                            FORM 990
-                        </div>
+                        {([
+                            {
+                                title: "ANNUAL REPORTS",
+                                id: "annual_report"
+                            },
+                            {
+                                title: "FINANCIAL STATEMENTS",
+                                id: "financial_documents"
+                            },
+                            {
+                                title: "FORM 990",
+                                id: "form_990"
+                            }
+                        ] as const).map(item => (
+                            <div
+                                key={item.id}
+                                onClick={() => setActiveTab(item.id)}
+                                className={`
+                                    cursor-pointer grow basis-0 bg-white rounded-xl
+                                    py-1 px-3 text-pewter text-[16px]
+                                    flex items-center justify-center border-4
+                                    ${activeTab === item.id
+                                        ? "border-cinnamon"
+                                        : "border-pewter"
+                                    }
+                                    `}
+                                >
+                                {item.title}
+                            </div>
+                        ))}
                     </div>
 
                     <div className="w-full bg-white rounded p-8 flex flex-col md:flex-row">
                         {chunk(listDocuments, 8).map(rl => (
                             <div className="w-full md:w-1/3 flex flex-col items-start justify-start gap-1">
                                 {rl.map(r => (
-                                    <Link href={r.link} className="text-pewter text-sm">
+                                    <Link href={r.link} className="text-pewter text-[20px]">
                                         {r.title}
                                     </Link>
                                 ))}
@@ -101,7 +115,7 @@ const DocumentsWidget = () => {
                         ))}
                         {listDocuments.length === 0 && (
                             <div className="w-full flex items-center justify-center">
-                                <div className="text-pewter text-sm">No documents found</div>
+                                <div className="text-pewter text-[20px]">No documents found</div>
                             </div>
                         )}
                     </div>

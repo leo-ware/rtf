@@ -18,6 +18,7 @@ import TakeActionImage3 from "../imgs/take-action-3.jpg"
 import BlurredBg from "../imgs/blurred-bg.jpg"
 import List from "@/components/public-ui/List"
 import GenericDonateDialogue from "@/components/donation-widgets/GenericDonateDialogue"
+import WHDCallout from "@/components/WHDCallout"
 
 const HorseSlaughterPage = () => {
     return (
@@ -155,23 +156,7 @@ const HorseSlaughterPage = () => {
                 bgColor="seashell"
                 topic="horse_slaughter" />
 
-            <div className="w-10/12 mx-auto">
-                <BlurredImageCard image={BlurredBg}>
-                    <div className="w-full h-full py-16 px-10 flex flex-col items-center justify-center gap-4">
-                        <div className="text-4xl font-serif text-white text-center">
-                            Donate to the Wild Horse Defense Fund
-                        </div>
-                        <div className="max-w-[650px] text-lg text-white text-center">
-                            The Wild Horse Defense Fund fuels Return to Freedom’s frontline work to
-                            end cruel roundups, advance humane on-range management, and defend wild
-                            horses through advocacy, legal action, and education.
-                        </div>
-                        <GenericDonateDialogue>
-                            <Button color="cinnamon">Donate Now</Button>
-                        </GenericDonateDialogue>
-                    </div>
-                </BlurredImageCard>
-            </div>
+            <WHDCallout />
         </div>
     )
 }

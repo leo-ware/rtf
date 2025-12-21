@@ -310,7 +310,7 @@ const HomePage = () => {
                 </div>
             </div>
 
-            <div className="w-full h-fit md:py-16 flex flex-row items-start justify-center gap-12 bg-milk">
+            <div className="w-full h-fit md:py-16 flex flex-row items-start justify-end gap-12 bg-milk">
                 <div className="flex flex-col items-center justify-center gap-8">
                     <div className="text-pewter text-[48px] font-serif underline decoration-pewter decoration-2 underline-offset-12">
                         Programs & Events
@@ -320,8 +320,8 @@ const HomePage = () => {
                         alt="Programs and Events"
                         className="w-full h-full object-cover object-center" />
                 </div>
-                <div>
-                    <UpcomingEventsWidget title={null} className="bg-white" />
+                <div className="mr-8">
+                    <UpcomingEventsWidget className="bg-white" size="small" />
                 </div>
             </div>
 

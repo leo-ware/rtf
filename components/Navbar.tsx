@@ -36,7 +36,7 @@ export default function Navbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
     return (
-        <header className="bg-pewter max-w-screen w-full h-fit font-bold">
+        <header className="bg-pewter max-w-screen w-full h-fit md:h-[135px] font-bold">
 
             {/* Desktop Navigation */}
             <nav className="w-full hidden xl:block">

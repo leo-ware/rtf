@@ -12,8 +12,9 @@ import Img1 from "./img1.png"
 import Img2 from "./img2.png"
 import Img3 from "./img3.png"
 import NewsCarousel from "@/components/NewsCarousel"
+import { Fragment } from "react/jsx-runtime"
 
-const DocumentsWidget = () => {
+const DocumentsWidget = ({ title }: { title: string }) => {
     const documents = [
         {
             groupTitle: "Genetics",
@@ -43,30 +44,35 @@ const DocumentsWidget = () => {
         }
     ]
     return (
-        <div className="md:grid lg:px-24 my-6 gap-16" style={{ gridTemplateColumns: "300px 1fr" }}>
-            {documents.map(({ groupTitle, documents: groupDocuments }) => (
-                <>
-                    <div
-                        key={`${groupTitle}-title`}
-                        className="pb-4 w-full flex items-start justify-start">
-                            <div className="text-2xl font-serif text-cinnamon">
+        <div>
+            <Header level={2} className="text-pewter mx-auto underline">
+                {title}
+            </Header>
+            <div className="md:grid lg:px-24 my-6 gap-16" style={{ gridTemplateColumns: "300px 1fr" }}>
+                {documents.map(({ groupTitle, documents: groupDocuments }) => (
+                    <Fragment key={`${groupTitle}-documents`}>
+                        <div
+                            key={`${groupTitle}-title`}
+                            className="pb-4 w-full flex items-start justify-start">
+                            <div className="text-[36px] font-serif text-cinnamon">
                                 {groupTitle}
                             </div>
-                    </div>
-                    <div key={`${groupTitle}-documents`} className="pb-8 flex flex-col gap-4">
-                        {groupDocuments.map(({ title, description }) => (
-                            <div key={`${title}-document`}>
-                                <div key={`${title}-document`} className="underline">
-                                    {title}
+                        </div>
+                        <div key={`${groupTitle}-documents`} className="pb-8 flex flex-col gap-4 text-[20px]">
+                            {groupDocuments.map(({ title, description }) => (
+                                <div key={`${title}-document`}>
+                                    <div key={`${title}-document`} className="underline">
+                                        {title}
+                                    </div>
+                                    <div key={`${title}-description`}>
+                                        {description}
+                                    </div>
                                 </div>
-                                <div key={`${title}-description`}>
-                                    {description}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </>
-            ))}
+                            ))}
+                        </div>
+                    </Fragment>
+                ))}
+            </div>
         </div>
     )
 }
@@ -76,14 +82,16 @@ const EducationPage = () => {
     return (
         <div className="w-full h-fit mb-16 flex flex-col items-center justify-start gap-16">
             <Hero title="Education" image={HeroImg} />
-            <Callout>
+            <Callout className="text-sage-green">
                 Education is at the heart of Return to Freedom’s mission. Through hands-on programs, guided
                 tours, and immersive experiences at our sanctuaries, we connect people to the lives of wild
                 horses and burros—building understanding, empathy, and advocacy. Our goal is to inspire
                 informed action and a deeper respect for the world we share.
             </Callout>
             <div>
-                <Header className="mb-8">Experiential Learning at RTF</Header>
+                <Header className="text-cinnamon leading-none mb-[-16px]">
+                    Experiential Learning at RTF
+                </Header>
                 <AlternatingPictureLayout
                     items={[
                         {
@@ -156,36 +164,48 @@ const EducationPage = () => {
                 />
             </div>
 
-            <UpcomingEventsWidget />
+            <div className="w-full bg-seashell py-8">
+                <Header className="text-pewter mx-auto">Upcoming Events</Header>
+                <div className="w-8/12 mx-auto">
+                    <UpcomingEventsWidget />
+                </div>
+            </div>
 
-            <Tabs
-                items={[
-                    {
-                        id: "Editorials, Articles, and Essays",
-                        title: "Editorials, Articles, and Essays",
-                        content: <DocumentsWidget />
-                    },
-                    {
-                        id: "Preservation of Bloodlines and Rare Breeds",
-                        title: "Preservation of Bloodlines and Rare Breeds",
-                        content: <DocumentsWidget />
-                    },
-                    {
-                        id: "Horse History and Welfare",
-                        title: "Horse History and Welfare",
-                        content: <DocumentsWidget />
-                    },
-                    {
-                        id: "Public Record Archive Documents",
-                        title: "Public Record Archive Documents",
-                        content: <DocumentsWidget />
-                    },
-                    {
-                        id: "A Civic Lesson",
-                        title: "A Civic Lesson",
-                        content: <DocumentsWidget />
-                    },
-                ]} />
+
+            <div className="w-full flex flex-col items-center justify-center gap-8">
+                <Header className="text-sage-green mx-auto underline">
+                    Resources
+                </Header>
+
+                <Tabs
+                    items={[
+                        {
+                            id: "Editorials, Articles & Essays",
+                            title: "Editorials, Articles & Essays",
+                            content: <DocumentsWidget title="Editorials, Articles & Essays" />
+                        },
+                        {
+                            id: "Preservation of Bloodlines & Rare Breeds",
+                            title: "Preservation of Bloodlines & Rare Breeds",
+                            content: <DocumentsWidget title="Preservation of Bloodlines & Rare Breeds" />
+                        },
+                        {
+                            id: "Horse History & Welfare",
+                            title: "Horse History & Welfare",
+                            content: <DocumentsWidget title="Horse History & Welfare" />
+                        },
+                        {
+                            id: "Public Record Archive Documents",
+                            title: "Public Record Archive Documents",
+                            content: <DocumentsWidget title="Public Record Archive Documents" />
+                        },
+                        {
+                            id: "A Civics Lesson",
+                            title: "A Civics Lesson",
+                            content: <DocumentsWidget title="A Civics Lesson" />
+                        },
+                    ]} />
+            </div>
 
             <NewsCarousel topic="education" />
 
@@ -193,14 +213,14 @@ const EducationPage = () => {
                 <Header level={2} className="text-sage-green">
                     “El Caballo: The Wild Horses of North America” (2001)
                 </Header>
-                <div className="max-w-[650px] text-center mb-2">
+                <div className="max-w-[650px] text-center mb-2 text-[20px]">
                     Lorem ipsum dolor sit amet consectetur. Mi sollicitudin facilisis imperdiet
                     arcu nisl felis ac sapien tellus. Eleifend aliquam nec et vestibulum pulvinar.
                 </div>
                 <div className="w-10/12 md:w-8/12 mx-auto">
                     <iframe
                         className="w-full aspect-[16/9]"
-                        src="https://www.youtube.com/embed/Oo9EbArcQ1c?si=6r6KR7I0x0F0PVGy"
+                        src="https://www.youtube.com/embed/p1SCLEImIEI?si=wCTlU0O9XD9pRr7C"
                         title="YouTube video player"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         allowFullScreen />
@@ -208,7 +228,7 @@ const EducationPage = () => {
             </div>
 
             <div className="w-10/12 mx-auto flex flex-col items-center justify-center gap-4">
-                <Header level={2} className="text-cinnamon mb-8">
+                <Header level={1} className="text-cinnamon mb-8 underline">
                     Connect With us on Instagram
                 </Header>
 

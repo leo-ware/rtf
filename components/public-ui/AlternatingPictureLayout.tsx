@@ -3,14 +3,16 @@ import Image from "next/image"
 
 type AlternatingPictureLayoutProps = {
     items: {
+        superTitle?: React.ReactNode
         title?: React.ReactNode
         description: React.ReactNode
         image: StaticImageData
     }[],
     alternateTitleColors?: boolean
+    dividerColor?: string
 }
 
-const AlternatingPictureLayout = ({ items, alternateTitleColors = false }: AlternatingPictureLayoutProps) => {
+const AlternatingPictureLayout = ({ items, alternateTitleColors = false, dividerColor = undefined }: AlternatingPictureLayoutProps) => {
     const titleColor = (idx: number) => {
         if (alternateTitleColors) {
             return ["text-pewter", "text-sage-green", "text-cinnamon"][idx % 3]
@@ -18,32 +20,47 @@ const AlternatingPictureLayout = ({ items, alternateTitleColors = false }: Alter
         return "text-sage-green"
     }
     return (
-        <div className="w-full md:w-10/12 mx-auto h-fit flex flex-col gap-16">
+        <div className="relative w-full md:w-10/12 mx-auto h-fit flex flex-col">
+            {dividerColor && (
+                <div className={`
+                    absolute top-0 left-0 w-1/2 h-full
+                    border-r-5 border-${dividerColor}`} />
+            )}
             {items.map((item, index) => {
                 const odd = index % 2 === 0
                 return (
                     <div
                         key={`${item.title}-${index}`}
                         className={`
-                            w-full h-fit flex flex-col gap-8 items-center justify-center
-                            ${odd ? "md:flex-row-reverse" : "md:flex-row"}
+                            my-8 w-full h-fit flex flex-col items-center justify-center
+                            ${odd
+                                ? "md:flex-row-reverse"
+                                : "md:flex-row"}
+                            ${dividerColor
+                                ? "gap-20"
+                                : "gap-8"
+                            }
                         `}>
                         <div className={`
-                            md:w-1/2 flex flex-col gap-4 text-center
-                            px-8 md:px-0
+                            basis-0 grow flex flex-col gap-4 text-center px-0
                             ${odd ? "md:text-left md:items-start" : "md:text-right md:items-end"}`}>
-                            {item.title && (
-                                <div className={`text-3xl font-serif ${titleColor(index)}`}>{item.title}</div>
+                            {item.superTitle && (
+                                <div className="text-[25px] text-ink">
+                                    {item.superTitle}
+                                </div>
                             )}
-                            <div className={`text-lg flex flex-col gap-4 items-center justify-center ${odd ? "md:items-start" : "md:items-end"}`}>
+                            {item.title && (
+                                <div className={`text-[36px] font-serif ${titleColor(index)}`}>{item.title}</div>
+                            )}
+                            <div className={`text-[20px] flex flex-col gap-4 items-center justify-center ${odd ? "md:items-start" : "md:items-end"}`}>
                                 {item.description}
                             </div>
                         </div>
-                        <div className="w-full max-h-[80vh] md:w-1/2 aspect-[5/3] relative">
+                        <div className="basis-0 grow max-h-[80vh] aspect-square relative">
                             <Image
                                 src={item.image}
                                 alt={"Alternate Picture Layout Image"}
-                                className="w-full h-full object-cover object-center" />
+                                className="w-full h-full object-contain" />
                         </div>
                     </div>
                 )

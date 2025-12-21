@@ -3,6 +3,7 @@
 import { useState } from "react"
 import LongRightArrow from "./LongRightArrow"
 import { cn, formatDateRange } from "@/lib/utils"
+import { MdArrowRight, MdArrowRightAlt } from "react-icons/md"
 
 const events = [
     {
@@ -43,33 +44,38 @@ const events = [
     },
 ]
 
-const Event = ({ event, selected, onClick }: { event: typeof events[0], selected: boolean, onClick: () => void }) => {
+const Event = ({ event, selected, onClick, size }: { event: typeof events[0], selected: boolean, onClick: () => void, size: "large" | "small" }) => {
     const multiday = event.endDate && (event.startDate.toLocaleDateString() !== event.endDate.toLocaleDateString())
     return (
         <>
-            <div className="col-start-1 col-span-1 w-full flex flex-col items-end justify-start">
-                <div className="text-md font-semibold">
+            <div className={`col-start-1 col-span-1 w-full
+                flex flex-col items-end justify-start
+                ${size === "large" ? "mt-1" : "mt-2"}`}
+                >
+                <div className={`text-[${size === "large" ? "23px" : "16px"}] font-semibold`}>
                     {formatDateRange(event.startDate, event.endDate)}
                 </div>
                 {!multiday && (
-                    <div className="text-sm">
+                    <div className={`text-[${size === "large" ? "17px" : "14px"}]`}>
                         {event.startTime}-
                         {event.endTime}
                     </div>
                 )}
             </div>
             <div onClick={onClick} className="col-start-2 col-span-1 flex flex-col items-start justify-start">
-                <div className={`text-xl ${selected ? "text-cinnamon" : ""}`}>
+                <div className={`text-[${size === "large" ? "28px" : "25px"}] ${selected ? "text-cinnamon" : ""}`}>
                     {event.title}
                 </div>
                 {selected && (
                     <div>
-                        <div className="text-md">
+                        <div className="mt-4 text-[16px] text-ink/60">
                             {event.description}
                         </div>
-                        <div className="mt-4 text-lg text-pewter flex items-center gap-2">
-                            <div>View Details</div>
-                            <LongRightArrow />
+                        <div className="mt-4 flex items-center gap-2 cursor-pointer">
+                            <div className="text-[16px] text-pewter font-semibold uppercase">
+                                View Full Event Details
+                            </div>
+                            <MdArrowRightAlt size={20} className="text-pewter" />
                         </div>
                     </div>
                 )}
@@ -78,59 +84,51 @@ const Event = ({ event, selected, onClick }: { event: typeof events[0], selected
     )
 }
 
-const UpcomingEventsWidget = (
-    { title = "Upcoming Events", className }:
-        { title?: string | null, className?: string }
-) => {
+const UpcomingEventsWidget = ({ className, size = "large" }: { className?: string, size?: "large" | "small" }) => {
 
     const [tabState, setTabState] = useState<"all" | "week" | "month" | "year">("all")
     const [selectedEvent, setSelectedEvent] = useState<typeof events[0] | null>(null)
 
     return (
         <div className={cn(
-            `w-full h-fit bg-seashell px-8 py-12 flex flex-col items-center justify-center`,
+            `w-full h-fit bg-seashell px-8 py-8 flex flex-col items-center justify-center`,
             className
         )}>
-            {!!title && (
-                <div className="text-3xl font-serif text-pewter">
-                    Upcoming Events
-                </div>
-            )}
-
-            <div className="w-full grid gap-8" style={{ gridTemplateColumns: "200px 1fr" }}>
-                <div className="col-start-2 col-span-1 flex items-center gap-12 pr-4 text-sm font-semibold uppercase underline-offset-4">
-                    <div
-                        className={`${tabState === "all"
-                            ? "text-cinnamon underline decoration-2"
-                            : "text-pewter"}`}
-                        onClick={() => setTabState("all")}
-                    >
-                        All Events
+            <div
+                className={`w-full grid gap-8`}
+                style={{ gridTemplateColumns: `${size === "large" ? "280px" : "200px"} 1fr` }}
+                >
+                <div className="col-start-2 col-span-1 flex items-center gap-12 pr-4 underline-offset-4">
+                    {([
+                        {
+                            name: "All Events",
+                            value: "all"
+                        },
+                        {
+                            name: "This Week",
+                            value: "week"
+                        },
+                        {
+                            name: "This Month",
+                            value: "month"
+                        },
+                        {
+                            name: "This Year",
+                            value: "year"
+                        }
+                    ] as const).map(({name, value}) => (
+                        <div
+                            className={`
+                                font-semibold uppercase cursor-pointer text-[${size === "large" ? "16px" : "14px"}]
+                                ${tabState === value
+                                    ? "text-cinnamon underline decoration-2"
+                                    : "text-pewter"}
+                                `}
+                            onClick={() => setTabState(value)}
+                        >
+                        {name}
                     </div>
-                    <div
-                        className={`${tabState === "week"
-                            ? "text-cinnamon underline decoration-2"
-                            : "text-pewter"}`}
-                        onClick={() => setTabState("week")}
-                    >
-                        This Week
-                    </div>
-                    <div
-                        className={`${tabState === "month"
-                            ? "text-cinnamon underline decoration-2"
-                            : "text-pewter"}`}
-                        onClick={() => setTabState("month")}
-                    >
-                        This Month
-                    </div>
-                    <div
-                        className={`${tabState === "year"
-                            ? "text-cinnamon underline decoration-2"
-                            : "text-pewter"}`}
-                        onClick={() => setTabState("year")}
-                    >
-                        This Year
-                    </div>
+                    ))}
                 </div>
                 {events.map((event) => (
                     <Event
@@ -143,6 +141,7 @@ const UpcomingEventsWidget = (
                             }
                             return event
                         })}
+                        size={size}
                     />
                 ))}
             </div>
