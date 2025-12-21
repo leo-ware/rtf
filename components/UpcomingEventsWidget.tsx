@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import LongRightArrow from "./LongRightArrow"
-import { formatDateRange } from "@/lib/utils"
+import { cn, formatDateRange } from "@/lib/utils"
 
 const events = [
     {
@@ -78,54 +78,60 @@ const Event = ({ event, selected, onClick }: { event: typeof events[0], selected
     )
 }
 
-const UpcomingEventsWidget = () => {
+const UpcomingEventsWidget = (
+    { title = "Upcoming Events", className }:
+        { title?: string | null, className?: string }
+) => {
 
     const [tabState, setTabState] = useState<"all" | "week" | "month" | "year">("all")
     const [selectedEvent, setSelectedEvent] = useState<typeof events[0] | null>(null)
 
     return (
-        <div className="w-full h-fit bg-seashell p-12 flex flex-col items-center justify-center">
-            <div className="text-3xl font-serif text-pewter">
-                Upcoming Events
-            </div>
+        <div className={cn(
+            `w-full h-fit bg-seashell px-8 py-12 flex flex-col items-center justify-center`,
+            className
+        )}>
+            {!!title && (
+                <div className="text-3xl font-serif text-pewter">
+                    Upcoming Events
+                </div>
+            )}
 
-            <div className="mb-6 flex items-center gap-12 mt-8
-                text-sm font-semibold uppercase underline-offset-4">
-                <div
-                    className={`${tabState === "all"
-                        ? "text-cinnamon underline decoration-2"
-                        : "text-pewter"}`}
-                    onClick={() => setTabState("all")}
-                >
-                    All Events
+            <div className="w-full grid gap-8" style={{ gridTemplateColumns: "200px 1fr" }}>
+                <div className="col-start-2 col-span-1 flex items-center gap-12 pr-4 text-sm font-semibold uppercase underline-offset-4">
+                    <div
+                        className={`${tabState === "all"
+                            ? "text-cinnamon underline decoration-2"
+                            : "text-pewter"}`}
+                        onClick={() => setTabState("all")}
+                    >
+                        All Events
+                    </div>
+                    <div
+                        className={`${tabState === "week"
+                            ? "text-cinnamon underline decoration-2"
+                            : "text-pewter"}`}
+                        onClick={() => setTabState("week")}
+                    >
+                        This Week
+                    </div>
+                    <div
+                        className={`${tabState === "month"
+                            ? "text-cinnamon underline decoration-2"
+                            : "text-pewter"}`}
+                        onClick={() => setTabState("month")}
+                    >
+                        This Month
+                    </div>
+                    <div
+                        className={`${tabState === "year"
+                            ? "text-cinnamon underline decoration-2"
+                            : "text-pewter"}`}
+                        onClick={() => setTabState("year")}
+                    >
+                        This Year
+                    </div>
                 </div>
-                <div
-                    className={`${tabState === "week"
-                        ? "text-cinnamon underline decoration-2"
-                        : "text-pewter"}`}
-                    onClick={() => setTabState("week")}
-                >
-                    This Week
-                </div>
-                <div
-                    className={`${tabState === "month"
-                        ? "text-cinnamon underline decoration-2"
-                        : "text-pewter"}`}
-                    onClick={() => setTabState("month")}
-                >
-                    This Month
-                </div>
-                <div
-                    className={`${tabState === "year"
-                        ? "text-cinnamon underline decoration-2"
-                        : "text-pewter"}`}
-                    onClick={() => setTabState("year")}
-                >
-                    This Year
-                </div>
-            </div>
-
-            <div className="w-full md:w-9/12 lg:w-1/2 grid gap-12" style={{ gridTemplateColumns: "200px 1fr" }}>
                 {events.map((event) => (
                     <Event
                         key={event.id}

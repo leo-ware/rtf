@@ -9,8 +9,6 @@ import {
 } from "@/components/public-ui/Dialog"
 
 import isadora from "./isadora.jpg"
-import { useState } from "react"
-
 
 const GenericDonateDialogueInner = () => {
     return (

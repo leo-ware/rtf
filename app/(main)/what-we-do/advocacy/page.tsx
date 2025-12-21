@@ -152,7 +152,7 @@ const AdvocacyPage = () => {
                 </BlurredImageCard>
             </div>
 
-            <div className="w-full mb-12">
+            <div id="take-action" className="w-full mb-12">
                 <Header color="cinnamon" className="mb-8">Take Action</Header>
                 <div className="w-full flex items-center justify-center gap-8 flex-wrap ">
                     {takeAction.map((each, i) => (

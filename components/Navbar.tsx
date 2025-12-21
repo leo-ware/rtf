@@ -8,12 +8,17 @@ import { IoMdClose, IoMdMenu } from "react-icons/io"
 import { useState } from "react"
 
 
-const HeaderLink = (props: { href: string, text: string }) => {
+const HeaderLink = (props: { href: string, text: string, external?: boolean }) => {
     return (
-        <Link href={props.href} className="relative group text-white text-md font-semibold">
+        <Link
+            href={props.href}
+            className="relative group text-white text-[16px] font-semibold"
+            target={props.external ? "_blank" : undefined}
+            rel={props.external ? "noopener noreferrer" : undefined}
+        >
             <div className="absolute bottom-0 left-0
                 right-0 h-0.5 bg-white scale-x-0 group-hover:scale-x-100
-                transition-transform origin-left" />
+                transition-transform origin-center" />
             {props.text}
         </Link>
     )
@@ -35,10 +40,10 @@ export default function Navbar() {
 
             {/* Desktop Navigation */}
             <nav className="w-full hidden xl:block">
-                <div className="w-full flex items-center py-2 px-[10%]">
-                    <div className="flex-1 flex items-center justify-around">
+                <div className="w-full flex items-center gap-8 py-2 px-[5%]">
+                    <div className="flex-1 flex items-center justify-end gap-8">
                         <HeaderLink href="/about" text="About" />
-                        <HeaderLink href="/what-we-do" text="What We Do" />
+                        <HeaderLink href="/#what-we-do" text="What We Do" />
                         <HeaderLink href="/resources/learn" text="Learn" />
                         <HeaderLink href="/resources/news" text="News" />
                         <HeaderLink href="/horses/our-horses" text="Our Horses" />
@@ -48,9 +53,10 @@ export default function Navbar() {
                             <Image src={RTFLogoWhite} alt="logo" width={180} height={114} />
                         </Link>
                     </div>
-                    <div className="flex-1 flex items-center justify-around">
-                        <HeaderLink href="/take-action" text="Take Action" />
+                    <div className="flex-1 flex items-center justify-start gap-8">
+                        <HeaderLink href="/what-we-do/advocacy#take-action" text="Take Action" />
                         <HeaderLink href="/visit-us" text="Visit Us" />
+                        <HeaderLink href="https://shop.returntofreedom.org" text="Shop" external />
 
                         <div className="flex items-center gap-4">
                             <Link

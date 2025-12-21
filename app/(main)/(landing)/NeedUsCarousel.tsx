@@ -22,16 +22,16 @@ type CarouselItemWidgetProps = {
 
 const CarouselItemWidget = ({title, description, link, reversed, image}: CarouselItemWidgetProps) => {
     return (
-        <div className="w-full h-[330px] flex" style={{direction: reversed ? "rtl" : "ltr"}}>
+        <div className="w-full h-[400px] flex" style={{direction: reversed ? "rtl" : "ltr"}}>
             <div className="w-1/2 p-6 flex flex-col items-start justify-center gap-4">
-                <div className={"text-3xl " + (reversed ? " text-cinnamon" : " text-pewter")}>
+                <div className={"text-[36px] " + (reversed ? " text-cinnamon" : " text-pewter")}>
                     {title}
                 </div>
-                <div className="text-sm text-ink">
+                <div className="text-[20px] text-ink">
                     {description}
                 </div>
                 <Link href={link}>
-                    <Button color="sage-green" className="py-1 px-4">
+                    <Button color="sage-green" className="py-1 px-4 text-[16px]">
                         Learn More
                     </Button>
                 </Link>

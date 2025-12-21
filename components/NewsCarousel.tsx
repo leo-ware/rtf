@@ -20,7 +20,7 @@ type NewsCarouselProps = {
 }
 
 const NewsCarousel = ({
-    title = "Latest News", 
+    title = "Latest News",
     bgColor = "seashell",
     topic
 }: NewsCarouselProps) => {
@@ -33,9 +33,9 @@ const NewsCarousel = ({
     if (!articles || articles.length === 0) {
         return null
     }
-    
+
     const items = articles.map((article) => {
-        const formattedDate = article.date 
+        const formattedDate = article.date
             ? formatDate(new Date(article.date))
             : formatDate(new Date(article._creationTime))
 
@@ -43,7 +43,7 @@ const NewsCarousel = ({
             id: article._id,
             widget: (
                 <Link href={article.link}>
-                    <div className="w-full md:w-[75vw] h-[300px] md:h-[200px] flex md:flex-row flex-col stretch cursor-pointer hover:opacity-90 transition-opacity">
+                    <div className="w-full md:w-[75vw] h-[300px] flex md:flex-row flex-col stretch cursor-pointer hover:opacity-90 transition-opacity">
                         <div className="basis-0 grow overflow-hidden">
                             <Image
                                 src={article.image?.url || BrosChilling}
@@ -53,15 +53,18 @@ const NewsCarousel = ({
                                 className="w-full h-full object-cover" />
                         </div>
                         <div className="basis-0 grow bg-white flex flex-col items-center justify-center">
-                            <div className="w-3/4 h-fit md:border-l-4 border-burnt-orange md:pl-4 py-2 gap-2">
-                                <div className="text-[12px] text-ink uppercase font-bold">
-                                    Return to Freedom News
-                                </div>
-                                <div className="text-lg font-bold text-pewter">
-                                    {article.title}
-                                </div>
+                            <div className="w-3/4 h-fit md:border-l-4 border-burnt-orange md:pl-4 py-2 flex flex-col justify-start gap-2">
                                 <div className="text-sm">
                                     {formattedDate}
+                                </div>
+                                <div className="text-[12px] text-ink uppercase font-semibold tracking-wider leading-tight">
+                                    Return to Freedom News
+                                </div>
+                                <div className="text-[28px] font-serif text-pewter line-clamp-2">
+                                    {article.title}
+                                </div>
+                                <div className="text-[16px] text-ink line-clamp-3">
+                                    {article.excerpt}
                                 </div>
                             </div>
                         </div>
@@ -72,8 +75,10 @@ const NewsCarousel = ({
     })
 
     return (
-        <div className={`w-full h-fit pt-12 pb-16 flex flex-col items-center justify-center gap-4 bg-${bgColor}`}>
-            <div className="text-4xl font-serif text-cinnamon">{title}</div>
+        <div className={`w-full h-fit pt-12 pb-16 flex flex-col items-center justify-center gap-6 bg-${bgColor}`}>
+            <div className="text-[48px] font-serif text-cinnamon underline decoration-cinnamon decoration-2 underline-offset-12">
+                {title}
+            </div>
             <div className="w-full flex items-center justify-center gap-4">
                 <Carosel
                     items={items}

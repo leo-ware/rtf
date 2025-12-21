@@ -50,15 +50,14 @@ const CorporateCarousel = () => {
         <div className="w-full h-fit py-12 flex flex-col items-center justify-center gap-2 md:gap-4">
 
             <div className="w-full flex flex-col items-center justify-center gap-2">
-                <div className="font-serif text-cinnamon text-[48px] font-bold text-center">
+                <div className="font-serif text-cinnamon text-[48px] text-center underline decoration-cinnamon decoration-2 underline-offset-12">
                     Sponsors
                 </div>
-                <div className="w-11/12 md:w-1/2 text-sm text-center">
-                    A very special thank you goes out to our generous sponsors — corporations
-                    that make it possible to do more of the costly work required of a national
-                    advocacy organization like Return to Freedom.<br />
-                    If you or your company wishes to sponsor our work, please
-                    <Link href="/contact" className="text-cinnamon underline ml-1">reach out</Link>.
+                <div className=" w-2/3 text-[20] text-center">
+                    A very special thank you goes out to our generous sponsors — corporations that make it possible to do more of the costly work required of a national advocacy organization like Return to Freedom. 
+                    <br />
+                    If you or your company wishes to sponsor our work, please 
+                    <Link href="/contact" className="text-cinnamon underline ml-1">email us</Link>.
                 </div>
             </div>
 
