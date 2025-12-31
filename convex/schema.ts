@@ -134,67 +134,97 @@ export default defineSchema({
         imageId: v.optional(v.id("images")),
         order: v.number(),
         isPublic: v.boolean(),
-        createdBy: v.id("users"),
-        createdAt: v.number(),
-        updatedAt: v.number(),
-        emailVerificationTime: v.optional(v.number()),
-    }).index("by_order", ["order"])
+    })
+        .index("by_order", ["order"])
         .index("by_public", ["isPublic"])
-        .index("by_created_by", ["createdBy"])
-        .index("by_created_at", ["createdAt"]),
+    ,
 
     programs: defineTable({
         name: v.string(),
         description: v.string(),
         details: v.string(),
-        price: v.optional(v.number()),
+        ticketPriceId: v.optional(v.id("ticketPrice")),
         location: v.string(),
+        maxAttendees: v.optional(v.number()),
+        requiresRegistration: v.optional(v.boolean()),
+        contactEmail: v.optional(v.string()),
+        contactPhone: v.optional(v.string()),
         isPublic: v.boolean(),
         imageId: v.optional(v.id("images")),
         programGroupId: v.id("programGroups"),
         order: v.number(),
-        createdBy: v.id("users"),
-        createdAt: v.number(),
-        updatedAt: v.number(),
-    }).index("by_program_group", ["programGroupId"])
+    })
+        .index("by_program_group", ["programGroupId"])
         .index("by_order", ["order"])
         .index("by_public", ["isPublic"])
-        .index("by_created_by", ["createdBy"])
-        .index("by_created_at", ["createdAt"]),
+    ,
 
     events: defineTable({
         title: v.string(),
         description: v.string(),
         longDescription: v.optional(v.string()),
-        startDate: v.number(),
-        endDate: v.number(),
+        dateNumber: v.number(),
+        startDate: v.string(),
+        endDate: v.string(),
         location: v.optional(v.string()),
-        eventType: v.union(
-            v.literal("tour"),
-            v.literal("volunteer"),
-            v.literal("photo_safari"),
-            v.literal("educational"),
-            v.literal("fundraising"),
-            v.literal("other")
-        ),
         maxAttendees: v.optional(v.number()),
-        currentAttendees: v.number(),
-        price: v.optional(v.number()),
+        ticketPriceId: v.optional(v.id("ticketPrice")),
         isPublic: v.boolean(),
         requiresRegistration: v.boolean(),
         contactEmail: v.optional(v.string()),
         contactPhone: v.optional(v.string()),
-        imageUrl: v.optional(v.string()),
+        imageId: v.optional(v.id("images")),
         programId: v.optional(v.id("programs")),
-        createdBy: v.id("users"),
-        createdAt: v.number(),
-        updatedAt: v.number(),
-    }).index("by_start_date", ["startDate"])
-        .index("by_event_type", ["eventType"])
+    })
         .index("by_public", ["isPublic"])
-        .index("by_created_by", ["createdBy"])
-        .index("by_date_range", ["startDate", "endDate"])
-        .index("by_program", ["programId"]),
+        .index("by_program", ["programId"])
+        .index("by_date_number", ["dateNumber"])
+    ,
+
+    ticketPrice: defineTable({
+        options: v.array(v.object({
+            name: v.string(),
+            description: v.optional(v.string()),
+            price: v.number(),
+            availableBefore: v.optional(v.number()),
+            availableAfter: v.optional(v.number()),
+        })),
+    }),
+
+    rsvp: defineTable({
+        eventId: v.id("events"),
+        email: v.string(),
+        name: v.string(),
+        tickets: v.array(v.object({
+            name: v.string(),
+            description: v.optional(v.string()),
+            price: v.number(),
+        })),
+        additionalDonation: v.optional(v.number()),
+        discountCode: v.optional(v.id("discountCodes")),
+        priceBeforeDiscount: v.number(),
+        finalPrice: v.number(),
+    })
+        .index("by_event", ["eventId"])
+        .index("by_email", ["email"])
+    ,
+
+    discountCodes: defineTable({
+        code: v.string(),
+        description: v.optional(v.string()),
+        revoked: v.boolean(),
+        discountType: v.union(
+            v.literal("percentage"),
+            v.literal("fixed"),
+            v.literal("free"),
+            v.literal("tickets")
+        ),
+        discountQuantity: v.optional(v.number()),
+        programLock: v.optional(v.id("programs")),
+        eventLock: v.optional(v.id("events")),
+    })
+        .index("by_code", ["code"])
+    ,
 
     images: defineTable({
         fileName: v.string(),
@@ -325,6 +355,12 @@ export default defineSchema({
         isStoryTeller: v.optional(v.boolean()),
         isAmbassador: v.optional(v.boolean()),
         inMemoriam: v.boolean(),
+        directorOrder: v.optional(v.number()),
+        staffOrder: v.optional(v.number()),
+        equineOrder: v.optional(v.number()),
+        storytellerOrder: v.optional(v.number()),
+        ambassadorOrder: v.optional(v.number()),
+        inMemoriamOrder: v.optional(v.number()),
         createdBy: v.id("users"),
         createdAt: v.number(),
         updatedAt: v.number(),
@@ -334,7 +370,13 @@ export default defineSchema({
         .index("by_image", ["imageId"])
         .index("by_is_director", ["isDirector"])
         .index("by_is_staff", ["isStaff"])
-        .index("by_in_memoriam", ["inMemoriam"]),
+        .index("by_in_memoriam", ["inMemoriam"])
+        .index("by_director_order", ["directorOrder"])
+        .index("by_staff_order", ["staffOrder"])
+        .index("by_equine_order", ["equineOrder"])
+        .index("by_storyteller_order", ["storytellerOrder"])
+        .index("by_ambassador_order", ["ambassadorOrder"])
+        .index("by_in_memoriam_order", ["inMemoriamOrder"]),
 
     advisoryBoards: defineTable({
         name: v.string(),

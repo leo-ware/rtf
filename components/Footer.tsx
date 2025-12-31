@@ -106,7 +106,7 @@ export default function Footer() {
                         </div>
 
                     </div>
-                    <div className="w-full flex flex-row items-center justify-start gap-12">
+                    <div className="w-full flex flex-row items-center justify-center gap-12">
                         <Image src={CharityNavigator} alt="Charity Navigator" className="h-[100px] w-auto" />
                         <Image src={OnePercent} alt="1% for the Planet" className="h-[100px] w-auto" />
                         <Image src={NatureDefense} alt="Nature Defense Foundation" className="h-[100px] w-auto" />

@@ -2,40 +2,13 @@ import { query, mutation } from "./_generated/server"
 import { v } from "convex/values"
 import { getCurrentUserOrThrow } from "./users"
 import { eventsAggregate } from "./aggregates"
+import { paginationOptsValidator } from "convex/server"
+import { removeUndefinedFields } from "./utils"
+import { resolveImageId } from "./images"
 
 // Get all events (admin only)
 export const getAllEvents = query({
     args: {},
-    returns: v.array(v.object({
-        _id: v.id("events"),
-        _creationTime: v.number(),
-        title: v.string(),
-        description: v.string(),
-        longDescription: v.optional(v.string()),
-        startDate: v.number(),
-        endDate: v.number(),
-        location: v.optional(v.string()),
-        eventType: v.union(
-            v.literal("tour"),
-            v.literal("volunteer"),
-            v.literal("photo_safari"),
-            v.literal("educational"),
-            v.literal("fundraising"),
-            v.literal("other")
-        ),
-        maxAttendees: v.optional(v.number()),
-        currentAttendees: v.number(),
-        price: v.optional(v.number()),
-        isPublic: v.boolean(),
-        requiresRegistration: v.boolean(),
-        contactEmail: v.optional(v.string()),
-        contactPhone: v.optional(v.string()),
-        imageUrl: v.optional(v.string()),
-        programId: v.optional(v.id("programs")),
-        createdBy: v.id("users"),
-        createdAt: v.number(),
-        updatedAt: v.number(),
-    })),
     handler: async (ctx) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
@@ -43,6 +16,7 @@ export const getAllEvents = query({
         }
         return await ctx.db
             .query("events")
+            .withIndex("by_date_number")
             .order("desc")
             .collect()
     },
@@ -51,36 +25,6 @@ export const getAllEvents = query({
 // Get public events only
 export const getPublicEvents = query({
     args: {},
-    returns: v.array(v.object({
-        _id: v.id("events"),
-        _creationTime: v.number(),
-        title: v.string(),
-        description: v.string(),
-        longDescription: v.optional(v.string()),
-        startDate: v.number(),
-        endDate: v.number(),
-        location: v.optional(v.string()),
-        eventType: v.union(
-            v.literal("tour"),
-            v.literal("volunteer"),
-            v.literal("photo_safari"),
-            v.literal("educational"),
-            v.literal("fundraising"),
-            v.literal("other")
-        ),
-        maxAttendees: v.optional(v.number()),
-        currentAttendees: v.number(),
-        price: v.optional(v.number()),
-        isPublic: v.boolean(),
-        requiresRegistration: v.boolean(),
-        contactEmail: v.optional(v.string()),
-        contactPhone: v.optional(v.string()),
-        imageUrl: v.optional(v.string()),
-        programId: v.optional(v.id("programs")),
-        createdBy: v.id("users"),
-        createdAt: v.number(),
-        updatedAt: v.number(),
-    })),
     handler: async (ctx) => {
         return await ctx.db
             .query("events")
@@ -90,90 +34,40 @@ export const getPublicEvents = query({
     },
 })
 
-// Get events by date range (public events only)
-export const getEventsByDateRange = query({
+export const getPaginatedEvents = query({
     args: {
-        startDate: v.number(),
-        endDate: v.number(),
+        paginationOpts: paginationOptsValidator,
     },
-    returns: v.array(v.object({
-        _id: v.id("events"),
-        _creationTime: v.number(),
-        title: v.string(),
-        description: v.string(),
-        longDescription: v.optional(v.string()),
-        startDate: v.number(),
-        endDate: v.number(),
-        location: v.optional(v.string()),
-        eventType: v.union(
-            v.literal("tour"),
-            v.literal("volunteer"),
-            v.literal("photo_safari"),
-            v.literal("educational"),
-            v.literal("fundraising"),
-            v.literal("other")
-        ),
-        maxAttendees: v.optional(v.number()),
-        currentAttendees: v.number(),
-        price: v.optional(v.number()),
-        isPublic: v.boolean(),
-        requiresRegistration: v.boolean(),
-        contactEmail: v.optional(v.string()),
-        contactPhone: v.optional(v.string()),
-        imageUrl: v.optional(v.string()),
-        programId: v.optional(v.id("programs")),
-        createdBy: v.id("users"),
-        createdAt: v.number(),
-        updatedAt: v.number(),
-    })),
     handler: async (ctx, args) => {
         return await ctx.db
             .query("events")
-            .withIndex("by_start_date", (q) =>
-                q.gte("startDate", args.startDate).lte("startDate", args.endDate)
-            )
-            .filter((q) => q.eq(q.field("isPublic"), true))
-            .order("asc")
-            .collect()
+            .withIndex("by_date_number")
+            .order("desc")
+            .paginate(args.paginationOpts);
     },
 })
+
+// // Get events by date range (public events only)
+// export const getEventsByDateRange = query({
+//     args: {
+//         startDate: v.number(),
+//         endDate: v.number(),
+//     },
+//     handler: async (ctx, args) => {
+//         return await ctx.db
+//             .query("events")
+//             .withIndex("by_start_date", (q) =>
+//                 q.gte("startDate", args.startDate).lte("startDate", args.endDate)
+//             )
+//             .filter((q) => q.eq(q.field("isPublic"), true))
+//             .order("asc")
+//             .collect()
+//     },
+// })
 
 // Get a single event by ID
 export const getEventById = query({
     args: { id: v.id("events") },
-    returns: v.union(
-        v.object({
-            _id: v.id("events"),
-            _creationTime: v.number(),
-            title: v.string(),
-            description: v.string(),
-            longDescription: v.optional(v.string()),
-            startDate: v.number(),
-            endDate: v.number(),
-            location: v.optional(v.string()),
-            eventType: v.union(
-                v.literal("tour"),
-                v.literal("volunteer"),
-                v.literal("photo_safari"),
-                v.literal("educational"),
-                v.literal("fundraising"),
-                v.literal("other")
-            ),
-            maxAttendees: v.optional(v.number()),
-            currentAttendees: v.number(),
-            price: v.optional(v.number()),
-            isPublic: v.boolean(),
-            requiresRegistration: v.boolean(),
-            contactEmail: v.optional(v.string()),
-            contactPhone: v.optional(v.string()),
-            imageUrl: v.optional(v.string()),
-            programId: v.optional(v.id("programs")),
-            createdBy: v.id("users"),
-            createdAt: v.number(),
-            updatedAt: v.number(),
-        }),
-        v.null()
-    ),
     handler: async (ctx, args) => {
         const event = await ctx.db.get(args.id)
         if (!event) {
@@ -188,7 +82,11 @@ export const getEventById = query({
             }
         }
 
-        return event
+        return {
+            ...event,
+            image: event.imageId ? await resolveImageId(ctx, event.imageId) : null,
+            tickets: event.ticketPriceId ? await ctx.db.get(event.ticketPriceId) : null,
+        }
     },
 })
 
@@ -198,40 +96,45 @@ export const createEvent = mutation({
         title: v.string(),
         description: v.string(),
         longDescription: v.optional(v.string()),
-        startDate: v.number(),
-        endDate: v.number(),
+        startDate: v.string(),
+        endDate: v.string(),
         location: v.optional(v.string()),
-        eventType: v.union(
-            v.literal("tour"),
-            v.literal("volunteer"),
-            v.literal("photo_safari"),
-            v.literal("educational"),
-            v.literal("fundraising"),
-            v.literal("other")
-        ),
         maxAttendees: v.optional(v.number()),
-        price: v.optional(v.number()),
+        ticketPriceId: v.optional(v.id("ticketPrice")),
+        ticketPriceOptions: v.optional(v.array(v.object({
+            name: v.string(),
+            description: v.optional(v.string()),
+            price: v.number(),
+            availableBefore: v.optional(v.number()),
+            availableAfter: v.optional(v.number()),
+        }))),
         isPublic: v.boolean(),
         requiresRegistration: v.boolean(),
         contactEmail: v.optional(v.string()),
         contactPhone: v.optional(v.string()),
-        imageUrl: v.optional(v.string()),
+        imageId: v.optional(v.id("images")),
         programId: v.optional(v.id("programs")),
     },
-    returns: v.id("events"),
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
             throw new Error("Insufficient permissions")
         }
-        const now = Date.now()
+
+        const { ticketPriceOptions, ...eventArgs } = args
+
+        // Create ticketPrice if options provided
+        let ticketPriceId = eventArgs.ticketPriceId
+        if (ticketPriceOptions && ticketPriceOptions.length > 0) {
+            ticketPriceId = await ctx.db.insert("ticketPrice", {
+                options: ticketPriceOptions,
+            })
+        }
 
         const eventId = await ctx.db.insert("events", {
-            ...args,
-            currentAttendees: 0,
-            createdAt: now,
-            updatedAt: now,
-            createdBy: user._id,
+            ...eventArgs,
+            ticketPriceId,
+            dateNumber: Date.parse(args.startDate),
         })
         const event = await ctx.db.get(eventId)
         if (event) {
@@ -248,42 +151,59 @@ export const updateEvent = mutation({
         title: v.optional(v.string()),
         description: v.optional(v.string()),
         longDescription: v.optional(v.string()),
-        startDate: v.optional(v.number()),
-        endDate: v.optional(v.number()),
+        startDate: v.optional(v.string()),
+        endDate: v.optional(v.string()),
         location: v.optional(v.string()),
-        eventType: v.optional(v.union(
-            v.literal("tour"),
-            v.literal("volunteer"),
-            v.literal("photo_safari"),
-            v.literal("educational"),
-            v.literal("fundraising"),
-            v.literal("other")
-        )),
         maxAttendees: v.optional(v.number()),
-        price: v.optional(v.number()),
+        ticketPriceId: v.optional(v.id("ticketPrice")),
+        ticketPriceOptions: v.optional(v.array(v.object({
+            name: v.string(),
+            description: v.optional(v.string()),
+            price: v.number(),
+            availableBefore: v.optional(v.number()),
+            availableAfter: v.optional(v.number()),
+        }))),
         isPublic: v.optional(v.boolean()),
         requiresRegistration: v.optional(v.boolean()),
         contactEmail: v.optional(v.string()),
         contactPhone: v.optional(v.string()),
-        imageUrl: v.optional(v.string()),
+        imageId: v.optional(v.id("images")),
         programId: v.optional(v.id("programs")),
     },
-    returns: v.null(),
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
             throw new Error("Insufficient permissions");
         }
-        const { id, ...updates } = args
+        const { id, ticketPriceOptions, ...updates } = args
 
         const existingEvent = await ctx.db.get(id)
         if (!existingEvent) {
             throw new Error("Event not found")
         }
 
+        // Handle ticketPrice update
+        let ticketPriceId = updates.ticketPriceId
+        if (ticketPriceOptions && ticketPriceOptions.length > 0) {
+            // If event already has a ticketPriceId, update it; otherwise create new
+            if (existingEvent.ticketPriceId) {
+                await ctx.db.patch(existingEvent.ticketPriceId, {
+                    options: ticketPriceOptions,
+                })
+                ticketPriceId = existingEvent.ticketPriceId
+            } else {
+                ticketPriceId = await ctx.db.insert("ticketPrice", {
+                    options: ticketPriceOptions,
+                })
+            }
+        }
+
         await ctx.db.patch(id, {
-            ...updates,
-            updatedAt: Date.now(),
+            ...removeUndefinedFields({
+                ...updates,
+                ticketPriceId,
+                dateNumber: Date.parse(updates.startDate ?? ""),
+            }),
         })
         return null
     },
@@ -310,80 +230,4 @@ export const deleteEvent = mutation({
     },
 })
 
-// Update attendee count
-export const updateAttendeeCount = mutation({
-    args: {
-        id: v.id("events"),
-        currentAttendees: v.number(),
-    },
-    returns: v.null(),
-    handler: async (ctx, args) => {
-        const user = await getCurrentUserOrThrow(ctx)
-        if (!user.atLeastAuthorized) {
-            throw new Error("Insufficient permissions");
-        }
 
-        const existingEvent = await ctx.db.get(args.id)
-        if (!existingEvent) {
-            throw new Error("Event not found")
-        }
-
-        await ctx.db.patch(args.id, {
-            currentAttendees: args.currentAttendees,
-            updatedAt: Date.now(),
-        })
-        return null
-    },
-})
-
-// Get events by type (public events only)
-export const getEventsByType = query({
-    args: {
-        eventType: v.union(
-            v.literal("tour"),
-            v.literal("volunteer"),
-            v.literal("photo_safari"),
-            v.literal("educational"),
-            v.literal("fundraising"),
-            v.literal("other")
-        ),
-    },
-    returns: v.array(v.object({
-        _id: v.id("events"),
-        _creationTime: v.number(),
-        title: v.string(),
-        description: v.string(),
-        longDescription: v.optional(v.string()),
-        startDate: v.number(),
-        endDate: v.number(),
-        location: v.optional(v.string()),
-        eventType: v.union(
-            v.literal("tour"),
-            v.literal("volunteer"),
-            v.literal("photo_safari"),
-            v.literal("educational"),
-            v.literal("fundraising"),
-            v.literal("other")
-        ),
-        maxAttendees: v.optional(v.number()),
-        currentAttendees: v.number(),
-        price: v.optional(v.number()),
-        isPublic: v.boolean(),
-        requiresRegistration: v.boolean(),
-        contactEmail: v.optional(v.string()),
-        contactPhone: v.optional(v.string()),
-        imageUrl: v.optional(v.string()),
-        programId: v.optional(v.id("programs")),
-        createdBy: v.id("users"),
-        createdAt: v.number(),
-        updatedAt: v.number(),
-    })),
-    handler: async (ctx, args) => {
-        return await ctx.db
-            .query("events")
-            .withIndex("by_event_type", (q) => q.eq("eventType", args.eventType))
-            .filter((q) => q.eq(q.field("isPublic"), true))
-            .order("desc")
-            .collect()
-    },
-})

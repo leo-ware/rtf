@@ -39,6 +39,7 @@ import {
 import { useRouter } from "next/navigation";
 import { handleConvexError, handleNotFoundError } from "@/lib/errorHandler";
 import { ImagePicker } from "@/components/images/ImagePicker";
+import ListsTab from "./ListsTab";
 
 const AdminPeoplePage = () => {
     const router = useRouter();
@@ -312,8 +313,9 @@ const AdminPeoplePage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <Tabs defaultValue="people" className="w-full">
                 <div className="flex justify-between items-center mb-8">
-                    <TabsList className="grid w-fit grid-cols-2">
+                    <TabsList className="grid w-fit grid-cols-3">
                         <TabsTrigger value="people">People</TabsTrigger>
+                        <TabsTrigger value="lists">Lists</TabsTrigger>
                         <TabsTrigger value="advisory-boards">Advisory Boards</TabsTrigger>
                     </TabsList>
 
@@ -715,6 +717,10 @@ const AdminPeoplePage = () => {
                             </Button>
                         </div>
                     )}
+                </TabsContent>
+
+                <TabsContent value="lists" className="space-y-6">
+                    <ListsTab />
                 </TabsContent>
 
                 <TabsContent value="advisory-boards" className="space-y-6">

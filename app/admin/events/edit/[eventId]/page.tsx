@@ -12,7 +12,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Calendar } from "@/components/ui/calendar"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import {
     ArrowLeft,
@@ -28,8 +27,8 @@ import { format } from "date-fns"
 import Link from "next/link"
 import ProfileDropdown from "@/components/ProfileDropdown"
 import { TiptapEditor } from "@/components/TiptapEditor"
-
-type EventType = "tour" | "volunteer" | "photo_safari" | "educational" | "fundraising" | "other"
+import ImagePickerDialog from "@/components/images/ImagePickerDialog"
+import TicketPriceEditorDialog, { TicketPriceOption } from "@/app/admin/events/TicketPriceEditorDialog"
 
 interface EditEventPageProps {
     params: Promise<{
@@ -43,42 +42,27 @@ const EditEventPage = ({ params }: EditEventPageProps) => {
 
     const [selectedDate, setSelectedDate] = useState<Date>()
     const [selectedEndDate, setSelectedEndDate] = useState<Date>()
-    const [longDescription, setLongDescription] = useState("")
+    const [longDescription, setLongDescription] = useState<string | undefined>(undefined)
+    const [imageId, setImageId] = useState<Id<"images"> | null>(null)
+    const [ticketPriceOptions, setTicketPriceOptions] = useState<TicketPriceOption[]>([])
 
     const event = useQuery(api.events.getEventById, { id: eventId })
+    const existingTicketPrice = useQuery(
+        api.ticketPrices.getTicketPrice,
+        event?.ticketPriceId ? { id: event.ticketPriceId } : "skip"
+    )
     const updateEvent = useMutation(api.events.updateEvent)
 
     const [formData, setFormData] = useState({
         title: "",
         description: "",
         location: "",
-        eventType: "tour" as EventType,
         maxAttendees: "",
-        price: "",
         isPublic: true,
         requiresRegistration: true,
         contactEmail: "",
         contactPhone: "",
-        imageUrl: "",
     })
-
-    const eventTypeLabels: Record<EventType, string> = {
-        tour: "Tour",
-        volunteer: "Volunteer",
-        photo_safari: "Photo Safari",
-        educational: "Educational",
-        fundraising: "Fundraising",
-        other: "Other"
-    }
-
-    const eventTypeColors: Record<EventType, string> = {
-        tour: "bg-blue-100 text-blue-800",
-        volunteer: "bg-green-100 text-green-800",
-        photo_safari: "bg-purple-100 text-purple-800",
-        educational: "bg-yellow-100 text-yellow-800",
-        fundraising: "bg-red-100 text-red-800",
-        other: "bg-gray-100 text-gray-800"
-    }
 
     // Load event data when it becomes available
     useEffect(() => {
@@ -87,21 +71,26 @@ const EditEventPage = ({ params }: EditEventPageProps) => {
                 title: event.title,
                 description: event.description,
                 location: event.location || "",
-                eventType: event.eventType,
                 maxAttendees: event.maxAttendees?.toString() || "",
-                price: event.price?.toString() || "",
                 isPublic: event.isPublic,
                 requiresRegistration: event.requiresRegistration,
                 contactEmail: event.contactEmail || "",
                 contactPhone: event.contactPhone || "",
-                imageUrl: event.imageUrl || "",
             })
             setSelectedDate(new Date(event.startDate))
             setSelectedEndDate(new Date(event.endDate))
+            setImageId(event.imageId ?? null)
             // Initialize with existing description if no separate long description exists yet
-            setLongDescription(event.longDescription || event.description)
+            setLongDescription(event.longDescription || "")
         }
     }, [event])
+
+    // Load existing ticket price options
+    useEffect(() => {
+        if (existingTicketPrice) {
+            setTicketPriceOptions(existingTicketPrice.options)
+        }
+    }, [existingTicketPrice])
 
     const handleSave = async () => {
         if (!selectedDate || !selectedEndDate) {
@@ -113,11 +102,12 @@ const EditEventPage = ({ params }: EditEventPageProps) => {
             await updateEvent({
                 id: eventId,
                 ...formData,
-                startDate: selectedDate.getTime(),
-                endDate: selectedEndDate.getTime(),
+                startDate: selectedDate.toISOString(),
+                endDate: selectedEndDate.toISOString(),
                 maxAttendees: formData.maxAttendees ? parseInt(formData.maxAttendees) : undefined,
-                price: formData.price ? parseFloat(formData.price) : undefined,
+                ticketPriceOptions: ticketPriceOptions.length > 0 ? ticketPriceOptions : undefined,
                 longDescription: longDescription,
+                imageId: imageId ?? undefined,
             })
 
             router.push("/admin/events")
@@ -200,32 +190,14 @@ const EditEventPage = ({ params }: EditEventPageProps) => {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <Label htmlFor="title">Event Title</Label>
-                                        <Input
-                                            id="title"
-                                            value={formData.title}
-                                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                            placeholder="Enter event title"
-                                        />
-                                    </div>
-                                    <div>
-                                        <Label htmlFor="eventType">Event Type</Label>
-                                        <Select value={formData.eventType} onValueChange={(value) => setFormData({ ...formData, eventType: value as EventType })}>
-                                            <SelectTrigger>
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="tour">Tour</SelectItem>
-                                                <SelectItem value="volunteer">Volunteer</SelectItem>
-                                                <SelectItem value="photo_safari">Photo Safari</SelectItem>
-                                                <SelectItem value="educational">Educational</SelectItem>
-                                                <SelectItem value="fundraising">Fundraising</SelectItem>
-                                                <SelectItem value="other">Other</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
+                                <div>
+                                    <Label htmlFor="title">Event Title</Label>
+                                    <Input
+                                        id="title"
+                                        value={formData.title}
+                                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                        placeholder="Enter event title"
+                                    />
                                 </div>
 
                                 <div>
@@ -304,23 +276,23 @@ const EditEventPage = ({ params }: EditEventPageProps) => {
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <Label htmlFor="price">Price ($)</Label>
-                                        <Input
-                                            id="price"
-                                            type="number"
-                                            step="0.01"
-                                            value={formData.price}
-                                            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                                            placeholder="0.00"
-                                        />
+                                        <Label>Ticket Pricing</Label>
+                                        <TicketPriceEditorDialog
+                                            onComplete={(data) => setTicketPriceOptions(data.options)}
+                                        >
+                                            <Button variant="outline" className="w-full">
+                                                {ticketPriceOptions.length > 0
+                                                    ? `${ticketPriceOptions.length} price option${ticketPriceOptions.length > 1 ? "s" : ""}`
+                                                    : "Configure Pricing"
+                                                }
+                                            </Button>
+                                        </TicketPriceEditorDialog>
                                     </div>
                                     <div>
-                                        <Label htmlFor="imageUrl">Image URL</Label>
-                                        <Input
-                                            id="imageUrl"
-                                            value={formData.imageUrl}
-                                            onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                                            placeholder="Optional image URL"
+                                        <Label>Event Image</Label>
+                                        <ImagePickerDialog
+                                            imageId={imageId}
+                                            onImageSelect={setImageId}
                                         />
                                     </div>
                                 </div>
@@ -381,11 +353,13 @@ const EditEventPage = ({ params }: EditEventPageProps) => {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <TiptapEditor
-                                    content={longDescription}
-                                    onChange={setLongDescription}
-                                    placeholder="Write a detailed description of your event. You can use rich text formatting, add lists, links, and more..."
-                                />
+                                {typeof longDescription === "string" && (
+                                    <TiptapEditor
+                                        content={longDescription}
+                                        onChange={setLongDescription}
+                                        placeholder="Write a detailed description of your event. You can use rich text formatting, add lists, links, and more..."
+                                    />
+                                )}
                             </CardContent>
                         </Card>
                     </div>
@@ -394,12 +368,7 @@ const EditEventPage = ({ params }: EditEventPageProps) => {
                     <div className="lg:col-span-1">
                         <Card className="sticky top-8">
                             <CardHeader>
-                                <CardTitle className="flex items-center justify-between">
-                                    <span>Event Preview</span>
-                                    <Badge className={eventTypeColors[formData.eventType]}>
-                                        {eventTypeLabels[formData.eventType]}
-                                    </Badge>
-                                </CardTitle>
+                                <CardTitle>Event Preview</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div>
@@ -427,15 +396,22 @@ const EditEventPage = ({ params }: EditEventPageProps) => {
                                         </div>
                                     )}
 
-                                    <div className="flex items-center text-sm text-gray-600">
-                                        <Users className="h-4 w-4 mr-2" />
-                                        <span>{event.currentAttendees}{formData.maxAttendees ? ` / ${formData.maxAttendees}` : ""} attendees</span>
-                                    </div>
+                                    {formData.maxAttendees && (
+                                        <div className="flex items-center text-sm text-gray-600">
+                                            <Users className="h-4 w-4 mr-2" />
+                                            <span>Max {formData.maxAttendees} attendees</span>
+                                        </div>
+                                    )}
 
-                                    {formData.price && (
+                                    {ticketPriceOptions.length > 0 && (
                                         <div className="flex items-center text-sm text-gray-600">
                                             <DollarSign className="h-4 w-4 mr-2" />
-                                            <span>${formData.price}</span>
+                                            <span>
+                                                {ticketPriceOptions.length === 1
+                                                    ? `$${ticketPriceOptions[0].price.toFixed(2)}`
+                                                    : `${ticketPriceOptions.length} pricing options`
+                                                }
+                                            </span>
                                         </div>
                                     )}
                                 </div>

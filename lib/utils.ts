@@ -109,12 +109,17 @@ const monthStrings = [
     "Dec",
 ]
 
-export const formatDate = (date: Date) => {
+export const formatDate = (date: Date, opts?: { includeTime?: boolean, includeYear?: boolean }) => {
+    const { includeTime = false, includeYear = true } = opts || {}
     const day = date.getDate()
     const month = date.getMonth()
     const year = date.getFullYear()
     const monthString = monthStrings[month]
-    return `${monthString} ${day}, ${year}`
+    return (
+        `${monthString} ${day}` +
+        `${includeYear ? `, ${year}` : ""}` +
+        ` ${includeTime ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ""}`
+    )
 }
 
 export const formatDateRange = (startDate: Date, endDate: Date) => {
@@ -126,7 +131,7 @@ export const formatDateRange = (startDate: Date, endDate: Date) => {
     const endYear = endDate.getFullYear()
     const startMonthString = monthStrings[startMonth]
     const endMonthString = monthStrings[endMonth]
-    
+
     if (startYear !== endYear) {
         return `${formatDate(startDate)}-${formatDate(endDate)}`
     } else if (startMonth !== endMonth) {
@@ -149,19 +154,27 @@ export const generateSlug = (name: string): string => {
 
 export const deepEqual = (a: any, b: any): boolean => {
     return JSON.stringify(normalize(a)) === JSON.stringify(normalize(b));
-  }
-  
-  function normalize(obj: any): any {
+}
+
+export const normalize = (obj: any): any => {
     if (obj === null || typeof obj !== 'object') return obj;
-    
+
     if (Array.isArray(obj)) {
-      return obj.map(normalize).sort();
+        return obj.map(normalize).sort();
     }
-    
+
     return Object.keys(obj)
-      .sort()
-      .reduce((acc, key) => {
-        acc[key] = normalize(obj[key]);
-        return acc;
-      }, {} as any);
-  }
+        .sort()
+        .reduce((acc, key) => {
+            acc[key] = normalize(obj[key]);
+            return acc;
+        }, {} as any);
+}
+
+export const isValidEmail = (email: string): boolean => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+export const formatPrice = (price: number | undefined) => (
+    price ? `$${price.toFixed(2)}` : "Free"
+)

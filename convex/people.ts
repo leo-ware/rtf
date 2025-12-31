@@ -9,14 +9,78 @@ import { peopleAggregate } from "./aggregates"
 export const listPeople = query({
     args: {
         limit: v.optional(v.number()),
+        personType: v.optional(v.union(
+            v.literal("director"),
+            v.literal("staff"),
+            v.literal("equine"),
+            v.literal("storyteller"),
+            v.literal("ambassador"),
+            v.literal("inMemoriam")
+        )),
     },
     handler: async (ctx, args) => {
         const limit = args.limit ?? 100;
 
-        const people = await ctx.db
-            .query("people")
-            .order("desc")
-            .take(limit)
+        let people;
+
+        if (args.personType) {
+            // Query based on person type and order
+            switch (args.personType) {
+                case "director":
+                    people = await ctx.db
+                        .query("people")
+                        .withIndex("by_is_director", (q) => q.eq("isDirector", true))
+                        .collect()
+                        .then(p => p.sort((a, b) => (a.directorOrder ?? Infinity) - (b.directorOrder ?? Infinity)))
+                        .then(p => p.slice(0, limit));
+                    break;
+                case "staff":
+                    people = await ctx.db
+                        .query("people")
+                        .withIndex("by_is_staff", (q) => q.eq("isStaff", true))
+                        .collect()
+                        .then(p => p.sort((a, b) => (a.staffOrder ?? Infinity) - (b.staffOrder ?? Infinity)))
+                        .then(p => p.slice(0, limit));
+                    break;
+                case "equine":
+                    people = await ctx.db
+                        .query("people")
+                        .collect()
+                        .then(p => p.filter(person => person.isEquine))
+                        .then(p => p.sort((a, b) => (a.equineOrder ?? Infinity) - (b.equineOrder ?? Infinity)))
+                        .then(p => p.slice(0, limit));
+                    break;
+                case "storyteller":
+                    people = await ctx.db
+                        .query("people")
+                        .collect()
+                        .then(p => p.filter(person => person.isStoryTeller))
+                        .then(p => p.sort((a, b) => (a.storytellerOrder ?? Infinity) - (b.storytellerOrder ?? Infinity)))
+                        .then(p => p.slice(0, limit));
+                    break;
+                case "ambassador":
+                    people = await ctx.db
+                        .query("people")
+                        .collect()
+                        .then(p => p.filter(person => person.isAmbassador))
+                        .then(p => p.sort((a, b) => (a.ambassadorOrder ?? Infinity) - (b.ambassadorOrder ?? Infinity)))
+                        .then(p => p.slice(0, limit));
+                    break;
+                case "inMemoriam":
+                    people = await ctx.db
+                        .query("people")
+                        .withIndex("by_in_memoriam", (q) => q.eq("inMemoriam", true))
+                        .collect()
+                        .then(p => p.sort((a, b) => (a.inMemoriamOrder ?? Infinity) - (b.inMemoriamOrder ?? Infinity)))
+                        .then(p => p.slice(0, limit));
+                    break;
+            }
+        } else {
+            people = await ctx.db
+                .query("people")
+                .order("desc")
+                .take(limit);
+        }
 
         const getImages = async (ppl: typeof people) => Promise.all(
             people.map(async (person) => {
@@ -358,5 +422,61 @@ export const listPeopleByAdvisoryBoard = query({
         );
 
         return people.filter(Boolean);
+    },
+});
+
+export const updatePersonOrder = mutation({
+    args: {
+        id: v.id("people"),
+        personType: v.union(
+            v.literal("director"),
+            v.literal("staff"),
+            v.literal("equine"),
+            v.literal("storyteller"),
+            v.literal("ambassador"),
+            v.literal("inMemoriam")
+        ),
+        order: v.number(),
+    },
+    handler: async (ctx, args) => {
+        const user = await getCurrentUserOrThrow(ctx);
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
+        }
+
+        const person = await ctx.db.get(args.id);
+        if (!person) {
+            throw new Error("Person not found");
+        }
+
+        const updateData: any = {
+            updatedAt: Date.now(),
+        };
+
+        // Update the appropriate order field based on person type
+        switch (args.personType) {
+            case "director":
+                updateData.directorOrder = args.order;
+                break;
+            case "staff":
+                updateData.staffOrder = args.order;
+                break;
+            case "equine":
+                updateData.equineOrder = args.order;
+                break;
+            case "storyteller":
+                updateData.storytellerOrder = args.order;
+                break;
+            case "ambassador":
+                updateData.ambassadorOrder = args.order;
+                break;
+            case "inMemoriam":
+                updateData.inMemoriamOrder = args.order;
+                break;
+        }
+
+        await ctx.db.patch(args.id, updateData);
+
+        return args.id;
     },
 });

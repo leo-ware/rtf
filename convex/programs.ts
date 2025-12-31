@@ -1,6 +1,8 @@
 import { query, mutation } from "./_generated/server"
 import { v } from "convex/values"
 import { getCurrentUserOrThrow } from "./users"
+import { resolveImageId } from "./images"
+import { removeUndefinedFields } from "./utils"
 
 export const getProgramGroups = query({
     args: {},
@@ -18,11 +20,20 @@ export const getProgramGroups = query({
 
 export const getPublicProgramGroups = query({
     handler: async (ctx) => {
-        return await ctx.db
+        const results = await ctx.db
             .query("programGroups")
             .withIndex("by_public", (q) => q.eq("isPublic", true))
             .order("asc")
             .collect()
+        const withImages = await Promise.all(results.map(async (result) => {
+            return {
+                ...result,
+                image: result.imageId
+                    ? await resolveImageId(ctx, result.imageId)
+                    : null,
+            }
+        }))
+        return withImages
     }
 })
 
@@ -37,11 +48,44 @@ export const getProgramGroupById = query({
             .order("asc")
             .collect()
 
-        const [group, programs] = await Promise.all([groupPromise, programsPromise])
+        const [group, programDocs] = await Promise.all([groupPromise, programsPromise])
+
+        const programs = await Promise.all(programDocs.map(async (program) => {
+            const [tickets, image] = await Promise.all([
+                program.ticketPriceId
+                    ? ctx.db.get(program.ticketPriceId)
+                    : null,
+                program.imageId
+                    ? await resolveImageId(ctx, program.imageId)
+                    : null,
+            ])
+            return {
+                ...program,
+                tickets,
+                image,
+            }
+        }))
+
+        if (!group) {
+            return null
+        }
 
         return {
             ...group,
-            programs: programs.filter((program) => program.isPublic),
+            image: group?.imageId
+                ? await resolveImageId(ctx, group?.imageId)
+                : null,
+            programs: await Promise.all(programs
+                .filter((program) => program.isPublic)
+                .map(async (program) => {
+                    return {
+                        ...program,
+                        image: program.imageId
+                            ? await resolveImageId(ctx, program.imageId)
+                            : null,
+                    }
+                })
+            ),
         }
     }
 })
@@ -49,31 +93,37 @@ export const getProgramGroupById = query({
 // Get all programs (admin only)
 export const getAllPrograms = query({
     args: {},
-    returns: v.array(v.object({
-        _id: v.id("programs"),
-        _creationTime: v.number(),
-        name: v.string(),
-        description: v.string(),
-        details: v.string(),
-        price: v.optional(v.number()),
-        location: v.string(),
-        isPublic: v.boolean(),
-        imageId: v.optional(v.id("images")),
-        programGroupId: v.id("programGroups"),
-        order: v.number(),
-        createdBy: v.id("users"),
-        createdAt: v.number(),
-        updatedAt: v.number(),
-    })),
     handler: async (ctx) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
             throw new Error("Insufficient permissions");
         }
-        return await ctx.db
+
+        const programsPromise = ctx.db
             .query("programs")
             .order("asc")
             .collect()
+        const eventsPromise = ctx.db.query("events").take(1000)
+        const programGroupsPromise = ctx.db.query("programGroups").take(1000)
+
+        const [programs, events, programGroups] = await Promise.all([
+            programsPromise,
+            eventsPromise,
+            programGroupsPromise
+        ])
+
+        return await Promise.all(programs.map(async (program) => {
+            return {
+                ...program,
+                programGroup: programGroups.find((group) => group._id === program.programGroupId),
+                events: events
+                    .filter((event) => event.programId === program._id)
+                    .sort((a, b) => a.dateNumber - b.dateNumber),
+                image: program.imageId
+                    ? await resolveImageId(ctx, program.imageId)
+                    : null,
+            }
+        }))
     },
 })
 
@@ -86,15 +136,12 @@ export const getPublicPrograms = query({
         name: v.string(),
         description: v.string(),
         details: v.string(),
-        price: v.optional(v.number()),
+        ticketPriceId: v.optional(v.id("ticketPrice")),
         location: v.string(),
         isPublic: v.boolean(),
         imageId: v.optional(v.id("images")),
         programGroupId: v.id("programGroups"),
         order: v.number(),
-        createdBy: v.id("users"),
-        createdAt: v.number(),
-        updatedAt: v.number(),
     })),
     handler: async (ctx) => {
         return await ctx.db
@@ -108,22 +155,6 @@ export const getPublicPrograms = query({
 // Get programs by program group
 export const getProgramsByGroup = query({
     args: { programGroupId: v.id("programGroups") },
-    returns: v.array(v.object({
-        _id: v.id("programs"),
-        _creationTime: v.number(),
-        name: v.string(),
-        description: v.string(),
-        details: v.string(),
-        price: v.optional(v.number()),
-        location: v.string(),
-        isPublic: v.boolean(),
-        imageId: v.optional(v.id("images")),
-        programGroupId: v.id("programGroups"),
-        order: v.number(),
-        createdBy: v.id("users"),
-        createdAt: v.number(),
-        updatedAt: v.number(),
-    })),
     handler: async (ctx, args) => {
         const programGroup = await ctx.db.get(args.programGroupId)
         if (!programGroup) {
@@ -138,36 +169,25 @@ export const getProgramsByGroup = query({
             }
         }
 
-        return await ctx.db
+        const programs = await ctx.db
             .query("programs")
             .withIndex("by_program_group", (q) => q.eq("programGroupId", args.programGroupId))
             .order("asc")
             .collect()
+        return await Promise.all(programs.map(async (program) => {
+            return {
+                ...program,
+                image: program.imageId
+                    ? await resolveImageId(ctx, program.imageId)
+                    : null,
+            }
+        }))
     },
 })
 
 // Get a single program by ID
 export const getProgramById = query({
     args: { id: v.id("programs") },
-    returns: v.union(
-        v.object({
-            _id: v.id("programs"),
-            _creationTime: v.number(),
-            name: v.string(),
-            description: v.string(),
-            details: v.string(),
-            price: v.optional(v.number()),
-            location: v.string(),
-            isPublic: v.boolean(),
-            imageId: v.optional(v.id("images")),
-            programGroupId: v.id("programGroups"),
-            order: v.number(),
-            createdBy: v.id("users"),
-            createdAt: v.number(),
-            updatedAt: v.number(),
-        }),
-        v.null()
-    ),
     handler: async (ctx, args) => {
         const program = await ctx.db.get(args.id)
         if (!program) {
@@ -182,43 +202,25 @@ export const getProgramById = query({
             }
         }
 
-        return program
+        const [image, events] = await Promise.all([
+            program.imageId ? await resolveImageId(ctx, program.imageId) : null,
+            await ctx.db.query("events")
+                .withIndex("by_program", (q) => q.eq("programId", program._id))
+                .order("desc")
+                .collect()
+        ])
+
+        return {
+            ...program,
+            image,
+            events,
+        }
     },
 })
 
 // Get events for a specific program
 export const getEventsByProgram = query({
     args: { programId: v.id("programs") },
-    returns: v.array(v.object({
-        _id: v.id("events"),
-        _creationTime: v.number(),
-        title: v.string(),
-        description: v.string(),
-        longDescription: v.optional(v.string()),
-        startDate: v.number(),
-        endDate: v.number(),
-        location: v.optional(v.string()),
-        eventType: v.union(
-            v.literal("tour"),
-            v.literal("volunteer"),
-            v.literal("photo_safari"),
-            v.literal("educational"),
-            v.literal("fundraising"),
-            v.literal("other")
-        ),
-        maxAttendees: v.optional(v.number()),
-        currentAttendees: v.number(),
-        price: v.optional(v.number()),
-        isPublic: v.boolean(),
-        requiresRegistration: v.boolean(),
-        contactEmail: v.optional(v.string()),
-        contactPhone: v.optional(v.string()),
-        imageUrl: v.optional(v.string()),
-        programId: v.optional(v.id("programs")),
-        createdBy: v.id("users"),
-        createdAt: v.number(),
-        updatedAt: v.number(),
-    })),
     handler: async (ctx, args) => {
         const program = await ctx.db.get(args.programId)
         if (!program) {
@@ -247,12 +249,23 @@ export const createProgram = mutation({
         name: v.string(),
         description: v.string(),
         details: v.string(),
-        price: v.optional(v.number()),
+        ticketPriceId: v.optional(v.id("ticketPrice")),
+        ticketPriceOptions: v.optional(v.array(v.object({
+            name: v.string(),
+            description: v.optional(v.string()),
+            price: v.number(),
+            availableBefore: v.optional(v.number()),
+            availableAfter: v.optional(v.number()),
+        }))),
         location: v.string(),
         isPublic: v.boolean(),
         imageId: v.optional(v.id("images")),
         programGroupId: v.id("programGroups"),
         order: v.number(),
+        requiresRegistration: v.optional(v.boolean()),
+        contactEmail: v.optional(v.string()),
+        contactPhone: v.optional(v.string()),
+        maxAttendees: v.optional(v.number()),
     },
     returns: v.id("programs"),
     handler: async (ctx, args) => {
@@ -267,12 +280,19 @@ export const createProgram = mutation({
             throw new Error("Program group not found")
         }
 
-        const now = Date.now()
+        const { ticketPriceOptions, ...programArgs } = args
+
+        // Create ticketPrice if options provided
+        let ticketPriceId = programArgs.ticketPriceId
+        if (ticketPriceOptions && ticketPriceOptions.length > 0) {
+            ticketPriceId = await ctx.db.insert("ticketPrice", {
+                options: ticketPriceOptions,
+            })
+        }
+
         return await ctx.db.insert("programs", {
-            ...args,
-            createdBy: user._id,
-            createdAt: now,
-            updatedAt: now,
+            ...programArgs,
+            ticketPriceId,
         })
     },
 })
@@ -284,25 +304,30 @@ export const updateProgram = mutation({
         name: v.optional(v.string()),
         description: v.optional(v.string()),
         details: v.optional(v.string()),
-        price: v.optional(v.number()),
+        ticketPriceId: v.optional(v.id("ticketPrice")),
+        ticketPriceOptions: v.optional(v.array(v.object({
+            name: v.string(),
+            description: v.optional(v.string()),
+            price: v.number(),
+            availableBefore: v.optional(v.number()),
+            availableAfter: v.optional(v.number()),
+        }))),
         location: v.optional(v.string()),
         isPublic: v.optional(v.boolean()),
         imageId: v.optional(v.id("images")),
         programGroupId: v.optional(v.id("programGroups")),
         order: v.optional(v.number()),
+        requiresRegistration: v.optional(v.boolean()),
+        contactEmail: v.optional(v.string()),
+        contactPhone: v.optional(v.string()),
+        maxAttendees: v.optional(v.number()),
     },
-    returns: v.null(),
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
             throw new Error("Insufficient permissions");
         }
-        const { id, ...updates } = args
-
-        const existingProgram = await ctx.db.get(id)
-        if (!existingProgram) {
-            throw new Error("Program not found")
-        }
+        const { id, ticketPriceOptions, ...updates } = args
 
         // If changing program group, verify it exists
         if (updates.programGroupId) {
@@ -312,9 +337,32 @@ export const updateProgram = mutation({
             }
         }
 
+        const existingProgram = await ctx.db.get(id)
+        if (!existingProgram) {
+            throw new Error("Program not found")
+        }
+
+        // Handle ticketPrice update
+        let ticketPriceId = updates.ticketPriceId
+        if (ticketPriceOptions && ticketPriceOptions.length > 0) {
+            // If program already has a ticketPriceId, update it; otherwise create new
+            if (existingProgram.ticketPriceId) {
+                await ctx.db.patch(existingProgram.ticketPriceId, {
+                    options: ticketPriceOptions,
+                })
+                ticketPriceId = existingProgram.ticketPriceId
+            } else {
+                ticketPriceId = await ctx.db.insert("ticketPrice", {
+                    options: ticketPriceOptions,
+                })
+            }
+        }
+
         await ctx.db.patch(id, {
-            ...updates,
-            updatedAt: Date.now(),
+            ...removeUndefinedFields({
+                ...updates,
+                ticketPriceId,
+            }),
         })
         return null
     },
@@ -323,7 +371,6 @@ export const updateProgram = mutation({
 // Delete a program
 export const deleteProgram = mutation({
     args: { id: v.id("programs") },
-    returns: v.null(),
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
@@ -350,16 +397,44 @@ export const deleteProgram = mutation({
     },
 })
 
+// Reorder programs
+export const reorderPrograms = mutation({
+    args: { ids: v.array(v.id("programs")) },
+    handler: async (ctx, args) => {
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
+        }
+
+        const previousPrograms = await ctx.db.query("programs").collect()
+        const previousProgramIds = previousPrograms
+            .sort((a, b) => a.order - b.order)
+            .map((program) => program._id)
+
+        const allSortedIds = [...args.ids]
+        previousProgramIds.forEach((id) => {
+            if (!allSortedIds.includes(id)) {
+                allSortedIds.push(id)
+            }
+        })
+
+        await Promise.all(allSortedIds.map(async (id, order) =>
+            await ctx.db.patch(id, { order })
+        ))
+        return null
+    },
+})
+
 // Create event from program template
 export const createEventFromProgram = mutation({
     args: {
         programId: v.id("programs"),
-        startDate: v.number(),
-        endDate: v.number(),
+        startDate: v.string(),
+        endDate: v.string(),
         title: v.optional(v.string()),
         isPublic: v.optional(v.boolean()),
+        imageId: v.optional(v.id("images")),
     },
-    returns: v.id("events"),
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
@@ -371,29 +446,22 @@ export const createEventFromProgram = mutation({
             throw new Error("Program not found")
         }
 
-        const now = Date.now()
-        const longDescription = program.description + "\n\n" + program.details
-
         return await ctx.db.insert("events", {
             title: args.title || program.name,
             description: program.description,
-            longDescription: longDescription,
+            longDescription: program.details,
             startDate: args.startDate,
+            dateNumber: Date.parse(args.startDate),
             endDate: args.endDate,
             location: program.location,
-            eventType: "other", // Default event type, can be changed later
-            maxAttendees: undefined,
-            currentAttendees: 0,
-            price: program.price,
+            maxAttendees: program.maxAttendees,
+            ticketPriceId: program.ticketPriceId,
             isPublic: args.isPublic ?? false, // Default to not public
-            requiresRegistration: true,
-            contactEmail: undefined,
-            contactPhone: undefined,
-            imageUrl: undefined,
+            requiresRegistration: program.requiresRegistration ?? false,
+            contactEmail: program.contactEmail,
+            contactPhone: program.contactPhone,
+            imageId: args.imageId || program.imageId,
             programId: args.programId,
-            createdBy: user._id,
-            createdAt: now,
-            updatedAt: now,
         })
     },
 })

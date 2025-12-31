@@ -7,26 +7,9 @@ import {
 } from "next/font/google";
 import "./globals.css";
 import ConvexClientProvider from "@/providers/ConvexClientProvider";
-import {
-    ClerkProvider,
-    // SignInButton,
-    // SignUpButton,
-    // SignedIn,
-    // SignedOut,
-    // UserButton,
-} from '@clerk/nextjs'
-
-// const geistSans = Geist({
-//     variable: "--font-geist-sans",
-//     subsets: ["latin"],
-// });
-
-// const geistMono = Geist_Mono({
-//     variable: "--font-geist-mono",
-//     subsets: ["latin"],
-// });
-
+import { ClerkProvider } from '@clerk/nextjs'
 import { TooltipProvider } from "@/components/ui/tooltip"
+import DnDProvider from "@/providers/DnDProvider"
 
 const workSans = Work_Sans({
     variable: "--font-work-sans",
@@ -61,7 +44,9 @@ export default function RootLayout({
                 <ClerkProvider>
                     <ConvexClientProvider>
                         <TooltipProvider>
-                            {children}
+                            <DnDProvider>
+                                {children}
+                            </DnDProvider>
                         </TooltipProvider>
                     </ConvexClientProvider>
                 </ClerkProvider>
