@@ -38,7 +38,9 @@ const ProgramsTab = () => {
             return (
                 program.name.toLowerCase().includes(searchLower) ||
                 program.description.toLowerCase().includes(searchLower) ||
-                program.location.toLowerCase().includes(searchLower)
+                (!!program.location
+                    ? program.location?.name?.toLowerCase().includes(searchLower) ?? false
+                    : false)
             )
         })
         .filter(program => {
@@ -130,7 +132,7 @@ const ProgramsTab = () => {
                                                     </Badge>
                                                 </div>
                                                 <div className="text-sm text-gray-500">
-                                                    {program.location}
+                                                    {program.location?.name ?? "No location set"}
                                                     {program.ticketPriceId && " • Pricing configured"}
                                                     {program.maxAttendees && ` • Max ${program.maxAttendees}`}
                                                     {program.requiresRegistration && " • Registration Required"}
@@ -233,9 +235,9 @@ const ProgramsTab = () => {
                                                                                 </span>
                                                                             </div>
                                                                         </div>
-                                                                        <Badge variant={event.isPublic ? "default" : "secondary"} className="text-xs">
+                                                                        {/* <Badge variant={event.isPublic ? "default" : "secondary"} className="text-xs">
                                                                             {event.isPublic ? "Public" : "Private"}
-                                                                        </Badge>
+                                                                        </Badge> */}
                                                                     </div>
                                                                 ))}
                                                             </div>

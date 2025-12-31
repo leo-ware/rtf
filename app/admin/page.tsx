@@ -18,7 +18,7 @@ import {
 
 const AdminPage = () => {
     // Fetch counts efficiently using aggregates
-    const counts = useQuery(api.counts.getDashboardCounts)
+    const counts = useQuery(api.aggregates.getDashboardCounts)
     // Still need events for upcoming events calculation
     const events = useQuery(api.events.getAllEvents)
 

@@ -108,7 +108,7 @@ export const ImagePicker = ({onClose, onImageSelect, isOpen}: ImagePickerProps) 
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => open && onClose()}>
-            <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
+            <DialogContent className="max-w-4xl max-h-[80vh] overflow-x-auto">
                 {/* <DialogHeader>
                     <DialogTitle>{title}</DialogTitle>
                     <DialogDescription>{description}</DialogDescription>

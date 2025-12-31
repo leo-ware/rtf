@@ -9,7 +9,28 @@ import { CalendarIcon, MapPin, Users, Edit, Trash2, Phone, Mail, FileText } from
 import { format } from "date-fns"
 import { Id, Doc } from "@/convex/_generated/dataModel"
 
-type Event = Doc<"events">
+// Event type that includes merged program details
+type Event = Doc<"events"> & {
+    // Flattened program fields
+    description?: string
+    longDescription?: string
+    location?: string | null
+    locationId?: Id<"locations"> | null
+    maxAttendees?: number
+    ticketPriceId?: Id<"ticketPrice"> | null
+    isPublic?: boolean
+    requiresRegistration?: boolean
+    contactEmail?: string
+    contactPhone?: string
+    imageId?: Id<"images">
+    image?: {
+        url: string | null
+        altText?: string
+        width?: number
+        height?: number
+    } | null
+    tickets?: Doc<"ticketPrice"> | null
+}
 
 type EventCalendarProps = {
     events: Event[]
@@ -41,7 +62,7 @@ const EventCalendar = ({ events, isAdminMode = false, onEditEvent, onDeleteEvent
     const firstDayOfWeek = firstDay.getDay()
     const daysInMonth = lastDay.getDate()
 
-    const calendarDays = []
+    const calendarDays: (number | null)[] = []
 
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < firstDayOfWeek; i++) {
@@ -90,7 +111,7 @@ const EventCalendar = ({ events, isAdminMode = false, onEditEvent, onDeleteEvent
     }
 
     // Generate year options (current year ± 5 years)
-    const yearOptions = []
+    const yearOptions: number[] = []
     for (let year = currentYear - 5; year <= currentYear + 5; year++) {
         yearOptions.push(year)
     }
@@ -285,7 +306,9 @@ const EventCalendar = ({ events, isAdminMode = false, onEditEvent, onDeleteEvent
 
                     {selectedEvent && (
                         <div className="space-y-4">
-                            <p className="text-gray-700">{selectedEvent.description}</p>
+                            {selectedEvent.description && (
+                                <p className="text-gray-700">{selectedEvent.description}</p>
+                            )}
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-3">
@@ -329,14 +352,16 @@ const EventCalendar = ({ events, isAdminMode = false, onEditEvent, onDeleteEvent
                                     )}
 
                                     <div className="flex flex-col space-y-2">
-                                        <div className="flex items-center space-x-2">
-                                            <span className="text-sm text-gray-600">Registration:</span>
-                                            <Badge variant={selectedEvent.requiresRegistration ? "default" : "secondary"}>
-                                                {selectedEvent.requiresRegistration ? "Required" : "Not Required"}
-                                            </Badge>
-                                        </div>
+                                        {selectedEvent.requiresRegistration !== undefined && (
+                                            <div className="flex items-center space-x-2">
+                                                <span className="text-sm text-gray-600">Registration:</span>
+                                                <Badge variant={selectedEvent.requiresRegistration ? "default" : "secondary"}>
+                                                    {selectedEvent.requiresRegistration ? "Required" : "Not Required"}
+                                                </Badge>
+                                            </div>
+                                        )}
 
-                                        {isAdminMode && (
+                                        {isAdminMode && selectedEvent.isPublic !== undefined && (
                                             <div className="flex items-center space-x-2">
                                                 <span className="text-sm text-gray-600">Visibility:</span>
                                                 <Badge variant={selectedEvent.isPublic ? "default" : "secondary"}>

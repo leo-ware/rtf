@@ -19,6 +19,7 @@ import { Id } from "@/convex/_generated/dataModel"
 import { useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import ImagePickerDialog from "@/components/images/ImagePickerDialog"
+import LocationPickerDialog from "@/components/locations/LocationPickerDialog"
 import { TiptapEditor } from "@/components/TiptapEditor"
 import TicketPriceEditorDialog, { TicketPriceOption } from "../TicketPriceEditorDialog"
 
@@ -27,8 +28,8 @@ export type Program = {
     name: string
     description: string
     details: string
-    ticketPriceId?: Id<"ticketPrice">
-    location: string
+    ticketPriceId: Id<"ticketPrice">
+    locationId: Id<"locations">
     maxAttendees?: number
     requiresRegistration?: boolean
     contactEmail?: string
@@ -41,14 +42,20 @@ export type Program = {
 type ProgramEditDialogProps = {
     program: Program
     children?: React.ReactNode
+} | {
+    programId: Id<"programs">
+    children?: React.ReactNode
 }
 
-const ProgramEditDialog = ({ program, children }: ProgramEditDialogProps) => {
+const ProgramEditDialog = ({ children, ...props }: ProgramEditDialogProps) => {
+    const programId = "programId" in props ? props.programId : props.program._id
+    const program = useQuery(api.programs.getProgramById, { id: programId })
+
     const updateProgram = useMutation(api.programs.updateProgram)
     const programGroups = useQuery(api.programGroups.getAllProgramGroups)
     const existingTicketPrice = useQuery(
         api.ticketPrices.getTicketPrice,
-        program.ticketPriceId ? { id: program.ticketPriceId } : "skip"
+        (program && program.ticketPriceId) ? { id: program.ticketPriceId } : "skip"
     )
 
     const [isOpen, setIsOpen] = useState(false)
@@ -57,34 +64,36 @@ const ProgramEditDialog = ({ program, children }: ProgramEditDialogProps) => {
     const [ticketPriceOptions, setTicketPriceOptions] = useState<TicketPriceOption[]>([])
 
     const [formData, setFormData] = useState({
-        name: program.name,
-        description: program.description,
-        details: program.details,
-        location: program.location,
-        maxAttendees: program.maxAttendees?.toString() || "",
-        requiresRegistration: program.requiresRegistration || false,
-        contactEmail: program.contactEmail || "",
-        contactPhone: program.contactPhone || "",
-        isPublic: program.isPublic,
-        programGroupId: program.programGroupId as string,
-        imageId: program.imageId || null as Id<"images"> | null,
+        name: undefined as string | undefined,
+        description: undefined as string | undefined,
+        details: undefined as string | undefined,
+        locationId: null as Id<"locations"> | null,
+        maxAttendees: undefined as string | undefined,
+        requiresRegistration: undefined as boolean | undefined,
+        contactEmail: undefined as string | undefined,
+        contactPhone: undefined as string | undefined,
+        isPublic: undefined as boolean | undefined,
+        programGroupId: undefined as string | undefined,
+        imageId: null as Id<"images"> | null,
     })
 
     // Reset form when program changes
     useEffect(() => {
-        setFormData({
-            name: program.name,
-            description: program.description,
-            details: program.details,
-            location: program.location,
-            maxAttendees: program.maxAttendees?.toString() || "",
-            requiresRegistration: program.requiresRegistration || false,
-            contactEmail: program.contactEmail || "",
-            contactPhone: program.contactPhone || "",
-            isPublic: program.isPublic,
-            programGroupId: program.programGroupId as string,
-            imageId: program.imageId || null,
-        })
+        if (program) {
+            setFormData({
+                name: program.name,
+                description: program.description,
+                details: program.details,
+                locationId: program.locationId,
+                maxAttendees: program.maxAttendees?.toString() || "",
+                requiresRegistration: program.requiresRegistration || false,
+                contactEmail: program.contactEmail || "",
+                contactPhone: program.contactPhone || "",
+                isPublic: program.isPublic,
+                programGroupId: program.programGroupId as string,
+                imageId: program.imageId || null,
+            })
+        }
     }, [program])
 
     // Load existing ticket price options
@@ -99,23 +108,24 @@ const ProgramEditDialog = ({ program, children }: ProgramEditDialogProps) => {
         isLoading ||
         !formData.name ||
         !formData.description ||
-        !formData.location ||
-        !formData.programGroupId
+        !formData.locationId ||
+        !formData.programGroupId ||
+        ticketPriceOptions.length === 0
     )
 
     const handleUpdate = async () => {
-        if (saveDisabled) return
+        if (saveDisabled || !formData.locationId) return
 
         setIsLoading(true)
         setError(null)
         try {
             await updateProgram({
-                id: program._id,
+                id: programId,
                 name: formData.name,
                 description: formData.description,
                 details: formData.details,
-                ticketPriceOptions: ticketPriceOptions.length > 0 ? ticketPriceOptions : undefined,
-                location: formData.location,
+                ticketPriceOptions: ticketPriceOptions,
+                locationId: formData.locationId,
                 maxAttendees: formData.maxAttendees ? parseInt(formData.maxAttendees) : undefined,
                 requiresRegistration: formData.requiresRegistration,
                 contactEmail: formData.contactEmail || undefined,
@@ -135,21 +145,23 @@ const ProgramEditDialog = ({ program, children }: ProgramEditDialogProps) => {
 
     const resetForm = () => {
         if (editingDisabled) return
-        setFormData({
-            name: program.name,
-            description: program.description,
-            details: program.details,
-            location: program.location,
-            maxAttendees: program.maxAttendees?.toString() || "",
-            requiresRegistration: program.requiresRegistration || false,
-            contactEmail: program.contactEmail || "",
-            contactPhone: program.contactPhone || "",
-            isPublic: program.isPublic,
-            programGroupId: program.programGroupId as string,
-            imageId: program.imageId || null,
-        })
-        setTicketPriceOptions(existingTicketPrice?.options || [])
-        setError(null)
+        if (program) {
+            setFormData({
+                name: program.name,
+                description: program.description,
+                details: program.details,
+                locationId: program.locationId,
+                maxAttendees: program.maxAttendees?.toString() || "",
+                requiresRegistration: program.requiresRegistration || false,
+                contactEmail: program.contactEmail || "",
+                contactPhone: program.contactPhone || "",
+                isPublic: program.isPublic,
+                programGroupId: program.programGroupId as string,
+                imageId: program.imageId || null,
+            })
+            setTicketPriceOptions(existingTicketPrice?.options || [])
+            setError(null)
+        }
     }
 
     return (
@@ -225,24 +237,24 @@ const ProgramEditDialog = ({ program, children }: ProgramEditDialogProps) => {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <Label htmlFor="location">Location</Label>
-                            <Input
-                                id="location"
-                                value={formData.location}
-                                disabled={editingDisabled}
-                                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                placeholder="Program location"
-                            />
+                            <Label>Location <span className="text-red-500">*</span></Label>
+                            {formData.locationId && (
+                                <LocationPickerDialog
+                                    locationId={formData.locationId}
+                                    onLocationSelect={(locationId) => setFormData({ ...formData, locationId })}
+                                    disabled={editingDisabled}
+                                />
+                            )}
                         </div>
                         <div>
-                            <Label>Ticket Pricing</Label>
+                            <Label>Ticket Pricing <span className="text-red-500">*</span></Label>
                             <TicketPriceEditorDialog
                                 onComplete={(data) => setTicketPriceOptions(data.options)}
                             >
                                 <Button variant="outline" className="w-full" disabled={editingDisabled}>
                                     {ticketPriceOptions.length > 0
                                         ? `${ticketPriceOptions.length} price option${ticketPriceOptions.length > 1 ? "s" : ""}`
-                                        : "Configure Pricing"
+                                        : "Configure Pricing (Required)"
                                     }
                                 </Button>
                             </TicketPriceEditorDialog>

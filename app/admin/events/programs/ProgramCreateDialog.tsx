@@ -19,6 +19,7 @@ import { Id } from "@/convex/_generated/dataModel"
 import { useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import ImagePickerDialog from "@/components/images/ImagePickerDialog"
+import LocationPickerDialog from "@/components/locations/LocationPickerDialog"
 import TicketPriceEditorDialog, { TicketPriceOption } from "../TicketPriceEditorDialog"
 
 const ProgramCreateDialog = () => {
@@ -35,7 +36,7 @@ const ProgramCreateDialog = () => {
         name: "",
         description: "",
         details: "",
-        location: "",
+        locationId: null as Id<"locations"> | null,
         maxAttendees: "",
         requiresRegistration: false,
         contactEmail: "",
@@ -50,12 +51,13 @@ const ProgramCreateDialog = () => {
         isLoading ||
         !formData.name ||
         !formData.description ||
-        !formData.location ||
-        !formData.programGroupId
+        !formData.locationId ||
+        !formData.programGroupId ||
+        ticketPriceOptions.length === 0
     )
 
     const handleCreate = async () => {
-        if (saveDisabled) return
+        if (saveDisabled || !formData.locationId) return
 
         setIsLoading(true)
         setError(null)
@@ -64,8 +66,8 @@ const ProgramCreateDialog = () => {
                 name: formData.name,
                 description: formData.description,
                 details: formData.details,
-                ticketPriceOptions: ticketPriceOptions.length > 0 ? ticketPriceOptions : undefined,
-                location: formData.location,
+                ticketPriceOptions: ticketPriceOptions,
+                locationId: formData.locationId,
                 maxAttendees: formData.maxAttendees ? parseInt(formData.maxAttendees) : undefined,
                 requiresRegistration: formData.requiresRegistration,
                 contactEmail: formData.contactEmail || undefined,
@@ -91,7 +93,7 @@ const ProgramCreateDialog = () => {
             name: "",
             description: "",
             details: "",
-            location: "",
+            locationId: null,
             maxAttendees: "",
             requiresRegistration: false,
             contactEmail: "",
@@ -187,24 +189,22 @@ const ProgramCreateDialog = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <Label htmlFor="location">Location</Label>
-                            <Input
-                                id="location"
-                                value={formData.location}
+                            <Label>Location <span className="text-red-500">*</span></Label>
+                            <LocationPickerDialog
+                                locationId={formData.locationId}
+                                onLocationSelect={(locationId) => setFormData({ ...formData, locationId })}
                                 disabled={editingDisabled}
-                                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                placeholder="Program location"
                             />
                         </div>
                         <div>
-                            <Label>Ticket Pricing</Label>
+                            <Label>Ticket Pricing <span className="text-red-500">*</span></Label>
                             <TicketPriceEditorDialog
                                 onComplete={(data) => setTicketPriceOptions(data.options)}
                             >
                                 <Button variant="outline" className="w-full" disabled={editingDisabled}>
                                     {ticketPriceOptions.length > 0
                                         ? `${ticketPriceOptions.length} price option${ticketPriceOptions.length > 1 ? "s" : ""}`
-                                        : "Configure Pricing"
+                                        : "Configure Pricing (Required)"
                                     }
                                 </Button>
                             </TicketPriceEditorDialog>

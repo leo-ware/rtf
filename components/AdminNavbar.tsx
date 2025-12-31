@@ -1,13 +1,21 @@
-"use client";
+"use client"
 
-import React, { useState } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import ProfileDropdown from "@/components/ProfileDropdown";
+import { useState } from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { useQuery } from "convex/react"
+import { api } from "@/convex/_generated/api"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import ProfileDropdown from "@/components/ProfileDropdown"
+import {
+    NavigationMenu,
+    NavigationMenuContent,
+    NavigationMenuItem,
+    NavigationMenuLink,
+    NavigationMenuList,
+    NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu"
 import {
     Home,
     FileText,
@@ -15,35 +23,43 @@ import {
     Camera,
     Users,
     Shield,
-    Settings,
     BookOpen,
     Menu,
     X,
-    BarChart3,
     Heart,
     Code,
     Building2,
-    FolderOpen
-} from "lucide-react";
-import { cn } from "@/lib/utils";
+    FolderOpen,
+    MapPin,
+    Layers,
+    Package,
+    UserCog,
+    LayoutDashboard
+} from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface NavItem {
-    name: string;
-    href: string;
-    icon: React.ElementType;
-    description?: string;
-    requiresAdmin?: boolean;
-    badge?: string;
+    name: string
+    href: string
+    icon: React.ElementType
+    description?: string
+    requiresAdmin?: boolean
+    badge?: string
+}
+
+interface NavGroup {
+    name: string
+    icon: React.ElementType
+    items: NavItem[]
 }
 
 const AdminNavbar = () => {
-    const pathname = usePathname();
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const pathname = usePathname()
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const currentUser = useQuery(api.users.current)
     const hasAdminAccess = currentUser?.atLeastAdmin ?? false
-    const currentUserRole = currentUser?.role
 
-    const navigationItems: NavItem[] = [
+    const overviewItems: NavItem[] = [
         {
             name: "Dashboard",
             href: "/admin",
@@ -51,29 +67,56 @@ const AdminNavbar = () => {
             description: "Overview and statistics"
         },
         {
+            name: "Developer",
+            href: "/admin/dev",
+            icon: Code,
+            description: "Developer tools and settings"
+        },
+    ]
+
+    const contentItems: NavItem[] = [
+        {
             name: "News",
             href: "/admin/news",
             icon: FileText,
-            description: "Manage articles"
+            description: "Manage articles and announcements"
         },
         {
             name: "Events",
             href: "/admin/events",
             icon: Calendar,
-            description: "Schedule events"
+            description: "Schedule and manage events"
         },
         {
             name: "Animals",
             href: "/admin/animals",
             icon: Heart,
-            description: "Manage animals"
+            description: "Manage animal profiles"
         },
+        {
+            name: "Documents",
+            href: "/admin/documents",
+            icon: FolderOpen,
+            description: "Upload and organize documents"
+        },
+    ]
+
+    const assetsItems: NavItem[] = [
         {
             name: "Media",
             href: "/admin/images",
             icon: Camera,
-            description: "Image library"
+            description: "Image and media library"
         },
+        {
+            name: "Locations",
+            href: "/admin/locations",
+            icon: MapPin,
+            description: "Manage venue locations"
+        },
+    ]
+
+    const managementItems: NavItem[] = [
         {
             name: "People",
             href: "/admin/people",
@@ -84,70 +127,66 @@ const AdminNavbar = () => {
             name: "Sponsors",
             href: "/admin/sponsors",
             icon: Building2,
-            description: "Manage sponsors"
+            description: "Manage sponsors and partners"
         },
-        {
-            name: "Documents",
-            href: "/admin/documents",
-            icon: FolderOpen,
-            description: "Manage documents"
-        },
-        // {
-        //     name: "Analytics",
-        //     href: "/admin/analytics",
-        //     icon: BarChart3,
-        //     description: "View reports"
-        // }
-    ].concat(hasAdminAccess ? [
-        {
+        ...(hasAdminAccess ? [{
             name: "Users",
             href: "/admin/users",
             icon: Shield,
-            description: "User management"
-        }
-    ] : [])
+            description: "User accounts and permissions"
+        }] : [])
+    ]
+
+    const navGroups: NavGroup[] = [
+        { name: "Overview", icon: LayoutDashboard, items: overviewItems },
+        { name: "Content", icon: Layers, items: contentItems },
+        { name: "Assets", icon: Package, items: assetsItems },
+        { name: "Management", icon: UserCog, items: managementItems },
+    ]
+
+    const allNavItems = [...overviewItems, ...contentItems, ...assetsItems, ...managementItems]
 
     const isActive = (href: string) => {
         if (href === "/admin") {
-            return pathname === "/admin";
+            return pathname === "/admin"
         }
-        return pathname.startsWith(href);
-    };
+        if (href === "/admin/dev") {
+            return pathname === "/admin/dev" || pathname.startsWith("/admin/dev/")
+        }
+        return pathname.startsWith(href)
+    }
 
-    const filteredNavItems = navigationItems.filter(item => {
-        if (item.requiresAdmin) {
-            return hasAdminAccess === true;
-        }
-        return true;
-    });
+    const isGroupActive = (items: NavItem[]) => {
+        return items.some(item => isActive(item.href))
+    }
 
     const getCurrentPageTitle = () => {
-        const currentItem = navigationItems.find(item => isActive(item.href));
+        const currentItem = allNavItems.find(item => isActive(item.href))
         if (currentItem) {
             return {
                 title: currentItem.name,
                 description: currentItem.description
-            };
+            }
         }
 
         // Handle special cases
         if (pathname.includes("/profile")) {
-            return { title: "Profile Settings", description: "Manage your account" };
+            return { title: "Profile Settings", description: "Manage your account" }
         }
         if (pathname.includes("/pages")) {
-            return { title: "Pages", description: "Website content" };
+            return { title: "Pages", description: "Website content" }
         }
         if (pathname.includes("/bootstrap")) {
-            return { title: "Bootstrap", description: "System setup" };
+            return { title: "Bootstrap", description: "System setup" }
         }
         if (pathname.includes("/errors")) {
-            return { title: "Error", description: "Something went wrong" };
+            return { title: "Error", description: "Something went wrong" }
         }
 
-        return { title: "Admin", description: "Administration panel" };
-    };
+        return { title: "Admin", description: "Administration panel" }
+    }
 
-    const { title, description } = getCurrentPageTitle();
+    const { title, description } = getCurrentPageTitle()
 
     return (
         <div className="bg-white border-b sticky top-0 z-50">
@@ -187,45 +226,70 @@ const AdminNavbar = () => {
                                 <span className="md:hidden">Site</span>
                             </Button>
                         </Link>
-                        <Link href="/admin/dev">
-                            <Button variant="outline" size="sm" className="hidden lg:flex">
-                                <Code className="h-4 w-4 mr-2" />
-                                Developer
-                            </Button>
-                        </Link>
                         <ProfileDropdown />
                     </div>
                 </div>
 
                 {/* Desktop Navigation */}
-                <div className="hidden lg:block">
-                    <nav className="flex space-x-8 pb-4">
-                        {filteredNavItems.map((item) => {
-                            const Icon = item.icon;
-                            const active = isActive(item.href);
+                <div className="hidden lg:block pb-4">
+                    <NavigationMenu>
+                        <NavigationMenuList>
+                            {/* Navigation Groups */}
+                            {navGroups.map((group) => {
+                                const GroupIcon = group.icon
+                                const groupActive = isGroupActive(group.items)
 
-                            return (
-                                <Link
-                                    key={item.href}
-                                    href={item.href}
-                                    className={cn(
-                                        "flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                                        active
-                                            ? "text-blue-600 bg-blue-50 border-b-2 border-blue-600"
-                                            : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                                    )}
-                                >
-                                    <Icon className="h-4 w-4" />
-                                    <span>{item.name}</span>
-                                    {item.badge && (
-                                        <Badge variant="secondary" className="text-xs">
-                                            {item.badge}
-                                        </Badge>
-                                    )}
-                                </Link>
-                            );
-                        })}
-                    </nav>
+                                return (
+                                    <NavigationMenuItem key={group.name}>
+                                        <NavigationMenuTrigger className={cn(
+                                            groupActive && "bg-accent"
+                                        )}>
+                                            <GroupIcon className="h-4 w-4 mr-2" />
+                                            {group.name}
+                                        </NavigationMenuTrigger>
+                                        <NavigationMenuContent>
+                                            <ul className="grid w-[400px] gap-1 p-2 md:w-[500px] md:grid-cols-2">
+                                                {group.items.map((item) => {
+                                                    const ItemIcon = item.icon
+                                                    const active = isActive(item.href)
+
+                                                    return (
+                                                        <li key={item.href}>
+                                                            <Link href={item.href} legacyBehavior passHref>
+                                                                <NavigationMenuLink
+                                                                    className={cn(
+                                                                        "flex items-start gap-3 select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+                                                                        active && "bg-accent"
+                                                                    )}
+                                                                >
+                                                                    <ItemIcon className="h-5 w-5 mt-0.5 shrink-0" />
+                                                                    <div className="flex flex-col gap-1">
+                                                                        <div className="text-sm font-medium leading-none flex items-center gap-2">
+                                                                            {item.name}
+                                                                            {item.badge && (
+                                                                                <Badge variant="secondary" className="text-xs">
+                                                                                    {item.badge}
+                                                                                </Badge>
+                                                                            )}
+                                                                        </div>
+                                                                        {item.description && (
+                                                                            <p className="text-xs text-muted-foreground line-clamp-2">
+                                                                                {item.description}
+                                                                            </p>
+                                                                        )}
+                                                                    </div>
+                                                                </NavigationMenuLink>
+                                                            </Link>
+                                                        </li>
+                                                    )
+                                                })}
+                                            </ul>
+                                        </NavigationMenuContent>
+                                    </NavigationMenuItem>
+                                )
+                            })}
+                        </NavigationMenuList>
+                    </NavigationMenu>
                 </div>
             </div>
 
@@ -233,39 +297,52 @@ const AdminNavbar = () => {
             {isMobileMenuOpen && (
                 <div className="lg:hidden border-t bg-white">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-                        <nav className="space-y-2">
-                            {filteredNavItems.map((item) => {
-                                const Icon = item.icon;
-                                const active = isActive(item.href);
+                        <nav className="space-y-4">
+                            {/* Grouped Navigation */}
+                            {navGroups.map((group) => {
+                                const GroupIcon = group.icon
 
                                 return (
-                                    <Link
-                                        key={item.href}
-                                        href={item.href}
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                        className={cn(
-                                            "flex items-center space-x-3 px-3 py-3 rounded-md text-sm font-medium transition-colors",
-                                            active
-                                                ? "text-blue-600 bg-blue-50"
-                                                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                                        )}
-                                    >
-                                        <Icon className="h-5 w-5" />
-                                        <div className="flex-1">
-                                            <div className="flex items-center space-x-2">
-                                                <span>{item.name}</span>
-                                                {item.badge && (
-                                                    <Badge variant="secondary" className="text-xs">
-                                                        {item.badge}
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                            {item.description && (
-                                                <p className="text-xs text-gray-500 mt-1">{item.description}</p>
-                                            )}
+                                    <div key={group.name} className="space-y-1">
+                                        <div className="flex items-center space-x-2 px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            <GroupIcon className="h-4 w-4" />
+                                            <span>{group.name}</span>
                                         </div>
-                                    </Link>
-                                );
+                                        {group.items.map((item) => {
+                                            const ItemIcon = item.icon
+                                            const active = isActive(item.href)
+
+                                            return (
+                                                <Link
+                                                    key={item.href}
+                                                    href={item.href}
+                                                    onClick={() => setIsMobileMenuOpen(false)}
+                                                    className={cn(
+                                                        "flex items-center space-x-3 px-3 py-3 rounded-md text-sm font-medium transition-colors ml-2",
+                                                        active
+                                                            ? "bg-accent"
+                                                            : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                                                    )}
+                                                >
+                                                    <ItemIcon className="h-5 w-5" />
+                                                    <div className="flex-1">
+                                                        <div className="flex items-center space-x-2">
+                                                            <span>{item.name}</span>
+                                                            {item.badge && (
+                                                                <Badge variant="secondary" className="text-xs">
+                                                                    {item.badge}
+                                                                </Badge>
+                                                            )}
+                                                        </div>
+                                                        {item.description && (
+                                                            <p className="text-xs text-gray-500 mt-1">{item.description}</p>
+                                                        )}
+                                                    </div>
+                                                </Link>
+                                            )
+                                        })}
+                                    </div>
+                                )
                             })}
 
                             {/* Mobile-only links */}
@@ -278,21 +355,13 @@ const AdminNavbar = () => {
                                     <BookOpen className="h-5 w-5" />
                                     <span>View Site</span>
                                 </Link>
-                                <Link
-                                    href="/admin/dev"
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                    className="flex items-center space-x-3 px-3 py-3 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                                >
-                                    <Code className="h-5 w-5" />
-                                    <span>Developer</span>
-                                </Link>
                             </div>
                         </nav>
                     </div>
                 </div>
             )}
         </div>
-    );
-};
+    )
+}
 
-export default AdminNavbar;
+export default AdminNavbar

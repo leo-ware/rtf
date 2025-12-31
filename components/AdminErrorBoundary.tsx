@@ -27,15 +27,35 @@ export class AdminErrorBoundary extends React.Component<AdminErrorBoundaryProps,
     return { hasError: true, error };
   }
 
+  componentDidMount() {
+    window.addEventListener('popstate', this.handlePopState);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('popstate', this.handlePopState);
+  }
+
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error("Admin Error Boundary caught an error:", error, errorInfo);
     this.setState({ error, errorInfo });
+
+    // Push a history entry so back button takes user to previous page
+    if (typeof window !== 'undefined') {
+      window.history.pushState({ adminErrorBoundary: true }, '', window.location.href);
+    }
 
     // Log to external service in production
     if (process.env.NODE_ENV === 'production') {
       // TODO: Send to error reporting service
     }
   }
+
+  handlePopState = () => {
+    // When user navigates back, reset the error boundary
+    if (this.state.hasError) {
+      this.handleReset();
+    }
+  };
 
   handleReset = () => {
     this.setState({ hasError: false, error: undefined, errorInfo: undefined });

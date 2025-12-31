@@ -14,6 +14,7 @@ import CasualTextInput from "@/components/public-ui/CasualTextInput"
 import Button from "@/components/public-ui/Button"
 import { FaChevronRight, FaChevronLeft } from "react-icons/fa"
 import { isValidEmail } from "@/lib/utils"
+import { Divide } from "lucide-react"
 
 
 const EventRegisterPage = ({ params }: PageProps<{ eventId: Id<"events"> }>) => {
@@ -80,6 +81,9 @@ const EventRegisterPage = ({ params }: PageProps<{ eventId: Id<"events"> }>) => 
     const previousStep = () => {
         setShowErrors(false)
         const currentIndex = steps.indexOf(formStep)
+        if (currentIndex > 0) {
+            setFormStep(steps[currentIndex - 1])
+        }
     }
 
     // view
@@ -283,11 +287,11 @@ const EventRegisterPage = ({ params }: PageProps<{ eventId: Id<"events"> }>) => 
                         </div>
                         <div className="col-span-3 grid grid-cols-subgrid">
                             <div>Tickets</div>
-                            <div className="col-span-2 col-start-2">
+                            <div className="col-span-2 col-start-2 flex flex-col">
                                 {Object.entries(ticketQuantities).map(([name, quantity]) => (
-                                    <Fragment key={name}>
+                                    <div key={name}>
                                         {name} x {quantity}
-                                    </Fragment>
+                                    </div>
                                 ))}
                             </div>
                         </div>
@@ -297,17 +301,25 @@ const EventRegisterPage = ({ params }: PageProps<{ eventId: Id<"events"> }>) => 
                                 ${additionalDonation}
                             </div>
                         </div>
-                        <div className="col-span-3 grid grid-cols-subgrid">
+                        {promoCode && (<div className="col-span-3 grid grid-cols-subgrid">
                             <div>Discount Code</div>
                             <div className="col-span-2 col-start-2">
                                 {promoCode}
                             </div>
-                        </div>
+                        </div>)}
                         <div className="col-span-3 grid grid-cols-subgrid">
                             <div>Pre-tax total</div>
-                            <div className="col-span-2 col-start-2">
-                                ${calculateCost?.preTaxCombinedPrice?.toFixed(2)}
-                            </div>
+                            {(calculateCost && calculateCost.success) && (
+                                <div className="col-span-2 col-start-2">
+                                    ${calculateCost?.preTaxCombinedPrice?.toFixed(2)}
+                                </div>
+                            )}
+                            {(calculateCost && !calculateCost.success) && (
+                                <div className="col-span-2 col-start-2 text-red-500">
+                                    Error calculating price
+                                    {calculateCost.error}
+                                </div>
+                            )}
                         </div>
 
                         {showErrors && (

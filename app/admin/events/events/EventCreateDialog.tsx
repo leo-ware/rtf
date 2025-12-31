@@ -21,6 +21,7 @@ import { api } from "@/convex/_generated/api"
 import { Id } from "@/convex/_generated/dataModel"
 import { format } from "date-fns"
 import ImagePickerDialog from "@/components/images/ImagePickerDialog"
+import LocationPickerDialog from "@/components/locations/LocationPickerDialog"
 import TicketPriceEditorDialog, { TicketPriceOption } from "../TicketPriceEditorDialog"
 
 const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
@@ -32,12 +33,12 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
     const [selectedDate, setSelectedDate] = useState<Date>()
     const [selectedEndDate, setSelectedEndDate] = useState<Date>()
     const [imageId, setImageId] = useState<Id<"images"> | null>(null)
+    const [locationId, setLocationId] = useState<Id<"locations"> | null>(null)
     const [ticketPriceOptions, setTicketPriceOptions] = useState<TicketPriceOption[]>([])
 
     const [formData, setFormData] = useState({
         title: "",
         description: "",
-        location: "",
         maxAttendees: "",
         isPublic: true,
         requiresRegistration: true,
@@ -67,6 +68,7 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
                 maxAttendees: formData.maxAttendees ? parseInt(formData.maxAttendees) : undefined,
                 ticketPriceOptions: ticketPriceOptions.length > 0 ? ticketPriceOptions : undefined,
                 imageId: imageId ?? undefined,
+                locationId: locationId ?? undefined,
             })
 
             setIsOpen(false)
@@ -88,7 +90,6 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
         setFormData({
             title: "",
             description: "",
-            location: "",
             maxAttendees: "",
             isPublic: true,
             requiresRegistration: true,
@@ -98,6 +99,7 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
         setSelectedDate(undefined)
         setSelectedEndDate(undefined)
         setImageId(null)
+        setLocationId(null)
         setTicketPriceOptions([])
         setError(null)
     }
@@ -189,13 +191,11 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <Label htmlFor="location">Location</Label>
-                            <Input
-                                id="location"
-                                value={formData.location}
+                            <Label>Location</Label>
+                            <LocationPickerDialog
+                                locationId={locationId}
+                                onLocationSelect={setLocationId}
                                 disabled={editingDisabled}
-                                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                placeholder="Event location"
                             />
                         </div>
                         <div>

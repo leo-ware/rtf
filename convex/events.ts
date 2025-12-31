@@ -3,8 +3,7 @@ import { v } from "convex/values"
 import { getCurrentUserOrThrow } from "./users"
 import { eventsAggregate } from "./aggregates"
 import { paginationOptsValidator } from "convex/server"
-import { removeUndefinedFields } from "./utils"
-import { resolveImageId } from "./images"
+import EventManager from "./models/eventManager"
 
 // Get all events (admin only)
 export const getAllEvents = query({
@@ -12,13 +11,10 @@ export const getAllEvents = query({
     handler: async (ctx) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
-            throw new Error("Insufficient permissions");
+            throw new Error("Insufficient permissions")
         }
-        return await ctx.db
-            .query("events")
-            .withIndex("by_date_number")
-            .order("desc")
-            .collect()
+
+        return await EventManager.getAll(ctx)
     },
 })
 
@@ -26,11 +22,7 @@ export const getAllEvents = query({
 export const getPublicEvents = query({
     args: {},
     handler: async (ctx) => {
-        return await ctx.db
-            .query("events")
-            .withIndex("by_public", (q) => q.eq("isPublic", true))
-            .order("desc")
-            .collect()
+        return await EventManager.getAll(ctx, { isPublic: true })
     },
 })
 
@@ -39,54 +31,33 @@ export const getPaginatedEvents = query({
         paginationOpts: paginationOptsValidator,
     },
     handler: async (ctx, args) => {
-        return await ctx.db
-            .query("events")
-            .withIndex("by_date_number")
-            .order("desc")
-            .paginate(args.paginationOpts);
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions")
+        }
+
+        return await EventManager.getPaginated(ctx, args.paginationOpts)
     },
 })
-
-// // Get events by date range (public events only)
-// export const getEventsByDateRange = query({
-//     args: {
-//         startDate: v.number(),
-//         endDate: v.number(),
-//     },
-//     handler: async (ctx, args) => {
-//         return await ctx.db
-//             .query("events")
-//             .withIndex("by_start_date", (q) =>
-//                 q.gte("startDate", args.startDate).lte("startDate", args.endDate)
-//             )
-//             .filter((q) => q.eq(q.field("isPublic"), true))
-//             .order("asc")
-//             .collect()
-//     },
-// })
 
 // Get a single event by ID
 export const getEventById = query({
     args: { id: v.id("events") },
     handler: async (ctx, args) => {
-        const event = await ctx.db.get(args.id)
-        if (!event) {
+        const eventWithProgram = await EventManager.getById(ctx, args.id)
+        if (!eventWithProgram) {
             return null
         }
 
         // If not public, check admin auth
-        if (!event.isPublic) {
+        if (!eventWithProgram.isPublic) {
             const user = await getCurrentUserOrThrow(ctx)
             if (!user.atLeastAuthorized) {
-                throw new Error("Insufficient permissions");
+                throw new Error("Insufficient permissions")
             }
         }
 
-        return {
-            ...event,
-            image: event.imageId ? await resolveImageId(ctx, event.imageId) : null,
-            tickets: event.ticketPriceId ? await ctx.db.get(event.ticketPriceId) : null,
-        }
+        return eventWithProgram
     },
 })
 
@@ -99,6 +70,7 @@ export const createEvent = mutation({
         startDate: v.string(),
         endDate: v.string(),
         location: v.optional(v.string()),
+        locationId: v.optional(v.id("locations")),
         maxAttendees: v.optional(v.number()),
         ticketPriceId: v.optional(v.id("ticketPrice")),
         ticketPriceOptions: v.optional(v.array(v.object({
@@ -121,26 +93,14 @@ export const createEvent = mutation({
             throw new Error("Insufficient permissions")
         }
 
-        const { ticketPriceOptions, ...eventArgs } = args
+        const eventManager = await EventManager.create(ctx, args)
 
-        // Create ticketPrice if options provided
-        let ticketPriceId = eventArgs.ticketPriceId
-        if (ticketPriceOptions && ticketPriceOptions.length > 0) {
-            ticketPriceId = await ctx.db.insert("ticketPrice", {
-                options: ticketPriceOptions,
-            })
-        }
-
-        const eventId = await ctx.db.insert("events", {
-            ...eventArgs,
-            ticketPriceId,
-            dateNumber: Date.parse(args.startDate),
-        })
-        const event = await ctx.db.get(eventId)
+        const event = await eventManager.get(ctx)
         if (event) {
             await eventsAggregate.insert(ctx, event)
         }
-        return eventId
+
+        return eventManager.id
     },
 })
 
@@ -154,6 +114,7 @@ export const updateEvent = mutation({
         startDate: v.optional(v.string()),
         endDate: v.optional(v.string()),
         location: v.optional(v.string()),
+        locationId: v.optional(v.id("locations")),
         maxAttendees: v.optional(v.number()),
         ticketPriceId: v.optional(v.id("ticketPrice")),
         ticketPriceOptions: v.optional(v.array(v.object({
@@ -168,43 +129,17 @@ export const updateEvent = mutation({
         contactEmail: v.optional(v.string()),
         contactPhone: v.optional(v.string()),
         imageId: v.optional(v.id("images")),
-        programId: v.optional(v.id("programs")),
     },
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
-            throw new Error("Insufficient permissions");
-        }
-        const { id, ticketPriceOptions, ...updates } = args
-
-        const existingEvent = await ctx.db.get(id)
-        if (!existingEvent) {
-            throw new Error("Event not found")
+            throw new Error("Insufficient permissions")
         }
 
-        // Handle ticketPrice update
-        let ticketPriceId = updates.ticketPriceId
-        if (ticketPriceOptions && ticketPriceOptions.length > 0) {
-            // If event already has a ticketPriceId, update it; otherwise create new
-            if (existingEvent.ticketPriceId) {
-                await ctx.db.patch(existingEvent.ticketPriceId, {
-                    options: ticketPriceOptions,
-                })
-                ticketPriceId = existingEvent.ticketPriceId
-            } else {
-                ticketPriceId = await ctx.db.insert("ticketPrice", {
-                    options: ticketPriceOptions,
-                })
-            }
-        }
+        const { id, ...updates } = args
+        const eventManager = new EventManager(id)
+        await eventManager.update(ctx, updates)
 
-        await ctx.db.patch(id, {
-            ...removeUndefinedFields({
-                ...updates,
-                ticketPriceId,
-                dateNumber: Date.parse(updates.startDate ?? ""),
-            }),
-        })
         return null
     },
 })
@@ -219,15 +154,16 @@ export const deleteEvent = mutation({
             throw new Error("Insufficient permissions")
         }
 
-        const existingEvent = await ctx.db.get(args.id)
-        if (!existingEvent) {
+        const eventManager = new EventManager(args.id)
+        const event = await eventManager.get(ctx)
+
+        if (!event) {
             throw new Error("Event not found")
         }
 
-        await eventsAggregate.delete(ctx, existingEvent)
-        await ctx.db.delete(args.id)
+        await eventsAggregate.delete(ctx, event)
+        await eventManager.delete(ctx)
+
         return null
     },
 })
-
-

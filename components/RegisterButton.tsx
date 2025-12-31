@@ -74,8 +74,12 @@ const ProgramRegisterButton = ({ programId }: { programId: Id<"programs"> }) => 
                 </Button>
 
                 {open && (
-                    <>
-                        <div className={`px-4 py-1 bg-milk w-fit text-ink font-normal rounded-b-lg`}>
+                    <div className="w-fit">
+                        <div className={`
+                            px-4 py-1 w-fit rounded-b-lg
+                            bg-milk text-ink font-normal
+                            flex flex-col items-center justify-start
+                            `}>
                             {availableDates && availableDates.length === 0 && (
                                 <div className="min-w-[200px] min-h-[50px] w-full h-full flex items-center justify-center">
                                     <p className="text-center text-[16px] text-ink/50">
@@ -96,7 +100,7 @@ const ProgramRegisterButton = ({ programId }: { programId: Id<"programs"> }) => 
                                         e.stopPropagation()
                                     }}
                                     className={`
-                                    w-fit whitespace-nowrap py-2 px-2
+                                    w-fit min-w-[200px] whitespace-nowrap py-2 px-2
                                     text-center text-[16px]
                                     hover:text-pewter hover:font-bold
                                     ${index !== availableDates.length - 1
@@ -113,7 +117,7 @@ const ProgramRegisterButton = ({ programId }: { programId: Id<"programs"> }) => 
                             Checkout
                             <FaChevronRight />
                         </Button> */}
-                    </>)}
+                    </div>)}
             </div>
         </div>
     )

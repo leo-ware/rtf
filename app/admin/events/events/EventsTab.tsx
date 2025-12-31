@@ -15,7 +15,7 @@ import {
     List,
     Plus,
     CalendarPlus,
-    Edit2
+    Edit
 } from "lucide-react"
 import { format } from "date-fns"
 import Link from "next/link"
@@ -33,6 +33,10 @@ import {
 } from "@/components/ui/dropdown-menu"
 import ScrollDiv from "@/components/ScrollDiv"
 import { ImSpinner8 } from "react-icons/im"
+import LocationWidget from "@/components/locations/LocationWidget"
+import { formatDateRange } from "@/lib/utils"
+import EventEditDialog from "./EventEditDialog"
+import ProgramEditDialog from "../programs/ProgramEditDialog"
 
 const EventsTab = () => {
     const [searchTerm, setSearchTerm] = useState("")
@@ -185,7 +189,7 @@ const EventsTab = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
-                                    {filteredEvents.concat(filteredEvents).map((event) => (
+                                    {filteredEvents.map((event) => (
                                         <tr key={event._id} className="hover:bg-gray-50">
                                             <td className="px-6 py-4">
                                                 <div className="flex items-start">
@@ -207,21 +211,21 @@ const EventsTab = () => {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 text-sm text-gray-500">
-                                                <div>
-                                                    <div className="flex items-center mb-1">
+                                            <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap w-fit">
+                                                <div className="w-fit">
+                                                    <div className="flex items-center mb-1 whitespace-nowrap w-fit">
                                                         <CalendarIcon className="h-4 w-4 mr-2" />
-                                                        <span>
-                                                            {format(new Date(event.startDate), "MMM dd, yyyy")}
-                                                            {event.startDate !== event.endDate && (
-                                                                <> - {format(new Date(event.endDate), "MMM dd, yyyy")}</>
+                                                        <span className="whitespace-nowrap w-full">
+                                                            {formatDateRange(
+                                                                new Date(event.startDate),
+                                                                new Date(event.endDate),
+                                                                { forceIncludeYear: true }
                                                             )}
                                                         </span>
                                                     </div>
-                                                    {event.location && (
-                                                        <div className="flex items-center">
-                                                            <MapPin className="h-4 w-4 mr-2" />
-                                                            <span className="truncate max-w-xs">{event.location}</span>
+                                                    {event.locationId && (
+                                                        <div className="flex items-center whitespace-nowrap w-full">
+                                                            <LocationWidget locationId={event.locationId} />
                                                         </div>
                                                     )}
                                                 </div>
@@ -258,15 +262,10 @@ const EventsTab = () => {
                                             </td>
                                             <td className="px-6 py-4 text-sm font-medium">
                                                 <div className="flex space-x-2">
-                                                    <Link href={`/admin/events/edit/${event._id}`}>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline"
-                                                            title="Edit Details"
-                                                        >
-                                                            <Edit2 className="h-4 w-4" />
-                                                        </Button>
-                                                    </Link>
+                                                    <EventEditDialog eventId={event._id} />
+                                                    {event.programId && (
+                                                        <ProgramEditDialog programId={event.programId} />
+                                                    )}
                                                     <EventDeleteDialog eventId={event._id} />
                                                 </div>
                                             </td>
@@ -281,7 +280,7 @@ const EventsTab = () => {
                             )}
                             {filteredEvents.length === 0 && (
                                 <div className="text-center py-12 w-full">
-                                    <Edit2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                                    <Edit className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                                     <h3 className="text-lg font-medium text-gray-900 mb-2">No events found</h3>
                                     <p className="text-gray-600 mb-4">
                                         {searchTerm

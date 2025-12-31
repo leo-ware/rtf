@@ -10,29 +10,22 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar as CalendarIcon, CalendarPlus, Loader2 } from "lucide-react"
-import { useState } from "react"
+import { Calendar as CalendarIcon, Loader2 } from "lucide-react"
+import { useState, useEffect } from "react"
 import { Id } from "@/convex/_generated/dataModel"
 import { useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
-import { format } from "date-fns"
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
-import { Select, SelectItem, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DateTimePicker } from "@/components/DateTimePicker"
 
-type ScheduleEventDialogProps = {
-    programId?: Id<"programs">
+type EventEditDialogProps = {
+    eventId: Id<"events">
     children?: React.ReactNode
 }
 
-const ScheduleEventDialog = (props: ScheduleEventDialogProps) => {
-    const createEventFromProgram = useMutation(api.programs.createEventFromProgram)
-    const getAllPrograms = useQuery(api.programs.getAllPrograms)
-
-    const fixedProgramId = !!props.programId
-    const [programId, setProgramId] = useState<Id<"programs"> | undefined>(props.programId)
+const EventEditDialog = (props: EventEditDialogProps) => {
+    const updateEvent = useMutation(api.events.updateEvent)
+    const event = useQuery(api.events.getEventById, { id: props.eventId })
 
     const [isOpen, setIsOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
@@ -41,15 +34,20 @@ const ScheduleEventDialog = (props: ScheduleEventDialogProps) => {
     const [selectedDate, _setSelectedDate] = useState<Date>()
     const [selectedEndDate, _setSelectedEndDate] = useState<Date>()
 
+    // Initialize dates when event data loads
+    useEffect(() => {
+        if (event && isOpen) {
+            _setSelectedDate(new Date(event.startDate))
+            _setSelectedEndDate(new Date(event.endDate))
+        }
+    }, [event, isOpen])
+
     const setSelectedDate = (date: Date | undefined) => {
         _setSelectedDate(date)
         setDateError(null)
         if (date) {
             if (selectedEndDate && selectedEndDate < date) {
                 setDateError("End date must be after start date")
-            }
-            if (!selectedEndDate) {
-                _setSelectedEndDate(date)
             }
         }
     }
@@ -71,38 +69,42 @@ const ScheduleEventDialog = (props: ScheduleEventDialogProps) => {
         !(selectedDate < selectedEndDate)
     )
 
-    const handleCreateEvent = async () => {
+    const handleUpdateEvent = async () => {
         if (saveDisabled) return
 
         setIsLoading(true)
         setError(null)
         try {
-            if (!programId) {
-                throw new Error("Program ID is required")
-            }
-            await createEventFromProgram({
-                programId,
+            await updateEvent({
+                id: props.eventId,
                 startDate: selectedDate!.toISOString(),
                 endDate: selectedEndDate!.toISOString()
             })
             setIsOpen(false)
-            resetForm()
         } catch (err) {
-            console.error("Error creating event from program:", err)
-            setError(`Failed to create event from program. ${err}`)
+            console.error("Error updating event:", err)
+            setError(`Failed to update event. ${err}`)
         } finally {
             setIsLoading(false)
         }
     }
 
     const resetForm = () => {
-        setSelectedDate(undefined)
-        setSelectedEndDate(undefined)
+        if (event) {
+            _setSelectedDate(new Date(event.startDate))
+            _setSelectedEndDate(new Date(event.endDate))
+        }
         setError(null)
+        setDateError(null)
     }
 
     return (
-        <Dialog open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
+        <Dialog open={isOpen} onOpenChange={(open) => {
+            setIsOpen(open)
+            if (open) {
+                resetForm()
+            }
+        }}>
             <DialogTrigger asChild>
                 {props.children
                     ? props.children
@@ -116,11 +118,11 @@ const ScheduleEventDialog = (props: ScheduleEventDialogProps) => {
                                         resetForm()
                                         setIsOpen(true)
                                     }}>
-                                    <CalendarPlus className="h-4 w-4" />
+                                    <CalendarIcon className="h-4 w-4" />
                                 </Button>
                             </TooltipTrigger>
                             <TooltipContent>
-                                Add specific dates when this program will occur.
+                                Edit event scheduling
                             </TooltipContent>
                         </Tooltip>
                     )
@@ -128,31 +130,15 @@ const ScheduleEventDialog = (props: ScheduleEventDialogProps) => {
             </DialogTrigger>
             <DialogContent className="max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Schedule Event from Program</DialogTitle>
+                    <DialogTitle>Edit Event Schedule</DialogTitle>
                     <DialogDescription>
-                        Select dates to create a new event using the program as a template.
+                        Update the start and end dates for this event.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
-                    {!fixedProgramId && (
-                        <div>
-                            <Label>Program</Label>
-                            <Select
-                                value={programId || undefined}
-                                onValueChange={(val) => (
-                                    setProgramId(val as Id<"programs"> | undefined)
-                                )}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select a program" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {getAllPrograms?.map((program) => (
-                                        <SelectItem key={program._id} value={program._id}>
-                                            {program.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                    {event && (
+                        <div className="text-sm text-muted-foreground">
+                            <span className="font-medium">Event:</span> {event.title}
                         </div>
                     )}
                     <div>
@@ -193,14 +179,14 @@ const ScheduleEventDialog = (props: ScheduleEventDialogProps) => {
                             disabled={isLoading}>
                             Cancel
                         </Button>
-                        <Button onClick={handleCreateEvent} disabled={saveDisabled}>
+                        <Button onClick={handleUpdateEvent} disabled={saveDisabled}>
                             {isLoading ? (
                                 <>
                                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                    Creating...
+                                    Saving...
                                 </>
                             ) : (
-                                "Create Event"
+                                "Save Changes"
                             )}
                         </Button>
                     </div>
@@ -210,5 +196,5 @@ const ScheduleEventDialog = (props: ScheduleEventDialogProps) => {
     )
 }
 
-export default ScheduleEventDialog
+export default EventEditDialog
 

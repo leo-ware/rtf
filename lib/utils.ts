@@ -122,24 +122,29 @@ export const formatDate = (date: Date, opts?: { includeTime?: boolean, includeYe
     )
 }
 
-export const formatDateRange = (startDate: Date, endDate: Date) => {
+export const formatDateRange = (startDate: Date, endDate: Date, opts?: { forceIncludeYear?: boolean }) => {
     const startDay = startDate.getDate()
     const startMonth = startDate.getMonth()
     const startYear = startDate.getFullYear()
+    const startMonthString = monthStrings[startMonth]
+    const startTime = startDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+
     const endDay = endDate.getDate()
     const endMonth = endDate.getMonth()
     const endYear = endDate.getFullYear()
-    const startMonthString = monthStrings[startMonth]
     const endMonthString = monthStrings[endMonth]
+    const endTime = endDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
 
     if (startYear !== endYear) {
         return `${formatDate(startDate)}-${formatDate(endDate)}`
     } else if (startMonth !== endMonth) {
-        return `${startMonthString} ${startDay}-${endMonthString} ${endDay}, ${endYear}`
+        return `${startMonthString} ${startDay}-${endMonthString} ${endDay}` + `${opts?.forceIncludeYear ? `, ${endYear}` : ""}`
     } else if (startDay !== endDay) {
-        return `${startMonthString} ${startDay}-${endDay}, ${endYear}`
+        return `${startMonthString} ${startDay}-${endDay}` + `${opts?.forceIncludeYear ? `, ${endYear}` : ""}`
+    } else if (startTime !== endTime) {
+        return `${startMonthString} ${startDay} ${startTime}-${endTime}` + `${opts?.forceIncludeYear ? `, ${endYear}` : ""}`
     } else {
-        return `${startMonthString} ${startDay}, ${endYear}`
+        return `${startMonthString} ${startDay}` + `${opts?.forceIncludeYear ? `, ${endYear}` : ""}`
     }
 }
 

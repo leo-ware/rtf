@@ -127,6 +127,16 @@ export default defineSchema({
     })
         .index("by_organization", ["organization"])
         .index("by_image", ["imageId"]),
+    
+    locations: defineTable({
+        name: v.string(),
+        address: v.optional(v.string()),
+        notes: v.optional(v.string()),
+        mapsUrl: v.optional(v.string()),
+        imageId: v.optional(v.id("images")),
+    }).searchIndex("searchName", {
+        searchField: "name",
+    }),
 
     programGroups: defineTable({
         name: v.string(),
@@ -140,19 +150,23 @@ export default defineSchema({
     ,
 
     programs: defineTable({
-        name: v.string(),
-        description: v.string(),
-        details: v.string(),
-        ticketPriceId: v.optional(v.id("ticketPrice")),
-        location: v.string(),
-        maxAttendees: v.optional(v.number()),
-        requiresRegistration: v.optional(v.boolean()),
-        contactEmail: v.optional(v.string()),
-        contactPhone: v.optional(v.string()),
-        isPublic: v.boolean(),
-        imageId: v.optional(v.id("images")),
         programGroupId: v.id("programGroups"),
         order: v.number(),
+        name: v.string(),
+        description: v.string(),
+        details: v.string(), // html string
+
+        ticketPriceId: v.id("ticketPrice"),
+        locationId: v.id("locations"),
+
+        maxAttendees: v.optional(v.number()),
+        requiresRegistration: v.optional(v.boolean()),
+
+        contactEmail: v.optional(v.string()),
+        contactPhone: v.optional(v.string()),
+
+        isPublic: v.boolean(),
+        imageId: v.optional(v.id("images")),
     })
         .index("by_program_group", ["programGroupId"])
         .index("by_order", ["order"])
@@ -161,22 +175,11 @@ export default defineSchema({
 
     events: defineTable({
         title: v.string(),
-        description: v.string(),
-        longDescription: v.optional(v.string()),
+        programId: v.optional(v.id("programs")),
         dateNumber: v.number(),
         startDate: v.string(),
         endDate: v.string(),
-        location: v.optional(v.string()),
-        maxAttendees: v.optional(v.number()),
-        ticketPriceId: v.optional(v.id("ticketPrice")),
-        isPublic: v.boolean(),
-        requiresRegistration: v.boolean(),
-        contactEmail: v.optional(v.string()),
-        contactPhone: v.optional(v.string()),
-        imageId: v.optional(v.id("images")),
-        programId: v.optional(v.id("programs")),
     })
-        .index("by_public", ["isPublic"])
         .index("by_program", ["programId"])
         .index("by_date_number", ["dateNumber"])
     ,
