@@ -1,6 +1,6 @@
 import { query, mutation } from "./_generated/server"
 import { v } from "convex/values"
-import { getCurrentUserOrThrow } from "./users"
+import { getCurrentUserOrThrow, getCurrentUser } from "./users"
 import { eventsAggregate } from "./aggregates"
 import { paginationOptsValidator } from "convex/server"
 import EventManager from "./models/eventManager"
@@ -31,12 +31,10 @@ export const getPaginatedEvents = query({
         paginationOpts: paginationOptsValidator,
     },
     handler: async (ctx, args) => {
-        const user = await getCurrentUserOrThrow(ctx)
-        if (!user.atLeastAuthorized) {
-            throw new Error("Insufficient permissions")
-        }
+        const user = await getCurrentUser(ctx)
+        const publicOnly = !user || !user.atLeastAuthorized
 
-        return await EventManager.getPaginated(ctx, args.paginationOpts)
+        return await EventManager.getPaginated(ctx, { publicOnly }, args.paginationOpts)
     },
 })
 

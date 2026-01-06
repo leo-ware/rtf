@@ -139,7 +139,7 @@ const SpiritPage = () => {
                 <div className="w-1/2 aspect-[16/9]">
                     <iframe
                         className="w-full aspect-[16/9]"
-                        src="https://www.youtube.com/embed/Oo9EbArcQ1c?si=6r6KR7I0x0F0PVGy"
+                        src="https://www.youtube.com/embed/7BinfdsQuj0?si=o3Zb5X4R24A58SPO"
                         title="YouTube video player"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         allowFullScreen />
@@ -147,7 +147,7 @@ const SpiritPage = () => {
                 <div className="w-1/2 aspect-[16/9]">
                     <iframe
                         className="w-full aspect-[16/9]"
-                        src="https://www.youtube.com/embed/Oo9EbArcQ1c?si=6r6KR7I0x0F0PVGy"
+                        src="https://www.youtube.com/embed/5LYx12LktVc?si=lvXJJE0w97IuVQq4"
                         title="YouTube video player"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         allowFullScreen />

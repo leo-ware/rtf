@@ -322,6 +322,7 @@ export default class EventManager {
 
     static async getPaginated(
         ctx: QMCtxType,
+        options: { publicOnly?: boolean },
         paginationOpts: { numItems: number; cursor: string | null }
     ) {
         const result = await ctx.db
@@ -333,12 +334,13 @@ export default class EventManager {
         const eventsWithRelations = await Promise.all(
             result.page.map(event => EventManager.assembleRelations(ctx, event))
         )
+        const eventsFiltered = eventsWithRelations
+            .filter((e): e is EventWithProgram => e !== null)
+            .filter(e => (!options.publicOnly || e.isPublic))
 
         return {
             ...result,
-            page: eventsWithRelations.filter(
-                (e): e is EventWithProgram => e !== null
-            ),
+            page: eventsFiltered,
         }
     }
 

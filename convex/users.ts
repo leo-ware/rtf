@@ -14,13 +14,6 @@ import {
 import { api } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
 
-
-export async function getCurrentUserOrThrow(ctx: QMCtxType) {
-    const userRecord = await getCurrentUser(ctx);
-    if (!userRecord) throw new Error("Can't get current user");
-    return userRecord;
-}
-
 export async function getCurrentUser(ctx: QMCtxType) {
     const identity = await ctx.auth.getUserIdentity();
     if (identity === null) {
@@ -32,6 +25,12 @@ export async function getCurrentUser(ctx: QMCtxType) {
         atLeastAuthorized: user.role === "authorized" || user.role === "admin" || user.role === "dev",
         atLeastAdmin: user.role === "admin" || user.role === "dev",
     }
+}
+
+export async function getCurrentUserOrThrow(ctx: QMCtxType) {
+    const userRecord = await getCurrentUser(ctx);
+    if (!userRecord) throw new Error("Can't get current user");
+    return userRecord;
 }
 
 export const userById = async (ctx: QMCtxType, userId: Id<"users">) => {
