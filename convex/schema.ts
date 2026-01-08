@@ -307,6 +307,14 @@ export default defineSchema({
         updatedAt: v.number(),
     }),
 
+    jobListings: defineTable({
+        name: v.string(),
+        description: v.string(),
+        applicationDeadline: v.number(),
+        applicationFormLink: v.string(),
+        order: v.number(),
+    }).index("by_application_deadline", ["applicationDeadline"]),
+
     herds: defineTable({
         name: v.string(),
         slug: v.string(),
@@ -340,7 +348,8 @@ export default defineSchema({
         donateForm: v.optional(v.string()),
         
         articleMetadataIds: v.optional(v.array(v.id("articleMetadata"))),
-    }).index("by_slug", ["slug"])
+    })
+        .index("by_slug", ["slug"])
         .index("by_type", ["type"])
         .index("by_herd", ["herdId"])
         .index("by_in_memoriam", ["inMemoriam"])
@@ -352,24 +361,21 @@ export default defineSchema({
         title: v.string(),
         bio: v.string(),
         imageId: v.optional(v.id("images")),
+
         isDirector: v.boolean(),
         isStaff: v.optional(v.boolean()),
         isEquine: v.optional(v.boolean()),
         isStoryTeller: v.optional(v.boolean()),
         isAmbassador: v.optional(v.boolean()),
         inMemoriam: v.boolean(),
+
         directorOrder: v.optional(v.number()),
         staffOrder: v.optional(v.number()),
         equineOrder: v.optional(v.number()),
         storytellerOrder: v.optional(v.number()),
         ambassadorOrder: v.optional(v.number()),
         inMemoriamOrder: v.optional(v.number()),
-        createdBy: v.id("users"),
-        createdAt: v.number(),
-        updatedAt: v.number(),
-    }).index("by_created_by", ["createdBy"])
-        .index("by_created_at", ["createdAt"])
-        .index("by_updated_at", ["updatedAt"])
+    })
         .index("by_image", ["imageId"])
         .index("by_is_director", ["isDirector"])
         .index("by_is_staff", ["isStaff"])
@@ -379,28 +385,24 @@ export default defineSchema({
         .index("by_equine_order", ["equineOrder"])
         .index("by_storyteller_order", ["storytellerOrder"])
         .index("by_ambassador_order", ["ambassadorOrder"])
-        .index("by_in_memoriam_order", ["inMemoriamOrder"]),
+        .index("by_in_memoriam_order", ["inMemoriamOrder"])
+        .searchIndex("searchName", {
+            searchField: "name",
+        }),
 
     advisoryBoards: defineTable({
         name: v.string(),
         order: v.number(),
-        createdBy: v.id("users"),
-        createdAt: v.number(),
-        updatedAt: v.number(),
-    }).index("by_order", ["order"])
-        .index("by_created_by", ["createdBy"])
-        .index("by_created_at", ["createdAt"])
-        .index("by_updated_at", ["updatedAt"]),
+    })
+        .index("by_order", ["order"]),
 
     peopleAdvisoryBoards: defineTable({
         personId: v.id("people"),
         advisoryBoardId: v.id("advisoryBoards"),
-        createdBy: v.id("users"),
-        createdAt: v.number(),
-    }).index("by_person", ["personId"])
+        order: v.number(),
+    })
+        .index("by_person", ["personId"])
         .index("by_advisory_board", ["advisoryBoardId"])
-        .index("by_created_by", ["createdBy"])
-        .index("by_created_at", ["createdAt"])
         .index("by_person_and_board", ["personId", "advisoryBoardId"]),
     
     sponsors: defineTable({

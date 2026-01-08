@@ -3,7 +3,6 @@
 import Image from "next/image"
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
 import Button from "@/components/public-ui/Button"
 import Carousel from "@/components/Carousel"
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
@@ -13,17 +12,17 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion"
-import FlipCard from "@/components/public-ui/FlipCard"
-import { IoPersonOutline } from "react-icons/io5"
 import { PersonCard } from "./PersonCard"
 import PeopleHero from "./people-hero.png"
-import ConvexImage, { ConvexImageProps } from "@/components/images/ConvexImage";
-import { useState } from "react";
+import ConvexImage from "@/components/images/ConvexImage";
 import { dedupArray, indexArrayUnique, multipleIndexArray } from "@/lib/utils";
+import Link from "next/link";
+import Hero from "@/components/public-ui/Hero";
+import Header from "@/components/public-ui/Header";
 
 const PeoplePage = () => {
-    const peopleRaw = useQuery(api.people.listPeople, { limit: 100 });
-    const people = (peopleRaw || []).map(person => {
+    const peopleRaw = useQuery(api.people.listPeople, { limit: 500 });
+    const people = dedupArray((peopleRaw || []).map(person => {
         const imageRemote = person.image
         const image = (imageRemote && imageRemote.imageUrl)
             ? {
@@ -35,13 +34,25 @@ const PeoplePage = () => {
             : undefined
 
         return { ...person, image }
-    })
+    }), person => person._id);
 
 
-    const boardOfDirectors = people.filter(person => person.isDirector && !person.inMemoriam);
-    const staff = people.filter(person => person.isStaff);
-    const ranchAndEquine = people.filter(person => person.isEquine);
-    const inMemoriam = people.filter(person => person.inMemoriam);
+    const peopleAlive = people.filter(person => !person.inMemoriam)
+    const boardOfDirectors = peopleAlive
+        .filter(person => person.isDirector)
+        .sort((a, b) => (a.directorOrder ?? Infinity) - (b.directorOrder ?? Infinity));
+    const staff = peopleAlive
+        .filter(person => person.isStaff)
+        .sort((a, b) => (a.staffOrder ?? Infinity) - (b.staffOrder ?? Infinity));
+    
+    const ranchAndEquine = peopleAlive
+        .filter(person => person.isEquine)
+        .sort((a, b) => (a.equineOrder ?? Infinity) - (b.equineOrder ?? Infinity))
+    
+    const inMemoriam = dedupArray(people
+        .filter(person => person.inMemoriam)
+        .sort((a, b) => (a.inMemoriamOrder ?? Infinity) - (b.inMemoriamOrder ?? Infinity))
+    , person => person._id);
 
     const userBoardsMap = multipleIndexArray(people, person => person.boards.map(board => board._id));
     const advisoryBoardsMap = indexArrayUnique(people.map(person => person.boards).flat(), board => board._id);
@@ -57,21 +68,16 @@ const PeoplePage = () => {
         }))
 
     return (
-        <div className="w-full h-fit bg-[#F4F0E8]">
-            <div className="w-full h-[400px] relative flex items-center justify-center">
-                <Image src={PeopleHero} alt="People Hero" className="z-0 absolute top-0 left-0 w-full h-full object-cover object-center" fill />
-                <div className="z-10 p-4 border-b border-white text-white text-[48px] font-serif">
-                    Our Team
-                </div>
-            </div>
+        <div className="w-full h-fit">
+            <Hero title="Our Team" image={PeopleHero} />
 
             {people.length > 0 && (
-                <div className="w-10/12 h-fit py-16 mx-auto grid grid-cols-3 gap-12">
+                <div className="w-10/12 h-fit py-16 mx-auto grid grid-cols-3 gap-18">
                     {boardOfDirectors.length > 0 && (
                         <div className="w-full h-fit col-span-3 grid grid-cols-subgrid">
-                            <div className="col-span-3 mb-10 text-center text-[48px] text-pewter font-serif">
+                            <Header className="text-pewter col-span-3 mb-8">
                                 Board of Directors
-                            </div>
+                            </Header>
 
                             {boardOfDirectors.map((person) => (
                                 <div key={person._id} className="col-span-1">
@@ -83,9 +89,9 @@ const PeoplePage = () => {
 
                     {advisoryBoards.length > 0 && (
                         <div className="w-full h-fit py-2 col-span-3">
-                            <div className="w-full mb-10 text-center text-[48px] text-cinnamon font-serif">
-                                Advisory Board
-                            </div>
+                            <Header className="text-cinnamon mb-8">
+                                Advisory Boards
+                            </Header>
                             <Accordion className="w-full flex flex-col gap-2 my-2" type="multiple">
                                 {advisoryBoards.map(({ board, people }) => (
                                     <AccordionItem
@@ -121,11 +127,11 @@ const PeoplePage = () => {
 
                     {(staff.length + ranchAndEquine.length) > 0 && (
                         <div className="col-span-3 h-fit flex flex-col items-center justify-center gap-1">
-                            <div className="text-[48px] text-pewter font-serif">
+                            <Header className="text-pewter no-underline mb-6">
                                 Our Team
-                            </div>
+                            </Header>
                             <div className="text-[24px]">
-                                Interested in joining our team? Visit our Opportunities page.
+                                Interested in joining our team? Visit our <Link href="/about/people/opportunities" className="text-cinnamon underline">Opportunities</Link> page.
                             </div>
                         </div>
                     )}
@@ -168,7 +174,7 @@ const PeoplePage = () => {
 
             {inMemoriam.length > 0 && (
                 <div className="w-full h-fit py-12 px-8 flex flex-col items-center justify-center gap-8">
-                    <div className="w-full mb-6 text-center text-[48px] text-pewter font-serif">
+                    <div className="w-full mb-4 text-center text-[48px] text-pewter font-serif">
                         In Memoriam
                     </div>
 
@@ -191,11 +197,11 @@ const PeoplePage = () => {
                                     </div>
                                     <div className="w-3/4 h-full bg-pewter text-seashell px-8 
                                         flex flex-col items-start justify-center gap-4">
-                                        <div className="text-2xl font-serif">
+                                        <div className="text-[40px] font-serif">
                                             {person.name}
                                         </div>
                                         {/* <div className="text-xs uppercase">{person.title}</div> */}
-                                        <p className="text-md">{person.bio}</p>
+                                        <p className="text-[20px]">{person.bio}</p>
                                         <Button className="bg-cinnamon border-none py-1 px-4" color="cinnamon">
                                             Read More
                                         </Button>

@@ -2,13 +2,14 @@ import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { getCurrentUserOrThrow } from "./users";
+import { resolveImageId } from "./images";
 
 export const listAdvisoryBoards = query({
     args: {
         limit: v.optional(v.number()),
     },
     handler: async (ctx, args) => {
-        const limit = args.limit ?? 50;
+        const limit = args.limit ?? 100;
 
         const advisoryBoards = await ctx.db
             .query("advisoryBoards")
@@ -16,23 +17,7 @@ export const listAdvisoryBoards = query({
             .order("asc")
             .take(limit);
 
-        // Get creator info for each advisory board
-        const advisoryBoardsWithDetails = await Promise.all(
-            advisoryBoards.map(async (board) => {
-                const creator = await ctx.db.get(board.createdBy);
-
-                return {
-                    ...board,
-                    creator: creator ? {
-                        id: creator._id,
-                        email: creator.email,
-                        name: creator.name ?? creator.email
-                    } : null,
-                };
-            })
-        );
-
-        return advisoryBoardsWithDetails;
+        return advisoryBoards;
     },
 });
 
@@ -40,20 +25,7 @@ export const getAdvisoryBoard = query({
     args: { id: v.id("advisoryBoards") },
     handler: async (ctx, args) => {
         const board = await ctx.db.get(args.id);
-        if (!board) {
-            return null;
-        }
-
-        const creator = await ctx.db.get(board.createdBy);
-
-        return {
-            ...board,
-            creator: creator ? {
-                id: creator._id,
-                email: creator.email,
-                name: creator.name ?? creator.email
-            } : null,
-        };
+        return board
     },
 });
 
@@ -76,31 +48,21 @@ export const getAdvisoryBoardWithPeople = query({
                 const person = await ctx.db.get(pab.personId);
                 if (!person) return null;
 
-                let imageUrl = null;
-                if (person.imageId) {
-                    const image = await ctx.db.get(person.imageId);
-                    if (image) {
-                        imageUrl = await ctx.storage.getUrl(image.storageId);
-                    }
-                }
-
                 return {
-                    ...person,
-                    imageUrl,
+                    ...pab,
+                    person: {
+                        ...person,
+                        image: person.imageId
+                            ? await resolveImageId(ctx, person.imageId)
+                            : null,
+                    }
                 };
             })
         );
 
-        const creator = await ctx.db.get(board.createdBy);
-
         return {
             ...board,
-            people: people.filter(Boolean),
-            creator: creator ? {
-                id: creator._id,
-                email: creator.email,
-                name: creator.name ?? creator.email
-            } : null,
+            peopleAdvisoryBoards: people.filter(x => !!x),
         };
     },
 });
@@ -108,7 +70,6 @@ export const getAdvisoryBoardWithPeople = query({
 export const createAdvisoryBoard = mutation({
     args: {
         name: v.string(),
-        order: v.number(),
     },
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
@@ -116,24 +77,18 @@ export const createAdvisoryBoard = mutation({
             throw new Error("Insufficient permissions to create advisory boards");
         }
 
-        // Check if order number is already taken
-        const existingBoard = await ctx.db
+        // Get the highest order number and add 1
+        const allBoards = await ctx.db
             .query("advisoryBoards")
-            .withIndex("by_order", (q) => q.eq("order", args.order))
-            .first();
+            .withIndex("by_order", (q) => q)
+            .order("desc")
+            .take(1);
 
-        if (existingBoard) {
-            throw new Error("An advisory board with this order number already exists");
-        }
-
-        const now = Date.now();
+        const nextOrder = allBoards.length > 0 ? allBoards[0].order + 1 : 0;
 
         const boardId = await ctx.db.insert("advisoryBoards", {
             name: args.name,
-            order: args.order,
-            createdBy: user._id,
-            createdAt: now,
-            updatedAt: now,
+            order: nextOrder,
         });
 
         return boardId;
@@ -157,30 +112,68 @@ export const updateAdvisoryBoard = mutation({
             throw new Error("Advisory board not found");
         }
 
-        const updateData: any = {
-            updatedAt: Date.now(),
-        };
+        const updateData: any = {};
 
         if (args.name !== undefined) updateData.name = args.name;
-
-        // Handle order update
-        if (args.order !== undefined && args.order !== existingBoard.order) {
-            // Check if new order number is already taken (excluding current board)
-            const existingOrderBoard = await ctx.db
-                .query("advisoryBoards")
-                .withIndex("by_order", (q) => q.eq("order", args.order!))
-                .first();
-
-            if (existingOrderBoard && existingOrderBoard._id !== args.id) {
-                throw new Error("An advisory board with this order number already exists");
-            }
-            updateData.order = args.order;
-        }
+        if (args.order !== undefined) updateData.order = args.order;
 
         await ctx.db.patch(args.id, updateData);
+
         return args.id;
     },
 });
+
+export const updatePeopleAdvisoryBoards = mutation({
+    args: {
+        id: v.id("advisoryBoards"),
+        people: v.array(v.id("people")),
+    },
+    handler: async (ctx, args) => {
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions");
+        }
+
+        const existingBoard = await ctx.db.get(args.id);
+        if (!existingBoard) {
+            throw new Error("Advisory board not found");
+        }
+
+        const newPabList = args.people
+            .map((personId, index) => ({ personId, order: index }))
+
+        const previousPabList = (await ctx.db.query("peopleAdvisoryBoards")
+            .withIndex("by_advisory_board", (q) => q.eq("advisoryBoardId", args.id))
+            .collect())
+            .sort((a, b) => a.order - b.order)
+        
+        const pabListToDelete = previousPabList
+            .filter(pab => !newPabList.some(newPab => newPab.personId === pab.personId))
+        
+        const pabListToUpdate = previousPabList
+            .map(pab => {
+                const newPab = newPabList.find(newPab => newPab.personId === pab.personId)
+                if (newPab) {
+                    return {...pab, order: newPab.order}
+                }
+                return null;
+            })
+            .filter(x => !!x)
+        
+        const pabListToCreate = newPabList
+            .filter(pab => !previousPabList.some(prevPab => prevPab.personId === pab.personId))
+        
+        await Promise.all([
+            ...pabListToDelete.map(async (pab) => await ctx.db.delete(pab._id)),
+            ...pabListToUpdate.map(async (pab) => await ctx.db.patch(pab._id, { order: pab.order })),
+            ...pabListToCreate.map(async (pab) => await ctx.db.insert("peopleAdvisoryBoards", {
+                personId: pab.personId,
+                advisoryBoardId: args.id,
+                order: pab.order,
+            })),
+        ])
+    }
+})
 
 export const deleteAdvisoryBoard = mutation({
     args: {
@@ -234,7 +227,6 @@ export const reorderAdvisoryBoards = mutation({
             args.boards.map(async (board) => {
                 await ctx.db.patch(board.id, {
                     order: board.order,
-                    updatedAt: Date.now(),
                 });
             })
         );

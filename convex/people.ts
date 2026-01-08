@@ -1,10 +1,28 @@
-import { GenericId, v } from "convex/values"
+import { v } from "convex/values"
 import { query, mutation } from "./_generated/server"
-import { getAuthUserId } from "@convex-dev/auth/server"
 import { indexArray } from "./utils"
 import { getCurrentUserOrThrow } from "./users"
 import { peopleAggregate } from "./aggregates"
+import { resolveImageId } from "./images"
+import { Doc, Id } from "./_generated/dataModel"
 
+export const searchPeople = query({
+    args: {
+        query: v.string(),
+    },
+    handler: async (ctx, args) => {
+        if (!args.query.trim()) {
+            return await ctx.db
+                .query("people")
+                .take(100);
+        }
+
+        return await ctx.db
+            .query("people")
+            .withSearchIndex("searchName", (q) => q.search("name", args.query))
+            .take(100);
+    },
+});
 
 export const listPeople = query({
     args: {
@@ -143,25 +161,19 @@ export const getPerson = query({
             return null;
         }
 
-        const creator = await ctx.db.get(person.createdBy);
-        let imageUrl = null;
-
-        if (person.imageId) {
-            const image = await ctx.db.get(person.imageId);
-            if (image) {
-                imageUrl = await ctx.storage.getUrl(image.storageId);
-            }
-        }
-
         return {
             ...person,
-            imageUrl,
-            creator: creator ? {
-                id: creator._id,
-                email: creator.email,
-                name: creator.name ?? creator.email
-            } : null,
+            image: person.imageId
+                ? await resolveImageId(ctx, person.imageId)
+                : null
         };
+    },
+});
+
+export const getPersonFast = query({
+    args: { id: v.id("people") },
+    handler: async (ctx, args) => {
+        return await ctx.db.get(args.id);
     },
 });
 
@@ -181,29 +193,20 @@ export const getPersonWithAdvisoryBoards = query({
 
         const advisoryBoards = await Promise.all(
             personAdvisoryBoards.map(async (pab) => {
-                return await ctx.db.get(pab.advisoryBoardId);
+                const advisoryBoard = await ctx.db.get(pab.advisoryBoardId);
+                return advisoryBoard ? {
+                    advisoryBoard,
+                    ...pab
+                } : null;
             })
         );
 
-        const creator = await ctx.db.get(person.createdBy);
-        let imageUrl = null;
-
-        if (person.imageId) {
-            const image = await ctx.db.get(person.imageId);
-            if (image) {
-                imageUrl = await ctx.storage.getUrl(image.storageId);
-            }
-        }
-
         return {
             ...person,
-            imageUrl,
+            image: person.imageId
+                ? await resolveImageId(ctx, person.imageId)
+                : null,
             advisoryBoards: advisoryBoards.filter(Boolean),
-            creator: creator ? {
-                id: creator._id,
-                email: creator.email,
-                name: creator.name ?? creator.email
-            } : null,
         };
     },
 });
@@ -228,8 +231,6 @@ export const createPerson = mutation({
             throw new Error("Insufficient permissions")
         }
 
-        const now = Date.now()
-
         const personId = await ctx.db.insert("people", {
             name: args.name,
             title: args.title,
@@ -241,9 +242,13 @@ export const createPerson = mutation({
             isStoryTeller: args.isStoryTeller ?? false,
             isAmbassador: args.isAmbassador ?? false,
             inMemoriam: args.inMemoriam,
-            createdBy: user._id,
-            createdAt: now,
-            updatedAt: now,
+
+            directorOrder: 1000 + Math.floor(Math.random() * 1000),
+            staffOrder: 1000 + Math.floor(Math.random() * 1000),
+            equineOrder: 1000 + Math.floor(Math.random() * 1000),
+            storytellerOrder: 1000 + Math.floor(Math.random() * 1000),
+            ambassadorOrder: 1000 + Math.floor(Math.random() * 1000),
+            inMemoriamOrder: 1000 + Math.floor(Math.random() * 1000),
         })
 
         const person = await ctx.db.get(personId)
@@ -258,8 +263,7 @@ export const createPerson = mutation({
                     await ctx.db.insert("peopleAdvisoryBoards", {
                         personId,
                         advisoryBoardId: boardId,
-                        createdBy: user._id,
-                        createdAt: now,
+                        order: 1000 + Math.floor(Math.random() * 1000),
                     })
                 })
             )
@@ -283,6 +287,13 @@ export const updatePerson = mutation({
         isAmbassador: v.optional(v.boolean()),
         inMemoriam: v.optional(v.boolean()),
         advisoryBoardIds: v.optional(v.array(v.id("advisoryBoards"))),
+
+        directorOrder: v.optional(v.number()),
+        staffOrder: v.optional(v.number()),
+        equineOrder: v.optional(v.number()),
+        storytellerOrder: v.optional(v.number()),
+        ambassadorOrder: v.optional(v.number()),
+        inMemoriamOrder: v.optional(v.number()),
     },
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
@@ -295,9 +306,7 @@ export const updatePerson = mutation({
             throw new Error("Person not found");
         }
 
-        const updateData: any = {
-            updatedAt: Date.now(),
-        };
+        const updateData: Partial<Exclude<Doc<"people">, "_id">> = {};
 
         if (args.name !== undefined) updateData.name = args.name;
         if (args.title !== undefined) updateData.title = args.title;
@@ -309,6 +318,12 @@ export const updatePerson = mutation({
         if (args.isStoryTeller !== undefined) updateData.isStoryTeller = args.isStoryTeller;
         if (args.isAmbassador !== undefined) updateData.isAmbassador = args.isAmbassador;
         if (args.inMemoriam !== undefined) updateData.inMemoriam = args.inMemoriam;
+        if (args.directorOrder !== undefined) updateData.directorOrder = args.directorOrder;
+        if (args.staffOrder !== undefined) updateData.staffOrder = args.staffOrder;
+        if (args.equineOrder !== undefined) updateData.equineOrder = args.equineOrder;
+        if (args.storytellerOrder !== undefined) updateData.storytellerOrder = args.storytellerOrder;
+        if (args.ambassadorOrder !== undefined) updateData.ambassadorOrder = args.ambassadorOrder;
+        if (args.inMemoriamOrder !== undefined) updateData.inMemoriamOrder = args.inMemoriamOrder;
 
         await ctx.db.patch(args.id, updateData);
 
@@ -333,8 +348,7 @@ export const updatePerson = mutation({
                         await ctx.db.insert("peopleAdvisoryBoards", {
                             personId: args.id,
                             advisoryBoardId: boardId,
-                            createdBy: user._id,
-                            createdAt: Date.now(),
+                            order:  1000 + Math.floor(Math.random() * 1000),
                         });
                     })
                 );
@@ -399,24 +413,11 @@ export const listPeopleByAdvisoryBoard = query({
                 const person = await ctx.db.get(pab.personId);
                 if (!person) return null;
 
-                const creator = await ctx.db.get(person.createdBy);
-                let imageUrl = null;
-
-                if (person.imageId) {
-                    const image = await ctx.db.get(person.imageId);
-                    if (image) {
-                        imageUrl = await ctx.storage.getUrl(image.storageId);
-                    }
-                }
-
                 return {
                     ...person,
-                    imageUrl,
-                    creator: creator ? {
-                        id: creator._id,
-                        email: creator.email,
-                        name: creator.name ?? creator.email
-                    } : null,
+                    image: person.imageId
+                        ? await resolveImageId(ctx, person.imageId)
+                        : null,
                 };
             })
         );
@@ -449,9 +450,7 @@ export const updatePersonOrder = mutation({
             throw new Error("Person not found");
         }
 
-        const updateData: any = {
-            updatedAt: Date.now(),
-        };
+        const updateData: any = {};
 
         // Update the appropriate order field based on person type
         switch (args.personType) {

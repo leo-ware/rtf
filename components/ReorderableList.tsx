@@ -8,25 +8,33 @@ import { Card } from "./ui/card";
 type ReorderableListContextType = { moveItem: (dragIndex: number, hoverIndex: number) => void }
 const ReorderableListContext = createContext<ReorderableListContextType | null>(null);
 
-type ReorderableListItemType = {
-    id: string
+type ReorderableListItemType<T extends string> = {
+    id: T
     widget: React.ReactNode
 }
 
-type ReorderableListProps = {
-    items: ReorderableListItemType[];
-    onReorder: (newOrder: string[]) => void;
+type ReorderableListProps<T extends string> = {
+    items: ReorderableListItemType<T>[];
+    onReorder: (newOrder: T[]) => void;
     disabled?: boolean
 }
 
-const ReorderableList = ({ items, onReorder, disabled = false }: ReorderableListProps) => {
+const ReorderableList = <T extends string>({ items, onReorder, disabled = false }: ReorderableListProps<T>) => {
     const [itemOrder, setItemOrder] = useState<string[]>([]);
     const itemTypeRef = useRef(`drag_${Math.round(Math.random() * 10000)}`)
     const itemType = itemTypeRef.current
 
+    const prevItemOrderRef = useRef<string[]>([]);
+
     useEffect(() => {
-        onReorder(itemOrder);
-    }, [itemOrder])
+        // Only call onReorder if the order has actually changed
+        if (itemOrder.length > 0 &&
+            (prevItemOrderRef.current.length !== itemOrder.length ||
+            prevItemOrderRef.current.some((id, index) => id !== itemOrder[index]))) {
+            onReorder(itemOrder as T[]);
+            prevItemOrderRef.current = itemOrder;
+        }
+    }, [itemOrder, onReorder])
 
     useEffect(() => {
         setItemOrder(prev => {

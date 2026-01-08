@@ -22,6 +22,7 @@ import type * as externalArticles from "../externalArticles.js";
 import type * as herds from "../herds.js";
 import type * as http from "../http.js";
 import type * as images from "../images.js";
+import type * as jobListing from "../jobListing.js";
 import type * as locations from "../locations.js";
 import type * as models_articleManager from "../models/articleManager.js";
 import type * as models_articleMetadataManager from "../models/articleMetadataManager.js";
@@ -76,6 +77,7 @@ declare const fullApi: ApiFromModules<{
   herds: typeof herds;
   http: typeof http;
   images: typeof images;
+  jobListing: typeof jobListing;
   locations: typeof locations;
   "models/articleManager": typeof models_articleManager;
   "models/articleMetadataManager": typeof models_articleMetadataManager;

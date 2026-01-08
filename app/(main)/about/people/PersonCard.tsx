@@ -14,24 +14,6 @@ export type Person = {
 
 export const PersonCard = ({ person, size = "medium" }: { person: Person, size?: "small" | "medium" | "large" }) => {
     const [open, setOpen] = useState(false);
-
-    const nameSize = size === "small"
-        ? 12
-        : size === "medium"
-            ? 16
-            : 28
-
-    const titleSize = size === "small"
-        ? 10
-        : size === "medium"
-            ? 14
-            : 25
-    
-    const bioSize = size === "small"
-        ? 8
-        : size === "medium"
-            ? 12
-            : 18
     
     return (
         <div className="w-full h-fit text-charcoal" onClick={() => setOpen(!open)}>
@@ -51,15 +33,15 @@ export const PersonCard = ({ person, size = "medium" }: { person: Person, size?:
                     )}
                 </div>
             </div>
-            <div className="font-serif" style={{ fontSize: nameSize }}>
+            <div className="font-serif text-[36px]">
                 {person.name}
             </div>
             {person.title && (
-                <div style={{ fontSize: titleSize }}>
+                <div className="text-[25px]">
                     {person.title}
                 </div>
             )}
-            {open && <div style={{ fontSize: bioSize }}>
+            {open && <div className="text-[20px]">
                 {person.bio}
             </div>}
         </div>
