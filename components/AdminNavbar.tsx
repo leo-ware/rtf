@@ -67,12 +67,6 @@ const AdminNavbar = () => {
             icon: Home,
             description: "Overview and statistics"
         },
-        {
-            name: "Developer",
-            href: "/admin/dev",
-            icon: Code,
-            description: "Developer tools and settings"
-        },
     ]
 
     const contentItems: NavItem[] = [
@@ -94,32 +88,27 @@ const AdminNavbar = () => {
             icon: Megaphone,
             description: "Manage Take Action section content"
         },
+        
+    ]
+
+    const entityItems: NavItem[] = [
         {
-            name: "Events",
-            href: "/admin/events",
-            icon: Calendar,
-            description: "Schedule and manage events"
+            name: "People",
+            href: "/admin/people",
+            icon: Users,
+            description: "Manage team member public profiles"
+        },
+        {
+            name: "Sponsors",
+            href: "/admin/sponsors",
+            icon: Building2,
+            description: "Manage sponsors and partners"
         },
         {
             name: "Animals",
             href: "/admin/animals",
             icon: Heart,
             description: "Manage animal profiles"
-        },
-        {
-            name: "Documents",
-            href: "/admin/documents",
-            icon: FolderOpen,
-            description: "Upload and organize documents"
-        },
-    ]
-
-    const assetsItems: NavItem[] = [
-        {
-            name: "Media",
-            href: "/admin/images",
-            icon: Camera,
-            description: "Image and media library"
         },
         {
             name: "Locations",
@@ -129,18 +118,36 @@ const AdminNavbar = () => {
         },
     ]
 
-    const managementItems: NavItem[] = [
+    const calendarItems: NavItem[] = [
         {
-            name: "People",
-            href: "/admin/people",
-            icon: Users,
-            description: "Manage team members"
+            name: "Events",
+            href: "/admin/events",
+            icon: Calendar,
+            description: "Schedule and manage events"
+        },
+    ]
+
+    const assetsItems: NavItem[] = [
+        {
+            name: "Documents",
+            href: "/admin/documents",
+            icon: FolderOpen,
+            description: "Upload and organize documents"
         },
         {
-            name: "Sponsors",
-            href: "/admin/sponsors",
-            icon: Building2,
-            description: "Manage sponsors and partners"
+            name: "Media",
+            href: "/admin/images",
+            icon: Camera,
+            description: "Image and media library"
+        },
+    ]
+
+    const managementItems: NavItem[] = [
+        {
+            name: "Developer",
+            href: "/admin/dev",
+            icon: Code,
+            description: "Developer tools and settings"
         },
         ...(hasAdminAccess ? [{
             name: "Users",
@@ -153,11 +160,13 @@ const AdminNavbar = () => {
     const navGroups: NavGroup[] = [
         { name: "Overview", icon: LayoutDashboard, items: overviewItems },
         { name: "Content", icon: Layers, items: contentItems },
+        { name: "Entities", icon: Users, items: entityItems },
+        { name: "Calendar", icon: Calendar, items: calendarItems },
         { name: "Assets", icon: Package, items: assetsItems },
         { name: "Management", icon: UserCog, items: managementItems },
     ]
 
-    const allNavItems = [...overviewItems, ...contentItems, ...assetsItems, ...managementItems]
+    const allNavItems = navGroups.flatMap(group => group.items)
 
     const isActive = (href: string) => {
         if (href === "/admin") {
