@@ -13,69 +13,8 @@ import Img2 from "./img2.png"
 import Img3 from "./img3.png"
 import NewsCarousel from "@/components/NewsCarousel"
 import { Fragment } from "react/jsx-runtime"
+import EducationResourcesWidget from "@/components/EducationResourcesWidget"
 
-const DocumentsWidget = ({ title }: { title: string }) => {
-    const documents = [
-        {
-            groupTitle: "Genetics",
-            documents: [
-                {
-                    title: "Genetic Diversity of Wild Horses",
-                    description: "This document explores the genetic diversity of wild horses and how it is affected by habitat loss and fragmentation.",
-                },
-                {
-                    title: "Genetic Diversity of Wild Horses",
-                    description: "This document explores the genetic diversity of wild horses and how it is affected by habitat loss and fragmentation.",
-                }
-            ]
-        },
-        {
-            groupTitle: "Population Management",
-            documents: [
-                {
-                    title: "Population Management of Wild Horses",
-                    description: "This document explores the population management of wild horses and how it is affected by habitat loss and fragmentation.",
-                },
-                {
-                    title: "Population Management of Wild Horses",
-                    description: "This document explores the population management of wild horses and how it is affected by habitat loss and fragmentation.",
-                }
-            ]
-        }
-    ]
-    return (
-        <div>
-            <Header level={2} className="text-pewter mx-auto underline">
-                {title}
-            </Header>
-            <div className="md:grid lg:px-24 my-6 gap-16" style={{ gridTemplateColumns: "300px 1fr" }}>
-                {documents.map(({ groupTitle, documents: groupDocuments }) => (
-                    <Fragment key={`${groupTitle}-documents`}>
-                        <div
-                            key={`${groupTitle}-title`}
-                            className="pb-4 w-full flex items-start justify-start">
-                            <div className="text-[36px] font-serif text-cinnamon">
-                                {groupTitle}
-                            </div>
-                        </div>
-                        <div key={`${groupTitle}-documents`} className="pb-8 flex flex-col gap-4 text-[20px]">
-                            {groupDocuments.map(({ title, description }) => (
-                                <div key={`${title}-document`}>
-                                    <div key={`${title}-document`} className="underline">
-                                        {title}
-                                    </div>
-                                    <div key={`${title}-description`}>
-                                        {description}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </Fragment>
-                ))}
-            </div>
-        </div>
-    )
-}
 
 
 const EducationPage = () => {
@@ -171,41 +110,7 @@ const EducationPage = () => {
                 </div>
             </div>
 
-
-            <div className="w-full flex flex-col items-center justify-center gap-8">
-                <Header className="text-sage-green mx-auto underline">
-                    Resources
-                </Header>
-
-                <Tabs
-                    items={[
-                        {
-                            id: "Editorials, Articles & Essays",
-                            title: "Editorials, Articles & Essays",
-                            content: <DocumentsWidget title="Editorials, Articles & Essays" />
-                        },
-                        {
-                            id: "Preservation of Bloodlines & Rare Breeds",
-                            title: "Preservation of Bloodlines & Rare Breeds",
-                            content: <DocumentsWidget title="Preservation of Bloodlines & Rare Breeds" />
-                        },
-                        {
-                            id: "Horse History & Welfare",
-                            title: "Horse History & Welfare",
-                            content: <DocumentsWidget title="Horse History & Welfare" />
-                        },
-                        {
-                            id: "Public Record Archive Documents",
-                            title: "Public Record Archive Documents",
-                            content: <DocumentsWidget title="Public Record Archive Documents" />
-                        },
-                        {
-                            id: "A Civics Lesson",
-                            title: "A Civics Lesson",
-                            content: <DocumentsWidget title="A Civics Lesson" />
-                        },
-                    ]} />
-            </div>
+            <EducationResourcesWidget />
 
             <NewsCarousel topic="education" />
 
@@ -227,7 +132,7 @@ const EducationPage = () => {
                 </div>
             </div>
 
-            <div className="w-10/12 mx-auto flex flex-col items-center justify-center gap-4">
+            {/* <div className="w-10/12 mx-auto flex flex-col items-center justify-center gap-4">
                 <Header level={1} className="text-cinnamon mb-8 underline">
                     Connect With us on Instagram
                 </Header>
@@ -249,7 +154,7 @@ const EducationPage = () => {
 <script async src="//www.instagram.com/embed.js"></script>
                         `}} />
                 </div>
-            </div>
+            </div> */}
         </div>
     )
 }

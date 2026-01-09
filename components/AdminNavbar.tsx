@@ -30,6 +30,7 @@ import {
     Code,
     Building2,
     FolderOpen,
+    Megaphone,
     MapPin,
     Layers,
     Package,
@@ -80,6 +81,18 @@ const AdminNavbar = () => {
             href: "/admin/news",
             icon: FileText,
             description: "Manage articles and announcements"
+        },
+        {
+            name: "Education Articles",
+            href: "/admin/education-articles",
+            icon: BookOpen,
+            description: "Manage education page content"
+        },
+        {
+            name: "Take Action Articles",
+            href: "/admin/take-action-articles",
+            icon: Megaphone,
+            description: "Manage Take Action section content"
         },
         {
             name: "Events",

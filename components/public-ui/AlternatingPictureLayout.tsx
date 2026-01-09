@@ -43,7 +43,10 @@ const AlternatingPictureLayout = ({ items, alternateTitleColors = false, divider
                         `}>
                         <div className={`
                             basis-0 grow flex flex-col gap-4 text-center px-0
-                            ${odd ? "md:text-left md:items-start" : "md:text-right md:items-end"}`}>
+                            ${odd
+                                ? "md:text-left md:items-start"
+                                : "md:text-right md:items-end"}
+                            `}>
                             {item.superTitle && (
                                 <div className="text-[25px] text-ink">
                                     {item.superTitle}

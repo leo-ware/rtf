@@ -11,9 +11,6 @@ export const ConvexValueRole = v.union(
 
 export type RoleType = "guest" | "authorized" | "admin" | "dev"
 
-// The schema is normally optional, but Convex Auth
-// requires indexes defined on `authTables`.
-// The schema provides more precise TypeScript types.
 export default defineSchema({
     ...authTables,
     users: defineTable({
@@ -33,6 +30,39 @@ export default defineSchema({
         externalId: v.string(),
     })
         .index("email", ["email"]),
+
+    takeActionArticle: defineTable({
+        title: v.string(),
+        slug: v.string(),
+        imageId: v.optional(v.id("images")),
+        description: v.string(),
+        content: v.string(),
+        isPublic: v.boolean(),
+    })
+        .index("by_isPublic", ["isPublic"])
+        .index("by_image", ["imageId"])
+        .index("by_slug", ["slug"]),
+
+    educationArticles: defineTable({
+        title: v.string(),
+        slug: v.optional(v.string()),
+        description: v.string(),
+        content: v.string(),
+        isPublic: v.boolean(),
+    })
+        .index("by_is_public", ["isPublic"])
+        .index("by_slug", ["slug"]),
+
+    educationArticleGroups: defineTable({
+        title: v.string(),
+        articleIds: v.array(v.id("educationArticles")),
+    }),
+
+    educationArticleSuperGroups: defineTable({
+        title: v.string(),
+        groupIds: v.array(v.id("educationArticleGroups")),
+        order: v.optional(v.number()),
+    }),
 
     // Emails that are allowed to create accounts but have not yet
     approvedUserEmails: defineTable({
