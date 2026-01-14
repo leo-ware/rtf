@@ -12,7 +12,7 @@ const HeaderLink = (props: { href: string, text: string, external?: boolean }) =
     return (
         <Link
             href={props.href}
-            className="relative group text-white text-[16px] font-semibold"
+            className="relative no-wrap group text-white text-[16px] font-semibold"
             target={props.external ? "_blank" : undefined}
             rel={props.external ? "noopener noreferrer" : undefined}
         >
@@ -36,56 +36,59 @@ export default function Navbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
     return (
-        <header className="bg-pewter max-w-screen w-full h-fit md:h-[135px] font-bold">
+        <header className={`
+            w-full h-fit bg-pewter max-w-screen font-bold
+            xl:h-[135px]
+            `}>
 
-            {/* Desktop Navigation */}
-            <nav className="w-full hidden xl:block">
-                <div className="w-full flex items-center gap-8 py-2 px-[5%]">
-                    <div className="flex-1 flex items-center justify-end gap-8">
-                        <HeaderLink href="/about" text="About" />
-                        <HeaderLink href="/#what-we-do" text="What We Do" />
-                        <HeaderLink href="/resources/learn" text="Learn" />
-                        <HeaderLink href="/resources/news" text="News" />
-                        <HeaderLink href="/horses/our-horses" text="Our Horses" />
-                    </div>
-                    <div className="w-[180px] flex justify-center">
-                        <Link href="/" className="flex-shrink-0">
-                            <Image src={RTFLogoWhite} alt="logo" width={180} height={114} />
+            <nav className={`
+                w-full hidden py-2 px-[5%]
+                xl:flex lg:items-center lg:gap-0 lg:px-4
+                xl:gap-6 xl:px-[3%]
+                `}>
+                <div className="flex-1 flex items-center justify-end gap-6">
+                    <HeaderLink href="/about" text="About" />
+                    <HeaderLink href="/#what-we-do" text="What We Do" />
+                    <HeaderLink href="/resources/learn" text="Learn" />
+                    <HeaderLink href="/resources/news" text="News" />
+                    <HeaderLink href="/horses/our-horses" text="Our Horses" />
+                </div>
+
+                <div className="w-[180px] flex justify-center">
+                    <Link href="/" className="flex-shrink-0">
+                        <Image src={RTFLogoWhite} alt="logo" width={180} height={114} />
+                    </Link>
+                </div>
+
+                <div className="flex-1 flex items-center justify-start gap-6">
+                    <HeaderLink href="/what-we-do/advocacy#take-action" text="Take Action" />
+                    <HeaderLink href="/visit-us" text="Visit Us" />
+                    <HeaderLink href="https://shop.returntofreedom.org" text="Shop" external />
+
+                    <div className="flex items-center gap-4">
+                        <Link
+                            href="/donate"
+                            className={`rounded-lg bg-burnt-orange border-1 border-burnt-orange w-[100px] flex items-center 
+                                    justify-center py-1 text-white text-sm`}>
+                            DONATE
                         </Link>
-                    </div>
-                    <div className="flex-1 flex items-center justify-start gap-8">
-                        <HeaderLink href="/what-we-do/advocacy#take-action" text="Take Action" />
-                        <HeaderLink href="/visit-us" text="Visit Us" />
-                        <HeaderLink href="https://shop.returntofreedom.org" text="Shop" external />
 
-                        <div className="flex items-center gap-4">
-                            <Link
-                                href="/donate"
-                                className={`rounded-lg bg-burnt-orange border-1 border-burnt-orange w-[100px] flex items-center 
-                                    justify-center py-1 text-white text-sm`}
-                            >
-                                DONATE
-                            </Link>
-
-                            <Link
-                                href="/contact"
-                                className={`rounded-lg border-1 border-white w-[100px] flex items-center 
-                                    justify-center py-1 text-white text-sm`}
-                            >
-                                SUBSCRIBE
-                            </Link>
-                        </div>
-
+                        <Link
+                            href="/contact"
+                            className={`rounded-lg border-1 border-white w-[100px] flex items-center 
+                                    justify-center py-1 text-white text-sm`}>
+                            SUBSCRIBE
+                        </Link>
                     </div>
                 </div>
             </nav>
 
-            {/* Mobile Navigation */}
-            <div className="block xl:hidden h-[60px] w-full" />
             <nav className="
-                block xl:hidden fixed bg-pewter z-40 top-0 left-0 w-screen
+                xl:hidden
                 flex flex-row items-center justify-between
-                p-2 md:px-8">
+                top-0 left-0 w-screen p-2 
+                md:px-8
+                ">
                 <Link href="/" className="flex-shrink-0">
                     <Image
                         src={RTFLogoWhite}

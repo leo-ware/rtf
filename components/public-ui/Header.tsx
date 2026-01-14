@@ -12,8 +12,12 @@ const Header = (
     return (
         <div className={cn(
             `w-full text-${color} text-center font-serif
-            decoration-2 underline-offset-6
-            ${level === 1 && "text-[48px] underline"}
+            decoration-2 underline-offset-8
+            ${level === 1 && `
+                text-left text-[36px]
+                md:text-center md:text-[48px]
+                underline
+            `}
             ${level === 2 && "text-[36px]"}
             ${level === 3 && "text-[28px] underline-offset-4"}
             ${level === 4 && "text-[25px] decoration-1 underline-offset-4"}

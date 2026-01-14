@@ -13,7 +13,11 @@ import { IoSendOutline } from "react-icons/io5"
 export default function Footer() {
     return (
         <footer className="w-full py-16 flex items-center justify-center bg-[url('/img/footer-bg-blurred.png')] bg-cover bg-center">
-            <div className="w-11/12 h-fit flex flex-row justify-between gap-12">
+            <div className={`
+                w-11/12 h-fit flex
+                flex-col gap-8 px-4
+                lg:flex-row lg:justify-between lg:gap-12 lg:px-0
+                `}>
                 <div className="hidden md:block">
                     <Image src={RTFLogoWhite} alt="logo" className="w-[200px]" />
                     <div className="text-white text-xs max-w-[270px] pl-5">
@@ -25,7 +29,13 @@ export default function Footer() {
                 </div>
 
                 <div className="grow flex flex-col items-start justify-between gap-8">
-                    <div className="grow w-full flex flex-row items-start justify-between gap-8">
+
+                    <div className={`
+                        w-full flex
+                        flex-col gap-4 items-start justify-start
+                        sm:flex-row sm:grow sm:items-start sm:justify-between sm:gap-8
+                        `}>
+
                         <div className="grow basis-auto">
                             <div className="text-white font-serif text-[25px]">
                                 About RTF
@@ -34,9 +44,6 @@ export default function Footer() {
                                 <Link href="/horses/our-horses" className="hover:underline">
                                     Our Horses
                                 </Link>
-                                {/* <Link href="/about" className="hover:underline">
-                                    Our History
-                                </Link> */}
                                 <Link href="/about/people" className="hover:underline">
                                     Our Team
                                 </Link>
@@ -104,9 +111,12 @@ export default function Footer() {
                                 </Link>
                             </div>
                         </div>
-
                     </div>
-                    <div className="w-full flex flex-row items-center justify-center gap-12">
+
+                    <div className={`
+                        w-full flex
+                        flex-col items-center justify-start gap-8
+                        sm:flex-row sm:items-center sm:justify-center sm:gap-12`}>
                         <Image src={CharityNavigator} alt="Charity Navigator" className="h-[100px] w-auto" />
                         <Image src={OnePercent} alt="1% for the Planet" className="h-[100px] w-auto" />
                         <Image src={NatureDefense} alt="Nature Defense Foundation" className="h-[100px] w-auto" />

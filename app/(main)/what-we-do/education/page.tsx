@@ -115,7 +115,7 @@ const EducationPage = () => {
             <NewsCarousel topic="education" />
 
             <div className="w-10/12 mx-auto flex flex-col items-center justify-center gap-4">
-                <Header level={2} className="text-sage-green">
+                <Header level={2} className="text-sage-green underline">
                     “El Caballo: The Wild Horses of North America” (2001)
                 </Header>
                 <div className="max-w-[650px] text-center mb-2 text-[20px]">

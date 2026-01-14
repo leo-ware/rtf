@@ -20,7 +20,7 @@ const HerdsCarousel = () => {
         id: herd._id,
         widget: (
             <div className="w-full h-fit flex items-center justify-center gap-6">
-                <div className="relative w-1/2 h-[450px]">
+                <div className="relative w-1/2 h-[300px]">
                     {(herd.image && herd.image.url) ? (
                         <Image
                             src={herd.image.url}
@@ -38,11 +38,11 @@ const HerdsCarousel = () => {
                     <div className="text-pewter text-3xl font-serif">
                         {herd.name}
                     </div>
-                    <div className="text-lg text-left">
+                    <div className="text-lg text-left line-clamp-5">
                         {herd.description || "No description available."}
                     </div>
                     <Link href={`/horses/our-herds?slug=${herd.slug}`}>
-                        <Button color="cinnamon" className="py-1 px-4">
+                        <Button color="cinnamon" className="py-1 px-4 mt-4">
                             LEARN MORE ABOUT THE {herd.name.toUpperCase()}
                         </Button>
                     </Link>
@@ -62,7 +62,8 @@ const HerdsCarousel = () => {
                         items={carouselItems}
                         nDisplayItems={1}
                         autoPlay="right"
-                        autoPlayInterval={5000}
+                        autoPlayInterval={8000}
+                        transitionDuration={1200}
                         leftButton={<FaCaretLeft className="w-8 h-8 text-pewter" />}
                         rightButton={<FaCaretRight className="w-8 h-8 text-pewter" />}
                     />

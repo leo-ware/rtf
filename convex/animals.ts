@@ -34,7 +34,7 @@ export const listAnimals = query({
     },
     handler: async (ctx, args) => {
         let query = ctx.db.query("animals")
-        
+
         if (args.herdId) {
             query = query.filter((q) => q.eq(q.field("herdId"), args.herdId!))
         }
@@ -45,7 +45,7 @@ export const listAnimals = query({
         const animals = await query
             .order("desc")
             .paginate(args.paginationOpts)
-        
+
         return {
             ...animals,
             page: await resolveAnimalRelations(ctx, animals.page),
@@ -200,7 +200,7 @@ export const updateAnimal = mutation({
         if (args.type !== undefined) {
             updates.type = args.type
         }
-        
+
         if (args.dob !== undefined) {
             updates.dob = args.dob
         }
@@ -273,13 +273,74 @@ export const deleteAnimal = mutation({
     },
 })
 
-export const getAnimalsForSponsorship = query({
-    args: {},
-    handler: async (ctx) => {
-        const animals = await ctx.db
+export const getPromotedAnimalForSponsorship = query({
+    args: {
+        type: v.union(v.literal("horse"), v.literal("burro")),
+    },
+    handler: async (ctx, args) => {
+        const promotedAnimals = await ctx.db
             .query("animals")
+            .filter((q) => q.eq(q.field("promoted"), true))
+            .filter((q) => q.neq(q.field("inMemoriam"), true))
+            .filter((q) => q.eq(q.field("type"), args.type!))
             .order("desc")
-            .take(6)
+            .take(10)
+
+        const animals = (promotedAnimals && promotedAnimals.length > 0)
+            ? promotedAnimals
+            : await ctx.db.query("animals")
+                .filter((q) => q.neq(q.field("inMemoriam"), true))
+                .filter((q) => q.eq(q.field("type"), args.type!))
+                .order("desc")
+                .take(10)
+
+        const selectedAnimal = animals[Math.floor(Math.random() * animals.length)]
+
+        const herdPromise = selectedAnimal?.herdId ? ctx.db.get(selectedAnimal.herdId) : null
+        const imagePromise = selectedAnimal?.imageId ? resolveImageId(ctx, selectedAnimal.imageId) : null
+        const galleryImagesPromise = selectedAnimal?.gallery
+            ? Promise.all(selectedAnimal.gallery.map(async (imageId) => resolveImageId(ctx, imageId)))
+            : null
+
+        const [herd, image, galleryImages] = await Promise.all([
+            herdPromise,
+            imagePromise,
+            galleryImagesPromise,
+        ])
+
+        return {
+            ...selectedAnimal,
+            herd,
+            image,
+            galleryImages,
+        }
+    }
+})
+
+export const getAnimalsForSponsorship = query({
+    args: {
+        herdId: v.optional(v.id("herds")),
+        type: v.optional(v.union(v.literal("horse"), v.literal("burro"))),
+        promoted: v.optional(v.boolean()),
+        paginationOpts: paginationOptsValidator,
+    },
+    handler: async (ctx, args) => {
+        let query = ctx.db.query("animals").filter((q) => q.neq(q.field("inMemoriam"), true))
+        if (args.herdId) {
+            query = query.filter((q) => q.eq(q.field("herdId"), args.herdId!))
+        }
+        if (args.type) {
+            query = query.filter((q) => q.eq(q.field("type"), args.type!))
+        }
+        if (args.promoted !== undefined) {
+            if (args.promoted) {
+                query = query.filter((q) => q.eq(q.field("promoted"), true))
+            } else {
+                query = query.filter((q) => q.neq(q.field("promoted"), true))
+            }
+        }
+        const animalsResult = await query.order("desc").paginate(args.paginationOpts)
+        const animals = animalsResult.page
 
         const animalsWithHerdsAndImages = await Promise.all(animals.map(async (animal) => {
             const [herd, image] = await Promise.all([
@@ -293,7 +354,10 @@ export const getAnimalsForSponsorship = query({
             }
         }))
 
-        return animalsWithHerdsAndImages
+        return {
+            ...animalsResult,
+            page: animalsWithHerdsAndImages,
+        }
     },
 })
 

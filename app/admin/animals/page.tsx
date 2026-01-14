@@ -624,9 +624,9 @@ const AdminAnimalsPage = () => {
                                                             <div className="font-medium text-gray-900 truncate">
                                                                 {animal.name}
                                                             </div>
-                                                            <div className="text-sm text-gray-500 truncate">
+                                                            {/* <div className="text-sm text-gray-500 truncate">
                                                                 {animal.description}
-                                                            </div>
+                                                            </div> */}
                                                         </div>
                                                     </div>
                                                 </td>

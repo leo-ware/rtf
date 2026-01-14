@@ -40,11 +40,12 @@ const TakeActionSection = ({ count = 3 }: TakeActionSectionProps) => {
         "Show your support protesting the BLM's actions",
     ]
 
+    const clippedCount = Math.min(safeCount, recommended?.length ?? 0) || 1
     const gridCols = cn(
         "grid grid-cols-1 gap-4",
-        safeCount >= 2 && "md:grid-cols-2",
-        safeCount >= 3 && "lg:grid-cols-3",
-        safeCount >= 4 && "xl:grid-cols-4",
+        clippedCount >= 2 && "md:grid-cols-2",
+        clippedCount >= 3 && "lg:grid-cols-3",
+        clippedCount >= 4 && "xl:grid-cols-4",
     )
 
     return (

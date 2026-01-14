@@ -88,10 +88,10 @@ const OurHorsesPage = () => {
                     In Memoriam
                 </Header>
                 <div className="w-full h-fit flex flex-col items-center justify-center">
-                    <div className="relative w-full h-[500px]">
+                    <div className="relative w-full h-[600px]">
                         <Image className="w-full h-full object-cover object-top" src={MysticImage} alt="Mystic" />
                     </div>
-                    <div className="w-full h-fit bg-pewter text-white flex py-12 px-48 gap-32">
+                    <div className="w-full h-fit bg-pewter text-white flex py-6 px-48 gap-32">
                         <div className="basis-[200px] flex flex-col items-end justify-center gap-2">
                             <div className="text-3xl font-serif">Mystic</div>
                             <div className="text-2xl font-serif">1995-2025</div>

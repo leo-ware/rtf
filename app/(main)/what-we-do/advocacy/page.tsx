@@ -8,15 +8,12 @@ import Image from "next/image"
 import Link from "next/link"
 import Button from "@/components/public-ui/Button"
 import NewsCarousel from "@/components/NewsCarousel"
-import BlurredImageCard from "@/components/public-ui/BlurredImageCard"
-import GenericDonateDialogue from "@/components/donation-widgets/GenericDonateDialogue"
 import TakeActionSection from "@/components/TakeActionSection"
 
 import Policy1 from "./policy1.png"
 import Policy2 from "./policy2.jpg"
 import Policy3 from "./policy-3.jpg"
 import Policy4 from "./policy-4.jpg"
-import BlurredImage from "./blurred-1.jpg"
 import Random1 from "./random1.jpg"
 import Random2 from "./random2.jpg"
 import Random3 from "./random3.jpg"
@@ -69,33 +66,6 @@ const policies = [
     },
 ]
 
-const takeAction = [
-    {
-        title: "Sign a petition to end horse slaughter in the United States",
-        image: Random1
-    },
-    {
-        title: "Contact your representative to ensure this bill does not pass",
-        image: Random2
-    },
-    {
-        title: "Show your support protesting the BLM's actions",
-        image: Random3
-    },
-    {
-        title: "Contact your representative to saves Wyoming's Wild Horses",
-        image: Random4
-    },
-    {
-        title: "Write a short article about the condition of wild horses in your state",
-        image: Random5
-    },
-    {
-        title: "Apply to volunteer on our advocacy team",
-        image: Random6
-    },
-]
-
 const AdvocacyPage = () => {
     return (
         <div className="w-full h-fit flex flex-col items-center justify-start gap-16">
@@ -137,11 +107,11 @@ const AdvocacyPage = () => {
                 })}
             </div>
 
+            <TakeActionSection count={6} />
+
             <NewsCarousel title="RTF's Advocacy Work" topic="advocacy" />
 
             <WHDCallout />
-
-            <TakeActionSection />
 
             <div className="h-8"/>
         </div>

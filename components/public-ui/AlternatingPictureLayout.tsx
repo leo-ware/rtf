@@ -20,11 +20,11 @@ const AlternatingPictureLayout = ({ items, alternateTitleColors = false, divider
         return "text-sage-green"
     }
     return (
-        <div className="relative w-full md:w-10/12 mx-auto h-fit flex flex-col">
+        <div className="relative w-full md:w-10/12 mx-auto h-fit flex flex-col gap-16">
             {dividerColor && (
                 <div className={`
                     absolute top-0 left-0 w-1/2 h-full
-                    border-r-5 border-${dividerColor}`} />
+                    border-r-2 border-${dividerColor}`} />
             )}
             {items.map((item, index) => {
                 const odd = index % 2 === 0
@@ -32,7 +32,7 @@ const AlternatingPictureLayout = ({ items, alternateTitleColors = false, divider
                     <div
                         key={`${item.title}-${index}`}
                         className={`
-                            my-8 w-full h-fit flex flex-col items-center justify-center
+                            w-full h-fit flex flex-col items-center justify-center
                             ${odd
                                 ? "md:flex-row-reverse"
                                 : "md:flex-row"}
@@ -59,7 +59,7 @@ const AlternatingPictureLayout = ({ items, alternateTitleColors = false, divider
                                 {item.description}
                             </div>
                         </div>
-                        <div className="basis-0 grow max-h-[80vh] aspect-square relative">
+                        <div className="basis-0 grow h-fit max-h-[400px] aspect-square relative">
                             <Image
                                 src={item.image}
                                 alt={"Alternate Picture Layout Image"}

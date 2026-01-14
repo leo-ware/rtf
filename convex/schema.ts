@@ -373,6 +373,7 @@ export default defineSchema({
         dob: v.optional(v.number()),
         sanctuary: v.optional(v.string()),
         inMemoriam: v.optional(v.boolean()),
+        promoted: v.optional(v.boolean()),
         createdAt: v.number(),
         updatedAt: v.number(),
         donateForm: v.optional(v.string()),

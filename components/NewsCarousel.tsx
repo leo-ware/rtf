@@ -3,7 +3,8 @@
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
 import Image from "next/image"
 import Link from "next/link"
-import { usePaginatedQuery, useQuery } from "convex/react"
+import { useState, useEffect } from "react"
+import { usePaginatedQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Id } from "@/convex/_generated/dataModel"
 import { formatDate } from "@/lib/utils"
@@ -11,24 +12,41 @@ import { formatDate } from "@/lib/utils"
 import BrosChilling from "@/public/img/bros-chilling.png"
 import Carosel from "@/components/Carousel"
 
+type TopicType = "homepage" | "conservation" | "sanctuary" | "advocacy" | "education" | "herd_management" | "population_management" | "roundups" | "horse_slaughter" | "spirit"
+
 type NewsCarouselProps = {
     title?: string
     bgColor?: string
     herdId?: Id<"herds">
     animalId?: Id<"animals">
-    topic?: "homepage" | "conservation" | "sanctuary" | "advocacy" | "education" | "herd_management" | "population_management" | "roundups" | "horse_slaughter" | "spirit"
+    topic?: TopicType
+    preventFallback?: boolean
 }
 
 const NewsCarousel = ({
     title = "Latest News",
     bgColor = "seashell",
-    topic
+    topic,
+    preventFallback = false,
 }: NewsCarouselProps) => {
-    const { results: topicArticles } = usePaginatedQuery(api.articleMetadata.carouselSearch, {
-        topic,
+    const [topicState, setTopicState] = useState<TopicType | undefined>(topic)
+
+    const { results: topicArticles, status } = usePaginatedQuery(api.articleMetadata.carouselSearch, {
+        topic: topicState,
     }, { initialNumItems: 4 })
 
     const articles = topicArticles
+
+    useEffect(() => {
+        setTopicState(topic)
+    }, [topic])
+
+    // if we can't find any articles for this topic, fallback to loading any articles we can find
+    useEffect(() => {
+        if (status !== "LoadingFirstPage" && articles.length === 0 && !preventFallback) {
+            setTopicState(undefined)
+        }
+    }, [status, articles])
 
     if (!articles || articles.length === 0) {
         return null
@@ -43,13 +61,17 @@ const NewsCarousel = ({
             id: article._id,
             widget: (
                 <Link href={article.link}>
-                    <div className="w-full md:w-[75vw] h-[300px] flex md:flex-row flex-col stretch cursor-pointer hover:opacity-90 transition-opacity">
-                        <div className="basis-0 grow overflow-hidden">
+                    <div className={`
+                        w-full sm:w-[75vw] h-[80vh] sm:h-[300px]
+                        flex flex-col sm:flex-row stretch
+                        cursor-pointer hover:opacity-90 transition-opacity
+                        `}>
+                        <div className="h-5/12 sm:h-full basis-0 grow overflow-hidden">
                             <Image
                                 src={article.image?.url || BrosChilling}
                                 alt={article.image?.altText || "Article image"}
-                                width={400}
-                                height={300}
+                                width={article.image?.width || 400}
+                                height={article.image?.height || 300}
                                 className="w-full h-full object-cover" />
                         </div>
                         <div className="basis-0 grow bg-white flex flex-col items-center justify-center">
@@ -60,10 +82,10 @@ const NewsCarousel = ({
                                 <div className="text-[12px] text-ink uppercase font-semibold tracking-wider leading-tight">
                                     Return to Freedom News
                                 </div>
-                                <div className="text-[28px] font-serif text-pewter line-clamp-2">
+                                <div className="text-[20px] md:text-[28px] font-serif text-pewter line-clamp-2">
                                     {article.title}
                                 </div>
-                                <div className="text-[16px] text-ink line-clamp-3">
+                                <div className="text-[14px] md:text-[16px] text-ink line-clamp-3">
                                     {article.excerpt}
                                 </div>
                             </div>

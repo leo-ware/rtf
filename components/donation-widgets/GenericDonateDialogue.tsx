@@ -12,7 +12,7 @@ import isadora from "./isadora.jpg"
 
 const GenericDonateDialogueInner = () => {
     return (
-        <div className="w-[75vw] z-1000 h-fit relative bg-sage-green rounded-md overflow-hidden
+        <div className="w-[75vw] z-50 h-fit relative bg-sage-green rounded-md overflow-hidden
             flex items-center gap-8 text-milk text-left">
             <div className="w-1/2 h-fit flex flex-col gap-8 p-8">
                 <div className="flex flex-col gap-2">
@@ -93,7 +93,7 @@ const GenericDonateDialogue = ({ children }: GenericDonateDialogueProps) => {
                 <GenericDonateDialogueInner />
             </DialogContent>
             <DialogTrigger>
-                <div className="relative z-[0]">
+                <div className="z-10">
                     {children || <Button color="cinnamon" className="py-1 px-4">Donate</Button>}
                 </div>
             </DialogTrigger>

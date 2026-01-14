@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from "react"
 import { cn, range } from "@/lib/utils"
-import { FaArrowLeft, FaArrowRight } from "react-icons/fa"
+import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
 
 type CarouselAction = 'left' | 'right'
 
@@ -96,15 +96,15 @@ const Carousel = ({
         .map((index) => normalizeIndex(index))
         .map((index) => items[index])
 
-    const LeftButton = leftButton || <FaArrowLeft className="w-4 h-4" />
-    const RightButton = rightButton || <FaArrowRight className="w-4 h-4" />
+    const LeftButton = leftButton || <FaCaretLeft size={30} className="text-pewter" />
+    const RightButton = rightButton || <FaCaretRight size={30} className="text-pewter" />
 
     return (
         <div className={cn("w-full h-full flex items-center justify-center gap-2", className)}>
             {controls && (
                 <button
                     onClick={() => enqueueAction('left')}
-                    className="grow-0 shrink-0 basis-fit h-fit p-2 rounded-full"
+                    className="grow-0 shrink-0 basis-fit h-fit pr-2 rounded-full"
                     aria-label="Previous item"
                 >
                     {LeftButton}
@@ -143,7 +143,7 @@ const Carousel = ({
             {controls && (
                 <button
                     onClick={() => enqueueAction('right')}
-                    className="grow-0 shrink-0 basis-fit h-fit p-2 rounded-full"
+                    className="grow-0 shrink-0 basis-fit h-fit pl-2 rounded-full"
                     aria-label="Next item"
                 >
                     {RightButton}

@@ -22,21 +22,34 @@ type CarouselItemWidgetProps = {
 
 const CarouselItemWidget = ({title, description, link, reversed, image}: CarouselItemWidgetProps) => {
     return (
-        <div className="w-full h-[400px] flex" style={{direction: reversed ? "rtl" : "ltr"}}>
-            <div className="w-1/2 p-6 flex flex-col items-start justify-center gap-4">
-                <div className={"text-[36px] " + (reversed ? " text-cinnamon" : " text-pewter")}>
+        <div
+            className={`
+                w-full
+                h-[700px] md:h-[450px]
+                flex flex-col-reverse
+                ${reversed ? "md:flex-row-reverse" : "md:flex-row"}
+            `}>
+            <div className={`
+                w-full
+                flex flex-col gap-4
+                items-start
+                justify-start
+                text-left 
+                md:w-1/2 md:p-6
+                `}>
+                <div className={"text-[28px] md:text-[36px] text-cinnamon " + (reversed ? " md:text-cinnamon" : " md:text-pewter")}>
                     {title}
                 </div>
-                <div className="text-[20px] text-ink">
-                    {description}
+                <div className="text-[16px] md:text-[20px] text-ink">
+                    {description} 
                 </div>
-                <Link href={link}>
+                <Link href={link} className="mt-4">
                     <Button color="sage-green" className="py-1 px-4 text-[16px]">
                         Learn More
                     </Button>
                 </Link>
             </div>
-            <div className="w-1/2 h-full">
+            <div className="w-full md:w-1/2 h-full">
                 <Image src={image} alt={title} className="w-full h-full object-cover object-center" />
             </div>
         </div>

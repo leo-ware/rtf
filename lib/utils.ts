@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { Doc } from "@/convex/_generated/dataModel"
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
@@ -183,3 +184,21 @@ export const isValidEmail = (email: string): boolean => {
 export const formatPrice = (price: number | undefined) => (
     price ? `$${price.toFixed(2)}` : "Free"
 )
+
+export const horseDetailsString = (animal: Doc<"animals"> & { herd?: Doc<"herds"> }) => {
+    return [
+        animal.gender,
+        animal.dob && `${new Date().getFullYear() - new Date(animal.dob).getFullYear()} years old`,
+        animal.herd?.name,
+        animal.sanctuary,
+    ].filter(x => !!x).join(" | ")
+}
+
+export const randomChoice = <T>(n: number, array: T[], opts?: {stable?: boolean}): T[] => {
+    const items = array.map((item, idx) => ({ item, idx }))
+    const choices = items.sort(() => Math.random() - 0.5).slice(0, n)
+    if (opts?.stable) {
+        choices.sort((a, b) => a.idx - b.idx)
+    }
+    return choices.map(choice => choice.item)
+}

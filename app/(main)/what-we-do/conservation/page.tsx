@@ -39,69 +39,6 @@ const ConservationPage = () => {
                 land management, and the preservation of rare historic horse strains.
             </Callout>
 
-            <div className="w-full">
-                <Header className="mb-8 text-cinnamon underline">
-                    Fertility Control
-                </Header>
-
-                <AlternatingPictureLayout
-                    alternateTitleColors={true}
-                    items={[
-                        {
-                            title: "What Is PZP Fertility Control?",
-                            description: `
-                            Porcine Zona Pellucida (PZP) is a non-hormonal, reversible vaccine used to humanely 
-                            slow herd growth. Unlike hormonal methods, PZP does not change behavior, disrupt 
-                            natural cycling, or alter herd hierarchy. Instead, it simply prevents fertilization 
-                            while allowing mares to live and interact normally within their family bands.
-                        `,
-                            image: Img1,
-                        },
-                        {
-                            title: "How It Works",
-                            description: `
-                            PZP causes the mare's immune system to create antibodies that block sperm from attaching 
-                            to the egg. The mare still comes into heat and exhibits her full range of natural 
-                            behaviors—she just does not conceive. Initial treatment requires a primer and booster, 
-                            followed by periodic maintenance doses depending on the herd and setting.
-                        `,
-                            image: Img2,
-                        },
-                        {
-                            title: "Why It's Effective",
-                            description: `
-                            Decades of field use show 98-99% success in preventing pregnancies when mares receive 
-                            timely boosters. Small fluctuations are expected in wildlife biology but do not affect 
-                            overall herd stability. The result is predictable, steady population control without 
-                            removing horses from the range or breaking apart social structures.
-                        `,
-                            image: Img3,
-                        },
-                        {
-                            title: "Why It Matters for Ecosystems and Management",
-                            description: `
-                            Stabilizing herd growth on the range reduces pressure on forage and water, prevents 
-                            overcrowding, and lessens conflict with livestock. PZP programs cost a fraction of 
-                            helicopter roundups and holding facilities, offering the most humane and economically 
-                            responsible path for long-term wild horse management on public lands.
-                        `,
-                            image: Img4,
-                        },
-                        {
-                            title: "RTF's Role in Advancing Fertility Control",
-                            description: `
-                            Return to Freedom was one of the earliest organizations to implement native PZP in 1999 
-                            and has contributed hands-on data and model practices for over 25 years. Today, RTF leads 
-                            both sanctuary-based population management and an expanding On-Range Project, where the 
-                            team monitors bands, identifies individuals, and uses remote darting to keep horses free 
-                            on the landscapes they belong to.
-                        `,
-                            image: Img5,
-                        },
-                    ]}
-                />
-            </div>
-
             <div className="w-full flex flex-col items-center justify-center gap-4">
                 <Header className="text-cinnamon underline">
                     Holistic Land Management
@@ -315,6 +252,69 @@ const ConservationPage = () => {
                         }
                     ]}
                 /> */}
+            </div>
+
+            <div className="w-full">
+                <Header className="mb-8 text-cinnamon underline">
+                    Fertility Control
+                </Header>
+
+                <AlternatingPictureLayout
+                    alternateTitleColors={true}
+                    items={[
+                        {
+                            title: "What Is PZP Fertility Control?",
+                            description: `
+                            Porcine Zona Pellucida (PZP) is a non-hormonal, reversible vaccine used to humanely 
+                            slow herd growth. Unlike hormonal methods, PZP does not change behavior, disrupt 
+                            natural cycling, or alter herd hierarchy. Instead, it simply prevents fertilization 
+                            while allowing mares to live and interact normally within their family bands.
+                        `,
+                            image: Img1,
+                        },
+                        {
+                            title: "How It Works",
+                            description: `
+                            PZP causes the mare's immune system to create antibodies that block sperm from attaching 
+                            to the egg. The mare still comes into heat and exhibits her full range of natural 
+                            behaviors—she just does not conceive. Initial treatment requires a primer and booster, 
+                            followed by periodic maintenance doses depending on the herd and setting.
+                        `,
+                            image: Img2,
+                        },
+                        {
+                            title: "Why It's Effective",
+                            description: `
+                            Decades of field use show 98-99% success in preventing pregnancies when mares receive 
+                            timely boosters. Small fluctuations are expected in wildlife biology but do not affect 
+                            overall herd stability. The result is predictable, steady population control without 
+                            removing horses from the range or breaking apart social structures.
+                        `,
+                            image: Img3,
+                        },
+                        {
+                            title: "Why It Matters for Ecosystems and Management",
+                            description: `
+                            Stabilizing herd growth on the range reduces pressure on forage and water, prevents 
+                            overcrowding, and lessens conflict with livestock. PZP programs cost a fraction of 
+                            helicopter roundups and holding facilities, offering the most humane and economically 
+                            responsible path for long-term wild horse management on public lands.
+                        `,
+                            image: Img4,
+                        },
+                        {
+                            title: "RTF's Role in Advancing Fertility Control",
+                            description: `
+                            Return to Freedom was one of the earliest organizations to implement native PZP in 1999 
+                            and has contributed hands-on data and model practices for over 25 years. Today, RTF leads 
+                            both sanctuary-based population management and an expanding On-Range Project, where the 
+                            team monitors bands, identifies individuals, and uses remote darting to keep horses free 
+                            on the landscapes they belong to.
+                        `,
+                            image: Img5,
+                        },
+                    ]}
+                />
             </div>
 
             <div className="w-10/12 mx-auto">

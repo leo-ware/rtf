@@ -328,7 +328,7 @@ export default class EventManager {
         const result = await ctx.db
             .query("events")
             .withIndex("by_date_number")
-            .order("desc")
+            .order("asc")
             .paginate(paginationOpts)
 
         const eventsWithRelations = await Promise.all(

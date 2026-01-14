@@ -55,7 +55,7 @@ const SponsorAHorseWidgetInner = ({ animalId }: { animalId: Id<"animals"> }) => 
 
             <div className="w-full px-12 py-8 basis-0 grow">
                 <div className="w-full mb-6 flex items-center justify-between">
-                    <div className="text-3xl font-serif text-white">Sponsor Isadora Cruz</div>
+                    <div className="text-3xl font-serif text-white">Sponsor {animal?.name}</div>
                     <div className="flex items-center justify-center gap-3">
                         <Button color="milk" className="text-ink text-xs px-4">
                             Monthly

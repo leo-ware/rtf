@@ -7,6 +7,7 @@ import { api } from "@/convex/_generated/api"
 import ConvexImage from "@/components/images/ConvexImage"
 import { useMemo } from "react"
 import Link from "next/link"
+import Header from "@/components/public-ui/Header"
 
 // import GSLogo from "@/public/img/sponsor-image-giant-steps.png"
 // import HPLogo from "@/public/img/sponsor-image-horse-play.png"
@@ -49,11 +50,11 @@ const CorporateCarousel = () => {
     return (
         <div className="w-full h-fit py-12 flex flex-col items-center justify-center gap-2 md:gap-4">
 
-            <div className="w-full flex flex-col items-center justify-center gap-2">
-                <div className="font-serif text-cinnamon text-[48px] text-center underline decoration-cinnamon decoration-2 underline-offset-12">
+            <div className="w-10/12 md:w-full flex flex-col items-center justify-center gap-2">
+                <Header color="cinnamon">
                     Sponsors
-                </div>
-                <div className=" w-2/3 text-[20] text-center">
+                </Header>
+                <div className="w-full md:w-2/3 text-[20] teft-left md:text-center">
                     A very special thank you goes out to our generous sponsors — corporations that make it possible to do more of the costly work required of a national advocacy organization like Return to Freedom. 
                     <br />
                     If you or your company wishes to sponsor our work, please 
