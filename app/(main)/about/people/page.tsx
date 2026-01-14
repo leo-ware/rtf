@@ -80,7 +80,7 @@ const PeoplePage = () => {
                             </Header>
 
                             {boardOfDirectors.map((person) => (
-                                <div key={person._id} className="col-span-1">
+                                <div key={person._id} className="col-span-1 mb-4">
                                     <PersonCard key={person._id} person={person} />
                                 </div>
                             ))}

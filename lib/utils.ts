@@ -191,7 +191,7 @@ export const horseDetailsString = (animal: Doc<"animals"> & { herd?: Doc<"herds"
         animal.dob && `${new Date().getFullYear() - new Date(animal.dob).getFullYear()} years old`,
         animal.herd?.name,
         animal.sanctuary,
-    ].filter(x => !!x).join(" | ")
+    ].filter(x => !!x).slice(0, 3).join(" | ")
 }
 
 export const randomChoice = <T>(n: number, array: T[], opts?: {stable?: boolean}): T[] => {

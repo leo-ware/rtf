@@ -21,14 +21,15 @@ type SponsorAHorseMenuProps = {
     herdId?: Id<"herds">
     type?: "horse" | "burro"
     showControls?: boolean
+    excludeAnimalIds?: Id<"animals">[]
 }
 
-const SponsorAHorseMenu = ({ title, limit, herdId = undefined, type = undefined, showControls = true }: SponsorAHorseMenuProps) => {
+const SponsorAHorseMenu = ({ title, limit, herdId = undefined, type = undefined, showControls = true, excludeAnimalIds = [] }: SponsorAHorseMenuProps) => {
 
     const [selectedHerdId, setSelectedHerdId] = useState<Id<"herds"> | null>(herdId || null)
     const [selectedType, setSelectedType] = useState<"horse" | "burro" | null>(type || null)
 
-    const { results: animals, loadMore, status: animalsStatus } = usePaginatedQuery(
+    const { results: _animals, loadMore, status: animalsStatus } = usePaginatedQuery(
         api.animals.getAnimalsForSponsorship,
         { herdId: selectedHerdId ?? undefined, type: selectedType ?? undefined },
         { initialNumItems: limit || 6 }
@@ -39,6 +40,7 @@ const SponsorAHorseMenu = ({ title, limit, herdId = undefined, type = undefined,
         { initialNumItems: 100 }
     )
 
+    const animals = _animals?.filter((animal) => !excludeAnimalIds.includes(animal._id))
     const selectedHerd = herds?.find((herd) => herd._id === selectedHerdId)
 
     const handleLoadMore = () => {

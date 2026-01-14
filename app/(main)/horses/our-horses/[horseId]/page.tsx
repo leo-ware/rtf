@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import React from "react"
+import React, { AnyActionArg } from "react"
 import { useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import NewsCarousel from "@/components/NewsCarousel"
@@ -11,10 +11,11 @@ import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
 import Button from "@/components/public-ui/Button"
 import ConvexImage from "@/components/images/ConvexImage"
 import { notFound } from "next/navigation"
+import { horseDetailsString } from "@/lib/utils"
+import SponsorAHorseDialog from "@/components/donation-widgets/SponsorAHorseDialog"
 
 import { Id } from "@/convex/_generated/dataModel"
 import SponsorAHorseMenu from "@/components/donation-widgets/SponsorAHorseMenu"
-import Link from "next/link"
 import ExampleHorse from "./example-horse-image.png"
 
 type IndividualHorsePageProps = {
@@ -51,7 +52,7 @@ const IndividualHorsePage = ({ params }: IndividualHorsePageProps) => {
         <div className="w-full h-fit my-16 flex flex-col items-center justify-start gap-16">
             <div className="w-10/12 flex flex-col items-center justify-center gap-8">
                 <div className="w-full h-fit flex gap-8 items-center justify-center">
-                    <div className="relative w-1/2 h-[300px]">
+                    <div className="relative w-1/2 h-[300px] overflow-hidden rounded-sm">
                         {animal.image?.url ? (
                             <ConvexImage
                                 src={animal.image.url}
@@ -69,21 +70,21 @@ const IndividualHorsePage = ({ params }: IndividualHorsePageProps) => {
                             />
                         )}
                     </div>
-                    <div className="w-1/2">
+                    <div className="w-1/2 flex flex-col items-start justify-center gap-2">
                         <div className="text-3xl font-serif text-pewter">
                             {animal.name}
                         </div>
                         <div className="text-lg text-left text-gray-500 uppercase font-semibold">
-                            {[
-                                animal.gender,
-                                animal.dob ? `${new Date().getFullYear() - new Date(animal.dob).getFullYear()} years old` : null,
-                                animal.herd?.name,
-                                animal.sanctuary
-                            ].filter(Boolean).join(" | ")}
+                            {horseDetailsString(animal as any)}
                         </div>
                         <div className="text-lg text-left">
                             {animal.description}
                         </div>
+                        <SponsorAHorseDialog animalId={animal._id}>
+                            <Button color="cinnamon" size="medium">
+                                Sponsor {animal.name}
+                            </Button>
+                        </SponsorAHorseDialog>
                     </div>
                 </div>
 
@@ -133,7 +134,10 @@ const IndividualHorsePage = ({ params }: IndividualHorsePageProps) => {
                 </div>
             )}
             
-            <SponsorAHorseMenu title="Explore Other Horses to Sponsor" />
+            <SponsorAHorseMenu
+                title="Explore Other Horses to Sponsor"
+                excludeAnimalIds={[animal._id]}
+            />
         </div>
     )
 }
