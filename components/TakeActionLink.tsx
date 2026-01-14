@@ -1,34 +1,40 @@
 import Image, { StaticImageData } from "next/image"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
-import { Id } from "@/convex/_generated/dataModel"
-import ConvexImageFromId from "@/components/images/ConvexImageFromId"
+import ConvexImage from "./images/ConvexImage"
+import { ResolvedImageType } from "@/lib/types"
 
 type TakeActionLinkProps = {
     title: string
-    image?: StaticImageData
-    imageId?: Id<"images">
+    image?: ResolvedImageType | null
+    fallbackImage?: StaticImageData
     href?: string
     className?: string
 }
 
-const TakeActionLink = ({ title, image, imageId, href, className }: TakeActionLinkProps) => {
+const TakeActionLink = ({ title, fallbackImage, image, href, className }: TakeActionLinkProps) => {
     const card = (
         <div className={cn("aspect-[8/7] w-full bg-seashell rounded-md overflow-hidden", className)}>
             <div className="relative w-full h-8/12">
-                {imageId ? (
-                    <ConvexImageFromId
-                        imageId={imageId}
+                {(image && image.url) ? (
+                    <ConvexImage
+                        src={image.url}
+                        alt={title}
+                        width={image.width}
+                        height={image.height}
                         className="w-full h-full object-cover object-center"
                     />
                 ) : (
-                    image ? (
-                        <Image src={image} alt={title} className="w-full h-full object-cover object-center" />
-                    ) : null
+                fallbackImage ? (
+                    <Image
+                        src={fallbackImage}
+                        alt={title}
+                        className="w-full h-full object-cover object-center" />
+                ) : null
                 )}
             </div>
             <div className="px-6 py-2 w-full h-4/12 flex items-center justify-center">
-                <div className="text-2xl font-serif text-pewter text-center">
+                <div className="text-2xl font-serif text-pewter text-center line-clamp-3">
                     {title}
                 </div>
             </div>

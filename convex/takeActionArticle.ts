@@ -2,6 +2,8 @@ import { v } from "convex/values"
 import { query, mutation } from "./_generated/server"
 import { getCurrentUserOrThrow } from "./users"
 import { generateSlug } from "./utils"
+import { paginationOptsValidator } from "convex/server"
+import { resolveImageId } from "./images"
 
 export const listTakeActionArticles = query({
     args: {
@@ -41,29 +43,28 @@ export const listTakeActionArticles = query({
 
 export const recommendTakeActionArticles = query({
     args: {
-        limit: v.optional(v.number()),
+        paginationOpts: paginationOptsValidator,
     },
-    returns: v.array(v.object({
-        _id: v.id("takeActionArticle"),
-        _creationTime: v.number(),
-        title: v.string(),
-        slug: v.string(),
-        imageId: v.optional(v.id("images")),
-        description: v.string(),
-        content: v.string(),
-        isPublic: v.boolean(),
-    })),
     handler: async (ctx, args) => {
-        const limit = args.limit ?? 3
-        if (limit <= 0) {
-            return []
-        }
-
-        return await ctx.db
+        const pagination = await ctx.db
             .query("takeActionArticle")
             .withIndex("by_isPublic", (q) => q.eq("isPublic", true))
             .order("desc")
-            .take(limit)
+            .paginate(args.paginationOpts)
+        
+        const withImages = {
+            ...pagination,
+            page: await Promise.all(pagination.page.map(async (article) => {
+                return {
+                    ...article,
+                    image: article.imageId
+                        ? await resolveImageId(ctx, article.imageId)
+                        : null,
+                }
+            })),
+        }
+
+        return withImages
     },
 })
 

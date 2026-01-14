@@ -106,9 +106,11 @@ const AdminTakeActionArticlesPage = () => {
                             </div>
                         </div>
 
-                        <div className="min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                                <div className="text-lg font-semibold break-words">{article.title}</div>
+                        <div className="sm:grow">
+                            <div className="w-full flex flex-col items-start justify-start gap-2">
+                                <div className="text-lg font-medium break-words sm:max-w-10/12">
+                                    {article.title}
+                                </div>
                                 {article.isPublic ? (
                                     <Badge className="bg-green-100 text-green-800">
                                         <Eye className="h-3 w-3 mr-1" />
@@ -120,14 +122,6 @@ const AdminTakeActionArticlesPage = () => {
                                         Private
                                     </Badge>
                                 )}
-                                {article.slug && (
-                                    <Badge variant="outline" className="font-mono text-xs">
-                                        {article.slug}
-                                    </Badge>
-                                )}
-                            </div>
-                            <div className="text-sm text-gray-600 mt-2 whitespace-pre-wrap break-words">
-                                {article.description}
                             </div>
                         </div>
 

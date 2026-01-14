@@ -107,7 +107,7 @@ const AdvocacyPage = () => {
                 })}
             </div>
 
-            <TakeActionSection count={6} />
+            <TakeActionSection rows={1} showControls={true} />
 
             <NewsCarousel title="RTF's Advocacy Work" topic="advocacy" />
 

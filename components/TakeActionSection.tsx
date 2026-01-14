@@ -3,9 +3,10 @@
 import CardLayout from "./public-ui/CardLayout"
 import Header from "./public-ui/Header"
 import TakeActionLink from "./TakeActionLink"
-import { useQuery } from "convex/react"
+import { usePaginatedQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { cn } from "@/lib/utils"
+import { Loader2, ChevronDownIcon } from "lucide-react"
 
 import TakeActionImage1 from "./images/take-action-1.jpg"
 import TakeActionImage2 from "./images/take-action-2.jpg"
@@ -23,30 +24,20 @@ const TakeActionSkeletonCard = ({ className }: { className?: string }) => {
 }
 
 type TakeActionSectionProps = {
-    count?: number
+    rows?: number
+    showControls?: boolean
 }
 
-const TakeActionSection = ({ count = 3 }: TakeActionSectionProps) => {
-    const safeCount = Math.max(0, Math.floor(count))
-    const recommended = useQuery(
+const TakeActionSection = ({ rows = 1, showControls = false }: TakeActionSectionProps) => {
+    const rowSize = 3
+    const initCount = rowSize * rows
+    const { results: recommended, loadMore, status: recommendedStatus } = usePaginatedQuery(
         api.takeActionArticle.recommendTakeActionArticles,
-        { limit: safeCount || 1 }
+        {},
+        { initialNumItems: initCount }
     )
 
-    const images = [TakeActionImage1, TakeActionImage2, TakeActionImage3]
-    const fallbackTitles = [
-        "Sign a petition to end horse slaughter in the United States",
-        "Contact your representative to ensure this bill does not pass",
-        "Show your support protesting the BLM's actions",
-    ]
-
-    const clippedCount = Math.min(safeCount, recommended?.length ?? 0) || 1
-    const gridCols = cn(
-        "grid grid-cols-1 gap-4",
-        clippedCount >= 2 && "md:grid-cols-2",
-        clippedCount >= 3 && "lg:grid-cols-3",
-        clippedCount >= 4 && "xl:grid-cols-4",
-    )
+    const fallbackImages = [TakeActionImage1, TakeActionImage2, TakeActionImage3]
 
     return (
         <div id="take-action" className="w-11/12 mx-auto grid justify-items-center gap-8">
@@ -54,35 +45,53 @@ const TakeActionSection = ({ count = 3 }: TakeActionSectionProps) => {
                 Take Action
             </Header>
 
-            <CardLayout className={gridCols}>
-                {safeCount === 0 ? null : (
+            <CardLayout className={"gap-4"}>
+                {(
                     <>
-                        {recommended === undefined && [...Array(safeCount)].map((_, idx) => (
-                            <TakeActionSkeletonCard key={idx} className="mx-auto" />
-                        ))}
+                        {recommendedStatus === "LoadingFirstPage" && (
+                            [...Array(initCount)].map((_, idx) => (
+                                <TakeActionSkeletonCard key={idx} className="mx-auto" />
+                            ))
+                        )}
 
-                        {recommended !== undefined && (
-                            (recommended.length === 0)
-                                ? [...Array(safeCount)].map((_, idx) => (
-                                    <TakeActionLink
-                                        key={idx}
-                                        className="mx-auto"
-                                        title={fallbackTitles[idx % fallbackTitles.length]}
-                                        image={images[idx % images.length]}
-                                    />
-                                ))
-                                : [...Array(Math.min(safeCount, recommended.length))].map((_, idx) => (
-                                    <TakeActionLink
-                                        key={recommended[idx]._id}
-                                        className="mx-auto"
-                                        title={recommended[idx].title}
-                                        href={recommended[idx].slug ? `/resources/take-action/${recommended[idx].slug}` : undefined}
-                                        imageId={recommended[idx].imageId}
-                                        image={images[idx % images.length]}
-                                    />
-                                ))
+                        {recommended && recommended.length > 0 && (
+                            recommended.map((recommendedArticle, idx) => (
+                                <TakeActionLink
+                                    key={recommendedArticle._id}
+                                    className="mx-auto"
+                                    title={recommendedArticle.title}
+                                    href={recommendedArticle.slug ? `/resources/take-action/${recommendedArticle.slug}` : undefined}
+                                    image={recommendedArticle.image}
+                                    fallbackImage={fallbackImages[idx % fallbackImages.length]}
+                                />
+                            ))
                         )}
                     </>
+                )}
+
+                {(showControls && ["CanLoadMore", "LoadingMore"].includes(recommendedStatus)) && (
+                    <div className="col-span-full flex items-center justify-center gap-2">
+                        <div
+                            className="cursor-pointer w-fit h-fit"
+                            onClick={() => {
+                                if (recommendedStatus === "CanLoadMore") {
+                                    loadMore(rowSize)
+                                }
+                            }}
+                        >
+                            {recommendedStatus === "CanLoadMore" && (
+                                <div className="flex flex-col items-center justify-center group">
+                                    <div className="text-sm font-medium text-pewter group-hover:text-pewter/80">
+                                        Show More
+                                    </div>
+                                    <ChevronDownIcon className="w-4 h-4 text-pewter group-hover:text-pewter/80" />
+                                </div>
+                            )}
+                            {recommendedStatus === "LoadingMore" && (
+                                <Loader2 className="w-4 h-4 animate-spin text-pewter" />
+                            )}
+                        </div>
+                    </div>
                 )}
             </CardLayout>
         </div>
