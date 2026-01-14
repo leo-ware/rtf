@@ -92,30 +92,43 @@ const HomePage = () => {
                                 title: "Conservation",
                                 image: ConservationImage,
                                 description: `
-                                    RTF restores balance to both land and herds through regenerative grazing and 
-                                    humane fertility control. Our collaboration with Cal Poly San Luis Obispo has 
-                                    revitalized 2,000 acres of grassland, while our PZP fertility control program 
-                                    keeps herds healthy and intact without roundups. These initiatives prove that 
-                                    science and compassion can coexist.
+                                   RTF advances practical, science-based conservation through humane fertility 
+                                   control, regenerative land management, and the protection of rare historic mustang 
+                                   strains. Our work demonstrates how wild horses can remain on the land without roundups.
                                 `,
                                 link: "/what-we-do/conservation"
                             },
                             {
                                 title: "Advocacy",
                                 image: AdvocacyImage,
-                                description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                                description: `
+                                    RTF works to protect wild horses and burros through 
+                                    policy reform, legal action, and public engagement. We challenge helicopter roundups, 
+                                    defend Herd Management Areas, oppose horse slaughter, and push for humane, 
+                                    science-driven alternatives that keep horses wild and free on public lands.
+                                `,
                                 link: "/what-we-do/advocacy"
                             },
                             {
                                 title: "Sanctuary",
                                 image: SanctuaryImage,
-                                description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                                description: `
+                                    Return to Freedom provides lifelong sanctuary for wild horses and burros displaced 
+                                    by roundups, neglect, or the threat of slaughter. Across our Lompoc headquarters 
+                                    and San Luis Obispo satellite sanctuary, horses live in natural family bands with 
+                                    room to roam.
+                                `,
                                 link: "/what-we-do/sanctuary"
                             },
                             {
                                 title: "Education",
                                 image: EducationImage,
-                                description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                                description: `
+                                    Education at Return to Freedom is grounded in real-world practice. Through tours, 
+                                    hikes, workshops, webinars, and volunteer programs, we invite people to learn 
+                                    directly from intact herds and working landscapes—building understanding of wild 
+                                    horse behavior, humane management.
+                                `,
                                 link: "/what-we-do/education"
                             }
                         ].map(({ title, image, description, link }) => (
@@ -330,7 +343,7 @@ const HomePage = () => {
 
             <CorporateCarousel />
 
-            <div className="w-fit max-w-11/12 h-fit mt-1 mb-20 mx-auto flex flex-col items-center justify-center">
+            <div className="w-fit max-w-11/12 h-fit mt-8 mb-20 mx-auto flex flex-col items-center justify-center">
                 <div className="text-storm font-serif text-3xl mb-2">
                     Subscribe to receive updates on our work
                 </div>
