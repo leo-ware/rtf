@@ -28,98 +28,100 @@ export default function Footer() {
                     </div>
                 </div>
 
-                <div className="grow flex flex-col items-start justify-between gap-8">
+                <div className="grow flex items-start justify-start">
+                    <div className="w-full max-w-[700px] flex flex-col items-start justify-between gap-8">
 
-                    <div className={`
-                        w-full flex
-                        flex-col gap-4 items-start justify-start
-                        sm:flex-row sm:grow sm:items-start sm:justify-between sm:gap-8
-                        `}>
+                        <div className={`
+                            w-full flex
+                            flex-col gap-4 items-start justify-start
+                            sm:flex-row sm:grow sm:items-start sm:justify-between sm:gap-8
+                            `}>
 
-                        <div className="grow basis-auto">
-                            <div className="text-white font-serif text-[25px]">
-                                About RTF
+                            <div className="grow basis-auto">
+                                <div className="text-white font-serif text-[25px]">
+                                    About RTF
+                                </div>
+                                <div className="text-white text-[12px] flex flex-col gap-[2px]">
+                                    <Link href="/horses/our-horses" className="hover:underline">
+                                        Our Horses
+                                    </Link>
+                                    <Link href="/about/people" className="hover:underline">
+                                        Our Team
+                                    </Link>
+                                    <Link href="/about/people/opportunities" className="hover:underline">
+                                        Opportunities
+                                    </Link>
+                                </div>
                             </div>
-                            <div className="text-white text-[12px] flex flex-col gap-[2px]">
-                                <Link href="/horses/our-horses" className="hover:underline">
-                                    Our Horses
-                                </Link>
-                                <Link href="/about/people" className="hover:underline">
-                                    Our Team
-                                </Link>
-                                <Link href="/about/people/opportunities" className="hover:underline">
-                                    Opportunities
-                                </Link>
+
+                            <div className="grow basis-auto">
+                                <div className="text-white font-serif text-[25px]">
+                                    Act Now
+                                </div>
+                                <div className="text-white text-[12px] flex flex-col gap-[2px]">
+                                    <Link href="/donate/sponsor-a-horse" className="hover:underline">
+                                        Sponsor a Horse
+                                    </Link>
+                                    <Link href="/visit-us" className="hover:underline">
+                                        Visit Us
+                                    </Link>
+                                    <Link href="/what-we-do/advocacy#take-action" className="hover:underline">
+                                        Take Action
+                                    </Link>
+                                    <Link
+                                        target="_blank"
+                                        href="https://shop.returntofreedom.org"
+                                        className="hover:underline flex items-center gap-1"
+                                    >
+                                        Shop
+                                        <FaExternalLinkAlt size={12} className="inline-block" />
+                                    </Link>
+                                </div>
+                            </div>
+
+                            <div className="grow basis-auto">
+                                <div className="text-white font-serif text-[25px]">
+                                    What We Do
+                                </div>
+                                <div className="text-white text-[12px] flex flex-col gap-[2px]">
+                                    <Link href="/what-we-do/conservation" className="hover:underline">
+                                        Conservation
+                                    </Link>
+                                    <Link href="/what-we-do/advocacy" className="hover:underline">
+                                        Advocacy
+                                    </Link>
+                                    <Link href="/what-we-do/sanctuary" className="hover:underline">
+                                        Sanctuary
+                                    </Link>
+                                    <Link href="/what-we-do/education" className="hover:underline">
+                                        Education
+                                    </Link>
+                                </div>
+                            </div>
+
+                            <div className="grow basis-auto">
+                                <div className="text-white font-serif text-[25px]">
+                                    Explore
+                                </div>
+                                <div className="text-white text-[12px] flex flex-col gap-[2px]">
+                                    <Link href="/resources/news" className="hover:underline">
+                                        News
+                                    </Link>
+                                    <Link href="/resources/learn" className="hover:underline">
+                                        Learn
+                                    </Link>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="grow basis-auto">
-                            <div className="text-white font-serif text-[25px]">
-                                Act Now
-                            </div>
-                            <div className="text-white text-[12px] flex flex-col gap-[2px]">
-                                <Link href="/donate/sponsor-a-horse" className="hover:underline">
-                                    Sponsor a Horse
-                                </Link>
-                                <Link href="/visit-us" className="hover:underline">
-                                    Visit Us
-                                </Link>
-                                <Link href="/what-we-do/advocacy#take-action" className="hover:underline">
-                                    Take Action
-                                </Link>
-                                <Link
-                                    target="_blank"
-                                    href="https://shop.returntofreedom.org"
-                                    className="hover:underline flex items-center gap-1"
-                                >
-                                    Shop
-                                    <FaExternalLinkAlt size={12} className="inline-block" />
-                                </Link>
-                            </div>
+                        <div className={`
+                            w-full flex
+                            flex-col items-center justify-start gap-8
+                            sm:flex-row sm:items-center sm:justify-center sm:gap-12`}>
+                            <Image src={CharityNavigator} alt="Charity Navigator" className="h-[100px] w-auto" />
+                            <Image src={OnePercent} alt="1% for the Planet" className="h-[100px] w-auto" />
+                            <Image src={NatureDefense} alt="Nature Defense Foundation" className="h-[100px] w-auto" />
                         </div>
-
-                        <div className="grow basis-auto">
-                            <div className="text-white font-serif text-[25px]">
-                                What We Do
-                            </div>
-                            <div className="text-white text-[12px] flex flex-col gap-[2px]">
-                                <Link href="/what-we-do/conservation" className="hover:underline">
-                                    Conservation
-                                </Link>
-                                <Link href="/what-we-do/advocacy" className="hover:underline">
-                                    Advocacy
-                                </Link>
-                                <Link href="/what-we-do/sanctuary" className="hover:underline">
-                                    Sanctuary
-                                </Link>
-                                <Link href="/what-we-do/education" className="hover:underline">
-                                    Education
-                                </Link>
-                            </div>
-                        </div>
-
-                        <div className="grow basis-auto">
-                            <div className="text-white font-serif text-[25px]">
-                                Explore
-                            </div>
-                            <div className="text-white text-[12px] flex flex-col gap-[2px]">
-                                <Link href="/resources/news" className="hover:underline">
-                                    News
-                                </Link>
-                                <Link href="/resources/learn" className="hover:underline">
-                                    Learn
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className={`
-                        w-full flex
-                        flex-col items-center justify-start gap-8
-                        sm:flex-row sm:items-center sm:justify-center sm:gap-12`}>
-                        <Image src={CharityNavigator} alt="Charity Navigator" className="h-[100px] w-auto" />
-                        <Image src={OnePercent} alt="1% for the Planet" className="h-[100px] w-auto" />
-                        <Image src={NatureDefense} alt="Nature Defense Foundation" className="h-[100px] w-auto" />
                     </div>
                 </div>
 

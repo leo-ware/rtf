@@ -6,7 +6,7 @@ import { resolveImageId } from "./images"
 import { paginationOptsValidator } from "convex/server"
 import { QMCtxType } from "./types"
 
-function generateSlug(name: string): string {
+const generateSlug = (name: string): string => {
     return name
         .toLowerCase()
         .replace(/[^a-z0-9\s-]/g, "")
@@ -16,7 +16,7 @@ function generateSlug(name: string): string {
 }
 
 // Helper function to add image data to herd
-async function addImageToHerd(ctx: QMCtxType, herd: Doc<"herds">) {
+const addImageToHerd = async (ctx: QMCtxType, herd: Doc<"herds">) => {
     return {
         ...herd,
         image: herd.imageId && await resolveImageId(ctx, herd.imageId),
@@ -78,7 +78,7 @@ export const createHerd = mutation({
         imageId: v.optional(v.id("images")),
         timeline: v.optional(v.array(v.id("timelineItem"))),
         content: v.optional(v.string()),
-        donateForm: v.optional(v.string()),
+        donationFormId: v.optional(v.id("donationForms")),
     },
     returns: v.id("herds"),
     handler: async (ctx, args) => {
@@ -109,6 +109,13 @@ export const createHerd = mutation({
             throw new Error("A herd with this name already exists")
         }
 
+        if (args.donationFormId) {
+            const donationForm = await ctx.db.get(args.donationFormId)
+            if (!donationForm) {
+                throw new Error("Donation form not found")
+            }
+        }
+
         const now = Date.now()
         return await ctx.db.insert("herds", {
             name: args.name,
@@ -119,7 +126,7 @@ export const createHerd = mutation({
             createdAt: now,
             updatedAt: now,
             content: args.content || "",
-            donateForm: args.donateForm || "",
+            donationFormId: args.donationFormId,
         })
     },
 })
@@ -132,7 +139,7 @@ export const updateHerd = mutation({
         imageId: v.optional(v.id("images")),
         timeline: v.optional(v.array(v.id("timelineItem"))),
         content: v.optional(v.string()),
-        donateForm: v.optional(v.string()),
+        donationFormId: v.optional(v.id("donationForms")),
     },
     returns: v.null(),
     handler: async (ctx, args) => {
@@ -154,7 +161,7 @@ export const updateHerd = mutation({
             imageId: Id<"images"> | undefined
             timeline: Array<Id<"timelineItem">> | undefined
             content: string | undefined
-            donateForm: string | undefined
+            donationFormId: Id<"donationForms"> | undefined
             updatedAt: number
         }> = {
             updatedAt: Date.now(),
@@ -200,8 +207,14 @@ export const updateHerd = mutation({
             updates.content = args.content
         }
 
-        if (args.donateForm !== undefined) {
-            updates.donateForm = args.donateForm
+        if (args.donationFormId !== undefined) {
+            if (args.donationFormId) {
+                const donationForm = await ctx.db.get(args.donationFormId)
+                if (!donationForm) {
+                    throw new Error("Donation form not found")
+                }
+            }
+            updates.donationFormId = args.donationFormId
         }
 
         await ctx.db.patch(args.id, updates)

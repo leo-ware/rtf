@@ -103,8 +103,9 @@ export const createAnimal = mutation({
         description: v.string(),
         type: v.union(v.literal("horse"), v.literal("burro")),
         slug: v.optional(v.string()),
+        herdId: v.optional(v.id("herds")),
         imageId: v.id("images"),
-        donateForm: v.optional(v.string()),
+        donationFormId: v.optional(v.id("donationForms")),
     },
     returns: v.id("animals"),
     handler: async (ctx, args) => {
@@ -125,16 +126,28 @@ export const createAnimal = mutation({
             throw new Error("An animal with this name already exists")
         }
 
-        const now = Date.now()
+        if (args.herdId) {
+            const herd = await ctx.db.get(args.herdId)
+            if (!herd) {
+                throw new Error("Herd not found")
+            }
+        }
+
+        if (args.donationFormId) {
+            const donationForm = await ctx.db.get(args.donationFormId)
+            if (!donationForm) {
+                throw new Error("Donation form not found")
+            }
+        }
+
         const animalId = await ctx.db.insert("animals", {
             name: args.name,
             slug,
             type: args.type,
             description: args.description,
+            herdId: args.herdId,
             imageId: args.imageId,
-            createdAt: now,
-            updatedAt: now,
-            donateForm: args.donateForm || "",
+            donationFormId: args.donationFormId,
         })
         const animal = await ctx.db.get(animalId)
         if (animal) {
@@ -160,13 +173,13 @@ export const updateAnimal = mutation({
         age: v.optional(v.number()),
         sanctuary: v.optional(v.string()),
         inMemoriam: v.optional(v.boolean()),
-        donateForm: v.optional(v.string()),
+        donationFormId: v.optional(v.id("donationForms")),
     },
     returns: v.null(),
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
-            throw new Error("Insufficient permissions");
+            throw new Error("Insufficient permissions")
         }
 
         const animal = await ctx.db.get(args.id)
@@ -174,9 +187,7 @@ export const updateAnimal = mutation({
             throw new Error("Animal not found")
         }
 
-        const updates: any = {
-            updatedAt: Date.now(),
-        }
+        const updates: any = {}
 
         if (args.name !== undefined) {
             updates.name = args.name
@@ -244,10 +255,6 @@ export const updateAnimal = mutation({
 
         if (args.inMemoriam !== undefined) {
             updates.inMemoriam = args.inMemoriam
-        }
-
-        if (args.donateForm !== undefined) {
-            updates.donateForm = args.donateForm
         }
 
         await ctx.db.patch(args.id, updates)

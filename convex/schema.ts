@@ -30,6 +30,14 @@ export default defineSchema({
         externalId: v.string(),
     })
         .index("email", ["email"]),
+    
+    donationForms: defineTable({
+        name: v.string(),
+        notes: v.optional(v.string()),
+        formId: v.string(),
+        formTemplateId: v.string(),
+        updatedAt: v.number(),
+    }),
 
     takeActionArticle: defineTable({
         title: v.string(),
@@ -354,7 +362,7 @@ export default defineSchema({
         createdAt: v.number(),
         updatedAt: v.number(),
         content: v.optional(v.string()),
-        donateForm: v.optional(v.string()),
+        donationFormId: v.optional(v.id("donationForms")),
 
         articleMetadataIds: v.optional(v.array(v.id("articleMetadata"))),
     }).index("by_slug", ["slug"]),
@@ -374,9 +382,8 @@ export default defineSchema({
         sanctuary: v.optional(v.string()),
         inMemoriam: v.optional(v.boolean()),
         promoted: v.optional(v.boolean()),
-        createdAt: v.number(),
-        updatedAt: v.number(),
-        donateForm: v.optional(v.string()),
+
+        donationFormId: v.optional(v.id("donationForms")),
         
         articleMetadataIds: v.optional(v.array(v.id("articleMetadata"))),
     })
@@ -384,7 +391,6 @@ export default defineSchema({
         .index("by_type", ["type"])
         .index("by_herd", ["herdId"])
         .index("by_in_memoriam", ["inMemoriam"])
-        .index("by_updated_at", ["updatedAt"])
         .index("by_image", ["imageId"]),
 
     people: defineTable({

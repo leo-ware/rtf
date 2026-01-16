@@ -62,7 +62,7 @@ const OurHorsesPage = () => {
 
             <HerdsCarousel />
 
-            <SponsorAHorseMenu />
+            <SponsorAHorseMenu showControls={false} initialNumItems={3} />
 
             <div className="relative w-full h-[500px] flex flex-col items-center justify-center gap-8">
                 <Image

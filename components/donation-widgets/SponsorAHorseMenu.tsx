@@ -4,7 +4,7 @@ import Image from "next/image"
 import Button from "@/components/public-ui/Button"
 import Link from "next/link"
 import SponsorAHorseDialog from "./SponsorAHorseDialog"
-import { usePaginatedQuery, useQuery } from "convex/react"
+import { usePaginatedQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import SpiritImage from "./spirit.png"
 import Header from "../public-ui/Header"
@@ -14,17 +14,18 @@ import { useState } from "react"
 import { ImSpinner8 } from "react-icons/im"
 import CardLayout from "../public-ui/CardLayout"
 import { horseDetailsString } from "@/lib/utils"
+import { FaAnglesRight } from "react-icons/fa6"
 
 type SponsorAHorseMenuProps = {
     title?: string
-    limit?: number
+    initialNumItems?: number
     herdId?: Id<"herds">
     type?: "horse" | "burro"
     showControls?: boolean
     excludeAnimalIds?: Id<"animals">[]
 }
 
-const SponsorAHorseMenu = ({ title, limit, herdId = undefined, type = undefined, showControls = true, excludeAnimalIds = [] }: SponsorAHorseMenuProps) => {
+const SponsorAHorseMenu = ({ title, initialNumItems: limit, herdId = undefined, type = undefined, showControls = false, excludeAnimalIds = [] }: SponsorAHorseMenuProps) => {
 
     const [selectedHerdId, setSelectedHerdId] = useState<Id<"herds"> | null>(herdId || null)
     const [selectedType, setSelectedType] = useState<"horse" | "burro" | null>(type || null)
@@ -32,7 +33,7 @@ const SponsorAHorseMenu = ({ title, limit, herdId = undefined, type = undefined,
     const { results: _animals, loadMore, status: animalsStatus } = usePaginatedQuery(
         api.animals.getAnimalsForSponsorship,
         { herdId: selectedHerdId ?? undefined, type: selectedType ?? undefined },
-        { initialNumItems: limit || 6 }
+        { initialNumItems: limit ? (showControls ? limit : limit + 2) : 6 }
     )
     const { results: herds } = usePaginatedQuery(
         api.herds.listHerds,
@@ -40,7 +41,11 @@ const SponsorAHorseMenu = ({ title, limit, herdId = undefined, type = undefined,
         { initialNumItems: 100 }
     )
 
-    const animals = _animals?.filter((animal) => !excludeAnimalIds.includes(animal._id))
+    const _animalsFiltered = _animals?.filter((animal) => !excludeAnimalIds.includes(animal._id))
+    const animals = showControls
+        ? _animalsFiltered
+        : _animalsFiltered?.slice(0, limit || 6)
+    
     const selectedHerd = herds?.find((herd) => herd._id === selectedHerdId)
 
     const handleLoadMore = () => {
@@ -134,6 +139,23 @@ const SponsorAHorseMenu = ({ title, limit, herdId = undefined, type = undefined,
                         </div>
                     </div>
                 ))}
+
+                {!showControls && (
+                    <div className="col-span-full flex items-center justify-center">
+                        <Link
+                            href="/donate/sponsor-a-horse"
+                            className="flex items-center gap-[2px] group">
+                            <div className="text-pewter text-lg font-semibold underline group-hover:text-pewter/90">
+                                See All Horses
+                            </div>
+                            <div className="w-fit h-fit transition-transform group-hover:translate-x-1">
+                                <FaAnglesRight
+                                    className="w-4 h-4 text-pewter inline-block group-hover:text-pewter/90"
+                                />
+                            </div>
+                        </Link>
+                    </div>
+                )}
 
                 {(!["LoadingFirstPage", "Exhausted"].includes(animalsStatus)) && showControls && (
                     <div className="col-span-full flex items-center justify-center">

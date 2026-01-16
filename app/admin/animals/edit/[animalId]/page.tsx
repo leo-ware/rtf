@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import { use, useEffect, useState } from "react"
 import { useQuery, useMutation, usePaginatedQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { notFound } from "next/navigation"
@@ -46,6 +46,7 @@ import { Id } from "@/convex/_generated/dataModel"
 import ConvexImage from "@/components/images/ConvexImage"
 import { formatDate, generateSlug } from "@/lib/utils"
 import GalleryPicker, { GalleryPickerProps } from "@/components/GalleryPicker"
+import DonationFormConfigurationDialog from "@/components/DonationFormAdmin/DonationFormConfigurationDialog"
 
 
 type AnimalEditPageProps = {
@@ -71,11 +72,11 @@ type FormDataType = {
     sanctuary: string
     inMemoriam: boolean | undefined
     content: string
-    donateForm: string
+    donationFormId: Id<"donationForms"> | null | undefined
 }
 
 const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
-    const resolvedParams = React.use(params)
+    const resolvedParams = use(params)
     const animal = useQuery(api.animals.getAnimal, {
         id: resolvedParams.animalId as Id<"animals">,
     })
@@ -100,7 +101,7 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
         sanctuary: "",
         inMemoriam: undefined,
         content: "",
-        donateForm: "",
+        donationFormId: undefined,
     })
 
     useEffect(() => {
@@ -140,7 +141,7 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
                 sanctuary: animal.sanctuary || "",
                 inMemoriam: animal.inMemoriam,
                 content: animal.content || "",
-                donateForm: animal.donateForm || "",
+                donationFormId: animal.donationFormId ?? undefined,
             }))
         }
     }, [animal])
@@ -161,7 +162,7 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
                 formData.sanctuary !== (animal.sanctuary || "") ||
                 formData.inMemoriam !== animal.inMemoriam ||
                 formData.content !== (animal.content || "") ||
-                formData.donateForm !== (animal.donateForm || "")
+                formData.donationFormId !== (animal.donationFormId ?? undefined)
             setHasUnsavedChanges(hasChanges)
         }
     }, [formData, animal])
@@ -190,7 +191,7 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
                 dob: formData.dob || undefined,
                 sanctuary: formData.sanctuary || undefined,
                 inMemoriam: formData.inMemoriam,
-                donateForm: formData.donateForm || undefined,
+                donationFormId: formData.donationFormId ?? undefined,
             })
 
             setLastSaved(new Date())
@@ -559,21 +560,19 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
                         </Card>
 
                         <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Code className="h-4 w-4 mr-2" />
-                                Donate Form Embed
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <Textarea
-                                id="donateForm"
-                                value={formData.donateForm}
-                                onChange={(e) => setFormData(prev => ({ ...prev, donateForm: e.target.value }))}
-                                placeholder="Donate form"
-                            />
-                        </CardContent>
-                    </Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Code className="h-4 w-4 mr-2" />
+                                    Donation Form
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <DonationFormConfigurationDialog
+                                    donationFormId={formData.donationFormId}
+                                    setDonationFormId={(donationFormId) => setFormData((prev) => ({ ...prev, donationFormId }))}
+                                />
+                            </CardContent>
+                        </Card>
 
                         {/* Animal Information */}
                         <Card>
@@ -589,11 +588,6 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
                                 <div className="flex items-center space-x-2 text-sm">
                                     <Calendar className="h-4 w-4 text-gray-400" />
                                     <span>Created: {formatDate(new Date(animal._creationTime))}</span>
-                                </div>
-
-                                <div className="flex items-center space-x-2 text-sm">
-                                    <Calendar className="h-4 w-4 text-gray-400" />
-                                    <span>Updated: {formatDate(new Date(animal.updatedAt))}</span>
                                 </div>
 
                                 <Separator />

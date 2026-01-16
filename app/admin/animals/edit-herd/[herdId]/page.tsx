@@ -18,6 +18,7 @@ import ImagePickerDialog from "@/components/images/ImagePickerDialog"
 import TimelineCreateDialog from "./TimelineCreateDialog"
 import TimelineDeleteDialog from "./TimelineDeleteDialog"
 import { TiptapEditor } from "@/components/TiptapEditor"
+import DonationFormConfigurationDialog from "@/components/DonationFormAdmin/DonationFormConfigurationDialog"
 
 type EditHerdPageProps = {
     params: Promise<{
@@ -39,7 +40,7 @@ const EditHerdPage = ({ params }: EditHerdPageProps) => {
         description: "",
         imageId: null as Id<"images"> | null,
         content: undefined as string | undefined,
-        donateForm: undefined as string | undefined,
+        donationFormId: undefined as Id<"donationForms"> | null | undefined,
     })
 
     const [isSaving, setIsSaving] = useState(false)
@@ -53,7 +54,7 @@ const EditHerdPage = ({ params }: EditHerdPageProps) => {
                 description: herd.description || "",
                 imageId: (herd.imageId as Id<"images">) || null,
                 content: herd.content || "",
-                donateForm: herd.donateForm || "",
+                donationFormId: herd.donationFormId ?? undefined,
             })
         }
     }, [herd])
@@ -67,7 +68,7 @@ const EditHerdPage = ({ params }: EditHerdPageProps) => {
                 description: formData.description || undefined,
                 imageId: formData.imageId || undefined,
                 content: formData.content || "",
-                donateForm: formData.donateForm || "",
+                donationFormId: formData.donationFormId ?? undefined,
             })
             alert("Herd saved successfully!")
         } catch (error: any) {
@@ -264,15 +265,13 @@ const EditHerdPage = ({ params }: EditHerdPageProps) => {
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <Code className="h-4 w-4 mr-2" />
-                                Donate Form Embed
+                                Donation Form
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <Textarea
-                                id="donateForm"
-                                value={formData.donateForm}
-                                onChange={(e) => setFormData(prev => ({ ...prev, donateForm: e.target.value }))}
-                                placeholder="Donate form"
+                            <DonationFormConfigurationDialog
+                                donationFormId={formData.donationFormId}
+                                setDonationFormId={(donationFormId) => setFormData((prev) => ({ ...prev, donationFormId }))}
                             />
                         </CardContent>
                     </Card>
