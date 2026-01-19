@@ -30,7 +30,7 @@ export default defineSchema({
         externalId: v.string(),
     })
         .index("email", ["email"]),
-    
+
     donationForms: defineTable({
         name: v.string(),
         notes: v.optional(v.string()),
@@ -165,7 +165,7 @@ export default defineSchema({
     })
         .index("by_organization", ["organization"])
         .index("by_image", ["imageId"]),
-    
+
     locations: defineTable({
         name: v.string(),
         address: v.optional(v.string()),
@@ -217,6 +217,7 @@ export default defineSchema({
         dateNumber: v.number(),
         startDate: v.string(),
         endDate: v.string(),
+        registrationLink: v.optional(v.string()),
     })
         .index("by_program", ["programId"])
         .index("by_date_number", ["dateNumber"])
@@ -283,33 +284,69 @@ export default defineSchema({
         }),
 
     contactMessages: defineTable({
-            name: v.string(),
-            email: v.string(),
-            phone: v.optional(v.string()),
-            subject: v.string(),
-            message: v.string(),
-            status: v.union(
-                v.literal("new"),
-                v.literal("read"),
-                v.literal("replied"),
-                v.literal("archived")
-            ),
-            priority: v.union(
-                v.literal("low"),
-                v.literal("normal"),
-                v.literal("high"),
-                v.literal("urgent")
-            ),
-            source: v.optional(v.string()),
-            ipAddress: v.optional(v.string()),
-            userAgent: v.optional(v.string()),
-            createdAt: v.number(),
-            readAt: v.optional(v.number()),
-            repliedAt: v.optional(v.number()),
-        }).index("by_status", ["status"])
-        .index("by_created_at", ["createdAt"])
+        name: v.string(),
+        email: v.string(),
+        phone: v.optional(v.string()),
+        organization: v.optional(v.string()),
+
+        topic: v.optional(v.string()),
+        subject: v.string(),
+        message: v.string(),
+        searchText: v.string(),
+        
+        emailOutboxId: v.optional(v.id("emailOutbox")),
+        status: v.union(
+            v.literal("new"),
+            v.literal("read"),
+            v.literal("replied"),
+            v.literal("archived")
+        ),
+
+    })
+        .index("by_status", ["status"])
         .index("by_email", ["email"])
-        .index("by_priority", ["priority"]),
+        .index("by_email_outbox", ["emailOutboxId"])
+        .searchIndex("searchText", {
+            searchField: "searchText",
+            filterFields: [
+                "topic",
+                "status"
+            ]
+        }),
+
+    emailOutbox: defineTable({
+        userName: v.optional(v.string()),
+        userEmail: v.string(),
+        internalEmail: v.string(),
+
+        topic: v.optional(v.string()),
+        subject: v.string(),
+        body: v.string(),
+        searchText: v.string(),
+
+        pendingTimestamp: v.optional(v.number()),
+        sentTimestamp: v.optional(v.number()),
+        failedTimestamp: v.optional(v.number()),
+
+        status: v.union(
+            v.literal("queued"),
+            v.literal("pending"),
+            v.literal("sent"),
+            v.literal("failed")
+        ),
+    })
+        .index("by_status", ["status"])
+        .index("by_pending_timestamp", ["pendingTimestamp"])
+        .index("by_sent_timestamp", ["sentTimestamp"])
+        .index("by_failed_timestamp", ["failedTimestamp"])
+        .index("by_user_email", ["userEmail"])
+        .searchIndex("searchText", {
+            searchField: "searchText",
+            filterFields: [
+                "topic",
+                "status"
+            ]
+        }),
 
     newsletterSubscribers: defineTable({
         email: v.string(),
@@ -384,7 +421,7 @@ export default defineSchema({
         promoted: v.optional(v.boolean()),
 
         donationFormId: v.optional(v.id("donationForms")),
-        
+
         articleMetadataIds: v.optional(v.array(v.id("articleMetadata"))),
     })
         .index("by_slug", ["slug"])
@@ -441,7 +478,7 @@ export default defineSchema({
         .index("by_person", ["personId"])
         .index("by_advisory_board", ["advisoryBoardId"])
         .index("by_person_and_board", ["personId", "advisoryBoardId"]),
-    
+
     sponsors: defineTable({
         name: v.string(),
         imageId: v.optional(v.id("images")),

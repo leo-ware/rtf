@@ -217,15 +217,6 @@ export const createProgram = mutation({
         name: v.string(),
         description: v.string(),
         details: v.string(),
-        ticketPriceOptions: v.array(
-            v.object({
-                name: v.string(),
-                description: v.optional(v.string()),
-                price: v.number(),
-                availableBefore: v.optional(v.number()),
-                availableAfter: v.optional(v.number()),
-            })
-        ),
         locationId: v.id("locations"),
         isPublic: v.boolean(),
         imageId: v.optional(v.id("images")),
@@ -255,17 +246,6 @@ export const updateProgram = mutation({
         name: v.optional(v.string()),
         description: v.optional(v.string()),
         details: v.optional(v.string()),
-        ticketPriceOptions: v.optional(
-            v.array(
-                v.object({
-                    name: v.string(),
-                    description: v.optional(v.string()),
-                    price: v.number(),
-                    availableBefore: v.optional(v.number()),
-                    availableAfter: v.optional(v.number()),
-                })
-            )
-        ),
         locationId: v.optional(v.id("locations")),
         isPublic: v.optional(v.boolean()),
         imageId: v.optional(v.id("images")),
@@ -328,6 +308,7 @@ export const createEventFromProgram = mutation({
         startDate: v.string(),
         endDate: v.string(),
         title: v.optional(v.string()),
+        registrationLink: v.optional(v.string()),
     },
     returns: v.id("events"),
     handler: async (ctx, args) => {
@@ -336,11 +317,22 @@ export const createEventFromProgram = mutation({
             throw new Error("Insufficient permissions")
         }
 
+        const program = await ctx.db.get(args.programId)
+        if (!program) {
+            throw new Error("Program not found")
+        }
+
+        const requiresRegistration = program.requiresRegistration ?? false
+        if (requiresRegistration && !args.registrationLink?.trim()) {
+            throw new Error("registrationLink is required when requiresRegistration is true")
+        }
+
         const manager = new ProgramManager(args.programId)
         return await manager.createEvent(ctx, {
             startDate: args.startDate,
             endDate: args.endDate,
             title: args.title,
+            registrationLink: args.registrationLink,
         })
     },
 })

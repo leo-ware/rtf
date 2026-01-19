@@ -4,7 +4,6 @@ import { removeUndefinedFields } from "../utils"
 import { resolveImageId } from "./imageManager"
 import LocationManager from "./locationManager"
 import {
-    TicketPriceOption,
     ResolvedProgramDetails,
     ProgramCreateArgs,
     ProgramUpdateArgs,
@@ -19,6 +18,7 @@ type EventCreateFields = {
     startDate: string
     endDate: string
     programId?: Id<"programs">
+    registrationLink?: string
 }
 
 // Event-specific fields for updates
@@ -26,22 +26,20 @@ type EventUpdateFields = {
     title?: string
     startDate?: string
     endDate?: string
+    registrationLink?: string
 }
 
 // Program fields adapted for event creation (some fields optional/renamed)
-type EventProgramCreateFields = Omit<ProgramCreateArgs, "name" | "programGroupId" | "order" | "details" | "ticketPriceOptions" | "locationId"> & {
+type EventProgramCreateFields = Omit<ProgramCreateArgs, "name" | "programGroupId" | "order" | "details" | "locationId"> & {
     longDescription?: string
     location?: string
     locationId?: Id<"locations">
-    ticketPriceId?: Id<"ticketPrice">
-    ticketPriceOptions?: Array<TicketPriceOption>
 }
 
 // Program fields adapted for event updates
 type EventProgramUpdateFields = Omit<ProgramUpdateArgs, "name" | "programGroupId" | "order" | "details"> & {
     longDescription?: string
     location?: string
-    ticketPriceId?: Id<"ticketPrice">
 }
 
 // Combined create args using intersection
@@ -78,10 +76,7 @@ export default class EventManager {
             }
 
             // Create ticket price
-            const ticketPriceId = await EventManager.createTicketPrice(
-                ctx,
-                args.ticketPriceOptions || []
-            )
+            const ticketPriceId = await EventManager.createTicketPrice(ctx)
 
             // Get max order for programs in the standalone group
             const existingPrograms = await ctx.db
@@ -118,6 +113,7 @@ export default class EventManager {
             startDate: args.startDate,
             endDate: args.endDate,
             dateNumber: Date.parse(args.startDate),
+            registrationLink: args.registrationLink,
         })
 
         return new EventManager(eventId)
@@ -137,6 +133,7 @@ export default class EventManager {
             eventUpdates.dateNumber = Date.parse(args.startDate)
         }
         if (args.endDate !== undefined) eventUpdates.endDate = args.endDate
+        if (args.registrationLink !== undefined) eventUpdates.registrationLink = args.registrationLink
 
         if (Object.keys(eventUpdates).length > 0) {
             await ctx.db.patch(this.id, eventUpdates)
@@ -167,23 +164,6 @@ export default class EventManager {
                         args.location
                     )
                     programUpdates.locationId = locationManager.id
-                }
-
-                // Handle ticketPrice update
-                if (args.ticketPriceOptions && args.ticketPriceOptions.length > 0) {
-                    if (program.ticketPriceId) {
-                        await ctx.db.patch(program.ticketPriceId, {
-                            options: args.ticketPriceOptions,
-                        })
-                    } else {
-                        const ticketPriceId = await EventManager.createTicketPrice(
-                            ctx,
-                            args.ticketPriceOptions
-                        )
-                        programUpdates.ticketPriceId = ticketPriceId
-                    }
-                } else if (args.ticketPriceId !== undefined) {
-                    programUpdates.ticketPriceId = args.ticketPriceId
                 }
 
                 if (Object.keys(programUpdates).length > 0) {
@@ -385,12 +365,9 @@ export default class EventManager {
         })
     }
 
-    private static async createTicketPrice(
-        ctx: MutationCtx,
-        options: Array<TicketPriceOption>
-    ): Promise<Id<"ticketPrice">> {
+    private static async createTicketPrice(ctx: MutationCtx): Promise<Id<"ticketPrice">> {
         return await ctx.db.insert("ticketPrice", {
-            options,
+            options: [],
         })
     }
 

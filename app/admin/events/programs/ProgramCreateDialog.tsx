@@ -20,7 +20,6 @@ import { useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import ImagePickerDialog from "@/components/images/ImagePickerDialog"
 import LocationPickerDialog from "@/components/locations/LocationPickerDialog"
-import TicketPriceEditorDialog, { TicketPriceOption } from "../TicketPriceEditorDialog"
 
 const ProgramCreateDialog = () => {
     const createProgram = useMutation(api.programs.createProgram)
@@ -29,8 +28,6 @@ const ProgramCreateDialog = () => {
     const [isOpen, setIsOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-
-    const [ticketPriceOptions, setTicketPriceOptions] = useState<TicketPriceOption[]>([])
 
     const [formData, setFormData] = useState({
         name: "",
@@ -52,8 +49,7 @@ const ProgramCreateDialog = () => {
         !formData.name ||
         !formData.description ||
         !formData.locationId ||
-        !formData.programGroupId ||
-        ticketPriceOptions.length === 0
+        !formData.programGroupId
     )
 
     const handleCreate = async () => {
@@ -66,7 +62,6 @@ const ProgramCreateDialog = () => {
                 name: formData.name,
                 description: formData.description,
                 details: formData.details,
-                ticketPriceOptions: ticketPriceOptions,
                 locationId: formData.locationId,
                 maxAttendees: formData.maxAttendees ? parseInt(formData.maxAttendees) : undefined,
                 requiresRegistration: formData.requiresRegistration,
@@ -102,7 +97,6 @@ const ProgramCreateDialog = () => {
             programGroupId: "",
             imageId: null,
         })
-        setTicketPriceOptions([])
         setError(null)
     }
 
@@ -196,19 +190,7 @@ const ProgramCreateDialog = () => {
                                 disabled={editingDisabled}
                             />
                         </div>
-                        <div>
-                            <Label>Ticket Pricing <span className="text-red-500">*</span></Label>
-                            <TicketPriceEditorDialog
-                                onComplete={(data) => setTicketPriceOptions(data.options)}
-                            >
-                                <Button variant="outline" className="w-full" disabled={editingDisabled}>
-                                    {ticketPriceOptions.length > 0
-                                        ? `${ticketPriceOptions.length} price option${ticketPriceOptions.length > 1 ? "s" : ""}`
-                                        : "Configure Pricing (Required)"
-                                    }
-                                </Button>
-                            </TicketPriceEditorDialog>
-                        </div>
+                        <div />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">

@@ -1,5 +1,7 @@
 "use client"
 
+// Deprecated: discount-code based ticketing is no longer used (kept temporarily for reference)
+
 import { useState } from "react"
 import { useQuery, useMutation, usePaginatedQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
@@ -29,7 +31,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { Id, Doc } from "@/convex/_generated/dataModel"
-import DiscountCodeEditorDialog from "../DiscountCodeEditorDialog"
+import DiscountCodeEditorDialog from "./DiscountCodeEditorDialog"
 
 const DiscountCodesTab = () => {
     const [searchTerm, setSearchTerm] = useState("")

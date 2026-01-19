@@ -1,5 +1,7 @@
 "use client"
 
+// Deprecated: ticket pricing has been replaced by per-event `registrationLink` (kept temporarily for reference)
+
 import {
     Dialog,
     DialogContent,

@@ -200,9 +200,9 @@ const EventsTab = () => {
                                                         <p className="text-sm font-medium text-gray-900 truncate max-w-[300px]">
                                                             {event.title}
                                                         </p>
-                                                        {event.ticketPriceId && (
+                                                        {event.registrationLink && (
                                                             <span className="text-sm text-gray-500 mt-1">
-                                                                Pricing configured
+                                                                Registration link set
                                                             </span>
                                                         )}
                                                         <p className="text-sm text-gray-500 mt-1 line-clamp-1">

@@ -22,7 +22,6 @@ import { Id } from "@/convex/_generated/dataModel"
 import { format } from "date-fns"
 import ImagePickerDialog from "@/components/images/ImagePickerDialog"
 import LocationPickerDialog from "@/components/locations/LocationPickerDialog"
-import TicketPriceEditorDialog, { TicketPriceOption } from "../TicketPriceEditorDialog"
 
 const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
     const createEvent = useMutation(api.events.createEvent)
@@ -34,7 +33,6 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
     const [selectedEndDate, setSelectedEndDate] = useState<Date>()
     const [imageId, setImageId] = useState<Id<"images"> | null>(null)
     const [locationId, setLocationId] = useState<Id<"locations"> | null>(null)
-    const [ticketPriceOptions, setTicketPriceOptions] = useState<TicketPriceOption[]>([])
 
     const [formData, setFormData] = useState({
         title: "",
@@ -42,6 +40,7 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
         maxAttendees: "",
         isPublic: true,
         requiresRegistration: true,
+        registrationLink: "",
         contactEmail: "",
         contactPhone: "",
     })
@@ -52,7 +51,8 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
         !formData.title ||
         !formData.description ||
         !selectedDate ||
-        !selectedEndDate
+        !selectedEndDate ||
+        (formData.requiresRegistration && !formData.registrationLink.trim())
     )
 
     const handleCreate = async () => {
@@ -66,9 +66,9 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
                 startDate: selectedDate.toISOString(),
                 endDate: selectedEndDate.toISOString(),
                 maxAttendees: formData.maxAttendees ? parseInt(formData.maxAttendees) : undefined,
-                ticketPriceOptions: ticketPriceOptions.length > 0 ? ticketPriceOptions : undefined,
                 imageId: imageId ?? undefined,
                 locationId: locationId ?? undefined,
+                registrationLink: formData.requiresRegistration ? formData.registrationLink.trim() : undefined,
             })
 
             setIsOpen(false)
@@ -93,6 +93,7 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
             maxAttendees: "",
             isPublic: true,
             requiresRegistration: true,
+            registrationLink: "",
             contactEmail: "",
             contactPhone: "",
         })
@@ -100,7 +101,6 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
         setSelectedEndDate(undefined)
         setImageId(null)
         setLocationId(null)
-        setTicketPriceOptions([])
         setError(null)
     }
 
@@ -213,19 +213,6 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <Label>Ticket Pricing</Label>
-                            <TicketPriceEditorDialog
-                                onComplete={(data) => setTicketPriceOptions(data.options)}
-                            >
-                                <Button variant="outline" className="w-full" disabled={editingDisabled}>
-                                    {ticketPriceOptions.length > 0
-                                        ? `${ticketPriceOptions.length} price option${ticketPriceOptions.length > 1 ? "s" : ""}`
-                                        : "Configure Pricing"
-                                    }
-                                </Button>
-                            </TicketPriceEditorDialog>
-                        </div>
-                        <div>
                             <Label>Event Image</Label>
                             <ImagePickerDialog
                                 imageId={imageId}
@@ -233,6 +220,7 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
                                 disabled={editingDisabled}
                             />
                         </div>
+                        <div />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -283,6 +271,19 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
                             <Label htmlFor="requiresRegistration">Requires Registration</Label>
                         </div>
                     </div>
+
+                    {formData.requiresRegistration && (
+                        <div>
+                            <Label htmlFor="registrationLink">Registration Link <span className="text-red-500">*</span></Label>
+                            <Input
+                                id="registrationLink"
+                                value={formData.registrationLink}
+                                disabled={editingDisabled}
+                                onChange={(e) => setFormData({ ...formData, registrationLink: e.target.value })}
+                                placeholder="https://..."
+                            />
+                        </div>
+                    )}
 
                     {error && (
                         <div className="text-red-500 text-sm">{error}</div>

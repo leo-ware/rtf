@@ -70,16 +70,9 @@ export const createEvent = mutation({
         location: v.optional(v.string()),
         locationId: v.optional(v.id("locations")),
         maxAttendees: v.optional(v.number()),
-        ticketPriceId: v.optional(v.id("ticketPrice")),
-        ticketPriceOptions: v.optional(v.array(v.object({
-            name: v.string(),
-            description: v.optional(v.string()),
-            price: v.number(),
-            availableBefore: v.optional(v.number()),
-            availableAfter: v.optional(v.number()),
-        }))),
         isPublic: v.boolean(),
         requiresRegistration: v.boolean(),
+        registrationLink: v.optional(v.string()),
         contactEmail: v.optional(v.string()),
         contactPhone: v.optional(v.string()),
         imageId: v.optional(v.id("images")),
@@ -89,6 +82,10 @@ export const createEvent = mutation({
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
             throw new Error("Insufficient permissions")
+        }
+
+        if (args.requiresRegistration && !args.registrationLink?.trim()) {
+            throw new Error("registrationLink is required when requiresRegistration is true")
         }
 
         const eventManager = await EventManager.create(ctx, args)
@@ -114,16 +111,9 @@ export const updateEvent = mutation({
         location: v.optional(v.string()),
         locationId: v.optional(v.id("locations")),
         maxAttendees: v.optional(v.number()),
-        ticketPriceId: v.optional(v.id("ticketPrice")),
-        ticketPriceOptions: v.optional(v.array(v.object({
-            name: v.string(),
-            description: v.optional(v.string()),
-            price: v.number(),
-            availableBefore: v.optional(v.number()),
-            availableAfter: v.optional(v.number()),
-        }))),
         isPublic: v.optional(v.boolean()),
         requiresRegistration: v.optional(v.boolean()),
+        registrationLink: v.optional(v.string()),
         contactEmail: v.optional(v.string()),
         contactPhone: v.optional(v.string()),
         imageId: v.optional(v.id("images")),
@@ -132,6 +122,26 @@ export const updateEvent = mutation({
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
             throw new Error("Insufficient permissions")
+        }
+
+        const existingEvent = await ctx.db.get(args.id)
+        if (!existingEvent) {
+            throw new Error("Event not found")
+        }
+        if (!existingEvent.programId) {
+            throw new Error("Event has no associated program")
+        }
+        const existingProgram = await ctx.db.get(existingEvent.programId)
+        if (!existingProgram) {
+            throw new Error("Program not found")
+        }
+
+        const nextRequiresRegistration = args.requiresRegistration ?? (existingProgram.requiresRegistration ?? false)
+        if (nextRequiresRegistration) {
+            const nextRegistrationLink = args.registrationLink ?? existingEvent.registrationLink
+            if (!nextRegistrationLink?.trim()) {
+                throw new Error("registrationLink is required when requiresRegistration is true")
+            }
         }
 
         const { id, ...updates } = args

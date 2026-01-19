@@ -22,6 +22,7 @@ import type * as education from "../education.js";
 import type * as educationArticleGroups from "../educationArticleGroups.js";
 import type * as educationArticleSuperGroups from "../educationArticleSuperGroups.js";
 import type * as educationArticles from "../educationArticles.js";
+import type * as email from "../email.js";
 import type * as events from "../events.js";
 import type * as externalArticles from "../externalArticles.js";
 import type * as herds from "../herds.js";
@@ -38,6 +39,7 @@ import type * as models_externalArticleManager from "../models/externalArticleMa
 import type * as models_imageManager from "../models/imageManager.js";
 import type * as models_locationManager from "../models/locationManager.js";
 import type * as models_programManager from "../models/programManager.js";
+import type * as models_resend from "../models/resend.js";
 import type * as models_rsvpManager from "../models/rsvpManager.js";
 import type * as newsletter from "../newsletter.js";
 import type * as people from "../people.js";
@@ -84,6 +86,7 @@ declare const fullApi: ApiFromModules<{
   educationArticleGroups: typeof educationArticleGroups;
   educationArticleSuperGroups: typeof educationArticleSuperGroups;
   educationArticles: typeof educationArticles;
+  email: typeof email;
   events: typeof events;
   externalArticles: typeof externalArticles;
   herds: typeof herds;
@@ -100,6 +103,7 @@ declare const fullApi: ApiFromModules<{
   "models/imageManager": typeof models_imageManager;
   "models/locationManager": typeof models_locationManager;
   "models/programManager": typeof models_programManager;
+  "models/resend": typeof models_resend;
   "models/rsvpManager": typeof models_rsvpManager;
   newsletter: typeof newsletter;
   people: typeof people;

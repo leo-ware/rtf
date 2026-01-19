@@ -12,6 +12,14 @@ export type TicketPriceOption = {
     availableAfter?: number
 }
 
+const DEFAULT_TICKET_PRICE_OPTIONS: Array<TicketPriceOption> = [
+    {
+        name: "General Admission",
+        description: "Default ticket placeholder (ticket pricing is deprecated)",
+        price: 0,
+    },
+]
+
 // Program details that can be flattened onto related entities (like events)
 export type ProgramDetails = {
     description: string
@@ -48,7 +56,6 @@ export type ProgramCreateArgs = {
     name: string
     description: string
     details: string
-    ticketPriceOptions: Array<TicketPriceOption>
     locationId: Id<"locations">
     isPublic: boolean
     imageId?: Id<"images">
@@ -65,7 +72,6 @@ export type ProgramUpdateArgs = {
     name?: string
     description?: string
     details?: string
-    ticketPriceOptions?: Array<TicketPriceOption>
     locationId?: Id<"locations">
     isPublic?: boolean
     imageId?: Id<"images">
@@ -109,15 +115,12 @@ export default class ProgramManager {
             throw new Error("Location not found")
         }
 
-        const { ticketPriceOptions, ...programArgs } = args
-
-        // Create ticketPrice (required)
         const ticketPriceId = await ctx.db.insert("ticketPrice", {
-            options: ticketPriceOptions,
+            options: DEFAULT_TICKET_PRICE_OPTIONS,
         })
 
         const programId = await ctx.db.insert("programs", {
-            ...programArgs,
+            ...args,
             ticketPriceId,
         })
 
@@ -125,7 +128,7 @@ export default class ProgramManager {
     }
 
     async update(ctx: MutationCtx, args: UpdateArgs): Promise<void> {
-        const { ticketPriceOptions, ...updates } = args
+        const updates = args
 
         // If changing program group, verify it exists
         if (updates.programGroupId) {
@@ -148,26 +151,9 @@ export default class ProgramManager {
             throw new Error("Program not found")
         }
 
-        // Handle ticketPrice update
-        let ticketPriceId: Id<"ticketPrice"> | undefined = undefined
-        if (ticketPriceOptions && ticketPriceOptions.length > 0) {
-            // If program already has a ticketPriceId, update it; otherwise create new
-            if (existingProgram.ticketPriceId) {
-                await ctx.db.patch(existingProgram.ticketPriceId, {
-                    options: ticketPriceOptions,
-                })
-                ticketPriceId = existingProgram.ticketPriceId
-            } else {
-                ticketPriceId = await ctx.db.insert("ticketPrice", {
-                    options: ticketPriceOptions,
-                })
-            }
-        }
-
         await ctx.db.patch(this.id, {
             ...removeUndefinedFields({
                 ...updates,
-                ticketPriceId,
             }),
         })
     }
@@ -190,7 +176,7 @@ export default class ProgramManager {
 
     async createEvent(
         ctx: MutationCtx,
-        args: { startDate: string; endDate: string; title?: string }
+        args: { startDate: string; endDate: string; title?: string; registrationLink?: string }
     ): Promise<Id<"events">> {
         const program = await this.get(ctx)
         if (!program) {
@@ -203,6 +189,7 @@ export default class ProgramManager {
             dateNumber: Date.parse(args.startDate),
             startDate: args.startDate,
             endDate: args.endDate,
+            registrationLink: args.registrationLink,
         })
     }
 

@@ -21,7 +21,6 @@ import { api } from "@/convex/_generated/api"
 import ImagePickerDialog from "@/components/images/ImagePickerDialog"
 import LocationPickerDialog from "@/components/locations/LocationPickerDialog"
 import { TiptapEditor } from "@/components/TiptapEditor"
-import TicketPriceEditorDialog, { TicketPriceOption } from "../TicketPriceEditorDialog"
 
 export type Program = {
     _id: Id<"programs">
@@ -53,15 +52,10 @@ const ProgramEditDialog = ({ children, ...props }: ProgramEditDialogProps) => {
 
     const updateProgram = useMutation(api.programs.updateProgram)
     const programGroups = useQuery(api.programGroups.getAllProgramGroups)
-    const existingTicketPrice = useQuery(
-        api.ticketPrices.getTicketPrice,
-        (program && program.ticketPriceId) ? { id: program.ticketPriceId } : "skip"
-    )
 
     const [isOpen, setIsOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [ticketPriceOptions, setTicketPriceOptions] = useState<TicketPriceOption[]>([])
 
     const [formData, setFormData] = useState({
         name: undefined as string | undefined,
@@ -96,21 +90,13 @@ const ProgramEditDialog = ({ children, ...props }: ProgramEditDialogProps) => {
         }
     }, [program])
 
-    // Load existing ticket price options
-    useEffect(() => {
-        if (existingTicketPrice) {
-            setTicketPriceOptions(existingTicketPrice.options)
-        }
-    }, [existingTicketPrice])
-
     const editingDisabled = isLoading
     const saveDisabled = (
         isLoading ||
         !formData.name ||
         !formData.description ||
         !formData.locationId ||
-        !formData.programGroupId ||
-        ticketPriceOptions.length === 0
+        !formData.programGroupId
     )
 
     const handleUpdate = async () => {
@@ -124,7 +110,6 @@ const ProgramEditDialog = ({ children, ...props }: ProgramEditDialogProps) => {
                 name: formData.name,
                 description: formData.description,
                 details: formData.details,
-                ticketPriceOptions: ticketPriceOptions,
                 locationId: formData.locationId,
                 maxAttendees: formData.maxAttendees ? parseInt(formData.maxAttendees) : undefined,
                 requiresRegistration: formData.requiresRegistration,
@@ -159,7 +144,6 @@ const ProgramEditDialog = ({ children, ...props }: ProgramEditDialogProps) => {
                 programGroupId: program.programGroupId as string,
                 imageId: program.imageId || null,
             })
-            setTicketPriceOptions(existingTicketPrice?.options || [])
             setError(null)
         }
     }
@@ -246,19 +230,7 @@ const ProgramEditDialog = ({ children, ...props }: ProgramEditDialogProps) => {
                                 />
                             )}
                         </div>
-                        <div>
-                            <Label>Ticket Pricing <span className="text-red-500">*</span></Label>
-                            <TicketPriceEditorDialog
-                                onComplete={(data) => setTicketPriceOptions(data.options)}
-                            >
-                                <Button variant="outline" className="w-full" disabled={editingDisabled}>
-                                    {ticketPriceOptions.length > 0
-                                        ? `${ticketPriceOptions.length} price option${ticketPriceOptions.length > 1 ? "s" : ""}`
-                                        : "Configure Pricing (Required)"
-                                    }
-                                </Button>
-                            </TicketPriceEditorDialog>
-                        </div>
+                        <div />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">

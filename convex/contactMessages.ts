@@ -1,16 +1,18 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
 import { getCurrentUserOrThrow } from "./users";
+import { paginationOptsValidator } from "convex/server";
+import { internal } from "./_generated/api";
 
 export const submitContactMessage = mutation({
     args: {
         name: v.string(),
         email: v.string(),
         phone: v.optional(v.string()),
+        organization: v.optional(v.string()),
+        topic: v.optional(v.string()),
         subject: v.string(),
         message: v.string(),
-        source: v.optional(v.string()),
     },
     returns: v.id("contactMessages"),
     handler: async (ctx, args) => {
@@ -21,59 +23,53 @@ export const submitContactMessage = mutation({
             subject: args.subject,
             message: args.message,
             status: "new",
-            priority: "normal",
-            source: args.source || "contact_form",
-            createdAt: Date.now(),
+            topic: args.topic,
+            searchText: `
+            User Name: ${args.name}
+            User Email: ${args.email}
+            User Phone: ${args.phone}
+            Message Topic: ${args.topic}
+            Message Subject: ${args.subject}
+            Message Body: ${args.message}
+            `,
         });
 
-        return messageId;
+        const {status, emailOutboxId, error} = await ctx.runMutation(internal.email.queueEmail, {
+            userName: args.name,
+            userEmail: args.email,
+            topic: args.topic,
+            subject: args.subject,
+            body: args.message,
+            email: args.email,
+        })
+        
+        await ctx.db.patch(messageId, {
+            emailOutboxId,
+        })
+
+        if (status === "failed") {
+            throw new Error(`Failed to queue email: ${error}`);
+        } else {
+            return messageId;
+        }
     },
 });
 
 export const listContactMessages = query({
     args: {
-        limit: v.optional(v.number()),
         status: v.optional(v.union(
             v.literal("new"),
             v.literal("read"),
             v.literal("replied"),
             v.literal("archived")
         )),
+        paginationOpts: paginationOptsValidator,
     },
-    returns: v.array(v.object({
-        _id: v.id("contactMessages"),
-        _creationTime: v.number(),
-        name: v.string(),
-        email: v.string(),
-        phone: v.optional(v.string()),
-        subject: v.string(),
-        message: v.string(),
-        status: v.union(
-            v.literal("new"),
-            v.literal("read"),
-            v.literal("replied"),
-            v.literal("archived")
-        ),
-        priority: v.union(
-            v.literal("low"),
-            v.literal("normal"),
-            v.literal("high"),
-            v.literal("urgent")
-        ),
-        source: v.optional(v.string()),
-        ipAddress: v.optional(v.string()),
-        userAgent: v.optional(v.string()),
-        createdAt: v.number(),
-        readAt: v.optional(v.number()),
-        repliedAt: v.optional(v.number()),
-    })),
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
             throw new Error("Insufficient permissions");
         }
-
-        const limit = args.limit ?? 50;
 
         let messages;
 
@@ -83,13 +79,12 @@ export const listContactMessages = query({
                 .query("contactMessages")
                 .withIndex("by_status", (q) => q.eq("status", status))
                 .order("desc")
-                .take(limit);
+                .paginate(args.paginationOpts);
         } else {
             messages = await ctx.db
                 .query("contactMessages")
-                .withIndex("by_created_at")
                 .order("desc")
-                .take(limit);
+                .paginate(args.paginationOpts);
         }
 
         return messages;
@@ -98,36 +93,6 @@ export const listContactMessages = query({
 
 export const getContactMessage = query({
     args: { id: v.id("contactMessages") },
-    returns: v.union(
-        v.object({
-            _id: v.id("contactMessages"),
-            _creationTime: v.number(),
-            name: v.string(),
-            email: v.string(),
-            phone: v.optional(v.string()),
-            subject: v.string(),
-            message: v.string(),
-            status: v.union(
-                v.literal("new"),
-                v.literal("read"),
-                v.literal("replied"),
-                v.literal("archived")
-            ),
-            priority: v.union(
-                v.literal("low"),
-                v.literal("normal"),
-                v.literal("high"),
-                v.literal("urgent")
-            ),
-            source: v.optional(v.string()),
-            ipAddress: v.optional(v.string()),
-            userAgent: v.optional(v.string()),
-            createdAt: v.number(),
-            readAt: v.optional(v.number()),
-            repliedAt: v.optional(v.number()),
-        }),
-        v.null()
-    ),
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
@@ -169,28 +134,6 @@ export const updateContactMessageStatus = mutation({
     },
 });
 
-export const updateContactMessagePriority = mutation({
-    args: {
-        id: v.id("contactMessages"),
-        priority: v.union(
-            v.literal("low"),
-            v.literal("normal"),
-            v.literal("high"),
-            v.literal("urgent")
-        ),
-    },
-    returns: v.id("contactMessages"),
-    handler: async (ctx, args) => {
-        const user = await getCurrentUserOrThrow(ctx)
-        if (!user.atLeastAuthorized) {
-            throw new Error("Insufficient permissions");
-        }
-
-        await ctx.db.patch(args.id, { priority: args.priority });
-        return args.id;
-    },
-});
-
 export const deleteContactMessage = mutation({
     args: { id: v.id("contactMessages") },
     returns: v.object({ success: v.boolean() }),
@@ -202,40 +145,5 @@ export const deleteContactMessage = mutation({
 
         await ctx.db.delete(args.id);
         return { success: true };
-    },
-});
-
-export const getContactStats = query({
-    args: {},
-    returns: v.object({
-        total: v.number(),
-        new: v.number(),
-        read: v.number(),
-        replied: v.number(),
-        archived: v.number(),
-        urgent: v.number(),
-        thisWeek: v.number(),
-    }),
-    handler: async (ctx) => {
-        const user = await getCurrentUserOrThrow(ctx)
-        if (!user.atLeastAuthorized) {
-            throw new Error("Insufficient permissions");
-        }
-
-        const allMessages = await ctx.db.query("contactMessages").collect();
-
-        const stats = {
-            total: allMessages.length,
-            new: allMessages.filter(m => m.status === "new").length,
-            read: allMessages.filter(m => m.status === "read").length,
-            replied: allMessages.filter(m => m.status === "replied").length,
-            archived: allMessages.filter(m => m.status === "archived").length,
-            urgent: allMessages.filter(m => m.priority === "urgent").length,
-            thisWeek: allMessages.filter(m =>
-                m.createdAt > Date.now() - (7 * 24 * 60 * 60 * 1000)
-            ).length,
-        };
-
-        return stats;
     },
 });

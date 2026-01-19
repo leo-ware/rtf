@@ -21,6 +21,7 @@ import { format } from "date-fns"
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import { Select, SelectItem, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DateTimePicker } from "@/components/DateTimePicker"
+import { Input } from "@/components/ui/input"
 
 type ScheduleEventDialogProps = {
     programId?: Id<"programs">
@@ -40,6 +41,10 @@ const ScheduleEventDialog = (props: ScheduleEventDialogProps) => {
     const [dateError, setDateError] = useState<string | null>(null)
     const [selectedDate, _setSelectedDate] = useState<Date>()
     const [selectedEndDate, _setSelectedEndDate] = useState<Date>()
+    const [registrationLink, setRegistrationLink] = useState("")
+
+    const selectedProgram = getAllPrograms?.find((p) => p._id === programId)
+    const requiresRegistration = selectedProgram?.requiresRegistration ?? false
 
     const setSelectedDate = (date: Date | undefined) => {
         _setSelectedDate(date)
@@ -68,7 +73,8 @@ const ScheduleEventDialog = (props: ScheduleEventDialogProps) => {
         isLoading ||
         !selectedDate ||
         !selectedEndDate ||
-        !(selectedDate < selectedEndDate)
+        !(selectedDate < selectedEndDate) ||
+        (requiresRegistration && !registrationLink.trim())
     )
 
     const handleCreateEvent = async () => {
@@ -83,7 +89,8 @@ const ScheduleEventDialog = (props: ScheduleEventDialogProps) => {
             await createEventFromProgram({
                 programId,
                 startDate: selectedDate!.toISOString(),
-                endDate: selectedEndDate!.toISOString()
+                endDate: selectedEndDate!.toISOString(),
+                registrationLink: requiresRegistration ? registrationLink.trim() : undefined,
             })
             setIsOpen(false)
             resetForm()
@@ -98,6 +105,7 @@ const ScheduleEventDialog = (props: ScheduleEventDialogProps) => {
     const resetForm = () => {
         setSelectedDate(undefined)
         setSelectedEndDate(undefined)
+        setRegistrationLink("")
         setError(null)
     }
 
@@ -175,6 +183,19 @@ const ScheduleEventDialog = (props: ScheduleEventDialogProps) => {
                             timeRequired={true}
                         />
                     </div>
+
+                    {requiresRegistration && (
+                        <div>
+                            <Label htmlFor="registrationLink">Registration Link <span className="text-red-500">*</span></Label>
+                            <Input
+                                id="registrationLink"
+                                value={registrationLink}
+                                disabled={isLoading}
+                                onChange={(e) => setRegistrationLink(e.target.value)}
+                                placeholder="https://..."
+                            />
+                        </div>
+                    )}
 
                     {error && (
                         <div className="text-red-500 text-sm">{error}</div>

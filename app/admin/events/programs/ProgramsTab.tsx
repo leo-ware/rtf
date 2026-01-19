@@ -133,7 +133,6 @@ const ProgramsTab = () => {
                                                 </div>
                                                 <div className="text-sm text-gray-500">
                                                     {program.location?.name ?? "No location set"}
-                                                    {program.ticketPriceId && " • Pricing configured"}
                                                     {program.maxAttendees && ` • Max ${program.maxAttendees}`}
                                                     {program.requiresRegistration && " • Registration Required"}
                                                 </div>

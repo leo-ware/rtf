@@ -1,5 +1,7 @@
 "use client"
 
+// Deprecated: discount-code based ticketing is no longer used (kept temporarily for reference)
+
 import {
     Dialog,
     DialogContent,
