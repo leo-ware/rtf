@@ -1,362 +1,391 @@
-"use client"
+"use client";
 
-import Button from "@/components/public-ui/Button"
-import Image from "next/image"
-import Link from "next/link"
-import { Fragment } from "react"
-import GenericDonateDialogue from "@/components/donation-widgets/GenericDonateDialogue"
-import UpcomingEventsWidget from "@/components/UpcomingEventsWidget"
-import LongRightArrow from "@/components/LongRightArrow"
+import Button from "@/components/public-ui/Button";
+import Image from "next/image";
+import Link from "next/link";
+import { Fragment } from "react";
+import GenericDonateDialogue from "@/components/donation-widgets/GenericDonateDialogue";
+import UpcomingEventsWidget from "@/components/UpcomingEventsWidget";
+import LongRightArrow from "@/components/LongRightArrow";
 
-import CorporateCarousel from "./CorporateCarousel"
-import NewsCarousel from "../../../components/NewsCarousel"
-import VideoCarousel from "../../../components/VideoCarousel"
-import NeedUsCarousel from "./NeedUsCarousel"
+import CorporateCarousel from "./CorporateCarousel";
+import NewsCarousel from "../../../components/NewsCarousel";
+import VideoCarousel from "../../../components/VideoCarousel";
+import NeedUsCarousel from "./NeedUsCarousel";
 
-import ConservationImage from "./imgs/conservation-image.jpg"
-import AdvocacyImage from "./imgs/advocacy-image.jpg"
-import SanctuaryImage from "./imgs/sanctuary-image.jpg"
-import EducationImage from "./imgs/education-image.jpg"
-import OminouseHorses from "./imgs/ominous-horses.jpg"
-import SpiritImage from "./imgs/spirit-zooming.png"
-import BlurredDonateBackgroundOne from "./imgs/blurred-donate-frame-1.png"
-import BlurredDonateBackgroundTwo from "./imgs/blurred-donate-frame-2.png"
-import ProgramsAndEventsImage from "./imgs/programs-and-events-image.png"
-import Header from "@/components/public-ui/Header"
-import BlurredImageCard from "@/components/public-ui/BlurredImageCard"
-import TakeActionSection from "@/components/TakeActionSection"
+import ConservationImage from "./imgs/conservation-image.jpg";
+import AdvocacyImage from "./imgs/advocacy-image.jpg";
+import SanctuaryImage from "./imgs/sanctuary-image.jpg";
+import EducationImage from "./imgs/education-image.jpg";
+import OminouseHorses from "./imgs/ominous-horses.jpg";
+import SpiritImage from "./imgs/spirit-zooming.png";
+import BlurredDonateBackgroundOne from "./imgs/blurred-donate-frame-1.png";
+import BlurredDonateBackgroundTwo from "./imgs/blurred-donate-frame-2.png";
+import ProgramsAndEventsImage from "./imgs/programs-and-events-image.png";
+import Header from "@/components/public-ui/Header";
+import BlurredImageCard from "@/components/public-ui/BlurredImageCard";
+import TakeActionSection from "@/components/TakeActionSection";
 
-
-const landingVideoUrl = "https://pub-25922965d5524e8db13526bfb193c2ff.r2.dev/rtf-landing-video-v1.mp4"
+const landingVideoUrl =
+  "https://pub-25922965d5524e8db13526bfb193c2ff.r2.dev/rtf-landing-video-v1.mp4";
 
 const HomePage = () => {
-    return (
-        <div className="w-full">
-
-            <div className="relative w-full h-[84vh] bg-pewter">
-                <video
-                    className="z-0 absolute w-full h-full object-cover"
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                >
-                    {landingVideoUrl
-                        && <source src={landingVideoUrl} type="video/mp4" />}
-                </video>
-                <div className={`
+  return (
+    <div className="w-full">
+      <div className="relative w-full h-[84vh] bg-pewter">
+        <video
+          className="z-0 absolute w-full h-full object-cover"
+          autoPlay
+          loop
+          muted
+          playsInline
+        >
+          {landingVideoUrl && <source src={landingVideoUrl} type="video/mp4" />}
+        </video>
+        <div
+          className={`
                     relative z-10 w-full h-full px-4
                     flex items-center justify-center
                     text-white text-center font-serif
-                    text-[48px] lg:text-[64px]
-                    `}>
-                    Wild Horse Conservation
-                </div>
-            </div>
+                    text-[70px]
+                    `}
+        >
+          Wild Horse Conservation
+        </div>
+      </div>
 
-            <div className="w-11/12 md:w-2/3 mx-auto h-fit py-8 md:pt-16 md:pb-8 flex flex-col items-center justify-center gap-8">
-                <Header color="cinnamon" className="no-underline text-left md:text-center">
-                    Protecting The Spirit Of The American West,
-                    One Wild Horse At a Time
-                </Header>
-                <div className="text-left md:text-center text-ink text-[20px]">
-                    Return to Freedom is dedicated to preserving the freedom, diversity, and habitat of
-                    America's wild horses and burros through sanctuary, education, advocacy, and conservation,
-                    while enriching the human spirit through direct experience with the natural world.
-                </div>
-                <Link href="/about">
-                    <Button color="pewter" className="py-1 px-4 text-[16px]">
-                        About Us
-                    </Button>
-                </Link>
-            </div>
+      <div className="w-10/12 mx-auto h-fit py-8 md:pt-16 md:pb-8 flex flex-col items-center justify-center gap-8">
+        <Header
+          color="cinnamon"
+          className="no-underline text-left md:text-center"
+        >
+          Protecting The Spirit Of The American West, One Wild Horse At a Time
+        </Header>
+        <div className="text-left md:text-center text-ink text-[20px]">
+          Return to Freedom is dedicated to preserving the freedom, diversity,
+          and habitat of America's wild horses and burros through sanctuary,
+          education, advocacy, and conservation, while enriching the human
+          spirit through direct experience with the natural world.
+        </div>
+        <Link href="/about">
+          <Button color="pewter" className="py-1 px-4 text-[16px]">
+            About Us
+          </Button>
+        </Link>
+      </div>
 
-            <div id="what-we-do" className="w-full h-fit md:py-16 flex flex-col items-center justify-center gap-8">
-                <div className="w-11/12 md:w-2/3 flex flex-col items-start md:items-center justify-center gap-2">
-                    <Header color="sage-green" className="no-underline text-left md:text-center">
-                        What We Do
-                    </Header>
-                    <div className="w-full md:text-center text-ink text-[20px]">
-                        Return to Freedom protects and preserves America's wild horses and burros through a holistic
-                        approach that unites sanctuary, conservation, advocacy, and education. From rescuing and
-                        caring for displaced herds to pioneering humane fertility control on the range and fighting
-                        for policy reform, RTF bridges hands-on care with national leadership—creating lasting,
-                        science-based solutions that ensure wild horses remain free for generations to come.
-                    </div>
-                </div>
+      <div
+        id="what-we-do"
+        className="w-full h-fit md:py-16 flex flex-col items-center justify-center gap-8"
+      >
+        <div className="w-11/12 md:w-2/3 flex flex-col items-start md:items-center justify-center gap-2">
+          <Header
+            color="sage-green"
+            className="no-underline text-left md:text-center"
+          >
+            What We Do
+          </Header>
+          <div className="w-full md:text-center text-ink text-[20px]">
+            Return to Freedom protects and preserves America's wild horses and
+            burros through a holistic approach that unites sanctuary,
+            conservation, advocacy, and education. From rescuing and caring for
+            displaced herds to pioneering humane fertility control on the range
+            and fighting for policy reform, RTF bridges hands-on care with
+            national leadership—creating lasting, science-based solutions that
+            ensure wild horses remain free for generations to come.
+          </div>
+        </div>
 
-                <div className="w-full flex items-center justify-center">
-                    <div className="md:w-11/12 h-[90vh] flex stretch flex-wrap md:flex-nowrap">
-                        {[
-                            {
-                                title: "Conservation",
-                                image: ConservationImage,
-                                description: `
-                                   RTF advances practical, science-based conservation through humane fertility 
-                                   control, regenerative land management, and the protection of rare historic mustang 
+        <div className="w-full flex items-center justify-center">
+          <div className="md:w-11/12 h-[90vh] flex stretch flex-wrap md:flex-nowrap">
+            {[
+              {
+                title: "Conservation",
+                image: ConservationImage,
+                description: `
+                                   RTF advances practical, science-based conservation through humane fertility
+                                   control, regenerative land management, and the protection of rare historic mustang
                                    strains. Our work demonstrates how wild horses can remain on the land without roundups.
                                 `,
-                                link: "/what-we-do/conservation"
-                            },
-                            {
-                                title: "Advocacy",
-                                image: AdvocacyImage,
-                                description: `
-                                    RTF works to protect wild horses and burros through 
-                                    policy reform, legal action, and public engagement. We challenge helicopter roundups, 
-                                    defend Herd Management Areas, oppose horse slaughter, and push for humane, 
+                link: "/what-we-do/conservation",
+              },
+              {
+                title: "Advocacy",
+                image: AdvocacyImage,
+                description: `
+                                    RTF works to protect wild horses and burros through
+                                    policy reform, legal action, and public engagement. We challenge helicopter roundups,
+                                    defend Herd Management Areas, oppose horse slaughter, and push for humane,
                                     science-driven alternatives that keep horses wild and free on public lands.
                                 `,
-                                link: "/what-we-do/advocacy"
-                            },
-                            {
-                                title: "Sanctuary",
-                                image: SanctuaryImage,
-                                description: `
-                                    Return to Freedom provides lifelong sanctuary for wild horses and burros displaced 
-                                    by roundups, neglect, or the threat of slaughter. Across our Lompoc headquarters 
-                                    and San Luis Obispo satellite sanctuary, horses live in natural family bands with 
+                link: "/what-we-do/advocacy",
+              },
+              {
+                title: "Sanctuary",
+                image: SanctuaryImage,
+                description: `
+                                    Return to Freedom provides lifelong sanctuary for wild horses and burros displaced
+                                    by roundups, neglect, or the threat of slaughter. Across our Lompoc headquarters
+                                    and San Luis Obispo satellite sanctuary, horses live in natural family bands with
                                     room to roam.
                                 `,
-                                link: "/what-we-do/sanctuary"
-                            },
-                            {
-                                title: "Education",
-                                image: EducationImage,
-                                description: `
-                                    Education at Return to Freedom is grounded in real-world practice. Through tours, 
-                                    hikes, workshops, webinars, and volunteer programs, we invite people to learn 
-                                    directly from intact herds and working landscapes—building understanding of wild 
+                link: "/what-we-do/sanctuary",
+              },
+              {
+                title: "Education",
+                image: EducationImage,
+                description: `
+                                    Education at Return to Freedom is grounded in real-world practice. Through tours,
+                                    hikes, workshops, webinars, and volunteer programs, we invite people to learn
+                                    directly from intact herds and working landscapes—building understanding of wild
                                     horse behavior, humane management.
                                 `,
-                                link: "/what-we-do/education"
-                            }
-                        ].map(({ title, image, description, link }) => (
-                            <Fragment key={title}>
-                                <div
-                                    className="hidden md:block
+                link: "/what-we-do/education",
+              },
+            ].map(({ title, image, description, link }) => (
+              <Fragment key={title}>
+                <div
+                  className="hidden md:block
                                     relative group transition-all duration-500 flex-grow hover:flex-grow-2 basis-0
-                                    h-full bg-pewter flex flex-col items-center justify-center gap-2">
-                                    <Image
-                                        src={image}
-                                        alt={title + " image"}
-                                        className="z-0 absolute top-0 left-0
+                                    h-full bg-pewter flex flex-col items-center justify-center gap-2"
+                >
+                  <Image
+                    src={image}
+                    alt={title + " image"}
+                    className="z-0 absolute top-0 left-0
                                             w-full h-full object-cover object-center
                                             "
-                                    />
-                                    <div className="z-10 h-full w-full relative px-4 flex flex-col items-center group-hover:items-start justify-center">
-                                        <div className="grow basis-0" />
-                                        <div className="relative w-full h-16 grow-0 basis-fit">
-                                            <Link
-                                                href={link}
-                                                className="w-fit text-white text-[44px] font-serif
-                                                    absolute left-1/2 -translate-x-1/2 
+                  />
+                  <div className="z-10 h-full w-full relative px-4 flex flex-col items-center group-hover:items-start justify-center">
+                    <div className="grow basis-0" />
+                    <div className="relative w-full h-16 grow-0 basis-fit">
+                      <Link
+                        href={link}
+                        className="w-fit text-white text-[44px] font-serif
+                                                    absolute left-1/2 -translate-x-1/2
                                                     group-hover:left-0 group-hover:-translate-x-0
                                                     transition-all duration-500 group-hover:duration-300
                                                     "
-                                            >
-                                                {title}
-                                            </Link>
-                                        </div>
-                                        <div className="grow basis-0 max-w-3/4 overflow-hidden">
-                                            <p className="text-white text-[20px]
+                      >
+                        {title}
+                      </Link>
+                    </div>
+                    <div className="grow basis-0 max-w-3/4 overflow-hidden">
+                      <p
+                        className="text-white text-[20px]
                                                 hidden group-hover:block
                                                 opacity-0 group-hover:opacity-100 transition-opacity
-                                                duration-200 delay-0 group-hover:delay-300">
-                                                {description}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div
-                                    className="block md:hidden relative w-1/2 aspect-square flex items-center justify-center">
-                                    <Image
-                                        src={image}
-                                        alt={title + " image"}
-                                        className="z-0 absolute top-0 left-0 w-full h-full object-cover object-center" />
-                                    <Link
-                                        href={link}
-                                        className="z-10 text-white text-2xl font-bold">
-                                        {title}
-                                    </Link>
-                                </div>
-                            </Fragment>
-                        ))}
-
+                                                duration-200 delay-0 group-hover:delay-300"
+                      >
+                        {description}
+                      </p>
                     </div>
+                  </div>
                 </div>
-            </div>
+                <div className="block md:hidden relative w-1/2 aspect-square flex items-center justify-center">
+                  <Image
+                    src={image}
+                    alt={title + " image"}
+                    className="z-0 absolute top-0 left-0 w-full h-full object-cover object-center"
+                  />
+                  <Link
+                    href={link}
+                    className="z-10 text-white text-2xl font-bold"
+                  >
+                    {title}
+                  </Link>
+                </div>
+              </Fragment>
+            ))}
+          </div>
+        </div>
+      </div>
 
-            <div className="w-full h-fit py-8 md:py-16 flex flex-col items-center justify-center gap-4 md:gap-8">
-                <div className="w-11/12 mx-auto mb-8">
-                    <Header color="sage-green" className="md:max-w-1/2 mx-auto">
-                        Why America's Wild Horses Need Us Now
-                    </Header>
-                </div>
-                <div className="w-full h-fit md:px-4">
-                    <NeedUsCarousel />
-                </div>
-            </div>
+      <div className="w-full h-fit py-8 md:py-16 flex flex-col items-center justify-center gap-4 md:gap-8">
+        <div className="w-11/12 mx-auto mb-8">
+          <Header color="sage-green" className="md:max-w-1/2 mx-auto">
+            Why America's Wild Horses Need Us Now
+          </Header>
+        </div>
+        <div className="w-full h-fit md:px-4">
+          <NeedUsCarousel />
+        </div>
+      </div>
 
-            <div className="w-11/12 mx-auto h-fit md:py-16 flex flex-col items-center justify-center gap-8">
-                <div className="md:mb-8">
-                    <Header color="pewter">
-                        Be Their Voice
-                    </Header>
-                </div>
+      <div className="w-11/12 mx-auto h-fit md:py-16 flex flex-col items-center justify-center gap-8">
+        <div className="md:mb-8">
+          <Header color="pewter">Be Their Voice</Header>
+        </div>
 
-                <div className="flex flex-col md:flex-row gap-4 h-fit">
-                    <BlurredImageCard
-                        image={BlurredDonateBackgroundOne}
-                        className="flex-1 h-auto">
-                        <div className={`
+        <div className="flex flex-col md:flex-row gap-4 h-fit">
+          <BlurredImageCard
+            image={BlurredDonateBackgroundOne}
+            className="flex-1 h-auto"
+          >
+            <div
+              className={`
                             w-full h-full md:min-h-[530px]
                             py-12 px-8
                             md:py-16 md:px-10
                             flex flex-col justify-center gap-6 text-white
-                            `}>
-                            <div className="text-[36px] md:text-[48px] md:max-w-3/4 font-serif leading-none">
-                                Donate to Wild Horse Defense Fund
-                            </div>
-                            <div className="text-[16px] md:text-[20px]">
-                                The Wild Horse Defense Fund fuels Return to Freedom's frontline work to end cruel
-                                roundups, advance humane on-range management, and defend wild horses through
-                                advocacy, legal action, and education.
-                            </div>
-                            <GenericDonateDialogue>
-                                <Button color="cinnamon" className="py-1 px-4 text-[16px]">
-                                    Donate
-                                </Button>
-                            </GenericDonateDialogue>
-                        </div>
-                    </BlurredImageCard>
+                            `}
+            >
+              <div className="text-[36px] md:text-[48px] md:max-w-3/4 font-serif leading-none">
+                Donate to Wild Horse Defense Fund
+              </div>
+              <div className="text-[16px] md:text-[20px]">
+                The Wild Horse Defense Fund fuels Return to Freedom's frontline
+                work to end cruel roundups, advance humane on-range management,
+                and defend wild horses through advocacy, legal action, and
+                education.
+              </div>
+              <GenericDonateDialogue>
+                <Button color="cinnamon" className="py-1 px-4 text-[16px]">
+                  Donate
+                </Button>
+              </GenericDonateDialogue>
+            </div>
+          </BlurredImageCard>
 
-                    <BlurredImageCard
-                        image={BlurredDonateBackgroundOne}
-                        className="flex-1 h-auto">
-                        <div className={`
+          <BlurredImageCard
+            image={BlurredDonateBackgroundOne}
+            className="flex-1 h-auto"
+          >
+            <div
+              className={`
                             w-full h-full md:min-h-[530px]
                             py-12 px-8
                             md:py-16 md:px-10
                             flex flex-col justify-center gap-6 text-white
-                            `}>
-                            <div className="text-[36px] md:text-[48px] md:max-w-3/4 font-serif leading-none">
-                                Donate to Return to Freedom Sanctuary Fund
-                            </div>
-                            <div className="text-[16px] md:text-[20px]">
-                                Return to Freedom Sanctuary Fund supports our ongoing work to care for and protect
-                                America's wild horses and burros in our sanctuaries. Your donation helps us provide
-                                the best possible care for these animals, ensuring they have a safe and healthy home.
-                            </div>
-                            <GenericDonateDialogue>
-                                <Button color="cinnamon" className="py-1 px-4 text-[16px]">
-                                    Donate
-                                </Button>
-                            </GenericDonateDialogue>
-                        </div>
-                    </BlurredImageCard>
-                </div>
+                            `}
+            >
+              <div className="text-[36px] md:text-[48px] md:max-w-3/4 font-serif leading-none">
+                Donate to Return to Freedom Sanctuary Fund
+              </div>
+              <div className="text-[16px] md:text-[20px]">
+                Return to Freedom Sanctuary Fund supports our ongoing work to
+                care for and protect America's wild horses and burros in our
+                sanctuaries. Your donation helps us provide the best possible
+                care for these animals, ensuring they have a safe and healthy
+                home.
+              </div>
+              <GenericDonateDialogue>
+                <Button color="cinnamon" className="py-1 px-4 text-[16px]">
+                  Donate
+                </Button>
+              </GenericDonateDialogue>
             </div>
+          </BlurredImageCard>
+        </div>
+      </div>
 
-            <div className="w-full h-fit my-8">
-                <TakeActionSection />
+      <div className="w-full h-fit my-8">
+        <TakeActionSection />
+      </div>
+
+      <div className="relative w-full h-[400px] md:h-fit md:py-16 py-4 flex items-end md:items-center justify-end px-4 md:px-24">
+        <div className="z-0 absolute top-0 left-0 w-full h-full overflow-hidden">
+          <Image
+            src={SpiritImage}
+            alt="Spirit"
+            className="z-0 absolute top-0 md:top-[-155px] left-0 w-full md:h-auto h-[400px] object-cover object-top"
+          />
+          <div
+            className="hidden md:block"
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background:
+                "linear-gradient(to left, #292D35 0%, transparent 50%)",
+              pointerEvents: "none",
+            }}
+          />
+        </div>
+        <div className="z-10 flex flex-col items-end justify-center gap-4 md:my-16">
+          <div className="text-white font-serif text-right flex flex-col gap-2">
+            <div className="text-[48px] font-bold">Spirit</div>
+            <div className="text-[28px]">
+              The Inspiration behind
+              <br className="hidden md:block" />
+              the DreamWork animation
             </div>
+          </div>
+          <Link href="/horses/spirit">
+            <Button color="sage-green" className="py-1 px-4 text-[16px]">
+              Read More About Spirit
+            </Button>
+          </Link>
+        </div>
+      </div>
 
-            <div className="relative w-full h-[400px] md:h-fit md:py-16 py-4 flex items-end md:items-center justify-end px-4 md:px-24">
-                <div className="z-0 absolute top-0 left-0 w-full h-full overflow-hidden">
-                    <Image
-                        src={SpiritImage}
-                        alt="Spirit"
-                        className="z-0 absolute top-0 md:top-[-155px] left-0 w-full md:h-auto h-[400px] object-cover object-top" />
-                    <div
-                        className="hidden md:block"
-                        style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            background: 'linear-gradient(to left, #292D35 0%, transparent 50%)',
-                            pointerEvents: 'none'
-                        }}
-                    />
-                </div>
-                <div className="z-10 flex flex-col items-end justify-center gap-4 md:my-16">
-                    <div className="text-white font-serif text-right flex flex-col gap-2">
-                        <div className="text-[48px] font-bold">
-                            Spirit
-                        </div>
-                        <div className="text-[28px]">
-                            The Inspiration behind<br className="hidden md:block" />
-                            the DreamWork animation
-                        </div>
-                    </div>
-                    <Link href="/horses/spirit">
-                        <Button color="sage-green" className="py-1 px-4 text-[16px]">
-                            Read More About Spirit
-                        </Button>
-                    </Link>
-                </div>
-            </div>
-
-            <div className={`
+      <div
+        className={`
                 w-full h-fit bg-milk
                 py-6 md:py-16
                 px-4 md:px-12
                 flex items-start justify-end gap-12
-                flex-col md:flex-row 
-                `}>
-                <div className="flex-1 h-auto flex flex-col items-center justify-center gap-8">
-                    <Header color="pewter">
-                        Programs & Events
-                    </Header>
-                    <Image
-                        src={ProgramsAndEventsImage}
-                        alt="Programs and Events"
-                        className="w-full md:max-w-[550px] h-full object-cover object-center" />
-                </div>
-                <div className="flex-1 h-[460px] w-full">
-                    <UpcomingEventsWidget className="bg-white w-full" />
-                </div>
-            </div>
-
-            <NewsCarousel topic="homepage" />
-
-            <VideoCarousel carouselItems={[
-                {
-                    title: 'Robert Redford stands with America\'s wild horses',
-                    videoId: '423814174',
-                },
-                {
-                    title: "\'Spirit: Untamed\' director visits RTF's sanctuary",
-                    videoId: '567146784',
-                },
-                {
-                    title: 'Stand with America\'s wild horses and burros',
-                    videoId: '263067600',
-                },
-                {
-                    title: 'Join Wendie Malick in the fight to protect America\'s wild horses',
-                    videoId: '160682894',
-                }
-            ]} />
-
-            <CorporateCarousel />
-
-            <div className="w-fit max-w-11/12 h-fit mt-8 mb-20 mx-auto flex flex-col items-center justify-center">
-                <div className="text-storm font-serif text-3xl mb-2">
-                    Subscribe to receive updates on our work
-                </div>
-                <div className="w-full h-12 flex border-1 border-pewter rounded-sm">
-                    <input type="email" placeholder="ENTER YOUR EMAIL" className="grow h-full py-2 px-4 text-sm" />
-                    <button className="basis-16 grow-0 h-full bg-burnt-orange text-white flex items-center justify-center">
-                        <LongRightArrow />
-                    </button>
-                </div>
-            </div>
-
+                flex-col md:flex-row
+                `}
+      >
+        <div className="flex-1 h-auto flex flex-col items-center justify-center gap-8">
+          <Header color="pewter">Programs & Events</Header>
+          <Image
+            src={ProgramsAndEventsImage}
+            alt="Programs and Events"
+            className="w-full md:max-w-[550px] h-full object-cover object-center"
+          />
         </div>
-    )
-}
+        <div className="flex-1 h-[460px] w-full">
+          <UpcomingEventsWidget className="bg-white w-full" />
+        </div>
+      </div>
 
-export default HomePage
+      <NewsCarousel topic="homepage" />
+
+      <VideoCarousel
+        carouselItems={[
+          {
+            title: "Robert Redford stands with America's wild horses",
+            videoId: "423814174",
+          },
+          {
+            title: "\'Spirit: Untamed\' director visits RTF's sanctuary",
+            videoId: "567146784",
+          },
+          {
+            title: "Stand with America's wild horses and burros",
+            videoId: "263067600",
+          },
+          {
+            title:
+              "Join Wendie Malick in the fight to protect America's wild horses",
+            videoId: "160682894",
+          },
+        ]}
+      />
+
+      <CorporateCarousel />
+
+      <div className="w-fit max-w-11/12 h-fit mt-8 mb-20 mx-auto flex flex-col items-center justify-center">
+        <div className="text-storm font-serif text-3xl mb-2">
+          Subscribe to receive updates on our work
+        </div>
+        <div className="w-full h-12 flex border-1 border-pewter rounded-sm">
+          <input
+            type="email"
+            placeholder="ENTER YOUR EMAIL"
+            className="grow h-full py-2 px-4 text-sm"
+          />
+          <button className="basis-16 grow-0 h-full bg-burnt-orange text-white flex items-center justify-center">
+            <LongRightArrow />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default HomePage;

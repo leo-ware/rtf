@@ -1,10 +1,15 @@
-import { internalAction, internalMutation } from "./_generated/server";
-import { v } from "convex/values";
-import resendManager from "./models/resend";
-import { internal } from "./_generated/api";
+import { internalAction, internalMutation } from "./_generated/server"
+import { v } from "convex/values"
+import resendManager from "./models/resend"
+import { internal } from "./_generated/api"
 
-const generateMessageBody = (args: {topic: string | undefined, subject: string, userEmail: string, body: string}) => {
-return `
+const generateMessageBody = (args: {
+    topic: string | undefined
+    subject: string
+    userEmail: string
+    body: string
+}) => {
+    return `
 The following message was submitted to the contact portal on the Return to Freedom website (https://returntofreedom.org).
 
 ---
@@ -62,7 +67,9 @@ export const _sendEmail = internalMutation({
     handler: async (ctx, args) => {
         const emailOutbox = await ctx.db.get(args.emailOutboxId)
         if (!emailOutbox) {
-            throw new Error(`Error fetching emailoutbox with id ${args.emailOutboxId}`)
+            throw new Error(
+                `Error fetching emailoutbox with id ${args.emailOutboxId}`,
+            )
         }
 
         await ctx.db.patch(args.emailOutboxId, {
@@ -90,7 +97,7 @@ export const _sendEmail = internalMutation({
             })
             throw error
         }
-    }
+    },
 })
 
 export const queueEmail = internalMutation({
@@ -103,11 +110,9 @@ export const queueEmail = internalMutation({
         body: v.string(),
     },
     handler: async (ctx, args) => {
-        const subject = [
-            "RE: Contact Portal Message",
-            args.topic,
-            args.subject,
-        ].filter(x => !!x).join(" - ")
+        const subject = ["RE: Contact Portal Message", args.topic, args.subject]
+            .filter((x) => !!x)
+            .join(" - ")
 
         const messageBody = generateMessageBody({
             topic: args.topic,
@@ -131,7 +136,7 @@ export const queueEmail = internalMutation({
             subject,
             body: messageBody,
             status: "queued",
-            searchText
+            searchText,
         })
 
         try {
@@ -150,5 +155,5 @@ export const queueEmail = internalMutation({
                 emailOutboxId: emailOutboxId,
             }
         }
-    }
-});
+    },
+})
