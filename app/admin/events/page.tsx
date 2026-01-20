@@ -6,16 +6,14 @@ import {
     Calendar as CalendarIcon,
     Folder,
     BookOpen,
-    Ticket,
 } from "lucide-react"
 
 import EventsTab from "./events/EventsTab"
 import ProgramGroupsTab from "./programGroups/ProgramGroupsTab"
 import ProgramsTab from "./programs/ProgramsTab"
-import DiscountCodesTab from "./discountCodes/DiscountCodesTab"
 
 const AdminEventsPage = () => {
-    const [activeTab, setActiveTab] = useState<'events' | 'programGroups' | 'programs' | 'discountCodes'>('events')
+    const [activeTab, setActiveTab] = useState<'events' | 'programGroups' | 'programs'>('events')
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -25,7 +23,7 @@ const AdminEventsPage = () => {
 
                 {/* Tabs */}
                 <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="space-y-6">
-                    <TabsList className="grid w-full grid-cols-4">
+                    <TabsList className="grid w-full grid-cols-3">
                         <TabsTrigger value="events" className="flex items-center gap-2">
                             <CalendarIcon className="h-4 w-4" />
                             Events
@@ -37,10 +35,6 @@ const AdminEventsPage = () => {
                         <TabsTrigger value="programGroups" className="flex items-center gap-2">
                             <Folder className="h-4 w-4" />
                             Program Groups
-                        </TabsTrigger>
-                        <TabsTrigger value="discountCodes" className="flex items-center gap-2">
-                            <Ticket className="h-4 w-4" />
-                            Discount Codes
                         </TabsTrigger>
                     </TabsList>
 
@@ -54,10 +48,6 @@ const AdminEventsPage = () => {
 
                     <TabsContent value="programGroups" className="space-y-6">
                         <ProgramGroupsTab />
-                    </TabsContent>
-
-                    <TabsContent value="discountCodes" className="space-y-6">
-                        <DiscountCodesTab />
                     </TabsContent>
                 </Tabs>
             </div>

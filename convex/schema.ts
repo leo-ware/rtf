@@ -194,11 +194,11 @@ export default defineSchema({
         description: v.string(),
         details: v.string(), // html string
 
-        ticketPriceId: v.id("ticketPrice"),
         locationId: v.id("locations"),
 
         maxAttendees: v.optional(v.number()),
         requiresRegistration: v.optional(v.boolean()),
+        registrationLink: v.optional(v.string()),
 
         contactEmail: v.optional(v.string()),
         contactPhone: v.optional(v.string()),
@@ -220,51 +220,6 @@ export default defineSchema({
     })
         .index("by_program", ["programId"])
         .index("by_date_number", ["dateNumber"])
-    ,
-
-    ticketPrice: defineTable({
-        options: v.array(v.object({
-            name: v.string(),
-            description: v.optional(v.string()),
-            price: v.number(),
-            availableBefore: v.optional(v.number()),
-            availableAfter: v.optional(v.number()),
-        })),
-    }),
-
-    rsvp: defineTable({
-        eventId: v.id("events"),
-        email: v.string(),
-        name: v.string(),
-        tickets: v.array(v.object({
-            name: v.string(),
-            description: v.optional(v.string()),
-            price: v.number(),
-        })),
-        additionalDonation: v.optional(v.number()),
-        discountCode: v.optional(v.id("discountCodes")),
-        priceBeforeDiscount: v.number(),
-        finalPrice: v.number(),
-    })
-        .index("by_event", ["eventId"])
-        .index("by_email", ["email"])
-    ,
-
-    discountCodes: defineTable({
-        code: v.string(),
-        description: v.optional(v.string()),
-        revoked: v.boolean(),
-        discountType: v.union(
-            v.literal("percentage"),
-            v.literal("fixed"),
-            v.literal("free"),
-            v.literal("tickets")
-        ),
-        discountQuantity: v.optional(v.number()),
-        programLock: v.optional(v.id("programs")),
-        eventLock: v.optional(v.id("events")),
-    })
-        .index("by_code", ["code"])
     ,
 
     images: defineTable({

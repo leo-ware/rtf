@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 import { Calendar as CalendarIcon, Loader2 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Id } from "@/convex/_generated/dataModel"
@@ -33,12 +34,14 @@ const EventEditDialog = (props: EventEditDialogProps) => {
     const [dateError, setDateError] = useState<string | null>(null)
     const [selectedDate, _setSelectedDate] = useState<Date>()
     const [selectedEndDate, _setSelectedEndDate] = useState<Date>()
+    const [registrationLink, setRegistrationLink] = useState("")
 
-    // Initialize dates when event data loads
+    // Initialize dates and registrationLink when event data loads
     useEffect(() => {
         if (event && isOpen) {
             _setSelectedDate(new Date(event.startDate))
             _setSelectedEndDate(new Date(event.endDate))
+            setRegistrationLink(event.registrationLink || "")
         }
     }, [event, isOpen])
 
@@ -78,7 +81,8 @@ const EventEditDialog = (props: EventEditDialogProps) => {
             await updateEvent({
                 id: props.eventId,
                 startDate: selectedDate!.toISOString(),
-                endDate: selectedEndDate!.toISOString()
+                endDate: selectedEndDate!.toISOString(),
+                registrationLink: registrationLink || undefined
             })
             setIsOpen(false)
         } catch (err) {
@@ -93,6 +97,7 @@ const EventEditDialog = (props: EventEditDialogProps) => {
         if (event) {
             _setSelectedDate(new Date(event.startDate))
             _setSelectedEndDate(new Date(event.endDate))
+            setRegistrationLink(event.registrationLink || "")
         }
         setError(null)
         setDateError(null)
@@ -130,9 +135,9 @@ const EventEditDialog = (props: EventEditDialogProps) => {
             </DialogTrigger>
             <DialogContent className="max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Edit Event Schedule</DialogTitle>
+                    <DialogTitle>Edit Event</DialogTitle>
                     <DialogDescription>
-                        Update the start and end dates for this event.
+                        Update the dates and registration link for this event.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
@@ -159,6 +164,17 @@ const EventEditDialog = (props: EventEditDialogProps) => {
                             disabled={isLoading}
                             dateRequired={true}
                             timeRequired={true}
+                        />
+                    </div>
+                    <div>
+                        <Label htmlFor="registrationLink">Registration Link (Optional)</Label>
+                        <Input
+                            id="registrationLink"
+                            type="url"
+                            value={registrationLink}
+                            onChange={(e) => setRegistrationLink(e.target.value)}
+                            disabled={isLoading}
+                            placeholder="https://example.com/register"
                         />
                     </div>
 

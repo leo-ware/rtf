@@ -4,7 +4,6 @@ import { removeUndefinedFields } from "../utils"
 import { resolveImageId } from "./imageManager"
 import LocationManager from "./locationManager"
 import {
-    TicketPriceOption,
     ResolvedProgramDetails,
     ProgramCreateArgs,
     ProgramUpdateArgs,
@@ -29,19 +28,16 @@ type EventUpdateFields = {
 }
 
 // Program fields adapted for event creation (some fields optional/renamed)
-type EventProgramCreateFields = Omit<ProgramCreateArgs, "name" | "programGroupId" | "order" | "details" | "ticketPriceOptions" | "locationId"> & {
+type EventProgramCreateFields = Omit<ProgramCreateArgs, "name" | "programGroupId" | "order" | "details" | "locationId"> & {
     longDescription?: string
     location?: string
     locationId?: Id<"locations">
-    ticketPriceId?: Id<"ticketPrice">
-    ticketPriceOptions?: Array<TicketPriceOption>
 }
 
 // Program fields adapted for event updates
 type EventProgramUpdateFields = Omit<ProgramUpdateArgs, "name" | "programGroupId" | "order" | "details"> & {
     longDescription?: string
     location?: string
-    ticketPriceId?: Id<"ticketPrice">
 }
 
 // Combined create args using intersection
@@ -77,12 +73,6 @@ export default class EventManager {
                 locationId = locationManager.id
             }
 
-            // Create ticket price
-            const ticketPriceId = await EventManager.createTicketPrice(
-                ctx,
-                args.ticketPriceOptions || []
-            )
-
             // Get max order for programs in the standalone group
             const existingPrograms = await ctx.db
                 .query("programs")
@@ -100,10 +90,10 @@ export default class EventManager {
                 name: args.title,
                 description: args.description,
                 details: args.longDescription || "",
-                ticketPriceId,
                 locationId,
                 maxAttendees: args.maxAttendees,
                 requiresRegistration: args.requiresRegistration,
+                registrationLink: args.registrationLink,
                 contactEmail: args.contactEmail,
                 contactPhone: args.contactPhone,
                 isPublic: args.isPublic,
@@ -154,6 +144,7 @@ export default class EventManager {
                 if (args.maxAttendees !== undefined) programUpdates.maxAttendees = args.maxAttendees
                 if (args.isPublic !== undefined) programUpdates.isPublic = args.isPublic
                 if (args.requiresRegistration !== undefined) programUpdates.requiresRegistration = args.requiresRegistration
+                if (args.registrationLink !== undefined) programUpdates.registrationLink = args.registrationLink
                 if (args.contactEmail !== undefined) programUpdates.contactEmail = args.contactEmail
                 if (args.contactPhone !== undefined) programUpdates.contactPhone = args.contactPhone
                 if (args.imageId !== undefined) programUpdates.imageId = args.imageId
@@ -167,23 +158,6 @@ export default class EventManager {
                         args.location
                     )
                     programUpdates.locationId = locationManager.id
-                }
-
-                // Handle ticketPrice update
-                if (args.ticketPriceOptions && args.ticketPriceOptions.length > 0) {
-                    if (program.ticketPriceId) {
-                        await ctx.db.patch(program.ticketPriceId, {
-                            options: args.ticketPriceOptions,
-                        })
-                    } else {
-                        const ticketPriceId = await EventManager.createTicketPrice(
-                            ctx,
-                            args.ticketPriceOptions
-                        )
-                        programUpdates.ticketPriceId = ticketPriceId
-                    }
-                } else if (args.ticketPriceId !== undefined) {
-                    programUpdates.ticketPriceId = args.ticketPriceId
                 }
 
                 if (Object.keys(programUpdates).length > 0) {
@@ -215,10 +189,6 @@ export default class EventManager {
 
                     // If this is the only event using this program, delete the program too
                     if (otherEvents.length <= 1) {
-                        // Delete the ticket price if it exists
-                        if (program.ticketPriceId) {
-                            await ctx.db.delete(program.ticketPriceId)
-                        }
                         await ctx.db.delete(program._id)
                     }
                 }
@@ -253,14 +223,13 @@ export default class EventManager {
                 location: null,
                 locationId: null,
                 maxAttendees: undefined,
-                ticketPriceId: null,
                 isPublic: false,
                 requiresRegistration: false,
+                registrationLink: undefined,
                 contactEmail: undefined,
                 contactPhone: undefined,
                 imageId: undefined,
                 image: null,
-                tickets: null,
             }
         }
 
@@ -269,9 +238,8 @@ export default class EventManager {
             return null
         }
 
-        const [location, tickets, image] = await Promise.all([
+        const [location, image] = await Promise.all([
             program.locationId ? ctx.db.get(program.locationId) : null,
-            program.ticketPriceId ? ctx.db.get(program.ticketPriceId) : null,
             program.imageId ? resolveImageId(ctx, program.imageId) : null,
         ])
 
@@ -282,14 +250,13 @@ export default class EventManager {
             location: location?.name ?? null,
             locationId: program.locationId ?? null,
             maxAttendees: program.maxAttendees,
-            ticketPriceId: program.ticketPriceId ?? null,
             isPublic: program.isPublic,
             requiresRegistration: program.requiresRegistration ?? false,
+            registrationLink: program.registrationLink,
             contactEmail: program.contactEmail,
             contactPhone: program.contactPhone,
             imageId: program.imageId,
             image,
-            tickets,
         }
     }
 
@@ -382,15 +349,6 @@ export default class EventManager {
             description: "Auto-generated group for standalone events",
             order: maxOrder + 1,
             isPublic: false,
-        })
-    }
-
-    private static async createTicketPrice(
-        ctx: MutationCtx,
-        options: Array<TicketPriceOption>
-    ): Promise<Id<"ticketPrice">> {
-        return await ctx.db.insert("ticketPrice", {
-            options,
         })
     }
 

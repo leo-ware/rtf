@@ -17,10 +17,10 @@ export type ProgramDetails = {
     description: string
     details: string
     locationId: Id<"locations">
-    ticketPriceId: Id<"ticketPrice">
     isPublic: boolean
     imageId?: Id<"images">
     requiresRegistration?: boolean
+    registrationLink?: string
     contactEmail?: string
     contactPhone?: string
     maxAttendees?: number
@@ -32,12 +32,11 @@ export type ResolvedProgramDetails = {
     longDescription: string
     location: string | null
     locationId: Id<"locations"> | null
-    ticketPriceId: Id<"ticketPrice"> | null
     isPublic: boolean
     imageId: Id<"images"> | undefined
     image: ResolvedImage | null
-    tickets: Doc<"ticketPrice"> | null
     requiresRegistration: boolean
+    registrationLink: string | undefined
     contactEmail: string | undefined
     contactPhone: string | undefined
     maxAttendees: number | undefined
@@ -48,13 +47,13 @@ export type ProgramCreateArgs = {
     name: string
     description: string
     details: string
-    ticketPriceOptions: Array<TicketPriceOption>
     locationId: Id<"locations">
     isPublic: boolean
     imageId?: Id<"images">
     programGroupId: Id<"programGroups">
     order: number
     requiresRegistration?: boolean
+    registrationLink?: string
     contactEmail?: string
     contactPhone?: string
     maxAttendees?: number
@@ -65,13 +64,13 @@ export type ProgramUpdateArgs = {
     name?: string
     description?: string
     details?: string
-    ticketPriceOptions?: Array<TicketPriceOption>
     locationId?: Id<"locations">
     isPublic?: boolean
     imageId?: Id<"images">
     programGroupId?: Id<"programGroups">
     order?: number
     requiresRegistration?: boolean
+    registrationLink?: string
     contactEmail?: string
     contactPhone?: string
     maxAttendees?: number
@@ -85,7 +84,6 @@ export type ProgramWithRelations = Doc<"programs"> & {
     image: ResolvedImage | null
     events: Array<Doc<"events">>
     programGroup?: Doc<"programGroups">
-    ticketPrice?: Doc<"ticketPrice"> | null
     location?: Doc<"locations"> | null
 }
 
@@ -109,35 +107,23 @@ export default class ProgramManager {
             throw new Error("Location not found")
         }
 
-        const { ticketPriceOptions, ...programArgs } = args
-
-        // Create ticketPrice (required)
-        const ticketPriceId = await ctx.db.insert("ticketPrice", {
-            options: ticketPriceOptions,
-        })
-
-        const programId = await ctx.db.insert("programs", {
-            ...programArgs,
-            ticketPriceId,
-        })
+        const programId = await ctx.db.insert("programs", args)
 
         return new ProgramManager(programId)
     }
 
     async update(ctx: MutationCtx, args: UpdateArgs): Promise<void> {
-        const { ticketPriceOptions, ...updates } = args
-
         // If changing program group, verify it exists
-        if (updates.programGroupId) {
-            const programGroup = await ctx.db.get(updates.programGroupId)
+        if (args.programGroupId) {
+            const programGroup = await ctx.db.get(args.programGroupId)
             if (!programGroup) {
                 throw new Error("Program group not found")
             }
         }
 
         // If changing location, verify it exists
-        if (updates.locationId) {
-            const location = await ctx.db.get(updates.locationId)
+        if (args.locationId) {
+            const location = await ctx.db.get(args.locationId)
             if (!location) {
                 throw new Error("Location not found")
             }
@@ -148,28 +134,7 @@ export default class ProgramManager {
             throw new Error("Program not found")
         }
 
-        // Handle ticketPrice update
-        let ticketPriceId: Id<"ticketPrice"> | undefined = undefined
-        if (ticketPriceOptions && ticketPriceOptions.length > 0) {
-            // If program already has a ticketPriceId, update it; otherwise create new
-            if (existingProgram.ticketPriceId) {
-                await ctx.db.patch(existingProgram.ticketPriceId, {
-                    options: ticketPriceOptions,
-                })
-                ticketPriceId = existingProgram.ticketPriceId
-            } else {
-                ticketPriceId = await ctx.db.insert("ticketPrice", {
-                    options: ticketPriceOptions,
-                })
-            }
-        }
-
-        await ctx.db.patch(this.id, {
-            ...removeUndefinedFields({
-                ...updates,
-                ticketPriceId,
-            }),
-        })
+        await ctx.db.patch(this.id, removeUndefinedFields(args))
     }
 
     async delete(ctx: MutationCtx): Promise<void> {
@@ -231,14 +196,13 @@ export default class ProgramManager {
         ctx: QMCtxType,
         program: Doc<"programs">
     ): Promise<ProgramWithRelations> {
-        const [image, events, ticketPrice, location] = await Promise.all([
+        const [image, events, location] = await Promise.all([
             program.imageId ? resolveImageId(ctx, program.imageId) : null,
             ctx.db
                 .query("events")
                 .withIndex("by_program", (q) => q.eq("programId", program._id))
                 .order("desc")
                 .collect(),
-            program.ticketPriceId ? ctx.db.get(program.ticketPriceId) : null,
             program.locationId ? ctx.db.get(program.locationId) : null,
         ])
 
@@ -246,7 +210,6 @@ export default class ProgramManager {
             ...program,
             image,
             events,
-            ticketPrice,
             location,
         }
     }
@@ -291,10 +254,9 @@ export default class ProgramManager {
         return await Promise.all(
             programs.map(async (program) => {
                 const manager = new ProgramManager(program._id)
-                const [image, events, ticketPrice, location] = await Promise.all([
+                const [image, events, location] = await Promise.all([
                     program.imageId ? resolveImageId(ctx, program.imageId) : null,
                     manager.getEvents(ctx),
-                    program.ticketPriceId ? ctx.db.get(program.ticketPriceId) : null,
                     program.locationId ? ctx.db.get(program.locationId) : null,
                 ])
 
@@ -303,7 +265,6 @@ export default class ProgramManager {
                     programGroup: programGroupsMap.get(program.programGroupId),
                     events: events.sort((a, b) => a.dateNumber - b.dateNumber),
                     image,
-                    ticketPrice,
                     location,
                 }
             })

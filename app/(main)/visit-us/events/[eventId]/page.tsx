@@ -65,32 +65,8 @@ const EventPage = ({ params }: PageProps<{ eventId: Id<"events"> }>) => {
                     />
                 )}
 
-                <div className={`
-                w-full mx-auto h-fit flex flex-col items-start justify-center gap-2
-                text-lg text-pewter
-            `}>
-                    <div>
-                        Tickets
-                        {!event.tickets?.options && ("Free")}
-                    </div>
-                    <div className="flex flex-col items-start justify-start gap-1">
-                        {event.tickets?.options && event.tickets?.options.map((option) => (
-                            <div key={option.name} className="flex items-start justify-start gap-2">
-                                <div>{option.name}:</div>
-                                {option.price && option.price > 0
-                                    ? (
-                                        <div>${option.price.toFixed(2)}</div>
-                                    ) : (
-                                        <div>Free</div>
-                                    )
-                                }
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
                 <div className="w-full my-8 mx-auto h-fit flex items-center justify-center">
-                    <RegisterButton eventId={eventId} />
+                    <RegisterButton eventId={eventId} registrationLink={event.registrationLink} />
                 </div>
             </div>
         </div>

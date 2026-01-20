@@ -11,12 +11,37 @@ import { ImSpinner8 } from "react-icons/im"
 type RegisterButtonProps = {
     eventId: Id<"events">
     programId?: never
+    registrationLink?: string
 } | {
     eventId?: never
     programId: Id<"programs">
+    registrationLink?: never
 }
 
-const EventRegisterButton = ({ eventId }: { eventId: Id<"events"> }) => {
+const EventRegisterButton = ({ eventId, registrationLink }: { eventId: Id<"events">, registrationLink?: string }) => {
+    // If there's an external registration link, use it directly
+    if (registrationLink) {
+        return (
+            <div
+                className={`
+                    w-fit rounded-xl bg-cinnamon
+                    flex flex-col items-start justify-start p-0
+                `}>
+                <a
+                    href={registrationLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`
+                        py-2 px-[26px] w-full
+                        text-white text-[16px] font-bold uppercase no-underline
+                        flex items-center justify-center`}>
+                    Register
+                </a>
+            </div>
+        )
+    }
+
+    // Otherwise, use the internal registration page
     return (
         <div
             className={`
@@ -123,9 +148,9 @@ const ProgramRegisterButton = ({ programId }: { programId: Id<"programs"> }) => 
     )
 }
 
-const RegisterButton = ({ eventId, programId }: RegisterButtonProps) => {
+const RegisterButton = ({ eventId, programId, registrationLink }: RegisterButtonProps) => {
     if (eventId) {
-        return <EventRegisterButton eventId={eventId} />
+        return <EventRegisterButton eventId={eventId} registrationLink={registrationLink} />
     }
     if (programId) {
         return <ProgramRegisterButton programId={programId} />

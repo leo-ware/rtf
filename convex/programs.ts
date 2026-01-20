@@ -46,18 +46,6 @@ export const getProgramGroupById = query({
 
         const group = await groupPromise
 
-        const programsWithTickets = await Promise.all(
-            programs.map(async (program) => {
-                const tickets = program.ticketPriceId
-                    ? await ctx.db.get(program.ticketPriceId)
-                    : null
-                return {
-                    ...program,
-                    tickets,
-                }
-            })
-        )
-
         if (!group) {
             return null
         }
@@ -67,7 +55,7 @@ export const getProgramGroupById = query({
             image: group?.imageId
                 ? await resolveImageId(ctx, group?.imageId)
                 : null,
-            programs: programsWithTickets.filter((program) => program.isPublic),
+            programs: programs.filter((program) => program.isPublic),
         }
     },
 })
@@ -94,7 +82,6 @@ export const getPublicPrograms = query({
             name: v.string(),
             description: v.string(),
             details: v.string(),
-            ticketPriceId: v.id("ticketPrice"),
             locationId: v.id("locations"),
             isPublic: v.boolean(),
             imageId: v.optional(v.id("images")),
@@ -102,6 +89,7 @@ export const getPublicPrograms = query({
             order: v.number(),
             maxAttendees: v.optional(v.number()),
             requiresRegistration: v.optional(v.boolean()),
+            registrationLink: v.optional(v.string()),
             contactEmail: v.optional(v.string()),
             contactPhone: v.optional(v.string()),
         })
@@ -114,7 +102,6 @@ export const getPublicPrograms = query({
             name,
             description,
             details,
-            ticketPriceId,
             locationId,
             isPublic,
             imageId,
@@ -122,6 +109,7 @@ export const getPublicPrograms = query({
             order,
             maxAttendees,
             requiresRegistration,
+            registrationLink,
             contactEmail,
             contactPhone,
         }) => ({
@@ -130,7 +118,6 @@ export const getPublicPrograms = query({
             name,
             description,
             details,
-            ticketPriceId,
             locationId,
             isPublic,
             imageId,
@@ -138,6 +125,7 @@ export const getPublicPrograms = query({
             order,
             maxAttendees,
             requiresRegistration,
+            registrationLink,
             contactEmail,
             contactPhone,
         }))
@@ -217,21 +205,13 @@ export const createProgram = mutation({
         name: v.string(),
         description: v.string(),
         details: v.string(),
-        ticketPriceOptions: v.array(
-            v.object({
-                name: v.string(),
-                description: v.optional(v.string()),
-                price: v.number(),
-                availableBefore: v.optional(v.number()),
-                availableAfter: v.optional(v.number()),
-            })
-        ),
         locationId: v.id("locations"),
         isPublic: v.boolean(),
         imageId: v.optional(v.id("images")),
         programGroupId: v.id("programGroups"),
         order: v.number(),
         requiresRegistration: v.optional(v.boolean()),
+        registrationLink: v.optional(v.string()),
         contactEmail: v.optional(v.string()),
         contactPhone: v.optional(v.string()),
         maxAttendees: v.optional(v.number()),
@@ -255,23 +235,13 @@ export const updateProgram = mutation({
         name: v.optional(v.string()),
         description: v.optional(v.string()),
         details: v.optional(v.string()),
-        ticketPriceOptions: v.optional(
-            v.array(
-                v.object({
-                    name: v.string(),
-                    description: v.optional(v.string()),
-                    price: v.number(),
-                    availableBefore: v.optional(v.number()),
-                    availableAfter: v.optional(v.number()),
-                })
-            )
-        ),
         locationId: v.optional(v.id("locations")),
         isPublic: v.optional(v.boolean()),
         imageId: v.optional(v.id("images")),
         programGroupId: v.optional(v.id("programGroups")),
         order: v.optional(v.number()),
         requiresRegistration: v.optional(v.boolean()),
+        registrationLink: v.optional(v.string()),
         contactEmail: v.optional(v.string()),
         contactPhone: v.optional(v.string()),
         maxAttendees: v.optional(v.number()),
