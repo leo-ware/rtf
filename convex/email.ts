@@ -3,30 +3,35 @@ import { v } from "convex/values"
 import resendManager from "./models/resend"
 import { internal } from "./_generated/api"
 
-const generateMessageBody = (args: {
-    topic: string | undefined
-    subject: string
-    userEmail: string
-    body: string
-}) => {
-    return `
-The following message was submitted to the contact portal on the Return to Freedom website (https://returntofreedom.org).
+export const markEmailSent = internalMutation({
+    args: {
+        emailOutboxId: v.id("emailOutbox"),
+    },
+    handler: async (ctx, args) => {
+        await ctx.db.patch(args.emailOutboxId, {
+            status: "sent",
+            sentTimestamp: Date.now(),
+        })
+    },
+})
 
----
-Topic: ${args.topic}
-Subject: ${args.subject}
-User Email: ${args.userEmail}
----
-
-${args.body}
-
----
-Both parties can reply to this email.
-`
-}
+export const markEmailFailed = internalMutation({
+    args: {
+        emailOutboxId: v.id("emailOutbox"),
+        error: v.string(),
+    },
+    handler: async (ctx, args) => {
+        await ctx.db.patch(args.emailOutboxId, {
+            status: "failed",
+            failedTimestamp: Date.now(),
+        })
+        console.error(`Email ${args.emailOutboxId} failed: ${args.error}`)
+    },
+})
 
 export const _sendEmailAction = internalAction({
     args: {
+        emailOutboxId: v.id("emailOutbox"),
         from: v.string(),
         replyTo: v.string(),
         to: v.string(),
@@ -43,7 +48,7 @@ export const _sendEmailAction = internalAction({
                 }, timeoutMs)
             })
             const sendPromise = resendManager.client.emails.send({
-                from: "noreply@returntofreedom.org",
+                from: "onboarding@resend.dev",
                 replyTo: args.replyTo,
                 to: args.to,
                 subject: args.subject,
@@ -54,7 +59,15 @@ export const _sendEmailAction = internalAction({
             if (result === "TIMEOUT") {
                 throw new Error("Email sending timed out")
             }
+
+            await ctx.runMutation(internal.email.markEmailSent, {
+                emailOutboxId: args.emailOutboxId,
+            })
         } catch (error) {
+            await ctx.runMutation(internal.email.markEmailFailed, {
+                emailOutboxId: args.emailOutboxId,
+                error: String(error),
+            })
             throw error
         }
     },
@@ -79,16 +92,12 @@ export const _sendEmail = internalMutation({
 
         try {
             await ctx.scheduler.runAfter(0, internal.email._sendEmailAction, {
+                emailOutboxId: args.emailOutboxId,
                 from: "noreply@returntofreedom.org",
                 replyTo: emailOutbox.userEmail,
-                to: emailOutbox.userEmail,
+                to: emailOutbox.internalEmail,
                 subject: emailOutbox.subject,
                 body: emailOutbox.body,
-            })
-
-            await ctx.db.patch(args.emailOutboxId, {
-                status: "sent",
-                sentTimestamp: Date.now(),
             })
         } catch (error) {
             await ctx.db.patch(args.emailOutboxId, {
@@ -100,6 +109,27 @@ export const _sendEmail = internalMutation({
     },
 })
 
+const generateMessageBody = (args: {
+    topic: string | undefined
+    subject: string
+    userEmail: string
+    body: string
+}) => {
+    return `
+    <p>The following message was submitted to the contact portal on the Return to Freedom website (https://returntofreedom.org).</p>
+    <hr />
+    <p>
+        Subject: ${args.subject}
+        <br />
+        User Email: ${args.userEmail}
+    </p>
+    <hr />
+        <p>${args.body.replaceAll("\n", "<br />")}</p>
+    <hr />
+    <p>You can reply to this email.</p>
+  `
+}
+
 export const queueEmail = internalMutation({
     args: {
         userEmail: v.string(),
@@ -110,13 +140,13 @@ export const queueEmail = internalMutation({
         body: v.string(),
     },
     handler: async (ctx, args) => {
-        const subject = ["RE: Contact Portal Message", args.topic, args.subject]
+        const subject = ["RE: Contact Portal Message ", args.subject]
             .filter((x) => !!x)
             .join(" - ")
 
         const messageBody = generateMessageBody({
             topic: args.topic,
-            subject: subject,
+            subject: args.subject,
             userEmail: args.userEmail,
             body: args.body,
         })
@@ -143,15 +173,14 @@ export const queueEmail = internalMutation({
             await ctx.runMutation(internal.email._sendEmail, {
                 emailOutboxId,
             })
+            return {
+                status: "success",
+                emailOutboxId: emailOutboxId,
+            }
         } catch (error) {
             return {
                 status: "failed",
                 error: error,
-                emailOutboxId: emailOutboxId,
-            }
-        } finally {
-            return {
-                status: "success",
                 emailOutboxId: emailOutboxId,
             }
         }

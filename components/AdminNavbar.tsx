@@ -35,7 +35,8 @@ import {
     Layers,
     Package,
     UserCog,
-    LayoutDashboard
+    LayoutDashboard,
+    Mail,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -143,6 +144,12 @@ const AdminNavbar = () => {
     ]
 
     const managementItems: NavItem[] = [
+        {
+            name: "Messages",
+            href: "/admin/contact-messages",
+            icon: Mail,
+            description: "Contact form submissions"
+        },
         {
             name: "Developer",
             href: "/admin/dev",

@@ -152,3 +152,54 @@ export const deleteContactMessage = mutation({
         return { success: true }
     },
 })
+
+export const searchContactMessages = query({
+    args: {
+        query: v.optional(v.string()),
+        status: v.optional(
+            v.union(
+                v.literal("new"),
+                v.literal("read"),
+                v.literal("replied"),
+                v.literal("archived"),
+            ),
+        ),
+        paginationOpts: paginationOptsValidator,
+    },
+    handler: async (ctx, args) => {
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions")
+        }
+
+        // If there's a search query, use the search index
+        if (args.query && args.query.trim() !== "") {
+            const searchResults = await ctx.db
+                .query("contactMessages")
+                .withSearchIndex("searchText", (q) => {
+                    let search = q.search("searchText", args.query!)
+                    if (args.status) {
+                        search = search.eq("status", args.status)
+                    }
+                    return search
+                })
+                .paginate(args.paginationOpts)
+
+            return searchResults
+        }
+
+        // Otherwise, use normal query with optional status filter
+        if (args.status) {
+            return await ctx.db
+                .query("contactMessages")
+                .withIndex("by_status", (q) => q.eq("status", args.status!))
+                .order("desc")
+                .paginate(args.paginationOpts)
+        }
+
+        return await ctx.db
+            .query("contactMessages")
+            .order("desc")
+            .paginate(args.paginationOpts)
+    },
+})

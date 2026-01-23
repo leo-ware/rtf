@@ -293,7 +293,7 @@ export default defineSchema({
         subject: v.string(),
         message: v.string(),
         searchText: v.string(),
-        
+
         emailOutboxId: v.optional(v.id("emailOutbox")),
         status: v.union(
             v.literal("new"),
@@ -302,6 +302,8 @@ export default defineSchema({
             v.literal("archived")
         ),
 
+        readAt: v.optional(v.number()),
+        repliedAt: v.optional(v.number()),
     })
         .index("by_status", ["status"])
         .index("by_email", ["email"])
