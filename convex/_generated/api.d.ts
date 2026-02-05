@@ -13,7 +13,6 @@ import type * as aggregates from "../aggregates.js";
 import type * as animals from "../animals.js";
 import type * as articleMetadata from "../articleMetadata.js";
 import type * as articles from "../articles.js";
-import type * as auth from "../auth.js";
 import type * as clerkClient from "../clerkClient.js";
 import type * as contactMessages from "../contactMessages.js";
 import type * as discountCodes from "../discountCodes.js";
@@ -79,7 +78,6 @@ declare const fullApi: ApiFromModules<{
   animals: typeof animals;
   articleMetadata: typeof articleMetadata;
   articles: typeof articles;
-  auth: typeof auth;
   clerkClient: typeof clerkClient;
   contactMessages: typeof contactMessages;
   discountCodes: typeof discountCodes;

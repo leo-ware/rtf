@@ -26,7 +26,7 @@ const donatePathwayWithImageValidator = v.object({
         v.object({
             url: v.union(v.null(), v.string()),
             altText: v.optional(v.string()),
-        })
+        }),
     ),
 })
 
@@ -54,12 +54,14 @@ export const listDonatePathways = query({
                 }
                 return {
                     ...pathway,
-                    image: image ? {
-                        url: imageUrl,
-                        altText: image.altText,
-                    } : null,
+                    image: image
+                        ? {
+                              url: imageUrl,
+                              altText: image.altText,
+                          }
+                        : null,
                 }
-            })
+            }),
         )
 
         return pathwaysWithImages
@@ -85,12 +87,14 @@ export const listPublicDonatePathways = query({
                 }
                 return {
                     ...pathway,
-                    image: image ? {
-                        url: imageUrl,
-                        altText: image.altText,
-                    } : null,
+                    image: image
+                        ? {
+                              url: imageUrl,
+                              altText: image.altText,
+                          }
+                        : null,
                 }
-            })
+            }),
         )
 
         return pathwaysWithImages
@@ -175,7 +179,10 @@ export const updateDonatePathway = mutation({
 
         // Determine final values
         const finalLink = args.link !== undefined ? args.link : existing.link
-        const finalFormId = args.donationFormId !== undefined ? args.donationFormId : existing.donationFormId
+        const finalFormId =
+            args.donationFormId !== undefined
+                ? args.donationFormId
+                : existing.donationFormId
 
         // Validate mutual exclusivity with final values
         if (finalLink && finalFormId) {
@@ -189,7 +196,8 @@ export const updateDonatePathway = mutation({
             name: args.name,
             imageId: args.imageId,
             link: args.link === null ? undefined : args.link,
-            donationFormId: args.donationFormId === null ? undefined : args.donationFormId,
+            donationFormId:
+                args.donationFormId === null ? undefined : args.donationFormId,
         })
 
         // Handle clearing fields when switching types
@@ -199,7 +207,10 @@ export const updateDonatePathway = mutation({
                 link: args.link,
                 donationFormId: undefined,
             })
-        } else if (args.donationFormId !== undefined && args.donationFormId !== null) {
+        } else if (
+            args.donationFormId !== undefined &&
+            args.donationFormId !== null
+        ) {
             await ctx.db.patch(args.id, {
                 ...updateData,
                 donationFormId: args.donationFormId,
@@ -244,7 +255,7 @@ export const reorderDonatePathways = mutation({
         await Promise.all(
             args.orderedIds.map(async (id, index) => {
                 await ctx.db.patch(id, { order: index })
-            })
+            }),
         )
 
         return null
