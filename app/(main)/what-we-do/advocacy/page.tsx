@@ -9,6 +9,7 @@ import Link from "next/link"
 import Button from "@/components/public-ui/Button"
 import NewsCarousel from "@/components/NewsCarousel"
 import TakeActionSection from "@/components/TakeActionSection"
+import ScrollReveal from "@/components/public-ui/ScrollReveal"
 
 import Policy1 from "./policy1.png"
 import Policy2 from "./policy2.jpg"
@@ -70,48 +71,60 @@ const AdvocacyPage = () => {
     return (
         <div className="w-full h-fit flex flex-col items-center justify-start gap-16">
             <Hero title="Advocacy" image={AdvocacyHero} />
-            <Callout className="">
-                Return to Freedom is leading the fight to protect America's wild
-                horses and burros through policy reform, legal action, and grassroots
-                mobilization. Every voice matters — together we can end roundups, stop
-                slaughter, and ensure humane, science-based management for generations
-                to come.
-            </Callout>
-            <Header color="sage-green">
-                Our Policy & Legislative Priorities
-            </Header>
+            <ScrollReveal variant="fade-up">
+                <Callout className="">
+                    Return to Freedom is leading the fight to protect America's wild
+                    horses and burros through policy reform, legal action, and grassroots
+                    mobilization. Every voice matters — together we can end roundups, stop
+                    slaughter, and ensure humane, science-based management for generations
+                    to come.
+                </Callout>
+            </ScrollReveal>
+            <ScrollReveal variant="fade-in">
+                <Header color="sage-green">
+                    Our Policy & Legislative Priorities
+                </Header>
+            </ScrollReveal>
             <div className="w-9/12 mx-auto flex flex-col items-center justify-center gap-18">
                 {policies.map((each, i) => {
                     return (
-                        <div key={each.title} className={`w-full flex items-center gap-8 ${i % 2 === 0 ? "flex-row-reverse" : "flex-row"}`}>
-                            <div className="relative w-1/2 h-[350px] overflow-hidden">
-                                <Image
-                                    src={each.image}
-                                    alt={each.title}
-                                    className="w-full h-full object-cover object-center"
-                                />
-                            </div>
-                            <div className="w-1/2 flex flex-col items-start justify-center gap-2">
-                                <div className="font-serif text-[40px] text-pewter">
-                                    {each.title}
+                        <ScrollReveal key={each.title} variant={i % 2 === 0 ? "slide-left" : "slide-right"}>
+                            <div className={`w-full flex items-center gap-8 ${i % 2 === 0 ? "flex-row-reverse" : "flex-row"}`}>
+                                <div className="relative w-1/2 h-[350px] overflow-hidden">
+                                    <Image
+                                        src={each.image}
+                                        alt={each.title}
+                                        className="w-full h-full object-cover object-center"
+                                    />
                                 </div>
-                                <div className="text-lg text-ink">
-                                    {each.description}
+                                <div className="w-1/2 flex flex-col items-start justify-center gap-2">
+                                    <div className="font-serif text-[40px] text-pewter">
+                                        {each.title}
+                                    </div>
+                                    <div className="text-lg text-ink">
+                                        {each.description}
+                                    </div>
+                                    <Link href={each.link} className="mt-2">
+                                        <Button className="" color="cinnamon">Learn More</Button>
+                                    </Link>
                                 </div>
-                                <Link href={each.link} className="mt-2">
-                                    <Button className="" color="cinnamon">Learn More</Button>
-                                </Link>
                             </div>
-                        </div>
+                        </ScrollReveal>
                     )
                 })}
             </div>
 
-            <TakeActionSection rows={1} showControls={true} />
+            <ScrollReveal variant="fade-up">
+                <TakeActionSection rows={1} showControls={true} />
+            </ScrollReveal>
 
-            <NewsCarousel title="RTF's Advocacy Work" topic="advocacy" />
+            <ScrollReveal variant="fade-up">
+                <NewsCarousel title="RTF's Advocacy Work" topic="advocacy" />
+            </ScrollReveal>
 
-            <WHDCallout />
+            <ScrollReveal variant="fade-up">
+                <WHDCallout />
+            </ScrollReveal>
 
             <div className="h-8"/>
         </div>

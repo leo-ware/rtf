@@ -10,20 +10,23 @@ import RoundupsImage1 from "../imgs/randomhorse.png"
 import List from "@/components/public-ui/List"
 import WHDCallout from "@/components/WHDCallout"
 import TakeActionSection from "@/components/TakeActionSection"
+import ScrollReveal from "@/components/public-ui/ScrollReveal"
 
 const HerdManagementPage = () => {
     return (
         <div className="w-full h-fit flex flex-col items-center justify-center gap-16 mb-16">
             <Hero title="Herd Management" image={HeroImage} />
-            <Callout className="text-cinnamon">
-                Designated by the Bureau of Land Management, Herd Management Areas were created to balance
-                wild horse populations with other public-land uses. But decades of over-allocation to private
-                livestock and development have eroded this balance, threatening the future of wild herds.
-                Return to Freedom advocates for fair, science-based management that protects wild horses
-                while supporting sustainable public lands.
-            </Callout>
+            <ScrollReveal variant="fade-up">
+                <Callout className="text-cinnamon">
+                    Designated by the Bureau of Land Management, Herd Management Areas were created to balance
+                    wild horse populations with other public-land uses. But decades of over-allocation to private
+                    livestock and development have eroded this balance, threatening the future of wild herds.
+                    Return to Freedom advocates for fair, science-based management that protects wild horses
+                    while supporting sustainable public lands.
+                </Callout>
+            </ScrollReveal>
 
-            <div className="md:w-10/12 mx-auto">
+            <ScrollReveal variant="fade-in" className="md:w-10/12 mx-auto">
                 <Carousel
                     nDisplayItems={1}
                     autoPlay={false}
@@ -128,16 +131,22 @@ const HerdManagementPage = () => {
                         }))
                     }
                 />
-            </div>
+            </ScrollReveal>
 
-            <TakeActionSection />
+            <ScrollReveal variant="fade-up">
+                <TakeActionSection />
+            </ScrollReveal>
 
-            <NewsCarousel
-                title="Latest News on Herd Management Areas"
-                bgColor="seashell"
-                topic="herd_management" />
+            <ScrollReveal variant="fade-up">
+                <NewsCarousel
+                    title="Latest News on Herd Management Areas"
+                    bgColor="seashell"
+                    topic="herd_management" />
+            </ScrollReveal>
 
-            <WHDCallout />
+            <ScrollReveal variant="fade-up">
+                <WHDCallout />
+            </ScrollReveal>
         </div>
     )
 }

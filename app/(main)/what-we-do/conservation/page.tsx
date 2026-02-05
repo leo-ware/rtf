@@ -12,6 +12,7 @@ import NewsCarousel from "@/components/NewsCarousel"
 import BlurredImageCard from "@/components/public-ui/BlurredImageCard"
 import SponsorAHerdDialog from "@/components/donation-widgets/sponsor-a-herd-dialog"
 import GenericDonateDialogue from "@/components/donation-widgets/GenericDonateDialogue"
+import ScrollReveal from "@/components/public-ui/ScrollReveal"
 
 import HeroImg from "./hero.jpg"
 import BlurredBg from "./blurred-bg.jpg"
@@ -31,15 +32,17 @@ const ConservationPage = () => {
         <div className="w-full h-fit flex flex-col items-center justify-center gap-16 mb-16">
             <Hero title="Conservation" image={HeroImg} />
 
-            <Callout className="text-sage-green">
-                Conservation at Return to Freedom is where science meets stewardship. For more than
-                25 years, we've modeled solutions that balance the needs of wild horses, land, and
-                people—translating sanctuary-based learning into national standards for humane management.
-                Our conservation work focuses on three interconnected pillars: fertility control, holistic
-                land management, and the preservation of rare historic horse strains.
-            </Callout>
+            <ScrollReveal variant="fade-up">
+                <Callout className="text-sage-green">
+                    Conservation at Return to Freedom is where science meets stewardship. For more than
+                    25 years, we've modeled solutions that balance the needs of wild horses, land, and
+                    people—translating sanctuary-based learning into national standards for humane management.
+                    Our conservation work focuses on three interconnected pillars: fertility control, holistic
+                    land management, and the preservation of rare historic horse strains.
+                </Callout>
+            </ScrollReveal>
 
-            <div className="w-full flex flex-col items-center justify-center gap-4">
+            <ScrollReveal variant="fade-up" className="w-full flex flex-col items-center justify-center gap-4">
                 <Header className="text-cinnamon underline">
                     Holistic Land Management
                 </Header>
@@ -64,9 +67,9 @@ const ConservationPage = () => {
                     grazing and long recovery periods, degraded hillsides now retain water, grow native grasses,
                     and rebuild soil structure.
                 </Callout>
-            </div>
+            </ScrollReveal>
 
-            <div className="w-10/12 md:w-8/12 mx-auto flex items-center justify-center gap-8">
+            <ScrollReveal variant="fade-up" className="w-10/12 md:w-8/12 mx-auto flex items-center justify-center gap-8">
                 <div className="w-full md:w-1/2 mx-auto flex flex-col items-center justify-center gap-4">
                     <Header level={2} className="text-cinnamon underline">
                         Before Reseeding
@@ -89,9 +92,9 @@ const ConservationPage = () => {
                         Grass growth at San Luis Obispo - showing progress from our regenerative grazing project.
                     </div>
                 </div>
-            </div>
+            </ScrollReveal>
 
-            <div className="md:w-10/12 mx-auto">
+            <ScrollReveal variant="fade-in" className="md:w-10/12 mx-auto">
                 <Header color="cinnamon" className="mb-8">
                     Preservation of Rare Historic Horse Strains
                 </Header>
@@ -205,11 +208,13 @@ const ConservationPage = () => {
                         }))
                     }
                 />
-            </div>
+            </ScrollReveal>
 
-            <NewsCarousel topic="conservation" />
+            <ScrollReveal variant="fade-up">
+                <NewsCarousel topic="conservation" />
+            </ScrollReveal>
 
-            <div className="w-10/12 mx-auto">
+            <ScrollReveal variant="fade-up" className="w-10/12 mx-auto">
                 <Header color="sage-green" className="mb-8">
                     Conservation in Action
                 </Header>
@@ -252,12 +257,14 @@ const ConservationPage = () => {
                         }
                     ]}
                 /> */}
-            </div>
+            </ScrollReveal>
 
             <div className="w-full">
-                <Header className="mb-8 text-cinnamon underline">
-                    Fertility Control
-                </Header>
+                <ScrollReveal variant="fade-in">
+                    <Header className="mb-8 text-cinnamon underline">
+                        Fertility Control
+                    </Header>
+                </ScrollReveal>
 
                 <AlternatingPictureLayout
                     alternateTitleColors={true}
@@ -317,14 +324,14 @@ const ConservationPage = () => {
                 />
             </div>
 
-            <div className="w-10/12 mx-auto">
+            <ScrollReveal variant="fade-up" className="w-10/12 mx-auto">
                 <BlurredImageCard image={BlurredBg}>
                     <div className="w-full h-full py-16 px-10 flex flex-col items-center justify-center gap-4">
                         <div className="text-4xl md:max-w-7/12 font-serif text-white text-center">
                             Support our conservation efforts by donating to our Sanctuary Fund
                         </div>
                         <div className="max-w-[650px] text-lg text-white text-center">
-                            The Wild Horse Defense Fund fuels Return to Freedom’s frontline work to end cruel
+                            The Wild Horse Defense Fund fuels Return to Freedom's frontline work to end cruel
                             roundups, advance humane on-range management, and defend wild horses through advocacy,
                             legal action, and education.
                         </div>
@@ -333,7 +340,7 @@ const ConservationPage = () => {
                         </GenericDonateDialogue>
                     </div>
                 </BlurredImageCard>
-            </div>
+            </ScrollReveal>
         </div>
     )
 }

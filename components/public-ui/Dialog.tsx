@@ -55,21 +55,21 @@ export const DialogClose = ({ children, className }: { children?: React.ReactNod
     )
 }
 
-export const DialogTrigger = ({ children }: { children: React.ReactNode }) => {
+export const DialogTrigger = ({ children, className }: { children: React.ReactNode, className?: string }) => {
     const { setOpen, _inner_flag } = useDialogContext()
     if (!_inner_flag) {
         throw new Error("DialogTrigger must be used within a Dialog")
     }
     return (
         <div
-            className="cursor-pointer w-fit h-fit"
+            className={cn("cursor-pointer w-fit h-fit", className)}
             onClick={() => setOpen(true)}>
             {children}
         </div>
     )
 }
 
-export const Dialog = ({ children }: { children: React.ReactNode }) => {
+export const Dialog = ({ children, className }: { children: React.ReactNode, className?: string }) => {
     const outerContext = useDialogContext()
     const [open, setOpen] = useState(false)
 
@@ -79,7 +79,7 @@ export const Dialog = ({ children }: { children: React.ReactNode }) => {
 
     return (
         <DialogContext.Provider value={{ open, setOpen, _inner_flag: true }}>
-            <div className="relative z-[1000] w-fit h-fit">
+            <div className={cn("w-fit h-fit", className)}>
                 {children}
             </div>
         </DialogContext.Provider>

@@ -6,6 +6,7 @@ import Link from "next/link"
 import Button from "@/components/public-ui/Button"
 import UpcomingEventsWidget from "@/components/UpcomingEventsWidget"
 import Tabs from "@/components/public-ui/Tabs"
+import ScrollReveal from "@/components/public-ui/ScrollReveal"
 
 import HeroImg from "./hero.jpg"
 import Img1 from "./img1.png"
@@ -21,16 +22,20 @@ const EducationPage = () => {
     return (
         <div className="w-full h-fit mb-16 flex flex-col items-center justify-start gap-16">
             <Hero title="Education" image={HeroImg} />
-            <Callout className="text-sage-green">
-                Education is at the heart of Return to Freedom’s mission. Through hands-on programs, guided
-                tours, and immersive experiences at our sanctuaries, we connect people to the lives of wild
-                horses and burros—building understanding, empathy, and advocacy. Our goal is to inspire
-                informed action and a deeper respect for the world we share.
-            </Callout>
+            <ScrollReveal variant="fade-up">
+                <Callout className="text-sage-green">
+                    Education is at the heart of Return to Freedom's mission. Through hands-on programs, guided
+                    tours, and immersive experiences at our sanctuaries, we connect people to the lives of wild
+                    horses and burros—building understanding, empathy, and advocacy. Our goal is to inspire
+                    informed action and a deeper respect for the world we share.
+                </Callout>
+            </ScrollReveal>
             <div>
-                <Header className="text-cinnamon leading-none mb-[-16px]">
-                    Experiential Learning at RTF
-                </Header>
+                <ScrollReveal variant="fade-in">
+                    <Header className="text-cinnamon leading-none mb-[-16px]">
+                        Experiential Learning at RTF
+                    </Header>
+                </ScrollReveal>
                 <AlternatingPictureLayout
                     items={[
                         {
@@ -103,20 +108,24 @@ const EducationPage = () => {
                 />
             </div>
 
-            <div className="w-full bg-seashell py-8">
+            <ScrollReveal variant="fade-in" className="w-full bg-seashell py-8">
                 <Header className="text-pewter mx-auto">Upcoming Events</Header>
                 <div className="w-8/12 mx-auto">
                     <UpcomingEventsWidget />
                 </div>
-            </div>
+            </ScrollReveal>
 
-            <EducationResourcesWidget />
+            <ScrollReveal variant="fade-up">
+                <EducationResourcesWidget />
+            </ScrollReveal>
 
-            <NewsCarousel topic="education" />
+            <ScrollReveal variant="fade-up">
+                <NewsCarousel topic="education" />
+            </ScrollReveal>
 
-            <div className="w-10/12 mx-auto flex flex-col items-center justify-center gap-4">
+            <ScrollReveal variant="fade-up" className="w-10/12 mx-auto flex flex-col items-center justify-center gap-4">
                 <Header level={2} className="text-sage-green underline">
-                    “El Caballo: The Wild Horses of North America” (2001)
+                    "El Caballo: The Wild Horses of North America" (2001)
                 </Header>
                 <div className="max-w-[650px] text-center mb-2 text-[20px]">
                     Lorem ipsum dolor sit amet consectetur. Mi sollicitudin facilisis imperdiet
@@ -130,7 +139,7 @@ const EducationPage = () => {
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         allowFullScreen />
                 </div>
-            </div>
+            </ScrollReveal>
 
             {/* <div className="w-10/12 mx-auto flex flex-col items-center justify-center gap-4">
                 <Header level={1} className="text-cinnamon mb-8 underline">

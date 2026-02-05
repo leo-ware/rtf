@@ -10,6 +10,7 @@ import LargeCarouselItem from "@/components/public-ui/LargeCarouselItem"
 import Carousel from "@/components/Carousel"
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
 import VideoCarousel from "@/components/VideoCarousel"
+import ScrollReveal from "@/components/public-ui/ScrollReveal"
 
 import SanctuaryHero from "./santuary-hero.jpg"
 import SantuaryPasture from "./santuary-pasture.jpg"
@@ -91,44 +92,54 @@ const SanctuaryPage = () => {
         <div className="w-full h-fit flex flex-col items-center justify-start gap-16">
             <Hero title="Sanctuary" image={SanctuaryHero} />
 
-            <Callout>
-                Across 2,300 acres of California's Central Coast, Return to Freedom
-                provides lifelong refuge for more than 460 wild horses and burros
-                displaced by roundups and neglect. Our sanctuaries allow them to live
-                in natural social herds while modeling humane, sustainable management
-                practices for public lands.
-            </Callout>
+            <ScrollReveal variant="fade-up">
+                <Callout>
+                    Across 2,300 acres of California's Central Coast, Return to Freedom
+                    provides lifelong refuge for more than 460 wild horses and burros
+                    displaced by roundups and neglect. Our sanctuaries allow them to live
+                    in natural social herds while modeling humane, sustainable management
+                    practices for public lands.
+                </Callout>
+            </ScrollReveal>
 
-            <WideImage image={SantuaryPasture} alt="Horses in pasture" />
+            <ScrollReveal variant="fade-in">
+                <WideImage image={SantuaryPasture} alt="Horses in pasture" />
+            </ScrollReveal>
 
-            <TitledText title="Lompoc Sanctuary" color="cinnamon">
-                At RTF's 300-acre headquarters sanctuary in Lompoc, wild horses and burros
-                live in natural family bands along California’s Central Coast. This site
-                serves as both a working sanctuary and the heart of RTF’s public engagement—home
-                to guided tours, family programs, and volunteer days that invite visitors to
-                experience the beauty and intelligence of wild herds up close. It also houses
-                ambassador horses like Spirit, the real-life inspiration for DreamWorks’ Spirit:
-                Stallion of the Cimarron, as well as several rare heritage herds, including the
-                Choctaw and Mission horses. Beyond being a refuge, the Lompoc sanctuary anchors
-                RTF’s broader mission—serving as the operational and educational hub for its
-                national rescue and advocacy work.
-            </TitledText>
+            <ScrollReveal variant="slide-right">
+                <TitledText title="Lompoc Sanctuary" color="cinnamon">
+                    At RTF's 300-acre headquarters sanctuary in Lompoc, wild horses and burros
+                    live in natural family bands along California's Central Coast. This site
+                    serves as both a working sanctuary and the heart of RTF's public engagement—home
+                    to guided tours, family programs, and volunteer days that invite visitors to
+                    experience the beauty and intelligence of wild herds up close. It also houses
+                    ambassador horses like Spirit, the real-life inspiration for DreamWorks' Spirit:
+                    Stallion of the Cimarron, as well as several rare heritage herds, including the
+                    Choctaw and Mission horses. Beyond being a refuge, the Lompoc sanctuary anchors
+                    RTF's broader mission—serving as the operational and educational hub for its
+                    national rescue and advocacy work.
+                </TitledText>
+            </ScrollReveal>
 
-            <WideImage image={SantuaryField} alt="Horses in field" />
+            <ScrollReveal variant="fade-in">
+                <WideImage image={SantuaryField} alt="Horses in field" />
+            </ScrollReveal>
 
-            <TitledText title="San Luis Obispo Sanctuary" color="pewter">
-                Spanning 2,000 acres of rolling coastal rangeland, RTF's San Luis Obispo sanctuary
-                is home to the majority of the organization’s rescued wild horses and burros.
-                Managed through regenerative grazing and holistic land practices, this site demonstrates
-                how wild equines can help heal the land—restoring native grasses, improving soil health,
-                and maintaining ecological balance. Family bands roam freely across expansive pastures,
-                living as close to wild as possible while remaining safe from roundups and slaughter.
-                The San Luis Obispo sanctuary reflects RTF’s vision for the future of sanctuary care:
-                sustainable, large-scale, and rooted in harmony between wild herds and the ecosystems
-                that sustain them.
-            </TitledText>
+            <ScrollReveal variant="slide-left">
+                <TitledText title="San Luis Obispo Sanctuary" color="pewter">
+                    Spanning 2,000 acres of rolling coastal rangeland, RTF's San Luis Obispo sanctuary
+                    is home to the majority of the organization's rescued wild horses and burros.
+                    Managed through regenerative grazing and holistic land practices, this site demonstrates
+                    how wild equines can help heal the land—restoring native grasses, improving soil health,
+                    and maintaining ecological balance. Family bands roam freely across expansive pastures,
+                    living as close to wild as possible while remaining safe from roundups and slaughter.
+                    The San Luis Obispo sanctuary reflects RTF's vision for the future of sanctuary care:
+                    sustainable, large-scale, and rooted in harmony between wild herds and the ecosystems
+                    that sustain them.
+                </TitledText>
+            </ScrollReveal>
 
-            <div className="w-full">
+            <ScrollReveal variant="fade-up" className="w-full">
                 <Header color="cinnamon" className="mb-8 underline">
                     Costs of Running Our Sanctuaries
                 </Header>
@@ -171,9 +182,9 @@ const SanctuaryPage = () => {
                         </div>
                     </BlurredImageCard>
                 </div>
-            </div>
+            </ScrollReveal>
 
-            <div className="w-full px-8">
+            <ScrollReveal variant="fade-in" className="w-full px-8">
                 <Header color="pewter" className="mb-8 underline">
                     Our Rescues
                 </Header>
@@ -190,18 +201,20 @@ const SanctuaryPage = () => {
                     autoPlay={"right"}
                     autoPlayInterval={10000}
                 />
-            </div>
+            </ScrollReveal>
 
             <div className="w-full flex flex-col items-center justify-center gap-12 mt-4">
-                <TitledText title="Growing Need For a New Sanctuary" color="sage-green">
-                    Return to Freedom's sanctuaries have reached their capacity. Each year, more wild
-                    horses and burros are displaced by government roundups or crisis situations than
-                    we can safely house. While our goal has always been to keep wild horses on the range,
-                    the growing number of animals needing immediate refuge underscores an urgent reality:
-                    we need more land, more resources, and a stronger foundation to sustain our mission.
-                </TitledText>
+                <ScrollReveal variant="fade-up">
+                    <TitledText title="Growing Need For a New Sanctuary" color="sage-green">
+                        Return to Freedom's sanctuaries have reached their capacity. Each year, more wild
+                        horses and burros are displaced by government roundups or crisis situations than
+                        we can safely house. While our goal has always been to keep wild horses on the range,
+                        the growing number of animals needing immediate refuge underscores an urgent reality:
+                        we need more land, more resources, and a stronger foundation to sustain our mission.
+                    </TitledText>
+                </ScrollReveal>
 
-                <div className="w-[95vw] mx-auto h-[500px] flex items-stretch gap-4">
+                <ScrollReveal variant="fade-up" className="w-[95vw] mx-auto h-[500px] flex items-stretch gap-4">
                     <BlurredImageCard image={Blurred3} className="h-full">
                         <div className="text-white w-full h-full px-12 py-16 flex flex-col items-start justify-center gap-4">
                             <div className="text-[36px] font-serif">Capital Campaign</div>
@@ -237,7 +250,7 @@ const SanctuaryPage = () => {
                             </Link>
                         </div>
                     </BlurredImageCard>
-                </div>
+                </ScrollReveal>
             </div>
 
             {/* <VideoCarousel carouselItems={[
@@ -267,18 +280,18 @@ const SanctuaryPage = () => {
                 }
             ].map(each => ({...each, isYoutube: true}))}/> */}
 
-            <div className="w-full">
+            <ScrollReveal variant="fade-up" className="w-full">
                 <NewsCarousel bgColor="transparent" title="Sanctuary News" topic="sanctuary" />
-            </div>
+            </ScrollReveal>
 
-            <div className="w-full bg-seashell py-12">
+            <ScrollReveal variant="fade-in" className="w-full bg-seashell py-12">
                 <Header level={1} color="pewter" className="underline">
                     Visit Us
                 </Header>
                 <div className="w-8/12 mx-auto">
                     <UpcomingEventsWidget />
                 </div>
-            </div>
+            </ScrollReveal>
         </div>
     )
 }

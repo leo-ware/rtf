@@ -1,20 +1,45 @@
 "use client"
 
-import { useEffect, useState, useRef, RefObject } from 'react';
-import { Loader2 } from 'lucide-react';
-import { Id } from '@/convex/_generated/dataModel';
-import { useQuery } from 'convex/react';
-import { api } from '@/convex/_generated/api';
+import { useEffect, useState, useRef, RefObject } from "react"
+import { Loader2 } from "lucide-react"
+import { Id } from "@/convex/_generated/dataModel"
+import { useQuery } from "convex/react"
+import { api } from "@/convex/_generated/api"
 
 type SalsaDonateFormEmbedProps = {
     donationFormId: Id<"donationForms">
     scrollingContainerRef?: RefObject<HTMLDivElement>
 }
 
-const SalsaDonateFormEmbed = ({ donationFormId, scrollingContainerRef }: SalsaDonateFormEmbedProps) => {
+const SalsaDonateFormEmbed = ({
+    donationFormId,
+    scrollingContainerRef,
+}: SalsaDonateFormEmbedProps) => {
+    const donationForm = useQuery(api.donationForms.getDonationForm, {
+        id: donationFormId,
+    })
+    return (
+        donationForm && (
+            <SalsaDonateFormEmbedInner
+                donationForm={donationForm}
+                scrollingContainerRef={scrollingContainerRef}
+            />
+        )
+    )
+}
 
-    const donationForm = useQuery(api.donationForms.getDonationForm, { id: donationFormId })
+type SalsaDonateFormEmbedInnerProps = {
+    donationForm: {
+        formId: string
+        formTemplateId: string
+    }
+    scrollingContainerRef?: RefObject<HTMLDivElement>
+}
 
+export const SalsaDonateFormEmbedInner = ({
+    donationForm,
+    scrollingContainerRef,
+}: SalsaDonateFormEmbedInnerProps) => {
     const [_iframeHeight, setIframeHeight] = useState(600)
     const [isLoading, setIsLoading] = useState(true)
     const iframeRef = useRef<HTMLIFrameElement>(null)
@@ -24,7 +49,6 @@ const SalsaDonateFormEmbed = ({ donationFormId, scrollingContainerRef }: SalsaDo
     useEffect(() => {
         let timeout: NodeJS.Timeout | null = null
         if (donationForm) {
-
             timeout = setTimeout(() => {
                 setIsLoading(false)
             }, 1000)
@@ -36,7 +60,9 @@ const SalsaDonateFormEmbed = ({ donationFormId, scrollingContainerRef }: SalsaDo
         }
     }, [donationForm])
 
-    const iframeContent = donationForm && `
+    const iframeContent =
+        donationForm &&
+        `
         <!DOCTYPE html>
         <html>
         <head>
@@ -80,9 +106,11 @@ const SalsaDonateFormEmbed = ({ donationFormId, scrollingContainerRef }: SalsaDo
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
-            if (event.data.type === 'salsa-resize' && typeof event.data.height === 'number') {
-
-                if (typeof event.data.height === 'number') {
+            if (
+                event.data.type === "salsa-resize" &&
+                typeof event.data.height === "number"
+            ) {
+                if (typeof event.data.height === "number") {
                     setIframeHeight(event.data.height)
                 }
 
@@ -93,19 +121,22 @@ const SalsaDonateFormEmbed = ({ donationFormId, scrollingContainerRef }: SalsaDo
                             const iframeTop = iframeRef.current.offsetTop
                             scrollingContainerRef.current.scrollTo({
                                 top: iframeTop,
-                                behavior: 'smooth'
+                                behavior: "smooth",
                             })
                         } else {
                             // Otherwise use default scrollIntoView
-                            iframeRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                            iframeRef.current.scrollIntoView({
+                                behavior: "smooth",
+                                block: "start",
+                            })
                         }
                     }
                 }
             }
         }
 
-        window.addEventListener('message', handleMessage)
-        return () => window.removeEventListener('message', handleMessage)
+        window.addEventListener("message", handleMessage)
+        return () => window.removeEventListener("message", handleMessage)
     }, [scrollingContainerRef])
 
     return (

@@ -9,6 +9,7 @@ import BlurredImageCard from "@/components/public-ui/BlurredImageCard"
 import Button from "@/components/public-ui/Button"
 import GenericDonateDialogue from "@/components/donation-widgets/GenericDonateDialogue"
 import TakeActionSection from "@/components/TakeActionSection"
+import ScrollReveal from "@/components/public-ui/ScrollReveal"
 
 import RoundupsHero from "./roundups-hero.png"
 import RoundupsImage1 from "../imgs/randomhorse.png"
@@ -18,25 +19,27 @@ const RoundupsPage = () => {
     return (
         <div className="w-full h-fit flex flex-col items-center justify-center gap-16 mb-16">
             <Hero title="Roundups" image={RoundupsHero} />
-            <Callout className="text-cinnamon md:w-11/12">
-                Each year, thousands of wild horses and burros are chased by low-flying helicopters
-                into traps on our public lands. These operations, conducted by the Bureau of Land
-                Management (BLM) and U.S. Forest Service, are meant to reduce herd numbers—but instead,
-                they destroy family bands, cost taxpayers hundreds of millions, and fill holding
-                facilities where over 60,000 horses now live in confinement.  RTF advocates for humane,
-                science-based alternatives that keep wild horses free on the range, where they belong.
-            </Callout>
+            <ScrollReveal variant="fade-up">
+                <Callout className="text-cinnamon md:w-11/12">
+                    Each year, thousands of wild horses and burros are chased by low-flying helicopters
+                    into traps on our public lands. These operations, conducted by the Bureau of Land
+                    Management (BLM) and U.S. Forest Service, are meant to reduce herd numbers—but instead,
+                    they destroy family bands, cost taxpayers hundreds of millions, and fill holding
+                    facilities where over 60,000 horses now live in confinement.  RTF advocates for humane,
+                    science-based alternatives that keep wild horses free on the range, where they belong.
+                </Callout>
+            </ScrollReveal>
 
-            <div className="w-10/12 md:w-8/12 mx-auto">
+            <ScrollReveal variant="fade-up" className="w-10/12 md:w-8/12 mx-auto">
                 <iframe
                     className="w-full aspect-[16/9]"
                     src="https://www.youtube.com/embed/8Jcq1mvPT5w?si=7IGnNGg7jH7IFQNl"
                     title="YouTube video player"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen />
-            </div>
+            </ScrollReveal>
 
-            <div className="md:w-10/12 mx-auto">
+            <ScrollReveal variant="fade-in" className="md:w-10/12 mx-auto">
                 <Carousel
                     nDisplayItems={1}
                     autoPlay={false}
@@ -138,16 +141,22 @@ const RoundupsPage = () => {
                         }))
                     }
                 />
-            </div>
+            </ScrollReveal>
 
-            <TakeActionSection />
+            <ScrollReveal variant="fade-up">
+                <TakeActionSection />
+            </ScrollReveal>
 
-            <NewsCarousel
-                title="Latest News on Roundups"
-                bgColor="seashell"
-                topic="roundups" />
+            <ScrollReveal variant="fade-up">
+                <NewsCarousel
+                    title="Latest News on Roundups"
+                    bgColor="seashell"
+                    topic="roundups" />
+            </ScrollReveal>
 
-            <WHDCallout />
+            <ScrollReveal variant="fade-up">
+                <WHDCallout />
+            </ScrollReveal>
         </div>
     )
 }

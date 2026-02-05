@@ -39,6 +39,16 @@ export default defineSchema({
         updatedAt: v.number(),
     }),
 
+    donatePathways: defineTable({
+        name: v.string(),
+        imageId: v.id("images"),
+        order: v.number(),
+        // Mutually exclusive: exactly one must be set
+        link: v.optional(v.string()),
+        donationFormId: v.optional(v.id("donationForms")),
+    })
+        .index("by_order", ["order"]),
+
     takeActionArticle: defineTable({
         title: v.string(),
         slug: v.string(),

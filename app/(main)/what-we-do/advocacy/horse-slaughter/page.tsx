@@ -5,6 +5,7 @@ import Carousel from "@/components/Carousel"
 import Image from "next/image"
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
 import NewsCarousel from "@/components/NewsCarousel"
+import ScrollReveal from "@/components/public-ui/ScrollReveal"
 
 import HeroImage from "./hero.png"
 import RoundupsImage1 from "../imgs/randomhorse.png"
@@ -16,13 +17,15 @@ const HorseSlaughterPage = () => {
     return (
         <div className="w-full h-fit flex flex-col items-center justify-center gap-16 mb-16">
             <Hero title="Horse Slaughter" image={HeroImage} />
-            <Callout className="text-cinnamon">
-                Though horse slaughter is banned in the U.S., thousands of horses are still exported
-                across our borders for slaughter each year. Return to Freedom advocates for a lasting
-                solution through the SAFE Act and stronger enforcement of existing protections.
-            </Callout>
+            <ScrollReveal variant="fade-up">
+                <Callout className="text-cinnamon">
+                    Though horse slaughter is banned in the U.S., thousands of horses are still exported
+                    across our borders for slaughter each year. Return to Freedom advocates for a lasting
+                    solution through the SAFE Act and stronger enforcement of existing protections.
+                </Callout>
+            </ScrollReveal>
 
-            <div className="md:w-10/12 mx-auto">
+            <ScrollReveal variant="fade-in" className="md:w-10/12 mx-auto">
                 <Carousel
                     nDisplayItems={1}
                     autoPlay={false}
@@ -120,16 +123,22 @@ const HorseSlaughterPage = () => {
                         }))
                     }
                 />
-            </div>
+            </ScrollReveal>
 
-            <TakeActionSection />
+            <ScrollReveal variant="fade-up">
+                <TakeActionSection />
+            </ScrollReveal>
 
-            <NewsCarousel
-                title="Latest News on Horse Slaughter"
-                bgColor="seashell"
-                topic="horse_slaughter" />
+            <ScrollReveal variant="fade-up">
+                <NewsCarousel
+                    title="Latest News on Horse Slaughter"
+                    bgColor="seashell"
+                    topic="horse_slaughter" />
+            </ScrollReveal>
 
-            <WHDCallout />
+            <ScrollReveal variant="fade-up">
+                <WHDCallout />
+            </ScrollReveal>
         </div>
     )
 }

@@ -37,6 +37,7 @@ import {
     UserCog,
     LayoutDashboard,
     Mail,
+    Gift,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -116,6 +117,12 @@ const AdminNavbar = () => {
             href: "/admin/locations",
             icon: MapPin,
             description: "Manage venue locations"
+        },
+        {
+            name: "Donate Pathways",
+            href: "/admin/donate-pathways",
+            icon: Gift,
+            description: "Manage donation pathway cards"
         },
     ]
 

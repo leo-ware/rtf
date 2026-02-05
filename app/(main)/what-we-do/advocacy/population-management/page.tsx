@@ -9,6 +9,7 @@ import TakeActionLink from "@/components/TakeActionLink"
 import NewsCarousel from "@/components/NewsCarousel"
 import BlurredImageCard from "@/components/public-ui/BlurredImageCard"
 import Button from "@/components/public-ui/Button"
+import ScrollReveal from "@/components/public-ui/ScrollReveal"
 
 import PopulationManagementHero from "./hero.jpg"
 import RoundupsImage1 from "../imgs/randomhorse.png"
@@ -21,23 +22,25 @@ const PopulationManagementPage = () => {
     return (
         <div className="w-full h-fit flex flex-col items-center justify-center gap-16 mb-16">
             <Hero title="Population Management" image={PopulationManagementHero} />
-            <Callout className="text-cinnamon">
-                Managing wild horse populations is about balance—between freedom and care, between
-                open land and limited resources. Return to Freedom demonstrates that humane,
-                science-based fertility control can replace roundups, reduce costs, and allow wild
-                herds to live naturally on the range.
-            </Callout>
+            <ScrollReveal variant="fade-up">
+                <Callout className="text-cinnamon">
+                    Managing wild horse populations is about balance—between freedom and care, between
+                    open land and limited resources. Return to Freedom demonstrates that humane,
+                    science-based fertility control can replace roundups, reduce costs, and allow wild
+                    herds to live naturally on the range.
+                </Callout>
+            </ScrollReveal>
 
-            <div className="w-10/12 md:w-8/12 mx-auto">
+            <ScrollReveal variant="fade-up" className="w-10/12 md:w-8/12 mx-auto">
                 <iframe
                     className="w-full aspect-[16/9]"
                     src="https://www.youtube.com/embed/WOTL-b4wkM8?si=X2OfmqPn8t5xn6Ja"
                     title="YouTube video player"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen />
-            </div>
+            </ScrollReveal>
 
-            <div className="md:w-10/12 mx-auto">
+            <ScrollReveal variant="fade-in" className="md:w-10/12 mx-auto">
                 <Carousel
                     nDisplayItems={1}
                     autoPlay={false}
@@ -136,18 +139,22 @@ const PopulationManagementPage = () => {
                         }))
                     }
                 />
-            </div>
+            </ScrollReveal>
 
-            <div className="w-full">
+            <ScrollReveal variant="fade-up" className="w-full">
                 <TakeActionSection />
-            </div>
+            </ScrollReveal>
 
-            <NewsCarousel
-                title="Latest News on Population Management"
-                bgColor="seashell"
-                topic="population_management" />
+            <ScrollReveal variant="fade-up">
+                <NewsCarousel
+                    title="Latest News on Population Management"
+                    bgColor="seashell"
+                    topic="population_management" />
+            </ScrollReveal>
 
-            <WHDCallout />
+            <ScrollReveal variant="fade-up">
+                <WHDCallout />
+            </ScrollReveal>
         </div>
     )
 }
