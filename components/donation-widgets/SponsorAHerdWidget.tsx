@@ -7,6 +7,8 @@ import SponsorAHerdImg from "./spirit.png"
 import { useEffect, useState } from "react"
 import { Id } from "@/convex/_generated/dataModel"
 import SalsaDonateFormEmbed from "../SalsaDonateFormEmbed"
+import { DialogClose } from "@/components/public-ui/Dialog"
+import { IoMdClose } from "react-icons/io"
 
 const SponsorAHerdWidget = ({ defaultHerdId }: { defaultHerdId?: Id<"herds"> }) => {
     const {results: herds} = usePaginatedQuery(api.herds.listHerds, {}, { initialNumItems: 100 })
@@ -20,17 +22,22 @@ const SponsorAHerdWidget = ({ defaultHerdId }: { defaultHerdId?: Id<"herds"> }) 
     }, [herds])
 
     return (
-        <div className="w-[90vw] md:w-[75vw] h-fit relative bg-sage-green rounded-md overflow-hidden text-milk">
-            <div className="relative w-full h-[400px] grow-0">
+        <div className="w-full md:w-[75vw] min-h-full md:min-h-0 md:h-auto relative bg-sage-green md:rounded-md text-milk">
+            {/* Close button - fixed on mobile for always-visible access */}
+            <DialogClose className="fixed md:absolute top-4 right-4 z-20 text-white text-2xl">
+                <IoMdClose />
+            </DialogClose>
+
+            <div className="relative w-full h-[200px] md:h-[400px] shrink-0">
                 <Image
                     src={SponsorAHerdImg}
                     alt="Sponsor A Herd"
                     fill
                     className="w-full h-full object-cover object-center" />
             </div>
-            <div className="w-full flex flex-col gap-6 px-12 py-8 basis-0 grow">
-                <div className="text-left flex flex-col gap-3">
-                    <div className="text-3xl font-serif">
+            <div className="w-full flex flex-col gap-4 md:gap-6 px-4 py-4 md:px-12 md:py-8 basis-0 grow">
+                <div className="text-left flex flex-col gap-2 md:gap-3">
+                    <div className="text-xl md:text-3xl font-serif">
                         Sponsor A Herd
                     </div>
                     <select
@@ -47,7 +54,7 @@ const SponsorAHerdWidget = ({ defaultHerdId }: { defaultHerdId?: Id<"herds"> }) 
                         {selectedHerd?.description}
                     </div>
                 </div>
-                <div className="w-full mb-6 text-milk text-left flex gap-8">
+                <div className="w-full mb-4 md:mb-6 text-milk text-left flex gap-4 md:gap-8">
                     {selectedHerd?.donationFormId && (
                         <div className="w-full h-fit px-[-10px]">
                             <SalsaDonateFormEmbed donationFormId={selectedHerd.donationFormId} />

@@ -5,6 +5,7 @@ import Carousel from "@/components/Carousel"
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
 import Image, { StaticImageData } from "next/image"
 import Link from "next/link"
+import ScrollReveal from "@/components/public-ui/ScrollReveal"
 
 import Munchers from "./need-us-images/munchers.png"
 import OnTheMove from "./need-us-images/on-the-move.png"
@@ -29,29 +30,28 @@ const CarouselItemWidget = ({title, description, link, reversed, image}: Carouse
                 flex flex-col-reverse
                 ${reversed ? "md:flex-row-reverse" : "md:flex-row"}
             `}>
-            <div className={`
-                w-full
-                flex flex-col gap-4
-                items-start
-                justify-start
-                text-left 
-                md:w-1/2 md:p-6
-                `}>
+            <ScrollReveal
+                variant="fade-up"
+                className="w-full flex flex-col gap-4 items-start justify-start text-left md:w-1/2 md:p-6"
+            >
                 <div className={"text-[28px] md:text-[36px] text-cinnamon " + (reversed ? " md:text-cinnamon" : " md:text-pewter")}>
                     {title}
                 </div>
                 <div className="text-[16px] md:text-[20px] text-ink">
-                    {description} 
+                    {description}
                 </div>
                 <Link href={link} className="mt-4">
                     <Button color="sage-green" className="py-1 px-4 text-[16px]">
                         Learn More
                     </Button>
                 </Link>
-            </div>
-            <div className="w-full md:w-1/2 h-full">
+            </ScrollReveal>
+            <ScrollReveal
+                variant={reversed ? "slide-left" : "slide-right"}
+                className="w-full md:w-1/2 h-full"
+            >
                 <Image src={image} alt={title} className="w-full h-full object-cover object-center" />
-            </div>
+            </ScrollReveal>
         </div>
     )
 }

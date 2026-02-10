@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Plus, X } from "lucide-react"
-import DonationFormCreateDialog from "./DonationFormCreateDialog"
+import DonationFormCreateDialog from "@/app/admin/donation-forms/DonationFormCreateDialog"
 
 type DonationFormSelectorProps = {
     value: Id<"donationForms"> | null

@@ -12,6 +12,10 @@ import TakeActionSection from "@/components/TakeActionSection"
 import ScrollReveal from "@/components/public-ui/ScrollReveal"
 
 import RoundupsHero from "./roundups-hero.png"
+
+export const metadata = {
+    title: "End Roundups & Removals - Return to Freedom"
+}
 import RoundupsImage1 from "../imgs/randomhorse.png"
 import WHDCallout from "@/components/WHDCallout"
 

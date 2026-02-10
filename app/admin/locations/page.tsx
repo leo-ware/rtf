@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { usePaginatedQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Card } from "@/components/ui/card"
@@ -14,6 +14,10 @@ import LocationEditDialog from "@/components/locations/LocationEditDialog"
 import LocationDeleteDialog from "@/components/locations/LocationDeleteDialog"
 
 const AdminLocationsPage = () => {
+    useEffect(() => {
+        document.title = "Locations - RTF Admin"
+    }, [])
+
     const [searchTerm, setSearchTerm] = useState("")
 
     const { results: locations, loadMore, status } = usePaginatedQuery(

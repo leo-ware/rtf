@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Layers, Folder, FileText } from "lucide-react"
 
@@ -9,6 +9,10 @@ import GroupsTab from "./groups/GroupsTab"
 import ArticlesTab from "./articles/ArticlesTab"
 
 const AdminEducationArticlesPage = () => {
+    useEffect(() => {
+        document.title = "Education Articles - RTF Admin"
+    }, [])
+
     const [activeTab, setActiveTab] = useState<"superGroups" | "groups" | "articles">("superGroups")
 
     return (

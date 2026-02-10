@@ -1,3 +1,9 @@
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+    title: "Other Ways to Give - Return to Freedom"
+}
+
 import Hero from "@/components/public-ui/Hero"
 import AlternatingPictureLayout from "@/components/public-ui/AlternatingPictureLayout"
 import Button from "@/components/public-ui/Button"

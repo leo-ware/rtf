@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo, useState, useEffect } from "react"
 import { useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Badge } from "@/components/ui/badge"
@@ -24,6 +24,10 @@ const formatDateTime = (ms: number) => {
 }
 
 const JobListingsTab = () => {
+    useEffect(() => {
+        document.title = "Job Opportunities - RTF Admin"
+    }, [])
+
     const [searchTerm, setSearchTerm] = useState("")
     const reorderDisabled = searchTerm.trim() !== ""
 

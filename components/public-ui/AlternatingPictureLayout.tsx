@@ -45,19 +45,19 @@ const AlternatingPictureLayout = ({
                     >
                         <ScrollReveal
                             variant="fade-up"
-                            className={`basis-0 grow flex flex-col gap-4 text-center px-0 ${textAlign}`}
+                            className={`basis-0 grow flex flex-col gap-4 text-center px-4 md:px-0 ${textAlign}`}
                         >
                             {item.superTitle && (
-                                <div className="text-[25px] text-ink">
+                                <div className="text-xl md:text-[25px] text-ink">
                                     {item.superTitle}
                                 </div>
                             )}
                             {item.title && (
-                                <div className={`text-[36px] font-serif ${titleColor(index)}`}>
+                                <div className={`text-[28px] md:text-[36px] font-serif ${titleColor(index)}`}>
                                     {item.title}
                                 </div>
                             )}
-                            <div className={`text-[20px] flex flex-col gap-4 items-center justify-center ${isEven ? "md:items-start" : "md:items-end"}`}>
+                            <div className={`text-base md:text-[20px] flex flex-col gap-4 items-center justify-center ${isEven ? "md:items-start" : "md:items-end"}`}>
                                 {item.description}
                             </div>
                         </ScrollReveal>

@@ -15,6 +15,10 @@ import SpiritHeadshot from "./spirit-headshot.png"
 import Button from "@/components/public-ui/Button"
 import NewsCarousel from "@/components/NewsCarousel"
 
+export const metadata = {
+    title: "Spirit: Stallion of the Cimarron - Return to Freedom"
+}
+
 const SpiritPage = () => {
     return (
         <div className="w-full h-fit flex flex-col items-center justify-start gap-16">
@@ -122,7 +126,7 @@ const SpiritPage = () => {
                         metus. Id vel urna gravida vel. Elit purus congue sollicitudin auctor volutpat iaculis
                         pellentesque ipsum posuere.
                     </div>
-                    <GenericDonateDialogue>
+                    <GenericDonateDialogue defaultPathwayName="Spirit's Legacy Fund">
                         <Button color="cinnamon" className="mt-8">
                             Donate
                         </Button>

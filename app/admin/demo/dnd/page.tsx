@@ -2,9 +2,12 @@
 
 import ReorderableList from "@/components/ReorderableList"
 import { Switch } from "@/components/ui/switch";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const DndDemoPage = () => {
+    useEffect(() => {
+        document.title = "Drag & Drop Demo - RTF Admin"
+    }, [])
     const handleReorder = (newOrder: string[]) => {
         console.log(newOrder);
     }

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +16,9 @@ import Link from "next/link";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 const NotFoundPage = () => {
+  useEffect(() => {
+    document.title = "404 Not Found - RTF Admin"
+  }, [])
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

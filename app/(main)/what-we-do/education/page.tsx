@@ -9,6 +9,10 @@ import Tabs from "@/components/public-ui/Tabs"
 import ScrollReveal from "@/components/public-ui/ScrollReveal"
 
 import HeroImg from "./hero.jpg"
+
+export const metadata = {
+    title: "Education - Return to Freedom"
+}
 import Img1 from "./img1.png"
 import Img2 from "./img2.png"
 import Img3 from "./img3.png"
@@ -110,7 +114,7 @@ const EducationPage = () => {
 
             <ScrollReveal variant="fade-in" className="w-full bg-seashell py-8">
                 <Header className="text-pewter mx-auto">Upcoming Events</Header>
-                <div className="w-8/12 mx-auto">
+                <div className="w-11/12 md:w-8/12 mx-auto">
                     <UpcomingEventsWidget />
                 </div>
             </ScrollReveal>

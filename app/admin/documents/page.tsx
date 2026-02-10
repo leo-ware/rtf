@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useMutation, usePaginatedQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Id } from "@/convex/_generated/dataModel"
@@ -46,6 +46,10 @@ import DocumentEditDialog from "./DocumentEditDialog"
 import { documentTypeLabels, DocumentType } from "@/convex/documents"
 
 const AdminDocumentsPage = () => {
+    useEffect(() => {
+        document.title = "Documents - RTF Admin"
+    }, [])
+
     const router = useRouter()
     const [deletingDocument, setDeletingDocument] = useState<Id<"documents"> | null>(null)
     const [confirmDeleteId, setConfirmDeleteId] = useState<Id<"documents"> | null>(null)

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -34,6 +34,10 @@ import ExternalArticleDeleteDialog from "./ExternalArticleDeleteDialog";
 import { formatDate } from "@/lib/utils";
 
 const AdminNewsPage = () => {
+    useEffect(() => {
+        document.title = "News & Articles - RTF Admin"
+    }, [])
+
     const {
         results: allArticles,
         loadMore: loadMoreArticles,

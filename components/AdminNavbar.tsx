@@ -118,6 +118,15 @@ const AdminNavbar = () => {
             icon: MapPin,
             description: "Manage venue locations"
         },
+    ]
+
+    const donationItems: NavItem[] = [
+        {
+            name: "Donation Forms",
+            href: "/admin/donation-forms",
+            icon: FileText,
+            description: "Manage Salsa Labs form configurations"
+        },
         {
             name: "Donate Pathways",
             href: "/admin/donate-pathways",
@@ -175,6 +184,7 @@ const AdminNavbar = () => {
         { name: "Overview", icon: LayoutDashboard, items: overviewItems },
         { name: "Content", icon: Layers, items: contentItems },
         { name: "Entities", icon: Users, items: entityItems },
+        { name: "Donations", icon: Heart, items: donationItems },
         { name: "Calendar", icon: Calendar, items: calendarItems },
         { name: "Assets", icon: Package, items: assetsItems },
         { name: "Management", icon: UserCog, items: managementItems },

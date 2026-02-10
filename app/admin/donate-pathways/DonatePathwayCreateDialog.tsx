@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Plus, Loader2 } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
 import { useState } from "react"
 import { Id } from "@/convex/_generated/dataModel"
 import { useMutation } from "convex/react"
@@ -39,6 +40,7 @@ const DonatePathwayCreateDialog = ({ children, onCreated }: DonatePathwayCreateD
         pathwayType: "link" as PathwayType,
         link: "",
         donationFormId: null as Id<"donationForms"> | null,
+        showInDialog: false,
     })
 
     const editingDisabled = isLoading
@@ -58,6 +60,7 @@ const DonatePathwayCreateDialog = ({ children, onCreated }: DonatePathwayCreateD
                 imageId: formData.imageId!,
                 link: formData.pathwayType === "link" ? formData.link : undefined,
                 donationFormId: formData.pathwayType === "donationForm" ? formData.donationFormId! : undefined,
+                showInDialog: formData.pathwayType === "donationForm" ? formData.showInDialog : undefined,
             })
             setIsOpen(false)
             resetForm()
@@ -78,6 +81,7 @@ const DonatePathwayCreateDialog = ({ children, onCreated }: DonatePathwayCreateD
             pathwayType: "link",
             link: "",
             donationFormId: null,
+            showInDialog: false,
         })
         setError(null)
     }
@@ -89,6 +93,7 @@ const DonatePathwayCreateDialog = ({ children, onCreated }: DonatePathwayCreateD
             // Clear the other field when switching types
             link: value === "link" ? formData.link : "",
             donationFormId: value === "donationForm" ? formData.donationFormId : null,
+            showInDialog: value === "donationForm" ? formData.showInDialog : false,
         })
     }
 
@@ -169,14 +174,29 @@ const DonatePathwayCreateDialog = ({ children, onCreated }: DonatePathwayCreateD
                     )}
 
                     {formData.pathwayType === "donationForm" && (
-                        <div>
-                            <Label>Donation Form *</Label>
-                            <DonationFormSelector
-                                value={formData.donationFormId}
-                                onChange={(id) => setFormData({ ...formData, donationFormId: id })}
-                                disabled={editingDisabled}
-                            />
-                        </div>
+                        <>
+                            <div>
+                                <Label>Donation Form *</Label>
+                                <DonationFormSelector
+                                    value={formData.donationFormId}
+                                    onChange={(id) => setFormData({ ...formData, donationFormId: id })}
+                                    disabled={editingDisabled}
+                                />
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="showInDialog"
+                                    checked={formData.showInDialog}
+                                    onCheckedChange={(checked) =>
+                                        setFormData({ ...formData, showInDialog: checked === true })
+                                    }
+                                    disabled={editingDisabled}
+                                />
+                                <Label htmlFor="showInDialog" className="text-sm font-normal cursor-pointer">
+                                    Show in donation dialog fund selector
+                                </Label>
+                            </div>
+                        </>
                     )}
 
                     {error && (

@@ -4,6 +4,10 @@ import AlternatingPictureLayout from "@/components/public-ui/AlternatingPictureL
 import Image from "next/image"
 
 import HeroImg from "./learn-hero.jpg"
+
+export const metadata = {
+    title: "The Story of America's Wild Horses - Return to Freedom"
+}
 import LearnImg1 from "./learn-timeline-1.png"
 import LearnImg2 from "./learn-timeline-2.png"
 import LearnImg3 from "./learn-timeline-3.png"

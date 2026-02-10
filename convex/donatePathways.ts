@@ -11,6 +11,7 @@ const donatePathwayReturnValidator = v.object({
     order: v.number(),
     link: v.optional(v.string()),
     donationFormId: v.optional(v.id("donationForms")),
+    showInDialog: v.optional(v.boolean()),
 })
 
 const donatePathwayWithImageValidator = v.object({
@@ -21,6 +22,7 @@ const donatePathwayWithImageValidator = v.object({
     order: v.number(),
     link: v.optional(v.string()),
     donationFormId: v.optional(v.id("donationForms")),
+    showInDialog: v.optional(v.boolean()),
     image: v.union(
         v.null(),
         v.object({
@@ -116,12 +118,81 @@ export const getDonatePathway = query({
     },
 })
 
+export const listDialogPathways = query({
+    args: {},
+    returns: v.array(v.object({
+        _id: v.id("donatePathways"),
+        name: v.string(),
+        donationFormId: v.id("donationForms"),
+    })),
+    handler: async (ctx) => {
+        const pathways = await ctx.db
+            .query("donatePathways")
+            .withIndex("by_order")
+            .order("asc")
+            .collect()
+
+        // Filter: only those with donationFormId AND showInDialog=true
+        // Order is preserved from the query
+        return pathways
+            .filter(p => p.donationFormId && p.showInDialog === true)
+            .map(p => ({
+                _id: p._id,
+                name: p.name,
+                donationFormId: p.donationFormId!,
+            }))
+    },
+})
+
+export const getPathwayByName = query({
+    args: { name: v.string() },
+    returns: v.union(v.null(), v.object({
+        _id: v.id("donatePathways"),
+        name: v.string(),
+        donationFormId: v.id("donationForms"),
+    })),
+    handler: async (ctx, args) => {
+        const pathways = await ctx.db
+            .query("donatePathways")
+            .withIndex("by_order")
+            .order("asc")
+            .collect()
+
+        const searchName = args.name.toLowerCase()
+
+        // Filter to valid pathways first
+        const validPathways = pathways.filter(p =>
+            p.donationFormId && p.showInDialog === true
+        )
+
+        // Try exact match first (case-insensitive)
+        let match = validPathways.find(p =>
+            p.name.toLowerCase() === searchName
+        )
+
+        // Fall back to partial match (contains)
+        if (!match) {
+            match = validPathways.find(p =>
+                p.name.toLowerCase().includes(searchName) ||
+                searchName.includes(p.name.toLowerCase())
+            )
+        }
+
+        return match ? {
+            _id: match._id,
+            name: match.name,
+            donationFormId: match.donationFormId!,
+        } : null
+    },
+})
+
 export const createDonatePathway = mutation({
     args: {
         name: v.string(),
         imageId: v.id("images"),
         link: v.optional(v.string()),
         donationFormId: v.optional(v.id("donationForms")),
+        showInDialog: v.optional(v.boolean()),
     },
     returns: v.id("donatePathways"),
     handler: async (ctx, args) => {
@@ -136,6 +207,11 @@ export const createDonatePathway = mutation({
         }
         if (!args.link && !args.donationFormId) {
             throw new Error("Must set either link or donationFormId")
+        }
+
+        // showInDialog only valid for donation form pathways
+        if (args.showInDialog && !args.donationFormId) {
+            throw new Error("showInDialog can only be set for donation form pathways")
         }
 
         // Get max order
@@ -153,6 +229,7 @@ export const createDonatePathway = mutation({
             order: newOrder,
             link: args.link,
             donationFormId: args.donationFormId,
+            showInDialog: args.showInDialog,
         })
     },
 })
@@ -164,6 +241,7 @@ export const updateDonatePathway = mutation({
         imageId: v.optional(v.id("images")),
         link: v.optional(v.union(v.string(), v.null())),
         donationFormId: v.optional(v.union(v.id("donationForms"), v.null())),
+        showInDialog: v.optional(v.union(v.boolean(), v.null())),
     },
     returns: v.id("donatePathways"),
     handler: async (ctx, args) => {
@@ -192,12 +270,24 @@ export const updateDonatePathway = mutation({
             throw new Error("Must set either link or donationFormId")
         }
 
+        // Determine final showInDialog value
+        const finalShowInDialog = args.showInDialog !== undefined
+            ? args.showInDialog
+            : existing.showInDialog
+
+        // showInDialog only valid for donation form pathways
+        if (finalShowInDialog && !finalFormId) {
+            throw new Error("showInDialog can only be set for donation form pathways")
+        }
+
         const updateData = removeUndefinedFields({
             name: args.name,
             imageId: args.imageId,
             link: args.link === null ? undefined : args.link,
             donationFormId:
                 args.donationFormId === null ? undefined : args.donationFormId,
+            showInDialog:
+                args.showInDialog === null ? undefined : args.showInDialog,
         })
 
         // Handle clearing fields when switching types
@@ -206,6 +296,7 @@ export const updateDonatePathway = mutation({
                 ...updateData,
                 link: args.link,
                 donationFormId: undefined,
+                showInDialog: undefined, // Clear showInDialog when switching to link
             })
         } else if (
             args.donationFormId !== undefined &&

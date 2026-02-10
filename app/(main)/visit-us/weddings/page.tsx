@@ -1,10 +1,14 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import Button from '@/components/public-ui/Button'; 
+import Button from '@/components/public-ui/Button';
 
 import WeddingHeroImg from '@/public/img/wedding_gallery_1.jpg';
 import EventGallery from '@/components/EventGallery';
+
+export const metadata = {
+    title: "Host Your Event - Return to Freedom"
+}
 
 // Import all gallery images
 import galleryImg1 from '@/public/img/wedding_gallery_1.jpg';

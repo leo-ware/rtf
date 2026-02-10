@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useQuery, useMutation } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Id } from "@/convex/_generated/dataModel"
@@ -34,6 +34,10 @@ import SponsorCreateDialog from "./SponsorCreateDialog"
 import SponsorEditDialog from "./SponsorEditDialog"
 
 const AdminSponsorsPage = () => {
+    useEffect(() => {
+        document.title = "Sponsors - RTF Admin"
+    }, [])
+
     const router = useRouter()
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
     const [editingSponsorId, setEditingSponsorId] = useState<Id<"sponsors"> | null>(null)

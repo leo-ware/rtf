@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +20,9 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const ServerErrorPage = () => {
+  useEffect(() => {
+    document.title = "500 Server Error - RTF Admin"
+  }, [])
   const router = useRouter();
   const searchParams = useSearchParams();
   const [copied, setCopied] = useState(false);

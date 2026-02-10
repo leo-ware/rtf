@@ -85,23 +85,23 @@ const AdvocacyPage = () => {
                     Our Policy & Legislative Priorities
                 </Header>
             </ScrollReveal>
-            <div className="w-9/12 mx-auto flex flex-col items-center justify-center gap-18">
+            <div className="w-11/12 md:w-9/12 mx-auto flex flex-col items-center justify-center gap-12 md:gap-18">
                 {policies.map((each, i) => {
                     return (
                         <ScrollReveal key={each.title} variant={i % 2 === 0 ? "slide-left" : "slide-right"}>
-                            <div className={`w-full flex items-center gap-8 ${i % 2 === 0 ? "flex-row-reverse" : "flex-row"}`}>
-                                <div className="relative w-1/2 h-[350px] overflow-hidden">
+                            <div className={`w-full flex flex-col md:flex-row items-center gap-6 md:gap-8 ${i % 2 === 0 ? "md:flex-row-reverse" : ""}`}>
+                                <div className="relative w-full md:w-1/2 h-[250px] md:h-[350px] overflow-hidden">
                                     <Image
                                         src={each.image}
                                         alt={each.title}
                                         className="w-full h-full object-cover object-center"
                                     />
                                 </div>
-                                <div className="w-1/2 flex flex-col items-start justify-center gap-2">
-                                    <div className="font-serif text-[40px] text-pewter">
+                                <div className="w-full md:w-1/2 flex flex-col items-start justify-center gap-2">
+                                    <div className="font-serif text-[28px] md:text-[40px] text-pewter">
                                         {each.title}
                                     </div>
-                                    <div className="text-lg text-ink">
+                                    <div className="text-base md:text-lg text-ink">
                                         {each.description}
                                     </div>
                                     <Link href={each.link} className="mt-2">

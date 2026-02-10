@@ -1,10 +1,15 @@
 "use client"
 
+import { useEffect } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import PersonListWidget from "./PersonListWidget"
 import { roles, roleTypeToLabel } from "./types"
 
 const RolesTab = () => {
+    useEffect(() => {
+        document.title = "People Roles - RTF Admin"
+    }, [])
+
     return (
         <div className="space-y-6">
             <div>

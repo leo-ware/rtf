@@ -10,7 +10,7 @@ import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
 import Button from "@/components/public-ui/Button"
 import NewsCarousel from "@/components/NewsCarousel"
 import BlurredImageCard from "@/components/public-ui/BlurredImageCard"
-import SponsorAHerdDialog from "@/components/donation-widgets/sponsor-a-herd-dialog"
+import SponsorAHerdDialog from "@/components/donation-widgets/SponsorAHerdDialog"
 import GenericDonateDialogue from "@/components/donation-widgets/GenericDonateDialogue"
 import ScrollReveal from "@/components/public-ui/ScrollReveal"
 
@@ -69,7 +69,7 @@ const ConservationPage = () => {
                 </Callout>
             </ScrollReveal>
 
-            <ScrollReveal variant="fade-up" className="w-10/12 md:w-8/12 mx-auto flex items-center justify-center gap-8">
+            <ScrollReveal variant="fade-up" className="w-10/12 md:w-8/12 mx-auto flex flex-col md:flex-row items-center justify-center gap-8">
                 <div className="w-full md:w-1/2 mx-auto flex flex-col items-center justify-center gap-4">
                     <Header level={2} className="text-cinnamon underline">
                         Before Reseeding
@@ -77,7 +77,7 @@ const ConservationPage = () => {
                     <div className="w-full aspect-[3/4] relative">
                         <Image src={Before} alt="Before" fill className="object-cover object-center" />
                     </div>
-                    <div className="text-ink font-sans text-[20px] text-center">
+                    <div className="text-ink font-sans text-base md:text-[20px] text-center">
                         RTF staff seeding for the regenerative grazing project in San Luis Obispo, CA.
                     </div>
                 </div>
@@ -88,7 +88,7 @@ const ConservationPage = () => {
                     <div className="w-full aspect-[3/4] relative">
                         <Image src={After} alt="After" fill className="object-cover object-center" />
                     </div>
-                    <div className="text-ink font-sans text-[20px] text-center">
+                    <div className="text-ink font-sans text-base md:text-[20px] text-center">
                         Grass growth at San Luis Obispo - showing progress from our regenerative grazing project.
                     </div>
                 </div>
@@ -324,18 +324,18 @@ const ConservationPage = () => {
                 />
             </div>
 
-            <ScrollReveal variant="fade-up" className="w-10/12 mx-auto">
+            <ScrollReveal variant="fade-up" className="w-11/12 md:w-10/12 mx-auto">
                 <BlurredImageCard image={BlurredBg}>
-                    <div className="w-full h-full py-16 px-10 flex flex-col items-center justify-center gap-4">
-                        <div className="text-4xl md:max-w-7/12 font-serif text-white text-center">
+                    <div className="w-full h-full py-10 md:py-16 px-6 md:px-10 flex flex-col items-center justify-center gap-4">
+                        <div className="text-2xl md:text-4xl md:max-w-7/12 font-serif text-white text-center">
                             Support our conservation efforts by donating to our Sanctuary Fund
                         </div>
-                        <div className="max-w-[650px] text-lg text-white text-center">
+                        <div className="max-w-[650px] text-base md:text-lg text-white text-center">
                             The Wild Horse Defense Fund fuels Return to Freedom's frontline work to end cruel
                             roundups, advance humane on-range management, and defend wild horses through advocacy,
                             legal action, and education.
                         </div>
-                        <GenericDonateDialogue>
+                        <GenericDonateDialogue defaultPathwayName="Sanctuary Fund">
                             <Button color="cinnamon">Donate Now</Button>
                         </GenericDonateDialogue>
                     </div>

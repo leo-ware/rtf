@@ -10,6 +10,7 @@ import ConvexClientProvider from "@/providers/ConvexClientProvider";
 import { ClerkProvider } from '@clerk/nextjs'
 import { TooltipProvider } from "@/components/ui/tooltip"
 import DnDProvider from "@/providers/DnDProvider"
+import ToastProvider from "@/providers/ToastProvider"
 
 const workSans = Work_Sans({
     variable: "--font-work-sans",
@@ -45,7 +46,9 @@ export default function RootLayout({
                     <ConvexClientProvider>
                         <TooltipProvider>
                             <DnDProvider>
-                                {children}
+                                <ToastProvider>
+                                    {children}
+                                </ToastProvider>
                             </DnDProvider>
                         </TooltipProvider>
                     </ConvexClientProvider>

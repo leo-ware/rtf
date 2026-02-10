@@ -1,12 +1,16 @@
 "use client"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { FileText, Users } from "lucide-react"
 import AnimalsTab from "./animals/AnimalsTab"
 import HerdsTab from "./herds/HerdsTab"
 
 const AdminAnimalsPage = () => {
+    useEffect(() => {
+        document.title = "Animals & Herds - RTF Admin"
+    }, [])
+
     const [activeTab, setActiveTab] = useState<"animals" | "herds">("animals")
 
     return (

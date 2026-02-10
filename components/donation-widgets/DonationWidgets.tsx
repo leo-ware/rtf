@@ -16,7 +16,7 @@ import SponsorAHorseImg from "./sponsor-a-horse.jpg"
 import VetFundImg from "./vet-fund.png"
 import WishlistImg from "./wishlist.jpg"
 import GenericDonateDialogue from "./GenericDonateDialogue"
-import SponsorAHerdDialog from "./sponsor-a-herd-dialog"
+import SponsorAHerdDialog from "./SponsorAHerdDialog"
 
 const CardWidget = ({ title, image, link, external = false }: { title: string, image: StaticImageData, link?: string, external?: boolean }) => {
     return (
@@ -82,22 +82,22 @@ export const DonationWidgets = {
             link="/donate/corporate-giving" />
     ),
     "SanctuaryFund": () => (
-        <GenericDonateDialogue>
+        <GenericDonateDialogue defaultPathwayName="Sanctuary Fund">
             <CardWidget title="Sanctuary Fund" image={SanctuaryFundImg} />
         </GenericDonateDialogue>
     ),
     "WildHorseDefenseFund": () => (
-        <GenericDonateDialogue>
+        <GenericDonateDialogue defaultPathwayName="Wild Horse Defense Fund">
             <CardWidget title="Wild Horse Defense Fund" image={ConservationFundImg} />
         </GenericDonateDialogue>
     ),
     "SpiritLegacyFund": () => (
-        <GenericDonateDialogue>
+        <GenericDonateDialogue defaultPathwayName="Spirit's Legacy Fund">
             <CardWidget title="Spirit's Legacy Fund" image={SpiritFundImg} />
         </GenericDonateDialogue>
     ),
     "SponsorABaleOfHay": () => (
-        <GenericDonateDialogue>
+        <GenericDonateDialogue defaultPathwayName="Sponsor a Bale of Hay">
             <CardWidget title="Sponsor a Bale of Hay" image={HayFundImg} />
         </GenericDonateDialogue>
     ),
@@ -105,7 +105,7 @@ export const DonationWidgets = {
         <CardWidget title="Veterinary Fund In honor of Stella Demayo" image={VetFundImg} />
     ),
     "InHonorAndMemoryGifts": () => (
-        <GenericDonateDialogue>
+        <GenericDonateDialogue defaultPathwayName="In Honor and Memory Gifts">
             <CardWidget title="In Honor and Memory Gifts" image={MemoriamGiftsImg} />
         </GenericDonateDialogue>
     ),

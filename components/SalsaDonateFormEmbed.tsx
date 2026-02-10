@@ -42,10 +42,12 @@ export const SalsaDonateFormEmbedInner = ({
 }: SalsaDonateFormEmbedInnerProps) => {
     const [_iframeHeight, setIframeHeight] = useState(600)
     const [isLoading, setIsLoading] = useState(true)
+    const [isVisible, setIsVisible] = useState(false)
     const iframeRef = useRef<HTMLIFrameElement>(null)
 
     const iframeHeight = isLoading ? 600 : _iframeHeight
 
+    // Initial load timeout
     useEffect(() => {
         let timeout: NodeJS.Timeout | null = null
         if (donationForm) {
@@ -59,6 +61,16 @@ export const SalsaDonateFormEmbedInner = ({
             }
         }
     }, [donationForm])
+
+    // Delayed visibility after loading - allows iframe to stabilize
+    useEffect(() => {
+        if (!isLoading) {
+            const timer = setTimeout(() => {
+                setIsVisible(true)
+            }, 1500)
+            return () => clearTimeout(timer)
+        }
+    }, [isLoading])
 
     const iframeContent =
         donationForm &&
@@ -140,8 +152,8 @@ export const SalsaDonateFormEmbedInner = ({
     }, [scrollingContainerRef])
 
     return (
-        <div className="w-full h-fit relative">
-            {isLoading && (
+        <div className="w-full min-h-[200px] relative">
+            {!isVisible && (
                 <div className="absolute inset-0 flex items-center justify-center bg-sage-green">
                     <Loader2 className="w-6 h-6 text-white animate-spin" />
                 </div>
@@ -150,9 +162,9 @@ export const SalsaDonateFormEmbedInner = ({
                 <iframe
                     ref={iframeRef}
                     srcDoc={iframeContent}
-                    className="w-full border-0"
+                    className={`w-full border-0 transition-opacity duration-300 ${isVisible ? "opacity-100" : "opacity-0"}`}
                     style={{ height: `${iframeHeight}px` }}
-                    title="Sponsor a Horse Donation Form"
+                    title="Donation Form"
                 />
             )}
         </div>

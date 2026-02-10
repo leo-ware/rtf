@@ -37,6 +37,8 @@ export default defineSchema({
         formId: v.string(),
         formTemplateId: v.string(),
         updatedAt: v.number(),
+    }).searchIndex("searchName", {
+        searchField: "name",
     }),
 
     donatePathways: defineTable({
@@ -46,6 +48,7 @@ export default defineSchema({
         // Mutually exclusive: exactly one must be set
         link: v.optional(v.string()),
         donationFormId: v.optional(v.id("donationForms")),
+        showInDialog: v.optional(v.boolean()),
     })
         .index("by_order", ["order"]),
 

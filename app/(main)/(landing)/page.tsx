@@ -7,6 +7,7 @@ import { Fragment } from "react";
 import GenericDonateDialogue from "@/components/donation-widgets/GenericDonateDialogue";
 import UpcomingEventsWidget from "@/components/UpcomingEventsWidget";
 import LongRightArrow from "@/components/LongRightArrow";
+import ScrollReveal from "@/components/public-ui/ScrollReveal";
 
 import CorporateCarousel from "./CorporateCarousel";
 import NewsCarousel from "../../../components/NewsCarousel";
@@ -54,7 +55,7 @@ const HomePage = () => {
         </div>
       </div>
 
-      <div className="w-10/12 mx-auto h-fit py-8 md:pt-16 md:pb-8 flex flex-col items-center justify-center gap-8">
+      <ScrollReveal variant="fade-up" className="w-10/12 mx-auto h-fit py-8 md:pt-16 md:pb-8 flex flex-col items-center justify-center gap-8">
         <Header
           color="cinnamon"
           className="no-underline text-left md:text-center"
@@ -72,13 +73,13 @@ const HomePage = () => {
             About Us
           </Button>
         </Link>
-      </div>
+      </ScrollReveal>
 
       <div
         id="what-we-do"
         className="w-full h-fit md:py-16 flex flex-col items-center justify-center gap-8"
       >
-        <div className="w-11/12 md:w-2/3 flex flex-col items-start md:items-center justify-center gap-2">
+        <ScrollReveal variant="fade-up" className="w-11/12 md:w-2/3 flex flex-col items-start md:items-center justify-center gap-2">
           <Header
             color="sage-green"
             className="no-underline text-left md:text-center"
@@ -94,9 +95,9 @@ const HomePage = () => {
             national leadership—creating lasting, science-based solutions that
             ensure wild horses remain free for generations to come.
           </div>
-        </div>
+        </ScrollReveal>
 
-        <div className="w-full flex items-center justify-center">
+        <ScrollReveal variant="scale" className="w-full flex items-center justify-center">
           <div className="md:w-11/12 h-[90vh] flex stretch flex-wrap md:flex-nowrap">
             {[
               {
@@ -198,30 +199,31 @@ const HomePage = () => {
               </Fragment>
             ))}
           </div>
-        </div>
+        </ScrollReveal>
       </div>
 
       <div className="w-full h-fit py-8 md:py-16 flex flex-col items-center justify-center gap-4 md:gap-8">
-        <div className="w-11/12 mx-auto mb-8">
+        <ScrollReveal variant="fade-up" className="w-11/12 mx-auto mb-8">
           <Header color="sage-green" className="md:max-w-1/2 mx-auto">
             Why America's Wild Horses Need Us Now
           </Header>
-        </div>
-        <div className="w-full h-fit md:px-4">
+        </ScrollReveal>
+        <ScrollReveal variant="fade-in" className="w-full h-fit md:px-4">
           <NeedUsCarousel />
-        </div>
+        </ScrollReveal>
       </div>
 
       <div className="w-11/12 mx-auto h-fit md:py-16 flex flex-col items-center justify-center gap-8">
-        <div className="md:mb-8">
+        <ScrollReveal variant="fade-in" className="md:mb-8">
           <Header color="pewter">Be Their Voice</Header>
-        </div>
+        </ScrollReveal>
 
         <div className="flex flex-col md:flex-row gap-4 h-fit">
-          <BlurredImageCard
-            image={BlurredDonateBackgroundOne}
-            className="flex-1 h-auto"
-          >
+          <ScrollReveal variant="fade-up" className="flex-1 h-auto">
+            <BlurredImageCard
+              image={BlurredDonateBackgroundOne}
+              className="h-full"
+            >
             <div
               className={`
                             w-full h-full md:min-h-[530px]
@@ -239,18 +241,20 @@ const HomePage = () => {
                 and defend wild horses through advocacy, legal action, and
                 education.
               </div>
-              <GenericDonateDialogue>
+              <GenericDonateDialogue defaultPathwayName="Wild Horse Defense Fund">
                 <Button color="cinnamon" className="py-1 px-4 text-[16px]">
                   Donate
                 </Button>
               </GenericDonateDialogue>
             </div>
           </BlurredImageCard>
+          </ScrollReveal>
 
-          <BlurredImageCard
-            image={BlurredDonateBackgroundOne}
-            className="flex-1 h-auto"
-          >
+          <ScrollReveal variant="fade-up" delay={0.15} className="flex-1 h-auto">
+            <BlurredImageCard
+              image={BlurredDonateBackgroundOne}
+              className="h-full"
+            >
             <div
               className={`
                             w-full h-full md:min-h-[530px]
@@ -269,19 +273,20 @@ const HomePage = () => {
                 care for these animals, ensuring they have a safe and healthy
                 home.
               </div>
-              <GenericDonateDialogue>
+              <GenericDonateDialogue defaultPathwayName="Sanctuary Fund">
                 <Button color="cinnamon" className="py-1 px-4 text-[16px]">
                   Donate
                 </Button>
               </GenericDonateDialogue>
             </div>
           </BlurredImageCard>
+          </ScrollReveal>
         </div>
       </div>
 
-      <div className="w-full h-fit my-8">
+      <ScrollReveal variant="fade-up" className="w-full h-fit my-8">
         <TakeActionSection />
-      </div>
+      </ScrollReveal>
 
       <div className="relative w-full h-[400px] md:h-fit md:py-16 py-4 flex items-end md:items-center justify-end px-4 md:px-24">
         <div className="z-0 absolute top-0 left-0 w-full h-full overflow-hidden">
@@ -304,7 +309,7 @@ const HomePage = () => {
             }}
           />
         </div>
-        <div className="z-10 flex flex-col items-end justify-center gap-4 md:my-16">
+        <ScrollReveal variant="slide-left" className="z-10 flex flex-col items-end justify-center gap-4 md:my-16">
           <div className="text-white font-serif text-right flex flex-col gap-2">
             <div className="text-[48px] font-bold">Spirit</div>
             <div className="text-[28px]">
@@ -318,7 +323,7 @@ const HomePage = () => {
               Read More About Spirit
             </Button>
           </Link>
-        </div>
+        </ScrollReveal>
       </div>
 
       <div
@@ -330,46 +335,52 @@ const HomePage = () => {
                 flex-col md:flex-row
                 `}
       >
-        <div className="flex-1 h-auto flex flex-col items-center justify-center gap-8">
+        <ScrollReveal variant="fade-up" className="flex-1 h-auto flex flex-col items-center justify-center gap-8">
           <Header color="pewter">Programs & Events</Header>
           <Image
             src={ProgramsAndEventsImage}
             alt="Programs and Events"
             className="w-full md:max-w-[550px] h-full object-cover object-center"
           />
-        </div>
-        <div className="flex-1 h-[460px] w-full">
+        </ScrollReveal>
+        <ScrollReveal variant="fade-up" delay={0.15} className="flex-1 h-[460px] w-full">
           <UpcomingEventsWidget className="bg-white w-full" />
-        </div>
+        </ScrollReveal>
       </div>
 
-      <NewsCarousel topic="homepage" />
+      <ScrollReveal variant="fade-up">
+        <NewsCarousel topic="homepage" />
+      </ScrollReveal>
 
-      <VideoCarousel
-        carouselItems={[
-          {
-            title: "Robert Redford stands with America's wild horses",
-            videoId: "423814174",
-          },
-          {
-            title: "\'Spirit: Untamed\' director visits RTF's sanctuary",
-            videoId: "567146784",
-          },
-          {
-            title: "Stand with America's wild horses and burros",
-            videoId: "263067600",
-          },
-          {
-            title:
-              "Join Wendie Malick in the fight to protect America's wild horses",
-            videoId: "160682894",
-          },
-        ]}
-      />
+      <ScrollReveal variant="fade-up">
+        <VideoCarousel
+          carouselItems={[
+            {
+              title: "Robert Redford stands with America's wild horses",
+              videoId: "423814174",
+            },
+            {
+              title: "\'Spirit: Untamed\' director visits RTF's sanctuary",
+              videoId: "567146784",
+            },
+            {
+              title: "Stand with America's wild horses and burros",
+              videoId: "263067600",
+            },
+            {
+              title:
+                "Join Wendie Malick in the fight to protect America's wild horses",
+              videoId: "160682894",
+            },
+          ]}
+        />
+      </ScrollReveal>
 
-      <CorporateCarousel />
+      <ScrollReveal variant="fade-up">
+        <CorporateCarousel />
+      </ScrollReveal>
 
-      <div className="w-fit max-w-11/12 h-fit mt-8 mb-20 mx-auto flex flex-col items-center justify-center">
+      <ScrollReveal variant="fade-up" className="w-fit max-w-11/12 h-fit mt-8 mb-20 mx-auto flex flex-col items-center justify-center">
         <div className="text-storm font-serif text-3xl mb-2">
           Subscribe to receive updates on our work
         </div>
@@ -383,7 +394,7 @@ const HomePage = () => {
             <LongRightArrow />
           </button>
         </div>
-      </div>
+      </ScrollReveal>
     </div>
   );
 };

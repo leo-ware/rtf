@@ -28,11 +28,12 @@ export const DialogContent = ({ children }: { children: React.ReactNode }) => {
     return (
         open ? (
             <div
-                className="fixed top-0 right-0 w-[100vw] h-[100vh] p-8 bg-black/50 z-50
+                className="fixed top-0 right-0 w-[100vw] h-[100vh] p-0 md:p-8 bg-black/50 z-50
                     flex items-center justify-center"
                 onClick={() => setOpen(false)}>
                 <div
-                    className="relative w-fit h-fit max-w-[90vw] max-h-[90vh] rounded-md overflow-y-auto overflow-x-hidden scrollbar-thin"
+                    className="relative w-full h-full md:w-auto md:h-auto md:max-w-[90vw] md:max-h-[90vh]
+                        rounded-none md:rounded-md overflow-y-auto overflow-x-hidden scrollbar-thin"
                     onClick={(e) => e.stopPropagation()}>
                     {children}
                 </div>

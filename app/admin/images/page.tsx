@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +23,10 @@ import ImageDeleteDialog from "@/components/images/ImageDeleteDialog";
 import ImageMetadataEditDialog from "@/components/images/ImageMetadataEditDialog";
 
 const AdminImagesPage = () => {
+    useEffect(() => {
+        document.title = "Media Library - RTF Admin"
+    }, [])
+
     const [searchTerm, setSearchTerm] = useState("");
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
     const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);

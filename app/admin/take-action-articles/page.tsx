@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo, useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useQuery } from "convex/react"
@@ -29,6 +29,10 @@ type TakeActionArticle = {
 }
 
 const AdminTakeActionArticlesPage = () => {
+    useEffect(() => {
+        document.title = "Take Action Articles - RTF Admin"
+    }, [])
+
     const router = useRouter()
     const [searchTerm, setSearchTerm] = useState("")
 

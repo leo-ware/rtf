@@ -1,3 +1,7 @@
+export const metadata = {
+    title: "History - Return to Freedom"
+}
+
 const HistoryPage = () => {
     return (
         <div>

@@ -1,3 +1,5 @@
+"use client"
+
 import {
     Dialog,
     DialogContent,
@@ -7,13 +9,21 @@ import Button from "@/components/public-ui/Button"
 import SponsorAHerdWidget from "./SponsorAHerdWidget"
 import { Id } from "@/convex/_generated/dataModel"
 
-const SponsorAHerdDialog = ({ title, defaultHerdId }: { title?: string, defaultHerdId?: Id<"herds"> }) => {
+type Props = {
+    children?: React.ReactNode
+    title?: string
+    defaultHerdId?: Id<"herds">
+}
+
+const SponsorAHerdDialog = ({ children, title, defaultHerdId }: Props) => {
     return (
         <Dialog>
             <DialogTrigger>
-                <Button color="cinnamon">
-                    {title || "Sponsor a Herd"}
-                </Button>
+                {children || (
+                    <Button color="cinnamon">
+                        {title || "Sponsor a Herd"}
+                    </Button>
+                )}
             </DialogTrigger>
             <DialogContent>
                 <SponsorAHerdWidget defaultHerdId={defaultHerdId} />

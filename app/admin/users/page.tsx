@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { useQuery, useAction, useMutation } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Card } from "@/components/ui/card"
@@ -35,6 +35,10 @@ const roleToOrder = {
 } as const
 
 const AdminUsersPage = () => {
+    useEffect(() => {
+        document.title = "Users - RTF Admin"
+    }, [])
+
     const usersRaw = useQuery(api.users.listUsers, { limit: 100 })
     const users = (usersRaw || []).sort((a, b) => roleToOrder[a.role] - roleToOrder[b.role])
     const invitedUsers = useQuery(api.userInvites.listInvitedUsers)

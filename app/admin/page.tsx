@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useEffect } from "react"
 import { useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import {
@@ -23,6 +24,10 @@ import {
 } from "lucide-react"
 
 const AdminPage = () => {
+    useEffect(() => {
+        document.title = "Dashboard - RTF Admin"
+    }, [])
+
     // Fetch counts efficiently using aggregates
     const counts = useQuery(api.aggregates.getDashboardCounts)
     // Still need events for upcoming events calculation

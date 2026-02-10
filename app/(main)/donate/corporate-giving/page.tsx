@@ -1,3 +1,9 @@
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+    title: "Matching Gifts & Corporate Giving - Return to Freedom"
+}
+
 import Hero from "@/components/public-ui/Hero"
 import Callout from "@/components/public-ui/Callout"
 import Header from "@/components/public-ui/Header"

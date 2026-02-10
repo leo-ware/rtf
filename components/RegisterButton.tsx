@@ -25,6 +25,8 @@ const EventRegisterButton = ({ eventId }: { eventId: Id<"events"> }) => {
             `}>
             <Link
                 href={`/visit-us/events/${eventId}/register`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className={`
                     py-2 px-[26px] w-full
                     text-white text-[16px] font-bold uppercase no-underline
@@ -96,6 +98,8 @@ const ProgramRegisterButton = ({ programId }: { programId: Id<"programs"> }) => 
                                 <Link
                                     key={date.name}
                                     href={`/visit-us/events/${date.id}/register`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     onMouseDown={(e) => {
                                         e.stopPropagation()
                                     }}

@@ -1,6 +1,7 @@
 "use client"
 
 import { useQuery, useMutation } from "convex/react"
+import { useEffect } from "react"
 import { api } from "@/convex/_generated/api"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -14,6 +15,10 @@ import { Id } from "@/convex/_generated/dataModel"
 import Image from "next/image"
 
 const AdminDonatePathwaysPage = () => {
+    useEffect(() => {
+        document.title = "Donate Pathways - RTF Admin"
+    }, [])
+
     const pathways = useQuery(api.donatePathways.listDonatePathways)
     const reorderPathways = useMutation(api.donatePathways.reorderDonatePathways)
 

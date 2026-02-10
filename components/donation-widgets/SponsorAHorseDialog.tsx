@@ -3,9 +3,11 @@
 import Image from "next/image";
 import {
     Dialog,
+    DialogClose,
     DialogContent,
     DialogTrigger,
 } from "@/components/public-ui/Dialog";
+import { IoMdClose } from "react-icons/io";
 import SponsorAHorseImg from "./isadora.jpg";
 import { Id } from "@/convex/_generated/dataModel";
 import { useQuery } from "convex/react";
@@ -28,8 +30,13 @@ const SponsorAHorseDialog = ({ children, animalId }: { children?: React.ReactNod
                 )}
             </DialogTrigger>
             <DialogContent>
-                <div className="w-[50vw] h-fit relative bg-sage-green rounded-md overflow-hidden">
-                    <div className="relative w-full aspect-[2/1] max-h-1/2 grow-0">
+                <div className="w-full md:w-[50vw] min-h-full md:min-h-0 md:h-auto relative bg-sage-green md:rounded-md md:overflow-hidden">
+                    {/* Close button - fixed on mobile for always-visible access */}
+                    <DialogClose className="fixed md:absolute top-4 right-4 z-20 text-white text-2xl">
+                        <IoMdClose />
+                    </DialogClose>
+
+                    <div className="relative w-full h-[200px] md:h-auto md:aspect-[2/1] shrink-0">
                         {animal?.image?.url
                             ? (
                                 <ConvexImage
@@ -49,9 +56,9 @@ const SponsorAHorseDialog = ({ children, animalId }: { children?: React.ReactNod
                             )}
                     </div>
 
-                    <div className="w-full px-6 pt-10 pb-2 basis-0 grow">
-                        <div className="w-full mb-6 flex flex-col gap-2 items-center justify-between">
-                            <div className="text-3xl font-serif text-white">Sponsor {animal?.name}</div>
+                    <div className="w-full px-4 pt-6 pb-2 md:px-6 md:pt-10 basis-0 grow">
+                        <div className="w-full mb-4 md:mb-6 flex flex-col gap-2 items-center justify-between">
+                            <div className="text-xl md:text-3xl font-serif text-white">Sponsor {animal?.name}</div>
                             {animal?.donationFormId && (
                                 <SalsaDonateFormEmbed donationFormId={animal.donationFormId} />
                             )}

@@ -1,5 +1,9 @@
 import Link from "next/link"
 
+export const metadata = {
+    title: "Developer Information - RTF Admin"
+}
+
 const Dev = () => {
     return (
         <div className="flex flex-col items-center justify-center gap-8 w-full mx-auto lg:w-1/2 py-12 px-8 prose prose-lg">

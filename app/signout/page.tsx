@@ -1,18 +1,16 @@
-"use client";
+"use client"
 
-import { SignOutButton } from "@clerk/nextjs";
-import { Button } from "@/components/ui/button";
+import { SignOutButton } from "@clerk/nextjs"
+import { Button } from "@/components/ui/button"
 
-const SignOut = () => {    
+const SignOut = () => {
     return (
         <div className="w-full h-full min-h-screen flex items-center justify-center">
             <SignOutButton>
-                <Button>
-                    Sign Out
-                </Button>
+                <Button>Sign Out</Button>
             </SignOutButton>
         </div>
     )
 }
 
-export default SignOut;
+export default SignOut

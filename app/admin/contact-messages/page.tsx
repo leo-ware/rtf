@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useMutation, usePaginatedQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Id } from "@/convex/_generated/dataModel"
@@ -71,6 +71,10 @@ const formatDate = (timestamp: number) => {
 }
 
 const AdminContactMessagesPage = () => {
+    useEffect(() => {
+        document.title = "Contact Messages - RTF Admin"
+    }, [])
+
     const [searchTerm, setSearchTerm] = useState("")
     const [filterStatus, setFilterStatus] = useState<MessageStatus | "all">("all")
     const [archivingId, setArchivingId] = useState<Id<"contactMessages"> | null>(null)

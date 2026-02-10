@@ -6,6 +6,10 @@ import Image from "next/image"
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
 import NewsCarousel from "@/components/NewsCarousel"
 import HeroImage from "./hero.png"
+
+export const metadata = {
+    title: "Protect Herd Management Areas - Return to Freedom"
+}
 import RoundupsImage1 from "../imgs/randomhorse.png"
 import List from "@/components/public-ui/List"
 import WHDCallout from "@/components/WHDCallout"

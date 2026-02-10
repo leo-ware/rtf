@@ -32,6 +32,10 @@ const UnknownErrorPage = () => {
   const timestamp = searchParams.get("timestamp") || new Date().toISOString();
 
   useEffect(() => {
+    document.title = "Unknown Error - RTF Admin"
+  }, [])
+
+  useEffect(() => {
     // Collect diagnostic information
     const collectDiagnostics = async () => {
       const info: any = {

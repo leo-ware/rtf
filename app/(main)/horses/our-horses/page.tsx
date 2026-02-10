@@ -105,7 +105,7 @@ const OurHorsesPage = () => {
                                 Return to Freedom in 1999. He was captured during the total removal of 279
                                 horses from the Hart Mountain National Antelope Refuge in Oregon.
                             </div>
-                            <GenericDonateDialogue>
+                            <GenericDonateDialogue defaultPathwayName="In Honor and Memory Gifts">
                                 <Button color="cinnamon" className="py-1 px-4">
                                     Donate in Memory of Mystic
                                 </Button>

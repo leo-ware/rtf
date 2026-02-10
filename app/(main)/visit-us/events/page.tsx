@@ -1,4 +1,6 @@
-
+export const metadata = {
+    title: "Events - Return to Freedom"
+}
 
 const EventsPage = () => {
     return (

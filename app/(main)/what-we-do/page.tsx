@@ -5,6 +5,10 @@ import Hero from "@/components/public-ui/Hero"
 import ScrollReveal from "@/components/public-ui/ScrollReveal"
 
 import HeroImage from "./what-we-do-hero.png"
+
+export const metadata = {
+    title: "What We Do - Return to Freedom"
+}
 import ConservationImage from "./conservation-image.png"
 import AdvocacyImage from "./advocacy-image.png"
 import SanctuaryImage from "./sanctuary-image.png"

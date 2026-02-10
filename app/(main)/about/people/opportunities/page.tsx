@@ -100,8 +100,8 @@ const OpportunitiesPage = () => {
                         <div>
                             For local and regional residents who want to volunteer on a regular basis,
                             we will schedule a general safety training!
-                            To participate in our next Volunteer day; please contact
-                            <EmailLink className="pl-1">volunteers@returntofreedom.org</EmailLink>.
+                            To participate in our next Volunteer day; please contact{" "}
+                            <EmailLink>volunteers@returntofreedom.org</EmailLink>.
                             You will receive a short application form so we can learn more about
                             you and then schedule a safety training!
                         </div>
@@ -124,8 +124,8 @@ const OpportunitiesPage = () => {
                         <div>
                             Join our volunteer email list to receive volunteer updates. Let us know
                             if you would like to volunteer for fundraisers or tabling events! For more
-                            information, email us at
-                            <EmailLink className="pl-1">volunteers@returntofreedom.org</EmailLink>.
+                            information, email us at{" "}
+                            <EmailLink>volunteers@returntofreedom.org</EmailLink>.
                         </div>
                     </div>
                 </div>

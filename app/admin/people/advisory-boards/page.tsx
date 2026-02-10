@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Input } from "@/components/ui/input"
@@ -13,6 +13,10 @@ import AdvisoryBoardEditDialog from "./AdvisoryBoardEditDialog"
 import AdvisoryBoardDeleteDialog from "./AdvisoryBoardDeleteDialog"
 
 const AdvisoryBoardsTab = () => {
+    useEffect(() => {
+        document.title = "Advisory Boards - RTF Admin"
+    }, [])
+
     const [searchTerm, setSearchTerm] = useState("")
 
     const advisoryBoards = useQuery(api.advisoryBoards.listAdvisoryBoards, { limit: 100 })

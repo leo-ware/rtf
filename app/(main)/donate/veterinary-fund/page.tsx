@@ -1,3 +1,9 @@
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+    title: "Stella DeMayo Veterinary Fund - Return to Freedom"
+}
+
 import Hero from "@/components/public-ui/Hero"
 import Callout from "@/components/public-ui/Callout"
 import Header from "@/components/public-ui/Header"

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
     Calendar as CalendarIcon,
@@ -15,6 +15,10 @@ import ProgramsTab from "./programs/ProgramsTab"
 import DiscountCodesTab from "./discountCodes/DiscountCodesTab"
 
 const AdminEventsPage = () => {
+    useEffect(() => {
+        document.title = "Events & Programs - RTF Admin"
+    }, [])
+
     const [activeTab, setActiveTab] = useState<'events' | 'programGroups' | 'programs' | 'discountCodes'>('events')
 
     return (

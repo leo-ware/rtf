@@ -8,6 +8,10 @@ import NewsCarousel from "@/components/NewsCarousel"
 import ScrollReveal from "@/components/public-ui/ScrollReveal"
 
 import HeroImage from "./hero.png"
+
+export const metadata = {
+    title: "End Horse Slaughter - Return to Freedom"
+}
 import RoundupsImage1 from "../imgs/randomhorse.png"
 import List from "@/components/public-ui/List"
 import WHDCallout from "@/components/WHDCallout"

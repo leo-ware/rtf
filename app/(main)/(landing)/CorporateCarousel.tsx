@@ -8,6 +8,7 @@ import ConvexImage from "@/components/images/ConvexImage"
 import { useMemo } from "react"
 import Link from "next/link"
 import Header from "@/components/public-ui/Header"
+import ScrollReveal from "@/components/public-ui/ScrollReveal"
 
 // import GSLogo from "@/public/img/sponsor-image-giant-steps.png"
 // import HPLogo from "@/public/img/sponsor-image-horse-play.png"
@@ -50,19 +51,19 @@ const CorporateCarousel = () => {
     return (
         <div className="w-full h-fit py-12 flex flex-col items-center justify-center gap-2 md:gap-4">
 
-            <div className="w-10/12 md:w-full flex flex-col items-center justify-center gap-2">
+            <ScrollReveal variant="fade-up" className="w-10/12 md:w-full flex flex-col items-center justify-center gap-2">
                 <Header color="cinnamon">
                     Sponsors
                 </Header>
                 <div className="w-full md:w-2/3 text-[20] teft-left md:text-center">
-                    A very special thank you goes out to our generous sponsors — corporations that make it possible to do more of the costly work required of a national advocacy organization like Return to Freedom. 
+                    A very special thank you goes out to our generous sponsors — corporations that make it possible to do more of the costly work required of a national advocacy organization like Return to Freedom.
                     <br />
-                    If you or your company wishes to sponsor our work, please 
+                    If you or your company wishes to sponsor our work, please
                     <Link href="/contact" className="text-cinnamon underline ml-1">email us</Link>.
                 </div>
-            </div>
+            </ScrollReveal>
 
-            <div className="w-11/12 h-[150px] md:h-[250px]">
+            <ScrollReveal variant="fade-in" className="w-11/12 h-[150px] md:h-[250px]">
                 <Carousel
                     items={items}
                     nDisplayItems={Math.min(isMobile ? 3 : 5, items.length)}
@@ -71,7 +72,7 @@ const CorporateCarousel = () => {
                     transitionDuration={800}
                     autoPlayInterval={3000}
                 />
-            </div>
+            </ScrollReveal>
 
         </div>
     )

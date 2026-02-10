@@ -1,10 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import TicketPriceEditorDialog, { TicketPriceData } from "@/app/admin/events/TicketPriceEditorDialog"
 import { Button } from "@/components/ui/button"
 
 const TicketPriceDemoPage = () => {
+    useEffect(() => {
+        document.title = "Ticket Price Editor Demo - RTF Admin"
+    }, [])
     const [lastResult, setLastResult] = useState<TicketPriceData | null>(null)
 
     const handleComplete = (ticketPrice: TicketPriceData) => {

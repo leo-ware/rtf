@@ -1,3 +1,9 @@
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+    title: "Capital Campaign - Return to Freedom"
+}
+
 import Hero from "@/components/public-ui/Hero"
 import Image from "next/image"
 

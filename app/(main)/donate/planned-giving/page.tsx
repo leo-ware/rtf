@@ -1,3 +1,9 @@
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+    title: "Planned Giving - Return to Freedom"
+}
+
 import Hero from "@/components/public-ui/Hero"
 import Image from "next/image"
 import Callout from "@/components/public-ui/Callout"
@@ -39,7 +45,8 @@ const PlannedGivingPage = () => {
                         thank you.
                     </div>
                     <div>
-                        To learn more or to make a donation, please email:<EmailLink>info@returntofreedom.org</EmailLink>
+                        To learn more or to make a donation, please email:{" "}
+                        <EmailLink>info@returntofreedom.org</EmailLink>
                         or call us at
                         (805) 737-9246.You may also send mail to: Return to Freedom, P.O. Box 926, Lompoc, CA 93438.
                         Return to Freedom is a non-profit 501(c)3 organization.Your donation is tax deductible to the

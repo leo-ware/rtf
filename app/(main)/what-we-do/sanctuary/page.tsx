@@ -143,40 +143,40 @@ const SanctuaryPage = () => {
                 <Header color="cinnamon" className="mb-8 underline">
                     Costs of Running Our Sanctuaries
                 </Header>
-                <div className="w-[95vw] mx-auto h-[550px] flex items-stretch gap-4">
-                    <BlurredImageCard image={Blurred1} className="h-full">
-                        <div className="text-white w-full h-full px-12 py-12 flex flex-col items-start justify-center gap-4">
+                <div className="w-[95vw] mx-auto flex flex-col md:flex-row items-stretch gap-4">
+                    <BlurredImageCard image={Blurred1} className="min-h-[450px] md:min-h-[550px] md:h-auto">
+                        <div className="text-white w-full h-full px-6 md:px-12 py-8 md:py-12 flex flex-col items-start justify-center gap-4">
                             <div className="flex flex-col items-start justify-center">
-                                <div className="text-[48px] font-serif leading-none">$550,000</div>
-                                <div className="text-[28px] font-serif">on hay for the horses</div>
+                                <div className="text-[36px] md:text-[48px] font-serif leading-none">$550,000</div>
+                                <div className="text-[22px] md:text-[28px] font-serif">on hay for the horses</div>
                             </div>
-                            <div className="text-[20px]">
+                            <div className="text-base md:text-[20px]">
                                 This includes the hay and feed required to care for over 460 rescued wild horses
                                 and burros at our Lompoc headquarters and San Luis Obispo satellite sanctuary.
                                 Many of these animals once faced roundups, neglect, or the threat of slaughter.
                                 At Return to Freedom, they now live safely in natural family bands, grazing
                                 freely on open pastures.
                             </div>
-                            <GenericDonateDialogue>
+                            <GenericDonateDialogue defaultPathwayName="Sanctuary Fund">
                                 <Button color="cinnamon" className="px-4">Donate</Button>
                             </GenericDonateDialogue>
                         </div>
                     </BlurredImageCard>
-                    <BlurredImageCard image={Blurred2} className="h-full">
-                        <div className="text-white w-full h-full px-12 py-12 flex flex-col items-start justify-center gap-4">
+                    <BlurredImageCard image={Blurred2} className="min-h-[450px] md:min-h-[550px] md:h-auto">
+                        <div className="text-white w-full h-full px-6 md:px-12 py-8 md:py-12 flex flex-col items-start justify-center gap-4">
                             <div className="flex flex-col items-start justify-center">
-                                <div className="text-[48px] font-serif leading-none">$1,150,000</div>
-                                <div className="text-[28px] font-serif">
+                                <div className="text-[36px] md:text-[48px] font-serif leading-none">$1,150,000</div>
+                                <div className="text-[22px] md:text-[28px] font-serif">
                                     on daily care, staffing, land and infrastructure maintenance
                                 </div>
                             </div>
-                            <div className="text-[20px]">
+                            <div className="text-base md:text-[20px]">
                                 Caring for over 460 wild horses and burros takes an extraordinary effort. This amount
                                 covers the hands-on work of our staff, land management across Lompoc and San Luis
                                 Obispo, and the ongoing upkeep of barns, fences, and water systems that keep the herds
                                 safe.
                             </div>
-                            <GenericDonateDialogue>
+                            <GenericDonateDialogue defaultPathwayName="Sanctuary Fund">
                                 <Button color="cinnamon" className="px-4">Donate</Button>
                             </GenericDonateDialogue>
                         </div>
@@ -214,11 +214,11 @@ const SanctuaryPage = () => {
                     </TitledText>
                 </ScrollReveal>
 
-                <ScrollReveal variant="fade-up" className="w-[95vw] mx-auto h-[500px] flex items-stretch gap-4">
-                    <BlurredImageCard image={Blurred3} className="h-full">
-                        <div className="text-white w-full h-full px-12 py-16 flex flex-col items-start justify-center gap-4">
-                            <div className="text-[36px] font-serif">Capital Campaign</div>
-                            <div className="text-[20px]">
+                <ScrollReveal variant="fade-up" className="w-[95vw] mx-auto flex flex-col md:flex-row items-stretch gap-4">
+                    <BlurredImageCard image={Blurred3} className="min-h-[400px] md:min-h-[500px] md:h-auto">
+                        <div className="text-white w-full h-full px-6 md:px-12 py-10 md:py-16 flex flex-col items-start justify-center gap-4">
+                            <div className="text-[28px] md:text-[36px] font-serif">Capital Campaign</div>
+                            <div className="text-base md:text-[20px]">
                                 Through the Wild Horse and Wildlife Conservancy Campaign, we're working
                                 to acquire new land and create long-term stability for Return to Freedom's
                                 programs. The campaign will permanently secure our founding Lompoc ranch,
@@ -233,10 +233,10 @@ const SanctuaryPage = () => {
                             </Link>
                         </div>
                     </BlurredImageCard>
-                    <BlurredImageCard image={Blurred4} className="h-full">
-                        <div className="text-white w-full h-full px-12 py-8 flex flex-col items-start justify-center gap-4">
-                            <div className="text-[36px] font-serif">Planned Giving</div>
-                            <div className="text-[20px]">
+                    <BlurredImageCard image={Blurred4} className="min-h-[400px] md:min-h-[500px] md:h-auto">
+                        <div className="text-white w-full h-full px-6 md:px-12 py-10 md:py-8 flex flex-col items-start justify-center gap-4">
+                            <div className="text-[28px] md:text-[36px] font-serif">Planned Giving</div>
+                            <div className="text-base md:text-[20px]">
                                 Planned giving ensures that the work of today endures tomorrow. Through bequests,
                                 trusts, or endowment gifts, supporters can help Return to Freedom acquire new
                                 land, improve sanctuary infrastructure, and sustain long-term care for rescued
@@ -288,7 +288,7 @@ const SanctuaryPage = () => {
                 <Header level={1} color="pewter" className="underline">
                     Visit Us
                 </Header>
-                <div className="w-8/12 mx-auto">
+                <div className="w-11/12 md:w-8/12 mx-auto">
                     <UpcomingEventsWidget />
                 </div>
             </ScrollReveal>

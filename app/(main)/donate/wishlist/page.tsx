@@ -1,3 +1,9 @@
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+    title: "Wishlist - Return to Freedom"
+}
+
 import Hero from "@/components/public-ui/Hero"
 import Callout from "@/components/public-ui/Callout"
 import List from "@/components/public-ui/List"

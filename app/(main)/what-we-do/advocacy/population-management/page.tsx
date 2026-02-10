@@ -12,6 +12,10 @@ import Button from "@/components/public-ui/Button"
 import ScrollReveal from "@/components/public-ui/ScrollReveal"
 
 import PopulationManagementHero from "./hero.jpg"
+
+export const metadata = {
+    title: "Population Management - Return to Freedom"
+}
 import RoundupsImage1 from "../imgs/randomhorse.png"
 import BlurredBg from "../imgs/blurred-bg.jpg"
 import GenericDonateDialogue from "@/components/donation-widgets/GenericDonateDialogue"

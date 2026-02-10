@@ -1,5 +1,9 @@
 import UpcomingEventsWidget from "@/components/UpcomingEventsWidget"
 
+export const metadata = {
+    title: "Hello - Return to Freedom"
+}
+
 const HelloPage = () => {
     return (
         <div className="w-full h-[2000px] p-8">

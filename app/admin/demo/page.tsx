@@ -1,3 +1,7 @@
+export const metadata = {
+    title: "Demo - RTF Admin"
+}
+
 const AdminDemoPage = () => {
     return (
         <div>

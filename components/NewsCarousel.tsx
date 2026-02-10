@@ -98,7 +98,7 @@ const NewsCarousel = ({
 
     return (
         <div className={`w-full h-fit pt-12 pb-16 flex flex-col items-center justify-center gap-6 bg-${bgColor}`}>
-            <div className="text-[48px] font-serif text-cinnamon underline decoration-cinnamon decoration-2 underline-offset-12">
+            <div className="px-4 text-[32px] md:text-[48px] font-serif text-cinnamon underline decoration-cinnamon decoration-2 underline-offset-8 md:underline-offset-12">
                 {title}
             </div>
             <div className="w-full flex items-center justify-center gap-4">

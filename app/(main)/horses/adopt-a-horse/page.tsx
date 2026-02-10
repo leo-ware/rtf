@@ -8,6 +8,10 @@ import Chloe from "./chloe.png"
 import Galaxy from "./galaxy.png"
 import Galaxy2 from "./galaxy-2.png"
 
+export const metadata = {
+    title: "Adopt a Horse - Return to Freedom"
+}
+
 const AdoptAHorsePage = () => {
     return (
         <div className="w-full h-fit mb-12 flex flex-col items-center justify-start gap-16 text-center">

@@ -10,6 +10,10 @@ import Hero from "@/components/public-ui/Hero";
 import Callout from "@/components/public-ui/Callout";
 import ScrollReveal from "@/components/public-ui/ScrollReveal";
 
+export const metadata = {
+    title: "About Us - Return to Freedom"
+}
+
 const AboutPage = () => {
   return (
     <div className="w-full h-fit">
