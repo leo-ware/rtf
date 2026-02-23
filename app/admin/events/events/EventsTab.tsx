@@ -15,7 +15,7 @@ import {
     List,
     Plus,
     CalendarPlus,
-    Edit
+    Edit,
 } from "lucide-react"
 import { format } from "date-fns"
 import Link from "next/link"
@@ -29,7 +29,7 @@ import {
     DropdownMenu,
     DropdownMenuTrigger,
     DropdownMenuContent,
-    DropdownMenuItem
+    DropdownMenuItem,
 } from "@/components/ui/dropdown-menu"
 import ScrollDiv from "@/components/ScrollDiv"
 import { ImSpinner8 } from "react-icons/im"
@@ -40,32 +40,42 @@ import ProgramEditDialog from "../programs/ProgramEditDialog"
 
 const EventsTab = () => {
     const [searchTerm, setSearchTerm] = useState("")
-    const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list')
+    const [viewMode, setViewMode] = useState<"list" | "calendar">("list")
     const [createDropdownOpen, setCreateDropdownOpen] = useState(false)
 
     // Queries
-    const { results: events, loadMore, status: eventsStatus } = usePaginatedQuery(
+    const {
+        results: events,
+        loadMore,
+        status: eventsStatus,
+    } = usePaginatedQuery(
         api.events.getPaginatedEvents,
         { paginationOpts: { numItems: 100 } },
-        { initialNumItems: 100 }
+        { initialNumItems: 100 },
     )
 
-    const filteredEvents = events?.filter(event => {
-        if (!searchTerm) return true
-        const searchLower = searchTerm.toLowerCase()
-        return (
-            event.title.toLowerCase().includes(searchLower) ||
-            event.description.toLowerCase().includes(searchLower) ||
-            event.location?.toLowerCase().includes(searchLower) ||
-            event.contactEmail?.toLowerCase().includes(searchLower)
-        )
-    }) || []
+    const filteredEvents =
+        events?.filter((event) => {
+            if (!searchTerm) return true
+            const searchLower = searchTerm.toLowerCase()
+            return (
+                event.title.toLowerCase().includes(searchLower) ||
+                event.description.toLowerCase().includes(searchLower) ||
+                event.location?.toLowerCase().includes(searchLower) ||
+                event.contactEmail?.toLowerCase().includes(searchLower)
+            )
+        }) || []
 
     if (events === undefined) {
         return (
             <div className="flex items-center justify-center p-8 min-h-[200px]">
                 <div className="flex flex-col items-center gap-2">
-                    <svg className="animate-spin h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <svg
+                        className="animate-spin h-6 w-6 text-gray-400"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                    >
                         <circle
                             className="opacity-25"
                             cx="12"
@@ -80,7 +90,9 @@ const EventsTab = () => {
                             d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
                         ></path>
                     </svg>
-                    <span className="text-gray-500 text-sm mt-1">Fetching events...</span>
+                    <span className="text-gray-500 text-sm mt-1">
+                        Fetching events...
+                    </span>
                 </div>
             </div>
         )
@@ -100,7 +112,10 @@ const EventsTab = () => {
                     />
                 </div>
                 <div className="flex items-center gap-2">
-                    <DropdownMenu open={createDropdownOpen} onOpenChange={setCreateDropdownOpen}>
+                    <DropdownMenu
+                        open={createDropdownOpen}
+                        onOpenChange={setCreateDropdownOpen}
+                    >
                         <DropdownMenuTrigger asChild>
                             <Button size="sm">
                                 <Plus className="h-4 w-4" />
@@ -144,12 +159,17 @@ const EventsTab = () => {
             </div>
 
             {/* Content */}
-            {viewMode === 'calendar' ? (
+            {viewMode === "calendar" ? (
                 <div className="space-y-6">
                     <div className="bg-white p-6 rounded-lg shadow-sm border">
                         <div className="mb-6">
-                            <h2 className="text-xl font-semibold text-gray-900 mb-2">Event Calendar</h2>
-                            <p className="text-gray-600">Click on any event to view details. Use edit and delete buttons for management.</p>
+                            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                                Event Calendar
+                            </h2>
+                            <p className="text-gray-600">
+                                Click on any event to view details. Use edit and
+                                delete buttons for management.
+                            </p>
                         </div>
                         <EventCalendar
                             events={filteredEvents}
@@ -167,7 +187,7 @@ const EventsTab = () => {
                             className="max-h-[400px] overflow-x-auto"
                             onScrollNearBottom={() => loadMore(50)}
                             threshold={200}
-                            >
+                        >
                             <table className="min-w-full divide-y divide-gray-200">
                                 <thead className="bg-gray-50">
                                     <tr>
@@ -176,9 +196,6 @@ const EventsTab = () => {
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Date & Location
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Capacity
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Status
@@ -190,7 +207,10 @@ const EventsTab = () => {
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
                                     {filteredEvents.map((event) => (
-                                        <tr key={event._id} className="hover:bg-gray-50">
+                                        <tr
+                                            key={event._id}
+                                            className="hover:bg-gray-50"
+                                        >
                                             <td className="px-6 py-4">
                                                 <div className="flex items-start">
                                                     <div className="flex-shrink-0 w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
@@ -202,7 +222,8 @@ const EventsTab = () => {
                                                         </p>
                                                         {event.registrationLink && (
                                                             <span className="text-sm text-gray-500 mt-1">
-                                                                Registration link set
+                                                                Registration
+                                                                link set
                                                             </span>
                                                         )}
                                                         <p className="text-sm text-gray-500 mt-1 line-clamp-1">
@@ -217,30 +238,38 @@ const EventsTab = () => {
                                                         <CalendarIcon className="h-4 w-4 mr-2" />
                                                         <span className="whitespace-nowrap w-full">
                                                             {formatDateRange(
-                                                                new Date(event.startDate),
-                                                                new Date(event.endDate),
-                                                                { forceIncludeYear: true }
+                                                                new Date(
+                                                                    event.startDate,
+                                                                ),
+                                                                new Date(
+                                                                    event.endDate,
+                                                                ),
+                                                                {
+                                                                    forceIncludeYear: true,
+                                                                },
                                                             )}
                                                         </span>
                                                     </div>
                                                     {event.locationId && (
                                                         <div className="flex items-center whitespace-nowrap w-full">
-                                                            <LocationWidget locationId={event.locationId} />
+                                                            <LocationWidget
+                                                                locationId={
+                                                                    event.locationId
+                                                                }
+                                                            />
                                                         </div>
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 text-sm text-gray-500">
-                                                <div className="flex items-center">
-                                                    <Users className="h-4 w-4 mr-2" />
-                                                    <span>
-                                                        {event.maxAttendees ?? "Unlimited"}
-                                                    </span>
-                                                </div>
-                                            </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex flex-col space-y-1">
-                                                    <Badge variant={event.isPublic ? "default" : "secondary"}>
+                                                    <Badge
+                                                        variant={
+                                                            event.isPublic
+                                                                ? "default"
+                                                                : "secondary"
+                                                        }
+                                                    >
                                                         {event.isPublic ? (
                                                             <>
                                                                 <Eye className="h-3 w-3 mr-1" />
@@ -254,19 +283,31 @@ const EventsTab = () => {
                                                         )}
                                                     </Badge>
                                                     {event.requiresRegistration && (
-                                                        <Badge variant="outline" className="text-xs">
-                                                            Registration Required
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="text-xs"
+                                                        >
+                                                            Registration
+                                                            Required
                                                         </Badge>
                                                     )}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 text-sm font-medium">
                                                 <div className="flex space-x-2">
-                                                    <EventEditDialog eventId={event._id} />
+                                                    <EventEditDialog
+                                                        eventId={event._id}
+                                                    />
                                                     {event.programId && (
-                                                        <ProgramEditDialog programId={event.programId} />
+                                                        <ProgramEditDialog
+                                                            programId={
+                                                                event.programId
+                                                            }
+                                                        />
                                                     )}
-                                                    <EventDeleteDialog eventId={event._id} />
+                                                    <EventDeleteDialog
+                                                        eventId={event._id}
+                                                    />
                                                 </div>
                                             </td>
                                         </tr>
@@ -274,27 +315,31 @@ const EventsTab = () => {
                                 </tbody>
                             </table>
                             {eventsStatus === "CanLoadMore" && (
-                                <Button variant="outline" onClick={() => loadMore(50)}>
+                                <Button
+                                    variant="outline"
+                                    onClick={() => loadMore(50)}
+                                >
                                     Load More
                                 </Button>
                             )}
                             {filteredEvents.length === 0 && (
                                 <div className="text-center py-12 w-full">
                                     <Edit className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                                    <h3 className="text-lg font-medium text-gray-900 mb-2">No events found</h3>
+                                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                        No events found
+                                    </h3>
                                     <p className="text-gray-600 mb-4">
                                         {searchTerm
                                             ? `No events match "${searchTerm}"`
-                                            : "Get started by creating your first event."
-                                        }
+                                            : "Get started by creating your first event."}
                                     </p>
                                 </div>
                             )}
-                        <div className="w-full flex items-center justify-center">
-                            {eventsStatus === "LoadingMore" && (
-                                <ImSpinner8 className="w-4 h-4 animate-spin" />
-                            )}
-                        </div>
+                            <div className="w-full flex items-center justify-center">
+                                {eventsStatus === "LoadingMore" && (
+                                    <ImSpinner8 className="w-4 h-4 animate-spin" />
+                                )}
+                            </div>
                         </ScrollDiv>
                     </CardContent>
                 </Card>

@@ -278,4 +278,19 @@ export const getPublicBySlug = query({
     },
 })
 
+export const listPublicSlugs = query({
+    args: {},
+    returns: v.array(v.string()),
+    handler: async (ctx) => {
+        const articles = await ctx.db
+            .query("educationArticles")
+            .withIndex("by_is_public", (q) => q.eq("isPublic", true))
+            .collect()
+
+        return articles
+            .filter((a) => a.slug !== undefined)
+            .map((a) => a.slug as string)
+    },
+})
+
 

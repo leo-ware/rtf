@@ -407,3 +407,16 @@ export const getAnimalStats = query({
         }
     },
 })
+
+export const listPublicSlugs = query({
+    args: {},
+    returns: v.array(v.string()),
+    handler: async (ctx) => {
+        const animals = await ctx.db
+            .query("animals")
+            .filter((q) => q.neq(q.field("inMemoriam"), true))
+            .collect()
+
+        return animals.map((a) => a.slug)
+    },
+})

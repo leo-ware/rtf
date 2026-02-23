@@ -19,33 +19,47 @@ const AdminEventsPage = () => {
         document.title = "Events & Programs - RTF Admin"
     }, [])
 
-    const [activeTab, setActiveTab] = useState<'events' | 'programGroups' | 'programs' | 'discountCodes'>('events')
+    const [activeTab, setActiveTab] = useState<
+        "events" | "programGroups" | "programs" | "discountCodes"
+    >("events")
 
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Search Controls */}
-                
 
                 {/* Tabs */}
-                <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="space-y-6">
+                <Tabs
+                    value={activeTab}
+                    onValueChange={(value) => setActiveTab(value as any)}
+                    className="space-y-6"
+                >
                     <TabsList className="grid w-full grid-cols-4">
-                        <TabsTrigger value="events" className="flex items-center gap-2">
+                        <TabsTrigger
+                            value="events"
+                            className="flex items-center gap-2"
+                        >
                             <CalendarIcon className="h-4 w-4" />
                             Events
                         </TabsTrigger>
-                        <TabsTrigger value="programs" className="flex items-center gap-2">
+                        <TabsTrigger
+                            value="programs"
+                            className="flex items-center gap-2"
+                        >
                             <BookOpen className="h-4 w-4" />
                             Programs
                         </TabsTrigger>
-                        <TabsTrigger value="programGroups" className="flex items-center gap-2">
+                        <TabsTrigger
+                            value="programGroups"
+                            className="flex items-center gap-2"
+                        >
                             <Folder className="h-4 w-4" />
                             Program Groups
                         </TabsTrigger>
-                        <TabsTrigger value="discountCodes" className="flex items-center gap-2">
+                        {/*<TabsTrigger value="discountCodes" className="flex items-center gap-2">
                             <Ticket className="h-4 w-4" />
                             Discount Codes
-                        </TabsTrigger>
+                        </TabsTrigger>*/}
                     </TabsList>
 
                     <TabsContent value="events" className="space-y-6">

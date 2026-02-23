@@ -63,10 +63,19 @@ const resolvePaginatedResult = async (ctx: QMCtxType, articleMetadata: Doc<"arti
         ? `/api/redirect/external-article/${articleMetadata.externalArticleId}`
         : `/api/redirect/article/${articleMetadata.articleId}`
     const image = await resolveImageId(ctx, articleMetadata.imageId);
+
+    // Fetch author credit if this is an internal article
+    let authorCredit: string | undefined = undefined
+    if (articleMetadata.articleId) {
+        const article = await ctx.db.get(articleMetadata.articleId)
+        authorCredit = article?.authorCredit
+    }
+
     return {
         ...articleMetadata,
         link,
         image,
+        authorCredit,
     }
 }
 

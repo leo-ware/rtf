@@ -128,6 +128,9 @@ export default function NewsPage() {
                                                 )}
                                                 <div className="text-sm uppercase font-semibold">
                                                     {article.date ? formatDate(new Date(article.date)) : formatDate(new Date(article._creationTime))}
+                                                    {article.authorCredit && (
+                                                        <> | {article.authorCredit}</>
+                                                    )}
                                                 </div>
                                                 <div className="text-sm">
                                                     {article.excerpt}

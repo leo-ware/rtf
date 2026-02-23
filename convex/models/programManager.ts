@@ -12,20 +12,13 @@ export type TicketPriceOption = {
     availableAfter?: number
 }
 
-const DEFAULT_TICKET_PRICE_OPTIONS: Array<TicketPriceOption> = [
-    {
-        name: "General Admission",
-        description: "Default ticket placeholder (ticket pricing is deprecated)",
-        price: 0,
-    },
-]
-
 // Program details that can be flattened onto related entities (like events)
 export type ProgramDetails = {
     description: string
     details: string
     locationId: Id<"locations">
-    ticketPriceId: Id<"ticketPrice">
+    ticketPriceId?: Id<"ticketPrice">
+    ticketPriceText?: string
     isPublic: boolean
     imageId?: Id<"images">
     requiresRegistration?: boolean
@@ -41,6 +34,7 @@ export type ResolvedProgramDetails = {
     location: string | null
     locationId: Id<"locations"> | null
     ticketPriceId: Id<"ticketPrice"> | null
+    ticketPriceText: string | undefined
     isPublic: boolean
     imageId: Id<"images"> | undefined
     image: ResolvedImage | null
@@ -65,6 +59,7 @@ export type ProgramCreateArgs = {
     contactEmail?: string
     contactPhone?: string
     maxAttendees?: number
+    ticketPriceText?: string
 }
 
 // Args for updating a program
@@ -81,6 +76,7 @@ export type ProgramUpdateArgs = {
     contactEmail?: string
     contactPhone?: string
     maxAttendees?: number
+    ticketPriceText?: string
 }
 
 // Internal aliases for class usage
@@ -115,14 +111,7 @@ export default class ProgramManager {
             throw new Error("Location not found")
         }
 
-        const ticketPriceId = await ctx.db.insert("ticketPrice", {
-            options: DEFAULT_TICKET_PRICE_OPTIONS,
-        })
-
-        const programId = await ctx.db.insert("programs", {
-            ...args,
-            ticketPriceId,
-        })
+        const programId = await ctx.db.insert("programs", args)
 
         return new ProgramManager(programId)
     }

@@ -69,7 +69,6 @@ export const createEvent = mutation({
         endDate: v.string(),
         location: v.optional(v.string()),
         locationId: v.optional(v.id("locations")),
-        maxAttendees: v.optional(v.number()),
         isPublic: v.boolean(),
         requiresRegistration: v.boolean(),
         registrationLink: v.optional(v.string()),
@@ -77,6 +76,7 @@ export const createEvent = mutation({
         contactPhone: v.optional(v.string()),
         imageId: v.optional(v.id("images")),
         programId: v.optional(v.id("programs")),
+        ticketPriceText: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)

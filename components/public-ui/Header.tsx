@@ -14,7 +14,7 @@ const Header = ({
   return (
     <div
       className={cn(
-        `w-full px-4 text-${color} text-center font-serif
+        `w-full text-${color} text-center font-serif
             decoration-2 underline-offset-8 leading-tight
             ${
               level === 1 &&

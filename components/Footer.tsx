@@ -13,42 +13,58 @@ import { IoSendOutline } from "react-icons/io5"
 export default function Footer() {
     return (
         <footer className="w-full py-16 flex items-center justify-center bg-[url('/img/footer-bg-blurred.png')] bg-cover bg-center">
-            <div className={`
+            <div
+                className={`
                 w-11/12 h-fit flex
                 flex-col gap-8 px-4
                 lg:flex-row lg:justify-between lg:gap-12 lg:px-0
-                `}>
+                `}
+            >
                 <div className="hidden md:block">
-                    <Image src={RTFLogoWhite} alt="logo" className="w-[200px]" />
+                    <Image
+                        src={RTFLogoWhite}
+                        alt="logo"
+                        className="w-[200px]"
+                    />
                     <div className="text-white text-xs max-w-[270px] pl-5">
-                        Return to Freedom is a 501(c)3 nonprofit organization and depends on the
-                        kind and generous donations of people like you to keep our wild horses and
-                        burros fed, as well as to continue our invaluable work in legislation,
+                        Return to Freedom is a 501(c)3 nonprofit organization
+                        and depends on the kind and generous donations of people
+                        like you to keep our wild horses and burros fed, as well
+                        as to continue our invaluable work in legislation,
                         lobbying, and hands-on rescue.
                     </div>
                 </div>
 
                 <div className="grow flex items-start justify-start">
                     <div className="w-full max-w-[700px] flex flex-col items-start justify-between gap-8">
-
-                        <div className={`
+                        <div
+                            className={`
                             w-full flex
                             flex-col gap-4 items-start justify-start
                             sm:flex-row sm:grow sm:items-start sm:justify-between sm:gap-8
-                            `}>
-
+                            `}
+                        >
                             <div className="grow basis-auto">
                                 <div className="text-white font-serif text-[25px]">
                                     About RTF
                                 </div>
                                 <div className="text-white text-[12px] flex flex-col gap-[2px]">
-                                    <Link href="/horses/our-horses" className="hover:underline">
+                                    <Link
+                                        href="/horses/our-horses"
+                                        className="hover:underline"
+                                    >
                                         Our Horses
                                     </Link>
-                                    <Link href="/about/people" className="hover:underline">
+                                    <Link
+                                        href="/about/people"
+                                        className="hover:underline"
+                                    >
                                         Our Team
                                     </Link>
-                                    <Link href="/about/people/opportunities" className="hover:underline">
+                                    <Link
+                                        href="/about/people/opportunities"
+                                        className="hover:underline"
+                                    >
                                         Opportunities
                                     </Link>
                                 </div>
@@ -59,13 +75,22 @@ export default function Footer() {
                                     Act Now
                                 </div>
                                 <div className="text-white text-[12px] flex flex-col gap-[2px]">
-                                    <Link href="/donate/sponsor-a-horse" className="hover:underline">
+                                    <Link
+                                        href="/donate/sponsor-a-horse"
+                                        className="hover:underline"
+                                    >
                                         Sponsor a Horse
                                     </Link>
-                                    <Link href="/visit-us" className="hover:underline">
+                                    <Link
+                                        href="/visit-us"
+                                        className="hover:underline"
+                                    >
                                         Visit Us
                                     </Link>
-                                    <Link href="/what-we-do/advocacy#take-action" className="hover:underline">
+                                    <Link
+                                        href="/what-we-do/advocacy#take-action"
+                                        className="hover:underline"
+                                    >
                                         Take Action
                                     </Link>
                                     <Link
@@ -74,7 +99,10 @@ export default function Footer() {
                                         className="hover:underline flex items-center gap-1"
                                     >
                                         Shop
-                                        <FaExternalLinkAlt size={12} className="inline-block" />
+                                        <FaExternalLinkAlt
+                                            size={12}
+                                            className="inline-block"
+                                        />
                                     </Link>
                                 </div>
                             </div>
@@ -84,16 +112,28 @@ export default function Footer() {
                                     What We Do
                                 </div>
                                 <div className="text-white text-[12px] flex flex-col gap-[2px]">
-                                    <Link href="/what-we-do/conservation" className="hover:underline">
+                                    <Link
+                                        href="/what-we-do/conservation"
+                                        className="hover:underline"
+                                    >
                                         Conservation
                                     </Link>
-                                    <Link href="/what-we-do/advocacy" className="hover:underline">
+                                    <Link
+                                        href="/what-we-do/advocacy"
+                                        className="hover:underline"
+                                    >
                                         Advocacy
                                     </Link>
-                                    <Link href="/what-we-do/sanctuary" className="hover:underline">
+                                    <Link
+                                        href="/what-we-do/sanctuary"
+                                        className="hover:underline"
+                                    >
                                         Sanctuary
                                     </Link>
-                                    <Link href="/what-we-do/education" className="hover:underline">
+                                    <Link
+                                        href="/what-we-do/education"
+                                        className="hover:underline"
+                                    >
                                         Education
                                     </Link>
                                 </div>
@@ -104,23 +144,43 @@ export default function Footer() {
                                     Explore
                                 </div>
                                 <div className="text-white text-[12px] flex flex-col gap-[2px]">
-                                    <Link href="/resources/news" className="hover:underline">
+                                    <Link
+                                        href="/resources/news"
+                                        className="hover:underline"
+                                    >
                                         News
                                     </Link>
-                                    <Link href="/resources/learn" className="hover:underline">
+                                    <Link
+                                        href="/resources/learn"
+                                        className="hover:underline"
+                                    >
                                         Learn
                                     </Link>
                                 </div>
                             </div>
                         </div>
 
-                        <div className={`
+                        <div
+                            className={`
                             w-full flex
                             flex-col items-center justify-start gap-8
-                            sm:flex-row sm:items-center sm:justify-center sm:gap-12`}>
-                            <Image src={CharityNavigator} alt="Charity Navigator" className="h-[100px] w-auto" />
-                            <Image src={OnePercent} alt="1% for the Planet" className="h-[100px] w-auto" />
-                            <Image src={NatureDefense} alt="Nature Defense Foundation" className="h-[100px] w-auto" />
+                            sm:flex-row sm:items-center sm:justify-center sm:gap-12`}
+                        >
+                            <Image
+                                src={CharityNavigator}
+                                alt="Charity Navigator"
+                                className="h-[100px] w-auto"
+                            />
+                            <Image
+                                src={OnePercent}
+                                alt="1% for the Planet"
+                                className="h-[100px] w-auto"
+                            />
+                            <Image
+                                src={NatureDefense}
+                                alt="Nature Defense Foundation"
+                                className="h-[100px] w-auto"
+                            />
                         </div>
                     </div>
                 </div>
@@ -131,17 +191,10 @@ export default function Footer() {
                     </div>
 
                     <div className="text-white text-[12px]">
-                        <div>
-                            info@returntofreedom.org
-                        </div>
-                        <div>
-                            (805) 737-9246PO
-                        </div>
-                        <div>
-                            Box 926, Lompoc, CA 93438 USA
-                        </div>
+                        <div>info@returntofreedom.org</div>
+                        <div>(805) 737-9246PO</div>
+                        <div>Box 926, Lompoc, CA 93438 USA</div>
                     </div>
-
 
                     <div className="flex items-center justify-start gap-3 text-white">
                         <SocialLinks />
@@ -150,7 +203,7 @@ export default function Footer() {
                         </Link>
                     </div>
 
-                    <div>
+                    {/*<div>
                         <div className="text-white text-[12px] mb-1">
                             Subscribe to receive updates about our work
                         </div>
@@ -163,8 +216,7 @@ export default function Footer() {
                                 <IoSendOutline size={12} className="inline-block" />
                             </button>
                         </div>
-                    </div>
-
+                    </div>*/}
                 </div>
             </div>
         </footer>

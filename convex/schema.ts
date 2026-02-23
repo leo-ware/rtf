@@ -207,7 +207,8 @@ export default defineSchema({
         description: v.string(),
         details: v.string(), // html string
 
-        ticketPriceId: v.id("ticketPrice"),
+        ticketPriceId: v.optional(v.id("ticketPrice")),
+        ticketPriceText: v.optional(v.string()),
         locationId: v.id("locations"),
 
         maxAttendees: v.optional(v.number()),

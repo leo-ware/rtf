@@ -9,19 +9,19 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Plus, Loader2, Calendar as CalendarIcon } from "lucide-react"
+import { Plus, Loader2, AlertTriangle } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useState } from "react"
 import { useMutation } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Id } from "@/convex/_generated/dataModel"
-import { format } from "date-fns"
 import ImagePickerDialog from "@/components/images/ImagePickerDialog"
 import LocationPickerDialog from "@/components/locations/LocationPickerDialog"
+import { DateTimePicker } from "@/components/DateTimePicker"
+import { TiptapEditor } from "@/components/TiptapEditor"
+import { Switch } from "@/components/ui/switch"
 
 const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
     const createEvent = useMutation(api.events.createEvent)
@@ -29,15 +29,37 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
     const [isOpen, setIsOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [selectedDate, setSelectedDate] = useState<Date>()
-    const [selectedEndDate, setSelectedEndDate] = useState<Date>()
+    const [selectedDate, _setSelectedDate] = useState<Date>()
+    const [selectedEndDate, _setSelectedEndDate] = useState<Date>()
     const [imageId, setImageId] = useState<Id<"images"> | null>(null)
     const [locationId, setLocationId] = useState<Id<"locations"> | null>(null)
+
+    const setSelectedDate = (date: Date | undefined) => {
+        _setSelectedDate(date)
+        if (date) {
+            // Auto-init end date to start + 2 hours if not set
+            if (!selectedEndDate) {
+                const endDate = new Date(date)
+                endDate.setHours(endDate.getHours() + 2)
+                _setSelectedEndDate(endDate)
+            }
+        }
+    }
+
+    const setSelectedEndDate = (date: Date | undefined) => {
+        _setSelectedEndDate(date)
+    }
+
+    // Duration warning
+    const durationWarning = selectedDate && selectedEndDate && selectedDate >= selectedEndDate
+        ? "Warning: Event has zero or negative duration"
+        : null
 
     const [formData, setFormData] = useState({
         title: "",
         description: "",
-        maxAttendees: "",
+        longDescription: "",
+        ticketPriceText: "",
         isPublic: true,
         requiresRegistration: true,
         registrationLink: "",
@@ -61,22 +83,19 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
         setIsLoading(true)
         setError(null)
         try {
-            const eventId = await createEvent({
+            await createEvent({
                 ...formData,
                 startDate: selectedDate.toISOString(),
                 endDate: selectedEndDate.toISOString(),
-                maxAttendees: formData.maxAttendees ? parseInt(formData.maxAttendees) : undefined,
                 imageId: imageId ?? undefined,
                 locationId: locationId ?? undefined,
                 registrationLink: formData.requiresRegistration ? formData.registrationLink.trim() : undefined,
+                ticketPriceText: formData.ticketPriceText.trim() || undefined,
+                longDescription: formData.longDescription || undefined,
             })
 
             setIsOpen(false)
             resetForm()
-
-            if (confirm("Event created successfully! Would you like to add more details and description?")) {
-                window.open(`/admin/events/edit/${eventId}`, '_blank')
-            }
         } catch (err) {
             console.error("Error creating event:", err)
             setError(`Failed to create event. ${err}`)
@@ -90,15 +109,16 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
         setFormData({
             title: "",
             description: "",
-            maxAttendees: "",
+            longDescription: "",
+            ticketPriceText: "",
             isPublic: true,
             requiresRegistration: true,
             registrationLink: "",
             contactEmail: "",
             contactPhone: "",
         })
-        setSelectedDate(undefined)
-        setSelectedEndDate(undefined)
+        _setSelectedDate(undefined)
+        _setSelectedEndDate(undefined)
         setImageId(null)
         setLocationId(null)
         setError(null)
@@ -126,7 +146,7 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
                 </DialogHeader>
                 <div className="space-y-4">
                     <div>
-                        <Label htmlFor="title">Event Title</Label>
+                        <Label htmlFor="title">Event Title <span className="text-red-500">*</span></Label>
                         <Input
                             id="title"
                             value={formData.title}
@@ -137,7 +157,7 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
                     </div>
 
                     <div>
-                        <Label htmlFor="description">Description</Label>
+                        <Label htmlFor="description">Description <span className="text-red-500">*</span></Label>
                         <Textarea
                             id="description"
                             value={formData.description}
@@ -148,46 +168,42 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
                         />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <Label>Start Date</Label>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button variant="outline" className="w-full justify-start text-left font-normal" disabled={editingDisabled}>
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {selectedDate ? format(selectedDate, "PPP") : "Pick a date"}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                    <Calendar
-                                        mode="single"
-                                        selected={selectedDate}
-                                        onSelect={setSelectedDate}
-                                        initialFocus
-                                    />
-                                </PopoverContent>
-                            </Popover>
-                        </div>
-                        <div>
-                            <Label>End Date</Label>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button variant="outline" className="w-full justify-start text-left font-normal" disabled={editingDisabled}>
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {selectedEndDate ? format(selectedEndDate, "PPP") : "Pick a date"}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                    <Calendar
-                                        mode="single"
-                                        selected={selectedEndDate}
-                                        onSelect={setSelectedEndDate}
-                                        initialFocus
-                                    />
-                                </PopoverContent>
-                            </Popover>
-                        </div>
+                    <div>
+                        <Label htmlFor="longDescription">Details</Label>
+                        <TiptapEditor
+                            content={formData.longDescription}
+                            onChange={(value) => setFormData({ ...formData, longDescription: value })}
+                            placeholder="Add rich text details..."
+                        />
                     </div>
+
+                    <div>
+                        <Label>Start Date/Time <span className="text-red-500">*</span></Label>
+                        <DateTimePicker
+                            value={selectedDate}
+                            onChange={setSelectedDate}
+                            disabled={editingDisabled}
+                            dateRequired={true}
+                            timeRequired={true}
+                        />
+                    </div>
+                    <div>
+                        <Label>End Date/Time <span className="text-red-500">*</span></Label>
+                        <DateTimePicker
+                            value={selectedEndDate}
+                            onChange={setSelectedEndDate}
+                            disabled={editingDisabled}
+                            dateRequired={true}
+                            timeRequired={true}
+                        />
+                    </div>
+
+                    {durationWarning && (
+                        <div className="text-amber-600 text-sm flex items-center gap-1">
+                            <AlertTriangle className="h-4 w-4" />
+                            {durationWarning}
+                        </div>
+                    )}
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
@@ -199,14 +215,13 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
                             />
                         </div>
                         <div>
-                            <Label htmlFor="maxAttendees">Max Attendees</Label>
+                            <Label htmlFor="ticketPriceText">Price</Label>
                             <Input
-                                id="maxAttendees"
-                                type="number"
-                                value={formData.maxAttendees}
+                                id="ticketPriceText"
+                                value={formData.ticketPriceText}
                                 disabled={editingDisabled}
-                                onChange={(e) => setFormData({ ...formData, maxAttendees: e.target.value })}
-                                placeholder="Optional"
+                                onChange={(e) => setFormData({ ...formData, ticketPriceText: e.target.value })}
+                                placeholder="e.g., Free, $25"
                             />
                         </div>
                     </div>
@@ -247,26 +262,22 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
                         </div>
                     </div>
 
-                    <div className="flex space-x-4">
+                    <div className="flex space-x-6">
                         <div className="flex items-center space-x-2">
-                            <input
-                                type="checkbox"
+                            <Switch
                                 id="isPublic"
                                 checked={formData.isPublic}
                                 disabled={editingDisabled}
-                                onChange={(e) => setFormData({ ...formData, isPublic: e.target.checked })}
-                                className="rounded"
+                                onCheckedChange={(checked) => setFormData({ ...formData, isPublic: checked })}
                             />
                             <Label htmlFor="isPublic">Public Event</Label>
                         </div>
                         <div className="flex items-center space-x-2">
-                            <input
-                                type="checkbox"
+                            <Switch
                                 id="requiresRegistration"
                                 checked={formData.requiresRegistration}
                                 disabled={editingDisabled}
-                                onChange={(e) => setFormData({ ...formData, requiresRegistration: e.target.checked })}
-                                className="rounded"
+                                onCheckedChange={(checked) => setFormData({ ...formData, requiresRegistration: checked })}
                             />
                             <Label htmlFor="requiresRegistration">Requires Registration</Label>
                         </div>

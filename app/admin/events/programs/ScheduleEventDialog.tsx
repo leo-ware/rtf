@@ -10,14 +10,11 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar as CalendarIcon, CalendarPlus, Loader2 } from "lucide-react"
+import { CalendarPlus, Loader2, AlertTriangle } from "lucide-react"
 import { useState } from "react"
 import { Id } from "@/convex/_generated/dataModel"
 import { useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
-import { format } from "date-fns"
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import { Select, SelectItem, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DateTimePicker } from "@/components/DateTimePicker"
@@ -53,11 +50,19 @@ const ScheduleEventDialog = (props: ScheduleEventDialogProps) => {
             if (selectedEndDate && selectedEndDate < date) {
                 setDateError("End date must be after start date")
             }
+            // Auto-init end date to start + 2 hours if not set
             if (!selectedEndDate) {
-                _setSelectedEndDate(date)
+                const endDate = new Date(date)
+                endDate.setHours(endDate.getHours() + 2)
+                _setSelectedEndDate(endDate)
             }
         }
     }
+
+    // Duration warning
+    const durationWarning = selectedDate && selectedEndDate && selectedDate >= selectedEndDate
+        ? "Warning: Event has zero or negative duration"
+        : null
 
     const setSelectedEndDate = (date: Date | undefined) => {
         _setSelectedEndDate(date)
@@ -202,6 +207,12 @@ const ScheduleEventDialog = (props: ScheduleEventDialogProps) => {
                     )}
                     {dateError && (
                         <div className="text-red-500 text-sm">{dateError}</div>
+                    )}
+                    {durationWarning && (
+                        <div className="text-amber-600 text-sm flex items-center gap-1">
+                            <AlertTriangle className="h-4 w-4" />
+                            {durationWarning}
+                        </div>
                     )}
 
                     <div className="flex justify-end space-x-2 pt-4">

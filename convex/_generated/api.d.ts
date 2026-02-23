@@ -31,6 +31,7 @@ import type * as http from "../http.js";
 import type * as images from "../images.js";
 import type * as jobListing from "../jobListing.js";
 import type * as locations from "../locations.js";
+import type * as migrations_migrateTicketPrices from "../migrations/migrateTicketPrices.js";
 import type * as models_articleManager from "../models/articleManager.js";
 import type * as models_articleMetadataManager from "../models/articleMetadataManager.js";
 import type * as models_articleSearchManager from "../models/articleSearchManager.js";
@@ -64,14 +65,6 @@ import type {
   FunctionReference,
 } from "convex/server";
 
-/**
- * A utility for referencing Convex functions in your app's API.
- *
- * Usage:
- * ```js
- * const myFunctionReference = api.myModule.myFunction;
- * ```
- */
 declare const fullApi: ApiFromModules<{
   advisoryBoards: typeof advisoryBoards;
   aggregates: typeof aggregates;
@@ -96,6 +89,7 @@ declare const fullApi: ApiFromModules<{
   images: typeof images;
   jobListing: typeof jobListing;
   locations: typeof locations;
+  "migrations/migrateTicketPrices": typeof migrations_migrateTicketPrices;
   "models/articleManager": typeof models_articleManager;
   "models/articleMetadataManager": typeof models_articleMetadataManager;
   "models/articleSearchManager": typeof models_articleSearchManager;
@@ -123,14 +117,30 @@ declare const fullApi: ApiFromModules<{
   utils: typeof utils;
   video: typeof video;
 }>;
-declare const fullApiWithMounts: typeof fullApi;
 
+/**
+ * A utility for referencing Convex functions in your app's public API.
+ *
+ * Usage:
+ * ```js
+ * const myFunctionReference = api.myModule.myFunction;
+ * ```
+ */
 export declare const api: FilterApi<
-  typeof fullApiWithMounts,
+  typeof fullApi,
   FunctionReference<any, "public">
 >;
+
+/**
+ * A utility for referencing Convex functions in your app's internal API.
+ *
+ * Usage:
+ * ```js
+ * const myFunctionReference = internal.myModule.myFunction;
+ * ```
+ */
 export declare const internal: FilterApi<
-  typeof fullApiWithMounts,
+  typeof fullApi,
   FunctionReference<any, "internal">
 >;
 
@@ -263,17 +273,17 @@ export declare const components: {
         { maxNodeSize?: number; namespace?: any; rootLazy?: boolean },
         null
       >;
-      deleteIfExists: FunctionReference<
-        "mutation",
-        "internal",
-        { key: any; namespace?: any },
-        any
-      >;
       delete_: FunctionReference<
         "mutation",
         "internal",
         { key: any; namespace?: any },
         null
+      >;
+      deleteIfExists: FunctionReference<
+        "mutation",
+        "internal",
+        { key: any; namespace?: any },
+        any
       >;
       init: FunctionReference<
         "mutation",

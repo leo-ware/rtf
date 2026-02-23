@@ -20,6 +20,7 @@ import { useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import ImagePickerDialog from "@/components/images/ImagePickerDialog"
 import LocationPickerDialog from "@/components/locations/LocationPickerDialog"
+import { Switch } from "@/components/ui/switch"
 
 const ProgramCreateDialog = () => {
     const createProgram = useMutation(api.programs.createProgram)
@@ -34,7 +35,7 @@ const ProgramCreateDialog = () => {
         description: "",
         details: "",
         locationId: null as Id<"locations"> | null,
-        maxAttendees: "",
+        ticketPriceText: "",
         requiresRegistration: false,
         contactEmail: "",
         contactPhone: "",
@@ -63,7 +64,7 @@ const ProgramCreateDialog = () => {
                 description: formData.description,
                 details: formData.details,
                 locationId: formData.locationId,
-                maxAttendees: formData.maxAttendees ? parseInt(formData.maxAttendees) : undefined,
+                ticketPriceText: formData.ticketPriceText || undefined,
                 requiresRegistration: formData.requiresRegistration,
                 contactEmail: formData.contactEmail || undefined,
                 contactPhone: formData.contactPhone || undefined,
@@ -89,7 +90,7 @@ const ProgramCreateDialog = () => {
             description: "",
             details: "",
             locationId: null,
-            maxAttendees: "",
+            ticketPriceText: "",
             requiresRegistration: false,
             contactEmail: "",
             contactPhone: "",
@@ -118,7 +119,7 @@ const ProgramCreateDialog = () => {
                 <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <Label htmlFor="name">Program Name</Label>
+                            <Label htmlFor="name">Program Name <span className="text-red-500">*</span></Label>
                             <Input
                                 id="name"
                                 value={formData.name}
@@ -128,7 +129,7 @@ const ProgramCreateDialog = () => {
                             />
                         </div>
                         <div>
-                            <Label htmlFor="programGroupId">Program Group</Label>
+                            <Label htmlFor="programGroupId">Program Group <span className="text-red-500">*</span></Label>
                             <Select
                                 value={formData.programGroupId}
                                 disabled={editingDisabled}
@@ -149,7 +150,7 @@ const ProgramCreateDialog = () => {
                     </div>
 
                     <div>
-                        <Label htmlFor="description">Description</Label>
+                        <Label htmlFor="description">Description <span className="text-red-500">*</span></Label>
                         <Textarea
                             id="description"
                             value={formData.description}
@@ -181,6 +182,17 @@ const ProgramCreateDialog = () => {
                         />
                     </div>
 
+                    <div>
+                        <Label htmlFor="ticketPriceText">Price</Label>
+                        <Input
+                            id="ticketPriceText"
+                            value={formData.ticketPriceText}
+                            disabled={editingDisabled}
+                            onChange={(e) => setFormData({ ...formData, ticketPriceText: e.target.value })}
+                            placeholder="e.g., Free, $25, or Adults $25, Children $15"
+                        />
+                    </div>
+
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <Label>Location <span className="text-red-500">*</span></Label>
@@ -193,31 +205,14 @@ const ProgramCreateDialog = () => {
                         <div />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <Label htmlFor="maxAttendees">Max Attendees</Label>
-                            <Input
-                                id="maxAttendees"
-                                type="number"
-                                value={formData.maxAttendees}
-                                disabled={editingDisabled}
-                                onChange={(e) => setFormData({ ...formData, maxAttendees: e.target.value })}
-                                placeholder="Leave blank for unlimited"
-                            />
-                        </div>
-                        <div className="flex items-end pb-2">
-                            <div className="flex items-center space-x-2">
-                                <input
-                                    type="checkbox"
-                                    id="requiresRegistration"
-                                    checked={formData.requiresRegistration}
-                                    disabled={editingDisabled}
-                                    onChange={(e) => setFormData({ ...formData, requiresRegistration: e.target.checked })}
-                                    className="rounded"
-                                />
-                                <Label htmlFor="requiresRegistration">Requires Registration</Label>
-                            </div>
-                        </div>
+                    <div className="flex items-center space-x-2">
+                        <Switch
+                            id="requiresRegistration"
+                            checked={formData.requiresRegistration}
+                            disabled={editingDisabled}
+                            onCheckedChange={(checked) => setFormData({ ...formData, requiresRegistration: checked })}
+                        />
+                        <Label htmlFor="requiresRegistration">Requires Registration</Label>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -246,13 +241,11 @@ const ProgramCreateDialog = () => {
                     </div>
 
                     <div className="flex items-center space-x-2">
-                        <input
-                            type="checkbox"
+                        <Switch
                             id="isPublic"
                             checked={formData.isPublic}
                             disabled={editingDisabled}
-                            onChange={(e) => setFormData({ ...formData, isPublic: e.target.checked })}
-                            className="rounded"
+                            onCheckedChange={(checked) => setFormData({ ...formData, isPublic: checked })}
                         />
                         <Label htmlFor="isPublic">Public Program</Label>
                     </div>

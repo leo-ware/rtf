@@ -43,9 +43,9 @@ const DonatePage = () => {
                     <div className="basis-0 grow">
                         <SalsaDonateFormEmbedInner
                             donationForm={{
-                                formId: "dLBXlrVwbC",
+                                formId: "BasxlcgBnq",
                                 formTemplateId:
-                                    "5f528287-b12c-42a8-b6e5-fc5ee5fafa24",
+                                    "075b2dc6-782d-42b0-b9b6-603714a36154",
                             }}
                         />
                     </div>

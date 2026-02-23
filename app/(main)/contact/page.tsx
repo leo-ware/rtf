@@ -10,9 +10,11 @@ import img1 from "./img1.jpg"
 import img2 from "./img2.png"
 import img3 from "./img3.png"
 import LongRightArrow from "@/components/LongRightArrow"
+import SalsaDonateFormEmbed from "@/components/SalsaDonateFormEmbed"
+import SubscribePrimary from "./SubscribePrimary"
 
 export const metadata = {
-    title: "Contact Us - Return to Freedom"
+    title: "Contact Us - Return to Freedom",
 }
 
 const ContactPage = () => {
@@ -27,16 +29,7 @@ const ContactPage = () => {
                         <div className="text-[25px] mb-4 font-serif text-cinnamon">
                             Subscribe to receive updates on our work
                         </div>
-                        <div className="md:w-full h-8 flex border-2 border-sage-green rounded-sm">
-                            <input
-                                type="email"
-                                placeholder="Enter your email"
-                                className="grow h-full py-2 px-4 text-sm"
-                            />
-                            <button className="basis-16 grow-0 h-full bg-cinnamon text-white flex items-center justify-center">
-                                <LongRightArrow />
-                            </button>
-                        </div>
+                        <SubscribePrimary />
                     </div>
                     <div className="md:w-5/12">
                         <div className="text-left text-[25px] mb-4 font-serif text-cinnamon">

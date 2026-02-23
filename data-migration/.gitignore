@@ -1,0 +1,8 @@
+# Output files from scraping
+output/
+
+# Node modules
+node_modules/
+
+# TypeScript build output
+dist/

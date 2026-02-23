@@ -1,86 +1,49 @@
-"use client";
+import type { Metadata } from "next"
+import { fetchQuery } from "convex/nextjs"
+import { api } from "@/convex/_generated/api"
+import { PageProps } from "@/lib/types"
+import ArticleContent from "./ArticleContent"
 
-import React from "react";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { notFound } from "next/navigation";
-import { CalendarIcon, UserIcon } from "lucide-react";
-import { PageProps } from "@/lib/types";
+type Props = PageProps<{ slug: string }>
 
-export default function ArticlePage({ params }: PageProps<{ slug: string }>) {
-    const resolvedParams = React.use(params)
-    const article = useQuery(api.articles.getArticleBySlug, {
-        slug: resolvedParams.slug,
-    });
+export const generateMetadata = async ({ params }: Props): Promise<Metadata> => {
+    const { slug } = await params
+    const article = await fetchQuery(api.articles.getArticleBySlug, { slug })
 
-    if (article === undefined) {
-        return (
-            <div className="py-16">
-                <div className="max-w-4xl mx-auto px-4">
-                    <div className="animate-pulse">
-                        <div className="h-8 bg-gray-200 rounded w-3/4 mb-4"></div>
-                        <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
-                        <div className="h-64 bg-gray-200 rounded mb-8"></div>
-                        <div className="space-y-4">
-                            <div className="h-4 bg-gray-200 rounded"></div>
-                            <div className="h-4 bg-gray-200 rounded"></div>
-                            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
+    if (!article) {
+        return {
+            title: "Article Not Found | Return to Freedom",
+        }
     }
 
-    if (article === null) {
-        notFound();
+    const title = article.articleMetadata.title
+    const description = article.articleMetadata.excerpt || title
+
+    return {
+        title: `${title} | Return to Freedom`,
+        description,
+        openGraph: {
+            title: `${title} | Return to Freedom`,
+            description,
+            type: "article",
+            publishedTime: article.articleMetadata.date
+                ? new Date(article.articleMetadata.date).toISOString()
+                : undefined,
+            authors: article.authorCredit ? [article.authorCredit] : undefined,
+            images: article.image?.url ? [{ url: article.image.url }] : [],
+        },
+        twitter: {
+            card: "summary_large_image",
+            title: `${title} | Return to Freedom`,
+            description,
+            images: article.image?.url ? [article.image.url] : [],
+        },
     }
-
-    const formatDate = (timestamp: number) => {
-        return new Date(timestamp).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-        });
-    };
-
-    return (
-        <div className="py-16">
-            <div className="max-w-4xl mx-auto px-4">
-                <header className="mb-8">
-                    <h1 className="text-4xl font-serif mb-4">
-                        {article.articleMetadata.title}
-                    </h1>
-
-                    <div className="flex items-center space-x-6 text-gray-600 mb-6">
-                        {article.authorCredit && (
-                            <div className="flex items-center space-x-2">
-                                <UserIcon className="w-4 h-4" />
-                                <span>{article.authorCredit}</span>
-                            </div>
-                        )}
-                        {article.articleMetadata.date && (
-                            <div className="flex items-center space-x-2">
-                                <span>{formatDate(article.articleMetadata.date)}</span>
-                            </div>
-                        )}
-                    </div>
-                </header>
-
-                {article.image && (
-                    <div className="mb-8">
-                        <img
-                            src={article.image.url || ""}
-                            alt={article.image.altText || article.articleMetadata.title}
-                            className="max-w-full max-h-[400px] aspect-video object-cover mx-auto rounded-lg"
-                        />
-                    </div>
-                )}
-
-                <div
-                    className="prose prose-lg max-w-none"
-                    dangerouslySetInnerHTML={{ __html: article.content }} />
-            </div>
-        </div>
-    );
 }
+
+const ArticlePage = async ({ params }: Props) => {
+    const { slug } = await params
+    return <ArticleContent slug={slug} />
+}
+
+export default ArticlePage

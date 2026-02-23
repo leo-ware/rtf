@@ -10,7 +10,8 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { Calendar as CalendarIcon, Loader2 } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Loader2, AlertTriangle, Calendar as CalendarIcon } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Id } from "@/convex/_generated/dataModel"
 import { useMutation, useQuery } from "convex/react"
@@ -33,12 +34,14 @@ const EventEditDialog = (props: EventEditDialogProps) => {
     const [dateError, setDateError] = useState<string | null>(null)
     const [selectedDate, _setSelectedDate] = useState<Date>()
     const [selectedEndDate, _setSelectedEndDate] = useState<Date>()
+    const [registrationLink, setRegistrationLink] = useState("")
 
-    // Initialize dates when event data loads
+    // Initialize dates and registration link when event data loads
     useEffect(() => {
         if (event && isOpen) {
             _setSelectedDate(new Date(event.startDate))
             _setSelectedEndDate(new Date(event.endDate))
+            setRegistrationLink(event.registrationLink || "")
         }
     }, [event, isOpen])
 
@@ -62,6 +65,11 @@ const EventEditDialog = (props: EventEditDialogProps) => {
         }
     }
 
+    // Duration warning
+    const durationWarning = selectedDate && selectedEndDate && selectedDate >= selectedEndDate
+        ? "Warning: Event has zero or negative duration"
+        : null
+
     const saveDisabled = (
         isLoading ||
         !selectedDate ||
@@ -78,7 +86,8 @@ const EventEditDialog = (props: EventEditDialogProps) => {
             await updateEvent({
                 id: props.eventId,
                 startDate: selectedDate!.toISOString(),
-                endDate: selectedEndDate!.toISOString()
+                endDate: selectedEndDate!.toISOString(),
+                registrationLink: registrationLink.trim() || undefined,
             })
             setIsOpen(false)
         } catch (err) {
@@ -93,6 +102,7 @@ const EventEditDialog = (props: EventEditDialogProps) => {
         if (event) {
             _setSelectedDate(new Date(event.startDate))
             _setSelectedEndDate(new Date(event.endDate))
+            setRegistrationLink(event.registrationLink || "")
         }
         setError(null)
         setDateError(null)
@@ -142,7 +152,7 @@ const EventEditDialog = (props: EventEditDialogProps) => {
                         </div>
                     )}
                     <div>
-                        <Label>Start Date/Time</Label>
+                        <Label>Start Date/Time <span className="text-red-500">*</span></Label>
                         <DateTimePicker
                             value={selectedDate}
                             onChange={setSelectedDate}
@@ -152,7 +162,7 @@ const EventEditDialog = (props: EventEditDialogProps) => {
                         />
                     </div>
                     <div>
-                        <Label>End Date/Time</Label>
+                        <Label>End Date/Time <span className="text-red-500">*</span></Label>
                         <DateTimePicker
                             value={selectedEndDate}
                             onChange={setSelectedEndDate}
@@ -162,11 +172,28 @@ const EventEditDialog = (props: EventEditDialogProps) => {
                         />
                     </div>
 
+                    <div>
+                        <Label htmlFor="registrationLink">Registration Link</Label>
+                        <Input
+                            id="registrationLink"
+                            value={registrationLink}
+                            disabled={isLoading}
+                            onChange={(e) => setRegistrationLink(e.target.value)}
+                            placeholder="https://..."
+                        />
+                    </div>
+
                     {error && (
                         <div className="text-red-500 text-sm">{error}</div>
                     )}
                     {dateError && (
                         <div className="text-red-500 text-sm">{dateError}</div>
+                    )}
+                    {durationWarning && (
+                        <div className="text-amber-600 text-sm flex items-center gap-1">
+                            <AlertTriangle className="h-4 w-4" />
+                            {durationWarning}
+                        </div>
                     )}
 
                     <div className="flex justify-end space-x-2 pt-4">

@@ -75,9 +75,6 @@ export default class EventManager {
                 locationId = locationManager.id
             }
 
-            // Create ticket price
-            const ticketPriceId = await EventManager.createTicketPrice(ctx)
-
             // Get max order for programs in the standalone group
             const existingPrograms = await ctx.db
                 .query("programs")
@@ -95,7 +92,7 @@ export default class EventManager {
                 name: args.title,
                 description: args.description,
                 details: args.longDescription || "",
-                ticketPriceId,
+                ticketPriceText: args.ticketPriceText,
                 locationId,
                 maxAttendees: args.maxAttendees,
                 requiresRegistration: args.requiresRegistration,
@@ -154,6 +151,7 @@ export default class EventManager {
                 if (args.contactEmail !== undefined) programUpdates.contactEmail = args.contactEmail
                 if (args.contactPhone !== undefined) programUpdates.contactPhone = args.contactPhone
                 if (args.imageId !== undefined) programUpdates.imageId = args.imageId
+                if (args.ticketPriceText !== undefined) programUpdates.ticketPriceText = args.ticketPriceText
 
                 // Handle location update
                 if (args.locationId !== undefined) {
@@ -234,6 +232,7 @@ export default class EventManager {
                 locationId: null,
                 maxAttendees: undefined,
                 ticketPriceId: null,
+                ticketPriceText: undefined,
                 isPublic: false,
                 requiresRegistration: false,
                 contactEmail: undefined,
@@ -263,6 +262,7 @@ export default class EventManager {
             locationId: program.locationId ?? null,
             maxAttendees: program.maxAttendees,
             ticketPriceId: program.ticketPriceId ?? null,
+            ticketPriceText: program.ticketPriceText,
             isPublic: program.isPublic,
             requiresRegistration: program.requiresRegistration ?? false,
             contactEmail: program.contactEmail,

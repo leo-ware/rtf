@@ -341,3 +341,12 @@ export const removeTimelineItem = mutation({
         return null
     },
 })
+
+export const listPublicSlugs = query({
+    args: {},
+    returns: v.array(v.string()),
+    handler: async (ctx) => {
+        const herds = await ctx.db.query("herds").collect()
+        return herds.map((h) => h.slug)
+    },
+})

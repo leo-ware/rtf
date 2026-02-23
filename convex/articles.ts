@@ -92,3 +92,47 @@ export const deleteArticle = mutation({
         return manager.id;
     },
 });
+
+export const listPublicSlugs = query({
+    args: {},
+    returns: v.array(v.string()),
+    handler: async (ctx) => {
+        // Get all public article metadata
+        const publicMetadata = await ctx.db
+            .query("articleMetadata")
+            .filter((q) => q.eq(q.field("public"), true))
+            .filter((q) => q.eq(q.field("isExternal"), false))
+            .collect()
+
+        // Get the article IDs from metadata
+        const articleIds = publicMetadata
+            .map((m) => m.articleId)
+            .filter((id): id is NonNullable<typeof id> => id !== undefined)
+
+        // Fetch the articles and return their slugs
+        const articles = await Promise.all(
+            articleIds.map((id) => ctx.db.get(id))
+        )
+
+        return articles
+            .filter((a): a is NonNullable<typeof a> => a !== null)
+            .map((a) => a.slug)
+    },
+});
+
+export const checkSlugExists = query({
+    args: { slug: v.string() },
+    returns: v.boolean(),
+    handler: async (ctx, args) => {
+        const article = await ctx.db
+            .query("articles")
+            .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+            .first()
+
+        if (!article) return false
+
+        // Check if the article is public
+        const metadata = await ctx.db.get(article.articleMetadataId)
+        return metadata?.public === true
+    },
+});

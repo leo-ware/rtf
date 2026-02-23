@@ -21,13 +21,15 @@ import { api } from "@/convex/_generated/api"
 import ImagePickerDialog from "@/components/images/ImagePickerDialog"
 import LocationPickerDialog from "@/components/locations/LocationPickerDialog"
 import { TiptapEditor } from "@/components/TiptapEditor"
+import { Switch } from "@/components/ui/switch"
 
 export type Program = {
     _id: Id<"programs">
     name: string
     description: string
     details: string
-    ticketPriceId: Id<"ticketPrice">
+    ticketPriceId?: Id<"ticketPrice">
+    ticketPriceText?: string
     locationId: Id<"locations">
     maxAttendees?: number
     requiresRegistration?: boolean
@@ -62,7 +64,7 @@ const ProgramEditDialog = ({ children, ...props }: ProgramEditDialogProps) => {
         description: undefined as string | undefined,
         details: undefined as string | undefined,
         locationId: null as Id<"locations"> | null,
-        maxAttendees: undefined as string | undefined,
+        ticketPriceText: undefined as string | undefined,
         requiresRegistration: undefined as boolean | undefined,
         contactEmail: undefined as string | undefined,
         contactPhone: undefined as string | undefined,
@@ -79,7 +81,7 @@ const ProgramEditDialog = ({ children, ...props }: ProgramEditDialogProps) => {
                 description: program.description,
                 details: program.details,
                 locationId: program.locationId,
-                maxAttendees: program.maxAttendees?.toString() || "",
+                ticketPriceText: program.ticketPriceText || "",
                 requiresRegistration: program.requiresRegistration || false,
                 contactEmail: program.contactEmail || "",
                 contactPhone: program.contactPhone || "",
@@ -111,7 +113,7 @@ const ProgramEditDialog = ({ children, ...props }: ProgramEditDialogProps) => {
                 description: formData.description,
                 details: formData.details,
                 locationId: formData.locationId,
-                maxAttendees: formData.maxAttendees ? parseInt(formData.maxAttendees) : undefined,
+                ticketPriceText: formData.ticketPriceText || undefined,
                 requiresRegistration: formData.requiresRegistration,
                 contactEmail: formData.contactEmail || undefined,
                 contactPhone: formData.contactPhone || undefined,
@@ -136,7 +138,7 @@ const ProgramEditDialog = ({ children, ...props }: ProgramEditDialogProps) => {
                 description: program.description,
                 details: program.details,
                 locationId: program.locationId,
-                maxAttendees: program.maxAttendees?.toString() || "",
+                ticketPriceText: program.ticketPriceText || "",
                 requiresRegistration: program.requiresRegistration || false,
                 contactEmail: program.contactEmail || "",
                 contactPhone: program.contactPhone || "",
@@ -167,7 +169,7 @@ const ProgramEditDialog = ({ children, ...props }: ProgramEditDialogProps) => {
                 <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <Label htmlFor="name">Program Name</Label>
+                            <Label htmlFor="name">Program Name <span className="text-red-500">*</span></Label>
                             <Input
                                 id="name"
                                 value={formData.name}
@@ -177,7 +179,7 @@ const ProgramEditDialog = ({ children, ...props }: ProgramEditDialogProps) => {
                             />
                         </div>
                         <div>
-                            <Label htmlFor="programGroupId">Program Group</Label>
+                            <Label htmlFor="programGroupId">Program Group <span className="text-red-500">*</span></Label>
                             <Select
                                 value={formData.programGroupId}
                                 disabled={editingDisabled}
@@ -198,7 +200,7 @@ const ProgramEditDialog = ({ children, ...props }: ProgramEditDialogProps) => {
                     </div>
 
                     <div>
-                        <Label htmlFor="description">Description</Label>
+                        <Label htmlFor="description">Description <span className="text-red-500">*</span></Label>
                         <Textarea
                             id="description"
                             value={formData.description}
@@ -219,6 +221,17 @@ const ProgramEditDialog = ({ children, ...props }: ProgramEditDialogProps) => {
                         )}
                     </div>
 
+                    <div>
+                        <Label htmlFor="ticketPriceText">Price</Label>
+                        <Input
+                            id="ticketPriceText"
+                            value={formData.ticketPriceText}
+                            disabled={editingDisabled}
+                            onChange={(e) => setFormData({ ...formData, ticketPriceText: e.target.value })}
+                            placeholder="e.g., Free, $25, or Adults $25, Children $15"
+                        />
+                    </div>
+
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <Label>Location <span className="text-red-500">*</span></Label>
@@ -233,31 +246,14 @@ const ProgramEditDialog = ({ children, ...props }: ProgramEditDialogProps) => {
                         <div />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <Label htmlFor="maxAttendees">Max Attendees</Label>
-                            <Input
-                                id="maxAttendees"
-                                type="number"
-                                value={formData.maxAttendees}
-                                disabled={editingDisabled}
-                                onChange={(e) => setFormData({ ...formData, maxAttendees: e.target.value })}
-                                placeholder="Leave blank for unlimited"
-                            />
-                        </div>
-                        <div className="flex items-end pb-2">
-                            <div className="flex items-center space-x-2">
-                                <input
-                                    type="checkbox"
-                                    id="requiresRegistration"
-                                    checked={formData.requiresRegistration}
-                                    disabled={editingDisabled}
-                                    onChange={(e) => setFormData({ ...formData, requiresRegistration: e.target.checked })}
-                                    className="rounded"
-                                />
-                                <Label htmlFor="requiresRegistration">Requires Registration</Label>
-                            </div>
-                        </div>
+                    <div className="flex items-center space-x-2">
+                        <Switch
+                            id="requiresRegistration"
+                            checked={formData.requiresRegistration}
+                            disabled={editingDisabled}
+                            onCheckedChange={(checked) => setFormData({ ...formData, requiresRegistration: checked })}
+                        />
+                        <Label htmlFor="requiresRegistration">Requires Registration</Label>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -295,13 +291,11 @@ const ProgramEditDialog = ({ children, ...props }: ProgramEditDialogProps) => {
                     </div>
 
                     <div className="flex items-center space-x-2">
-                        <input
-                            type="checkbox"
+                        <Switch
                             id="isPublic"
                             checked={formData.isPublic}
                             disabled={editingDisabled}
-                            onChange={(e) => setFormData({ ...formData, isPublic: e.target.checked })}
-                            className="rounded"
+                            onCheckedChange={(checked) => setFormData({ ...formData, isPublic: checked })}
                         />
                         <Label htmlFor="isPublic">Public Program</Label>
                     </div>
