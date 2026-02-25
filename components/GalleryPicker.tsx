@@ -19,7 +19,7 @@ export type GalleryPickerProps = {
 
 const GalleryPicker = (props: GalleryPickerProps) => {
     return (
-        <div className="flex items-center gap-3 p-3 border rounded-lg">
+        <div className="flex items-center gap-3 flex-1">
             <div className="w-16 h-16 rounded overflow-hidden bg-gray-100 flex-shrink-0">
                 {props.image ? (
                     <ConvexImage

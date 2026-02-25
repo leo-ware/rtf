@@ -9,22 +9,28 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import InfoWidget from "@/components/InfoWidget";
-import { Edit2 } from "lucide-react";
+import { Edit2, Loader2 } from "lucide-react";
+import PeopleMultiSelect from "@/components/PeopleMultiSelect";
 
 type Metadata = {
     title: string;
     altText: string;
+    authorCredit: string;
+    authors: Id<"people">[];
 }
 
 const MetadataEditorDialog = ({ imageId, children }: { imageId: Id<"images">, children?: React.ReactNode }) => {
     const image = useQuery(api.images.getImage, { id: imageId });
     const updateImage = useMutation(api.images.updateImage);
+    const [isOpen, setIsOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const [formState, setFormState] = useState<Metadata>({
         title: image?.title || "",
         altText: image?.altText || "",
+        authorCredit: image?.authorCredit || "",
+        authors: image?.authors || [],
     });
 
     useEffect(() => {
@@ -32,21 +38,26 @@ const MetadataEditorDialog = ({ imageId, children }: { imageId: Id<"images">, ch
             setFormState({
                 title: image.title,
                 altText: image.altText || "",
+                authorCredit: image.authorCredit || "",
+                authors: image.authors || [],
             });
         }
     }, [image]);
 
-    const saveMetadata = () => {
+    const saveMetadata = async () => {
         if (!canSave) return;
 
         setIsSaving(true);
         setError(null);
         try {
-            updateImage({
+            await updateImage({
                 id: imageId,
                 altText: formState.altText,
                 title: formState.title,
+                authorCredit: formState.authorCredit || undefined,
+                authors: formState.authors.length > 0 ? formState.authors : undefined,
             });
+            setIsOpen(false);
         } catch (error) {
             console.error("Error saving metadata:", error);
             setError("Failed to save metadata");
@@ -55,12 +66,15 @@ const MetadataEditorDialog = ({ imageId, children }: { imageId: Id<"images">, ch
         }
     }
 
-    const hasChanges = formState.altText !== image?.altText || formState.title !== image?.title;
+    const hasChanges = formState.altText !== (image?.altText || "") ||
+        formState.title !== image?.title ||
+        formState.authorCredit !== (image?.authorCredit || "") ||
+        JSON.stringify(formState.authors) !== JSON.stringify(image?.authors || []);
     const canEdit = !isSaving
     const canSave = !isSaving && hasChanges;
 
     return (
-        <Dialog>
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger>
                 {children
                     ? children
@@ -106,6 +120,36 @@ const MetadataEditorDialog = ({ imageId, children }: { imageId: Id<"images">, ch
                         />
                     </div>
 
+                    <div>
+                        <div className="flex gap-2">
+                            <Label>Authors</Label>
+                            <InfoWidget>
+                                Credit for the photographer or image creator. Select one or more people.
+                            </InfoWidget>
+                        </div>
+                        <PeopleMultiSelect
+                            selectedPersonIds={formState.authors}
+                            onSelect={(ids) => setFormState(prev => ({ ...prev, authors: ids }))}
+                            disabled={!canEdit}
+                        />
+                    </div>
+
+                    <div>
+                        <div className="flex gap-2">
+                            <Label htmlFor="authorCredit">Author Credit (legacy text)</Label>
+                            <InfoWidget>
+                                Fallback text credit if no authors are selected above. Displayed on hover.
+                            </InfoWidget>
+                        </div>
+                        <Input
+                            id="authorCredit"
+                            value={formState.authorCredit}
+                            disabled={!canEdit}
+                            onChange={(e) => setFormState(prev => ({ ...prev, authorCredit: e.target.value }))}
+                            placeholder="e.g. John Smith Photography"
+                        />
+                    </div>
+
                     {error && (
                         <div className="text-red-500 text-sm">
                             {error}
@@ -119,7 +163,8 @@ const MetadataEditorDialog = ({ imageId, children }: { imageId: Id<"images">, ch
                             </Button>
                         </DialogClose>
                         <Button onClick={saveMetadata} disabled={!canSave}>
-                            Save Metadata
+                            {isSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                            {isSaving ? "Saving..." : "Save Metadata"}
                         </Button>
                     </div>
                 </div>

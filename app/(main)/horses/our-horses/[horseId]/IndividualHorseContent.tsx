@@ -1,6 +1,6 @@
 "use client"
 
-import Image from "next/image"
+import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import { useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import NewsCarousel from "@/components/NewsCarousel"
@@ -9,6 +9,7 @@ import Carousel from "@/components/Carousel"
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
 import Button from "@/components/public-ui/Button"
 import ConvexImage from "@/components/images/ConvexImage"
+import GalleryVideoItem from "@/components/GalleryVideoItem"
 import { notFound } from "next/navigation"
 import { horseDetailsString } from "@/lib/utils"
 import SponsorAHorseDialog from "@/components/donation-widgets/SponsorAHorseDialog"
@@ -16,6 +17,9 @@ import SponsorAHorseDialog from "@/components/donation-widgets/SponsorAHorseDial
 import { Id } from "@/convex/_generated/dataModel"
 import SponsorAHorseMenu from "@/components/donation-widgets/SponsorAHorseMenu"
 import ExampleHorse from "./example-horse-image.png"
+import { ArticleRenderer } from "@/components/ArticleRenderer"
+import { useEffect } from "react"
+import { trackEvent, AnalyticsEvents } from "@/lib/analytics"
 
 type IndividualHorseContentProps = {
     horseSlug: string
@@ -25,12 +29,18 @@ const IndividualHorseContent = ({ horseSlug }: IndividualHorseContentProps) => {
     const animal = useQuery(api.animals.getAnimalBySlug, {
         slug: horseSlug,
     })
-    const galleryImagesRaw = useQuery(api.animals.getAnimalGalleryImages, {
+    const galleryItemsRaw = useQuery(api.animals.getAnimalGalleryItems, {
         ids: animal?._id ? [animal._id] : [] as Id<"animals">[]
     })
-    const galleryImages = galleryImagesRaw
-        ? Object.values(galleryImagesRaw)?.[0]?.images || []
+    const galleryItems = galleryItemsRaw
+        ? Object.values(galleryItemsRaw)?.[0]?.items || []
         : []
+
+    useEffect(() => {
+        if (animal) {
+            trackEvent(AnalyticsEvents.HORSE_PROFILE_VIEWED, { name: animal.name, slug: horseSlug })
+        }
+    }, [animal, horseSlug])
 
     if (animal === undefined) {
         return (
@@ -56,13 +66,15 @@ const IndividualHorseContent = ({ horseSlug }: IndividualHorseContentProps) => {
                                 width={animal.image.width || 600}
                                 height={animal.image.height || 400}
                                 className="w-full h-full object-cover object-center"
+                                authorCredit={animal.image.authorCredit}
                             />
                         ) : (
-                            <Image
+                            <ImageWithAuthorCredit
                                 src={ExampleHorse}
                                 alt={animal.name}
                                 className="w-full h-full object-cover object-center"
                                 fill
+                                wrapperClassName="w-full h-full"
                             />
                         )}
                     </div>
@@ -85,10 +97,62 @@ const IndividualHorseContent = ({ horseSlug }: IndividualHorseContentProps) => {
                 </div>
 
                 {animal.content && (
-                    <div
+                    <ArticleRenderer
+                        content={animal.content}
                         className="text-lg prose prose-lg max-w-none"
-                        dangerouslySetInnerHTML={{ __html: animal.content }}
                     />
+                )}
+
+                {galleryItems && galleryItems.length > 0 && (
+                    <div className="w-8/12 h-fit flex flex-col items-center justify-center gap-4 mt-8">
+                        <Header color="sage-green" className="text-4xl">
+                            Gallery
+                        </Header>
+                        <Carousel
+                            nDisplayItems={1}
+                            autoPlay={"right"}
+                            transitionDuration={1500}
+                            autoPlayInterval={6000}
+                            leftButton={<FaCaretLeft size={30} className="text-pewter" />}
+                            rightButton={<FaCaretRight size={30} className="text-pewter" />}
+                            items={galleryItems
+                                .filter(item => !!item)
+                                .map((item, index) => {
+                                    if (item.type === "image" && item.image?.url) {
+                                        return {
+                                            id: `gallery-item-${index}`,
+                                            widget: (
+                                                <div key={index} className="relative w-full aspect-[16/9]">
+                                                    <ConvexImage
+                                                        src={item.image.url}
+                                                        alt={item.image.altText || `${animal.name} gallery image ${index + 1}`}
+                                                        width={item.image.width || 800}
+                                                        height={item.image.height || 450}
+                                                        className="w-full h-full object-cover object-center"
+                                                        authorCredit={"authorCredit" in item.image ? (item.image.authorCredit as string | undefined) : undefined}
+                                                    />
+                                                </div>
+                                            )
+                                        }
+                                    } else if (item.type === "video" && item.videoSource && item.videoId) {
+                                        return {
+                                            id: `gallery-item-${index}`,
+                                            widget: (
+                                                <GalleryVideoItem
+                                                    key={index}
+                                                    videoSource={item.videoSource}
+                                                    videoId={item.videoId}
+                                                    videoTitle={item.videoTitle}
+                                                    thumbnailUrl={item.thumbnailUrl}
+                                                />
+                                            )
+                                        }
+                                    }
+                                    return null
+                                })
+                                .filter(item => item !== null)}
+                        />
+                    </div>
                 )}
             </div>
 
@@ -96,39 +160,6 @@ const IndividualHorseContent = ({ horseSlug }: IndividualHorseContentProps) => {
                 title="Latest News"
                 bgColor="seashell"
             />
-
-            {galleryImages && galleryImages.length > 0 && (
-                <div className="w-8/12 mx-auto h-fit flex flex-col items-center justify-center gap-4">
-                    <Header color="sage-green" className="text-4xl">
-                        Gallery
-                    </Header>
-                    <Carousel
-                        nDisplayItems={1}
-                        autoPlay={"right"}
-                        transitionDuration={1500}
-                        autoPlayInterval={6000}
-                        leftButton={<FaCaretLeft size={30} className="text-pewter" />}
-                        rightButton={<FaCaretRight size={30} className="text-pewter" />}
-                        items={galleryImages
-                            .filter(x => !!x)
-                            .filter(image => !!image.url)
-                            .map((image, index) => ({
-                                id: `gallery-item-${index}`,
-                                widget: (
-                                    <div key={index} className="relative w-full aspect-[16/9]">
-                                        <ConvexImage
-                                            src={image.url!}
-                                            alt={image.altText || `${animal.name} gallery image ${index + 1}`}
-                                            width={image.width || 800}
-                                            height={image.height || 450}
-                                            className="w-full h-full object-cover object-center"
-                                        />
-                                    </div>
-                                )
-                            }))}
-                    />
-                </div>
-            )}
 
             <SponsorAHorseMenu
                 title="Explore Other Horses to Sponsor"

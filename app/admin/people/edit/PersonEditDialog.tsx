@@ -54,16 +54,16 @@ const PersonEditDialog = ({ personId, children }: PersonEditDialogProps) => {
         if (person && isOpen) {
             setFormData({
                 name: person.name,
-                title: person.title,
-                bio: person.bio,
+                title: person.title ?? "",
+                bio: person.bio ?? "",
                 imageId: person.imageId || null,
                 imageUrl: person.image?.url || "",
-                isDirector: person.isDirector,
-                isStaff: person.isStaff || false,
-                isEquine: person.isEquine || false,
-                isStoryTeller: person.isStoryTeller || false,
-                isAmbassador: person.isAmbassador || false,
-                inMemoriam: person.inMemoriam,
+                isDirector: person.isDirector ?? false,
+                isStaff: person.isStaff ?? false,
+                isEquine: person.isEquine ?? false,
+                isStoryTeller: person.isStoryTeller ?? false,
+                isAmbassador: person.isAmbassador ?? false,
+                inMemoriam: person.inMemoriam ?? false,
                 advisoryBoardIds: (person.advisoryBoards || [])
                     .map(ab => ab?.advisoryBoardId)
                     .filter(id => id !== undefined),
@@ -74,9 +74,7 @@ const PersonEditDialog = ({ personId, children }: PersonEditDialogProps) => {
     const editingDisabled = isLoading
     const saveDisabled = (
         isLoading ||
-        !formData.name ||
-        !formData.title ||
-        !formData.bio
+        !formData.name
     )
 
     const handleUpdate = async () => {

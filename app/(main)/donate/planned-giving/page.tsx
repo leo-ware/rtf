@@ -5,7 +5,7 @@ export const metadata: Metadata = {
 }
 
 import Hero from "@/components/public-ui/Hero"
-import Image from "next/image"
+import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import Callout from "@/components/public-ui/Callout"
 
 import pgHero from "./pg-hero.jpg"
@@ -140,7 +140,7 @@ const PlannedGivingPage = () => {
                 </div>
             </div>
 
-            <Image src={pg1} alt="Planned Giving" className="w-[60vw] aspect-[5/3] object-cover object-center" />
+            <ImageWithAuthorCredit src={pg1} alt="Planned Giving" className="w-[60vw] aspect-[5/3] object-cover object-center" />
 
             <MoreWaysWidget />
         </div>

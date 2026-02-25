@@ -1,13 +1,14 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
+import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import { chunk } from "@/lib/utils"
 import AresMares from "@/public/img/ares-mares-cropped.png"
 import Button from "@/components/public-ui/Button"
 import { usePaginatedQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { useState } from "react"
+import { trackEvent, AnalyticsEvents } from "@/lib/analytics"
 
 const DocumentsWidget = () => {
     const { results: documents, status: documentsStatus } = usePaginatedQuery(
@@ -41,17 +42,29 @@ const DocumentsWidget = () => {
     return (
         <>
             <div className="relative w-full h-[325px] md:pl-36 py-8 flex items-center justify-center md:justify-start">
-                <Image
+                <ImageWithAuthorCredit
                     src={AresMares}
                     alt="Ares Mares"
                     className="z-0 absolute w-full h-full object-cover object-center"
-                    fill />
+                    fill
+                    wrapperClassName="z-0 absolute top-0 left-0 w-full h-full" />
                 <div className="z-10 flex flex-col items-start justify-center gap-4">
                     <div className="text-white text-[48px] font-serif leading-tight">
                         Read our latest<br />
                         Annual Report
                     </div>
-                    <Link href={latestAnnualReport?.link || "/"}>
+                    <Link
+                        href={latestAnnualReport?.link || "/"}
+                        onClick={() => {
+                            if (latestAnnualReport) {
+                                trackEvent(AnalyticsEvents.DOCUMENT_OPENED, {
+                                    name: `${latestAnnualReport.year} Annual Report`,
+                                    type: "annual_report",
+                                    year: latestAnnualReport.year,
+                                })
+                            }
+                        }}
+                    >
                         <Button color="burnt-orange">
                             {latestAnnualReport
                                 ? `${latestAnnualReport.year} Annual Report`
@@ -107,7 +120,15 @@ const DocumentsWidget = () => {
                         {chunk(listDocuments, 8).map(rl => (
                             <div className="w-full md:w-1/3 flex flex-col items-start justify-start gap-1">
                                 {rl.map(r => (
-                                    <Link href={r.link} className="text-pewter text-[20px]">
+                                    <Link
+                                        href={r.link}
+                                        className="text-pewter text-[20px]"
+                                        onClick={() => trackEvent(AnalyticsEvents.DOCUMENT_OPENED, {
+                                            name: r.title,
+                                            type: activeTab,
+                                            year: r.year,
+                                        })}
+                                    >
                                         {r.title}
                                     </Link>
                                 ))}

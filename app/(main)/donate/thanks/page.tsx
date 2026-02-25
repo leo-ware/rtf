@@ -1,14 +1,15 @@
 "use client"
 
 import { useSearchParams } from "next/navigation"
-import Image from "next/image"
+import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import Link from "next/link"
-import { Suspense } from "react"
+import { Suspense, useEffect, useRef } from "react"
 import Header from "@/components/public-ui/Header"
 import Button from "@/components/public-ui/Button"
 import ScrollReveal from "@/components/public-ui/ScrollReveal"
 import SocialLinks from "@/components/SocialLinksWidget"
 import SubscribePrimary from "@/app/(main)/contact/SubscribePrimary"
+import { trackEvent, AnalyticsEvents } from "@/lib/analytics"
 
 import HeroImage from "../donate_hero.jpg"
 
@@ -19,12 +20,28 @@ import HeroImage from "../donate_hero.jpg"
 
 const ThankYouContent = () => {
     const searchParams = useSearchParams()
+    const tracked = useRef(false)
 
     const firstName = searchParams.get("person-firstname")
     const lastName = searchParams.get("person-lastname")
     const amount = searchParams.get("donation-amountblock")
     const isRecurring = searchParams.get("makerecurringcb") === "yes"
+    const donorPaysFees = searchParams.get("donorpaysfeescb") === "true"
+    const campaignId = searchParams.get("sl_ai")
+    const campaignType = searchParams.get("sl_at")
     const optedInToContact = searchParams.get("contactoptincb") === "true"
+
+    useEffect(() => {
+        if (tracked.current) return
+        tracked.current = true
+        trackEvent(AnalyticsEvents.DONATION_COMPLETED, {
+            amount: amount || undefined,
+            isRecurring,
+            donorPaysFees,
+            campaignId: campaignId || undefined,
+            campaignType: campaignType || undefined,
+        })
+    }, [])
 
     const displayName = firstName || "Friend"
     const hasFullName = firstName && lastName
@@ -33,11 +50,12 @@ const ThankYouContent = () => {
         <div className="w-full min-h-screen flex flex-col">
             {/* Hero Section */}
             <div className="relative w-full h-[60vh] md:h-[70vh]">
-                <Image
+                <ImageWithAuthorCredit
                     src={HeroImage}
                     alt="Wild horses at Return to Freedom sanctuary"
                     className="absolute inset-0 w-full h-full object-cover"
                     priority
+                    wrapperClassName="absolute inset-0"
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
                 <div className="relative z-10 w-full h-full flex flex-col items-center justify-center px-4 text-center">

@@ -5,7 +5,7 @@ import Callout from "@/components/public-ui/Callout"
 import WideImage from "@/components/public-ui/WideImage"
 import TitledText from "@/components/TitledText"
 import Header from "@/components/public-ui/Header"
-import BlurredImageCard from "@/components/public-ui/BlurredImageCard"
+import DonationCallout, { DonationCalloutGrid } from "@/components/DonationCallout"
 import LargeCarouselItem from "@/components/public-ui/LargeCarouselItem"
 import Carousel from "@/components/Carousel"
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
@@ -26,11 +26,8 @@ import Rescue2Img from "./rescue-2.png"
 import Rescue3Img from "./rescue-3.png"
 import Rescue4Img from "./rescue-4.png"
 import Rescue5Img from "./rescue-5.jpg"
-import Button from "@/components/public-ui/Button"
 import NewsCarousel from "@/components/NewsCarousel"
-import GenericDonateDialogue from "@/components/donation-widgets/GenericDonateDialogue"
 import UpcomingEventsWidget from "@/components/UpcomingEventsWidget"
-import Link from "next/link"
 
 const rescues = [
     {
@@ -143,45 +140,30 @@ const SanctuaryPage = () => {
                 <Header color="cinnamon" className="mb-8 underline">
                     Costs of Running Our Sanctuaries
                 </Header>
-                <div className="w-[95vw] mx-auto flex flex-col md:flex-row items-stretch gap-4">
-                    <BlurredImageCard image={Blurred1} className="min-h-[450px] md:min-h-[550px] md:h-auto">
-                        <div className="text-white w-full h-full px-6 md:px-12 py-8 md:py-12 flex flex-col items-start justify-center gap-4">
-                            <div className="flex flex-col items-start justify-center">
-                                <div className="text-[36px] md:text-[48px] font-serif leading-none">$550,000</div>
-                                <div className="text-[22px] md:text-[28px] font-serif">on hay for the horses</div>
-                            </div>
-                            <div className="text-base md:text-[20px]">
-                                This includes the hay and feed required to care for over 460 rescued wild horses
-                                and burros at our Lompoc headquarters and San Luis Obispo satellite sanctuary.
-                                Many of these animals once faced roundups, neglect, or the threat of slaughter.
-                                At Return to Freedom, they now live safely in natural family bands, grazing
-                                freely on open pastures.
-                            </div>
-                            <GenericDonateDialogue defaultPathwayName="Sanctuary Fund">
-                                <Button color="cinnamon" className="px-4">Donate</Button>
-                            </GenericDonateDialogue>
-                        </div>
-                    </BlurredImageCard>
-                    <BlurredImageCard image={Blurred2} className="min-h-[450px] md:min-h-[550px] md:h-auto">
-                        <div className="text-white w-full h-full px-6 md:px-12 py-8 md:py-12 flex flex-col items-start justify-center gap-4">
-                            <div className="flex flex-col items-start justify-center">
-                                <div className="text-[36px] md:text-[48px] font-serif leading-none">$1,150,000</div>
-                                <div className="text-[22px] md:text-[28px] font-serif">
-                                    on daily care, staffing, land and infrastructure maintenance
-                                </div>
-                            </div>
-                            <div className="text-base md:text-[20px]">
-                                Caring for over 460 wild horses and burros takes an extraordinary effort. This amount
-                                covers the hands-on work of our staff, land management across Lompoc and San Luis
-                                Obispo, and the ongoing upkeep of barns, fences, and water systems that keep the herds
-                                safe.
-                            </div>
-                            <GenericDonateDialogue defaultPathwayName="Sanctuary Fund">
-                                <Button color="cinnamon" className="px-4">Donate</Button>
-                            </GenericDonateDialogue>
-                        </div>
-                    </BlurredImageCard>
-                </div>
+                <DonationCalloutGrid className="w-[95vw] mx-auto">
+                    <DonationCallout
+                        gridAligned
+                        image={Blurred1}
+                        heading={<><div className="text-[36px] md:text-[48px] font-serif leading-none">$550,000</div><div className="text-[22px] md:text-[28px] font-serif">on hay for the horses</div></>}
+                        description="This includes the hay and feed required to care for over 460 rescued wild horses and burros at our Lompoc headquarters and San Luis Obispo satellite sanctuary. Many of these animals once faced roundups, neglect, or the threat of slaughter. At Return to Freedom, they now live safely in natural family bands, grazing freely on open pastures."
+                        donatePathway="Sanctuary Fund"
+                        buttonText="Donate"
+                        align="left"
+                        className="min-h-[450px] md:min-h-[550px]"
+                        analyticsName="sanctuary_hay_cost"
+                    />
+                    <DonationCallout
+                        gridAligned
+                        image={Blurred2}
+                        heading={<><div className="text-[36px] md:text-[48px] font-serif leading-none">$1,150,000</div><div className="text-[22px] md:text-[28px] font-serif">on daily care, staffing, land and infrastructure maintenance</div></>}
+                        description="Caring for over 460 wild horses and burros takes an extraordinary effort. This amount covers the hands-on work of our staff, land management across Lompoc and San Luis Obispo, and the ongoing upkeep of barns, fences, and water systems that keep the herds safe."
+                        donatePathway="Sanctuary Fund"
+                        buttonText="Donate"
+                        align="left"
+                        className="min-h-[450px] md:min-h-[550px]"
+                        analyticsName="sanctuary_care_cost"
+                    />
+                </DonationCalloutGrid>
             </ScrollReveal>
 
             <ScrollReveal variant="fade-in" className="w-full px-8">
@@ -214,42 +196,31 @@ const SanctuaryPage = () => {
                     </TitledText>
                 </ScrollReveal>
 
-                <ScrollReveal variant="fade-up" className="w-[95vw] mx-auto flex flex-col md:flex-row items-stretch gap-4">
-                    <BlurredImageCard image={Blurred3} className="min-h-[400px] md:min-h-[500px] md:h-auto">
-                        <div className="text-white w-full h-full px-6 md:px-12 py-10 md:py-16 flex flex-col items-start justify-center gap-4">
-                            <div className="text-[28px] md:text-[36px] font-serif">Capital Campaign</div>
-                            <div className="text-base md:text-[20px]">
-                                Through the Wild Horse and Wildlife Conservancy Campaign, we're working
-                                to acquire new land and create long-term stability for Return to Freedom's
-                                programs. The campaign will permanently secure our founding Lompoc ranch,
-                                establish a dedicated endowment to support operations, and acquire a larger
-                                sanctuary to expand habitat, integrate regenerative grazing, and provide
-                                space for displaced herds.
-                            </div>
-                            <Link href="/donate/capital-campaign">
-                                <Button color="cinnamon">
-                                    Learn More About the Capital Campaign
-                                </Button>
-                            </Link>
-                        </div>
-                    </BlurredImageCard>
-                    <BlurredImageCard image={Blurred4} className="min-h-[400px] md:min-h-[500px] md:h-auto">
-                        <div className="text-white w-full h-full px-6 md:px-12 py-10 md:py-8 flex flex-col items-start justify-center gap-4">
-                            <div className="text-[28px] md:text-[36px] font-serif">Planned Giving</div>
-                            <div className="text-base md:text-[20px]">
-                                Planned giving ensures that the work of today endures tomorrow. Through bequests,
-                                trusts, or endowment gifts, supporters can help Return to Freedom acquire new
-                                land, improve sanctuary infrastructure, and sustain long-term care for rescued
-                                herds. These legacy commitments are investments in permanence—preserving open
-                                land, freedom, and the bond between horses and the wild places they call home.
-                            </div>
-                            <Link href="/donate/planned-giving">
-                                <Button color="cinnamon">
-                                    Learn More About Planned Giving
-                                </Button>
-                            </Link>
-                        </div>
-                    </BlurredImageCard>
+                <ScrollReveal variant="fade-up">
+                    <DonationCalloutGrid className="w-[95vw] mx-auto">
+                        <DonationCallout
+                            gridAligned
+                            image={Blurred3}
+                            heading="Capital Campaign"
+                            description="Through the Wild Horse and Wildlife Conservancy Campaign, we're working to acquire new land and create long-term stability for Return to Freedom's programs. The campaign will permanently secure our founding Lompoc ranch, establish a dedicated endowment to support operations, and acquire a larger sanctuary to expand habitat, integrate regenerative grazing, and provide space for displaced herds."
+                            link="/donate/capital-campaign"
+                            buttonText="Learn More About the Capital Campaign"
+                            align="left"
+                            className="min-h-[400px] md:min-h-[500px]"
+                            analyticsName="capital_campaign"
+                        />
+                        <DonationCallout
+                            gridAligned
+                            image={Blurred4}
+                            heading="Planned Giving"
+                            description="Planned giving ensures that the work of today endures tomorrow. Through bequests, trusts, or endowment gifts, supporters can help Return to Freedom acquire new land, improve sanctuary infrastructure, and sustain long-term care for rescued herds. These legacy commitments are investments in permanence—preserving open land, freedom, and the bond between horses and the wild places they call home."
+                            link="/donate/planned-giving"
+                            buttonText="Learn More About Planned Giving"
+                            align="left"
+                            className="min-h-[400px] md:min-h-[500px]"
+                            analyticsName="planned_giving"
+                        />
+                    </DonationCalloutGrid>
                 </ScrollReveal>
             </div>
 

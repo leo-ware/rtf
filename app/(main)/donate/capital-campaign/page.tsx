@@ -5,7 +5,7 @@ export const metadata: Metadata = {
 }
 
 import Hero from "@/components/public-ui/Hero"
-import Image from "next/image"
+import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 
 import bg1 from './bg-1.jpg'
 import bg2 from './bg-2.jpg'
@@ -43,7 +43,7 @@ const CapitalCampaignPage = () => {
                 </div>
             </div>
 
-            <Image src={bg1} alt="Capital Campaign" className="w-full h-[80vh] object-cover object-center" />
+            <ImageWithAuthorCredit src={bg1} alt="Capital Campaign" className="w-full h-[80vh] object-cover object-center" />
 
             <div className="w-8/12 mx-auto h-fit flex flex-col items-center justify-center gap-8 text-center">
                 <div className="text-4xl font-serif text-sage-green">
@@ -59,7 +59,7 @@ const CapitalCampaignPage = () => {
                 </div>
             </div>
 
-            <Image src={bg2} alt="Capital Campaign" className="w-full h-[80vh] object-cover object-center" />
+            <ImageWithAuthorCredit src={bg2} alt="Capital Campaign" className="w-full h-[80vh] object-cover object-center" />
 
             <div className="w-8/12 mx-auto h-fit flex flex-col items-center justify-center gap-8 text-center">
                 <div className="text-4xl font-serif text-pewter">
@@ -75,7 +75,7 @@ const CapitalCampaignPage = () => {
                 </div>
             </div>
 
-            <Image src={bg3} alt="Capital Campaign" className="w-full h-[80vh] object-cover object-center" />
+            <ImageWithAuthorCredit src={bg3} alt="Capital Campaign" className="w-full h-[80vh] object-cover object-center" />
 
             <div className="w-8/12 mx-auto h-fit flex flex-col items-center justify-center gap-8 text-center">
                 <div className="text-4xl font-serif text-cinnamon">

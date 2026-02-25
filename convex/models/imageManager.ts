@@ -13,6 +13,8 @@ type CreateArgs = {
     altText?: string,
     width?: number,
     height?: number,
+    authorCredit?: string,
+    authors?: Id<"people">[],
 }
 
 type UpdateArgs = {
@@ -20,6 +22,8 @@ type UpdateArgs = {
     altText?: string,
     width?: number,
     height?: number,
+    authorCredit?: string,
+    authors?: Id<"people">[],
 }
 
 export const resolveImageId = async (ctx: QMCtxType, imageId: Id<"images">) => {
@@ -79,9 +83,19 @@ export default class ImageManager {
             return null;
         }
         const imageUrl = await ctx.storage.getUrl(image.storageId)
+        const authorNames: string[] = []
+        if (image.authors && image.authors.length > 0) {
+            const people = await Promise.all(
+                image.authors.map(id => ctx.db.get(id))
+            )
+            for (const person of people) {
+                if (person?.name) authorNames.push(person.name)
+            }
+        }
         return {
             ...image,
             url: imageUrl || null,
+            authorNames,
         }
     }
 

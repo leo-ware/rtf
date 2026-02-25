@@ -38,6 +38,7 @@ import {
     LayoutDashboard,
     Mail,
     Gift,
+    HelpCircle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -69,6 +70,12 @@ const AdminNavbar = () => {
             icon: Home,
             description: "Overview and statistics"
         },
+        {
+            name: "Help",
+            href: "/admin/help",
+            icon: HelpCircle,
+            description: "Guides and documentation"
+        },
     ]
 
     const contentItems: NavItem[] = [
@@ -90,7 +97,12 @@ const AdminNavbar = () => {
             icon: Megaphone,
             description: "Manage Take Action section content"
         },
-        
+        {
+            name: "Learn Timelines",
+            href: "/admin/learn-timelines",
+            icon: BookOpen,
+            description: "Manage learn page timelines"
+        },
     ]
 
     const entityItems: NavItem[] = [
@@ -199,6 +211,9 @@ const AdminNavbar = () => {
         if (href === "/admin/dev") {
             return pathname === "/admin/dev" || pathname.startsWith("/admin/dev/")
         }
+        if (href === "/admin/help") {
+            return pathname === "/admin/help" || pathname.startsWith("/admin/help/")
+        }
         return pathname.startsWith(href)
     }
 
@@ -227,6 +242,9 @@ const AdminNavbar = () => {
         }
         if (pathname.includes("/errors")) {
             return { title: "Error", description: "Something went wrong" }
+        }
+        if (pathname.startsWith("/admin/help/")) {
+            return { title: "Help Article", description: "Guides and documentation" }
         }
 
         return { title: "Admin", description: "Administration panel" }

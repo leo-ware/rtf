@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Save, Calendar, Code } from "lucide-react"
 import Link from "next/link"
 import { handleConvexError } from "@/lib/errorHandler"
@@ -18,7 +17,8 @@ import ImagePickerDialog from "@/components/images/ImagePickerDialog"
 import TimelineCreateDialog from "./TimelineCreateDialog"
 import TimelineDeleteDialog from "./TimelineDeleteDialog"
 import { TiptapEditor } from "@/components/TiptapEditor"
-import DonationFormConfigurationDialog from "@/components/DonationFormAdmin/DonationFormConfigurationDialog"
+import DonationFormSection from "@/components/DonationFormAdmin/DonationFormSection"
+import ReorderableList from "@/components/ReorderableList"
 
 type EditHerdPageProps = {
     params: Promise<{
@@ -33,6 +33,7 @@ const EditHerdPage = ({ params }: EditHerdPageProps) => {
     const herd = useQuery(api.herds.getHerd, { id: herdId })
     const timeline = useQuery(api.herds.getHerdTimeline, { herdId })
     const updateHerd = useMutation(api.herds.updateHerd)
+    const reorderTimeline = useMutation(api.timelineItems.reorderTimelineItems)
 
     const [formData, setFormData] = useState({
         name: "",
@@ -89,6 +90,11 @@ const EditHerdPage = ({ params }: EditHerdPageProps) => {
             month: "long",
             day: "numeric",
         })
+    }
+
+    const handleTimelineReorder = async (newOrder: Id<"timelineItem">[]) => {
+        const items = newOrder.map((id, index) => ({ id, order: index }))
+        await reorderTimeline({ items })
     }
 
     if (herd === undefined || timeline === undefined) {
@@ -161,37 +167,35 @@ const EditHerdPage = ({ params }: EditHerdPageProps) => {
                                     No timeline items yet. Add one to get started.
                                 </div>
                             ) : (
-                                <div className="space-y-4">
-                                    {timeline.map((item) => (
-                                        <div
-                                            key={item._id}
-                                            className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
-                                        >
-                                            <div className="flex justify-between items-start mb-2">
-                                                <div className="flex items-center gap-2">
-                                                    <Badge variant="outline">Order: {item.order}</Badge>
+                                <ReorderableList
+                                    items={timeline.map((item) => ({
+                                        id: item._id,
+                                        widget: (
+                                            <div className="flex-1">
+                                                <div className="flex justify-between items-start mb-2">
                                                     <div className="flex items-center text-sm text-gray-600">
                                                         <Calendar className="h-4 w-4 mr-1" />
                                                         {item.date}
                                                     </div>
+                                                    <div className="flex gap-2">
+                                                        <TimelineCreateDialog
+                                                            herdId={herdId}
+                                                            mode="edit"
+                                                            editItem={item}
+                                                        />
+                                                        <TimelineDeleteDialog
+                                                            herdId={herdId}
+                                                            timelineItemId={item._id}
+                                                        />
+                                                    </div>
                                                 </div>
-                                                <div className="flex gap-2">
-                                                    <TimelineCreateDialog
-                                                        herdId={herdId}
-                                                        mode="edit"
-                                                        editItem={item}
-                                                    />
-                                                    <TimelineDeleteDialog
-                                                        herdId={herdId}
-                                                        timelineItemId={item._id}
-                                                    />
-                                                </div>
+                                                <h4 className="font-semibold text-gray-900 mb-1">{item.title}</h4>
+                                                <p className="text-gray-600 text-sm">{item.description}</p>
                                             </div>
-                                            <h4 className="font-semibold text-gray-900 mb-1">{item.title}</h4>
-                                            <p className="text-gray-600 text-sm">{item.description}</p>
-                                        </div>
-                                    ))}
-                                </div>
+                                        ),
+                                    }))}
+                                    onReorder={handleTimelineReorder}
+                                />
                             )}
                         </CardContent>
                     </Card>
@@ -269,7 +273,7 @@ const EditHerdPage = ({ params }: EditHerdPageProps) => {
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <DonationFormConfigurationDialog
+                            <DonationFormSection
                                 donationFormId={formData.donationFormId}
                                 setDonationFormId={(donationFormId) => setFormData((prev) => ({ ...prev, donationFormId }))}
                             />

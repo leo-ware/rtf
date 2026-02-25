@@ -30,6 +30,20 @@ import { deepEqual, removeUndefined, formatDate } from "@/lib/utils";
 import ImagePickerDialog from "@/components/images/ImagePickerDialog";
 import InfoWidget from "@/components/InfoWidget";
 import { topicNameList, TopicNameType } from "@/lib/topicType";
+import PeopleMultiSelect from "@/components/PeopleMultiSelect";
+
+const AuthorDisplay = ({ authorNames, authorCredit }: { authorNames?: string[], authorCredit?: string }) => {
+    const display = authorNames && authorNames.length > 0
+        ? authorNames.join(", ")
+        : authorCredit
+    if (!display) return null
+    return (
+        <div className="flex items-center space-x-2 text-sm">
+            <User className="h-4 w-4 text-gray-400" />
+            <span>Author: {display}</span>
+        </div>
+    )
+}
 
 const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
     const resolvedParams = React.use(params);
@@ -65,7 +79,8 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
     const [articleFormData, setArticleFormData] = useState({
         slug: undefined as string | undefined,
         imageId: undefined as Id<"images"> | undefined,
-        authorCredit: undefined as string | undefined,
+        authorCredit: "" as string,
+        authors: [] as Id<"people">[],
         content: undefined as string | undefined,
     });
     const [articleMetadataFormData, setArticleMetadataFormData] = useState({
@@ -83,7 +98,8 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
     const articleToArticleFormData = (a: typeof article): typeof articleFormData => ({
         slug: a?.slug,
         imageId: a?.imageId,
-        authorCredit: a?.authorCredit,
+        authorCredit: a?.authorCredit || "",
+        authors: a?.authors || [],
         content: a?.content,
     })
     const articleToArticleMetadataFormData = (a: typeof article): typeof articleMetadataFormData => ({
@@ -140,7 +156,8 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
                     slug: articleFormData.slug,
                     content: articleFormData.content,
                     imageId: articleFormData.imageId,
-                    authorCredit: articleFormData.authorCredit,
+                    authorCredit: articleFormData.authorCredit || undefined,
+                    authors: articleFormData.authors.length > 0 ? articleFormData.authors : undefined,
                 })),
                 // articleMetadataFormData
                 updateArticleMetadata(removeUndefined({
@@ -197,9 +214,6 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
                             <div>
                                 <h1 className="text-xl font-semibold text-gray-900">Edit Article</h1>
                                 <div className="flex items-center space-x-2 text-sm text-gray-600">
-                                    {/* {lastSaved && (
-                                        <span>Last saved {lastSaved.toLocaleTimeString()}</span>
-                                    )} */}
                                     {hasUnsavedChanges && (
                                         <Badge variant="secondary">Unsaved changes</Badge>
                                     )}
@@ -336,10 +350,6 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
                                                 ...prev,
                                                 title: e.target.value,
                                             }));
-                                            // setArticleFormData(prev => ({
-                                            //     ...prev,
-                                            //     slug: generateSlug(e.target.value),
-                                            // }));
                                         }}
                                         placeholder="Article title"
                                     />
@@ -377,18 +387,32 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="authorCredit">
-                                        Author Credit
+                                    <Label>
+                                        Authors
                                         <InfoWidget>
-                                            The name that will be displayed as the
-                                            author. Leave blank to show nothing.
+                                            The people displayed as the article authors.
+                                        </InfoWidget>
+                                    </Label>
+                                    <PeopleMultiSelect
+                                        selectedPersonIds={articleFormData.authors}
+                                        onSelect={(ids) => setArticleFormData(prev => ({ ...prev, authors: ids }))}
+                                        disabled={isSaving}
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="authorCredit">
+                                        Author Credit (text)
+                                        <InfoWidget>
+                                            Fallback text credit if no authors are selected above.
                                         </InfoWidget>
                                     </Label>
                                     <Input
                                         id="authorCredit"
                                         value={articleFormData.authorCredit}
                                         onChange={(e) => setArticleFormData(prev => ({ ...prev, authorCredit: e.target.value }))}
-                                        placeholder="Author name for display"
+                                        placeholder="e.g. Guest Author"
+                                        disabled={isSaving}
                                     />
                                 </div>
 
@@ -465,12 +489,10 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
                                 <CardTitle>Article Information</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-3">
-                                {articleFormData.authorCredit && (
-                                    <div className="flex items-center space-x-2 text-sm">
-                                        <User className="h-4 w-4 text-gray-400" />
-                                        <span>Author Credit: {articleFormData.authorCredit}</span>
-                                    </div>
-                                )}
+                                <AuthorDisplay
+                                    authorNames={article.authorNames}
+                                    authorCredit={article.authorCredit}
+                                />
 
                                 <div className="flex items-center space-x-2 text-sm">
                                     <Calendar className="h-4 w-4 text-gray-400" />

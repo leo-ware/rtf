@@ -21,6 +21,7 @@ import { generateSlug } from "@/lib/utils";
 import InfoWidget from "@/components/InfoWidget";
 import { useRouter } from "next/navigation";
 import ImagePickerDialog from "@/components/images/ImagePickerDialog";
+import PeopleMultiSelect from "@/components/PeopleMultiSelect";
 
 const ArticleCreateDialog = () => {
 
@@ -35,6 +36,7 @@ const ArticleCreateDialog = () => {
         slug: "",
         imageId: null as Id<"images"> | null,
         authorCredit: "",
+        authors: [] as Id<"people">[],
     });
     const [slugSetManually, setSlugSetManually] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -63,17 +65,17 @@ const ArticleCreateDialog = () => {
                 excerpt: formData.excerpt,
                 slug: formData.slug,
                 imageId: formData.imageId,
-                authorCredit: formData.authorCredit,
+                authorCredit: formData.authorCredit || undefined,
+                authors: formData.authors.length > 0 ? formData.authors : undefined,
                 date: new Date().getTime(),
             })
             router.push(`/admin/news/article/${articleId}/edit`);
         } catch (error) {
-            // console.error("Error creating article:", error);
             setError(`Failed to create article. ${error}`)
         } finally {
             setIsLoading(false);
         }
-        
+
     }
 
     const resetForm = () => {
@@ -86,6 +88,7 @@ const ArticleCreateDialog = () => {
             excerpt: "",
             imageId: null as Id<"images"> | null,
             authorCredit: "",
+            authors: [],
         });
     }
 
@@ -152,10 +155,24 @@ const ArticleCreateDialog = () => {
 
                     <div>
                         <div className="flex gap-2">
-                            <Label htmlFor="authorCredit">Author Credit</Label>
+                            <Label>Authors</Label>
                             <InfoWidget>
-                                The name that will be displayed as the author. If left empty, no author will
+                                The people that will be displayed as the authors. If left empty, no author will
                                 be displayed.
+                            </InfoWidget>
+                        </div>
+                        <PeopleMultiSelect
+                            selectedPersonIds={formData.authors}
+                            onSelect={(ids) => setFormData({ ...formData, authors: ids })}
+                            disabled={editingDisabled}
+                        />
+                    </div>
+
+                    <div>
+                        <div className="flex gap-2">
+                            <Label htmlFor="authorCredit">Author Credit (text)</Label>
+                            <InfoWidget>
+                                Fallback text credit if no authors are selected above.
                             </InfoWidget>
                         </div>
                         <Input
@@ -163,7 +180,7 @@ const ArticleCreateDialog = () => {
                             value={formData.authorCredit}
                             disabled={editingDisabled}
                             onChange={(e) => setFormData({ ...formData, authorCredit: e.target.value })}
-                            placeholder="Author name for display (optional)"
+                            placeholder="e.g. Guest Author"
                         />
                     </div>
 

@@ -3,7 +3,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import ConvexImage from "./ConvexImage";
 
-const ConvexImageFromId = ({imageId, className}: {imageId: Id<"images">, className?: string}) => {
+const ConvexImageFromId = ({imageId, className, style}: {imageId: Id<"images">, className?: string, style?: React.CSSProperties}) => {
     const image = useQuery(api.images.getImage, { id: imageId });
     return (
         <ConvexImage
@@ -12,6 +12,8 @@ const ConvexImageFromId = ({imageId, className}: {imageId: Id<"images">, classNa
             width={image?.width || 0}
             height={image?.height || 0}
             className={className}
+            authorCredit={image?.authorNames && image.authorNames.length > 0 ? image.authorNames.join(", ") : image?.authorCredit}
+            style={style}
         />
     )
 }

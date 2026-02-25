@@ -2,18 +2,25 @@
 
 import { usePaginatedQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
-import Image from "next/image"
-import SponsorAHerdImg from "./spirit.png"
+import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
+import SponsorAHerdImg from "./imgs/spirit.png"
 import { useEffect, useState } from "react"
 import { Id } from "@/convex/_generated/dataModel"
 import SalsaDonateFormEmbed from "../SalsaDonateFormEmbed"
 import { DialogClose } from "@/components/public-ui/Dialog"
+import { trackEvent, AnalyticsEvents } from "@/lib/analytics"
 import { IoMdClose } from "react-icons/io"
 
 const SponsorAHerdWidget = ({ defaultHerdId }: { defaultHerdId?: Id<"herds"> }) => {
     const {results: herds} = usePaginatedQuery(api.herds.listHerds, {}, { initialNumItems: 100 })
     const [selectedHerdId, setSelectedHerdId] = useState<Id<"herds"> | null>(null)
     const selectedHerd = herds?.find((herd) => herd._id === selectedHerdId)
+
+    useEffect(() => {
+        trackEvent(AnalyticsEvents.SPONSOR_HERD_DIALOG_OPENED, {
+            defaultHerdId: defaultHerdId || undefined,
+        })
+    }, [])
 
     useEffect(() => {
         if (herds && herds.length > 0) {
@@ -29,11 +36,12 @@ const SponsorAHerdWidget = ({ defaultHerdId }: { defaultHerdId?: Id<"herds"> }) 
             </DialogClose>
 
             <div className="relative w-full h-[200px] md:h-[400px] shrink-0">
-                <Image
+                <ImageWithAuthorCredit
                     src={SponsorAHerdImg}
                     alt="Sponsor A Herd"
                     fill
-                    className="w-full h-full object-cover object-center" />
+                    className="w-full h-full object-cover object-center"
+                    wrapperClassName="w-full h-full" />
             </div>
             <div className="w-full flex flex-col gap-4 md:gap-6 px-4 py-4 md:px-12 md:py-8 basis-0 grow">
                 <div className="text-left flex flex-col gap-2 md:gap-3">

@@ -97,7 +97,7 @@ const PersonListWidget = ({ personType }: PersonListWidgetProps) => {
                             )}
                             <div className="flex-1 min-w-0">
                                 <h3 className="font-semibold text-lg truncate">{person.name}</h3>
-                                <p className="text-sm text-gray-600 truncate">{person.title}</p>
+                                <p className="text-sm text-gray-600 truncate">{person.title ?? ""}</p>
                                 <div className="flex gap-1 mt-2 flex-wrap">
                                     {person.isDirector && (
                                         <Badge variant="secondary" className="text-xs">

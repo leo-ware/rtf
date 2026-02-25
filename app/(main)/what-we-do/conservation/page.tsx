@@ -4,19 +4,17 @@ import Hero from "@/components/public-ui/Hero"
 import Callout from "@/components/public-ui/Callout"
 import Header from "@/components/public-ui/Header"
 import AlternatingPictureLayout from "@/components/public-ui/AlternatingPictureLayout"
-import Image from "next/image"
+import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import Carousel from "@/components/Carousel"
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
 import Button from "@/components/public-ui/Button"
 import NewsCarousel from "@/components/NewsCarousel"
-import BlurredImageCard from "@/components/public-ui/BlurredImageCard"
+import DonationCallout from "@/components/DonationCallout"
 import SponsorAHerdDialog from "@/components/donation-widgets/SponsorAHerdDialog"
-import GenericDonateDialogue from "@/components/donation-widgets/GenericDonateDialogue"
 import ScrollReveal from "@/components/public-ui/ScrollReveal"
 
 import HeroImg from "./hero.jpg"
 import BlurredBg from "./blurred-bg.jpg"
-import CarouselDummy2 from "./carousel-dummy-2.jpg"
 import CarouselDummy from "./carousel-dummy.png"
 import After from "./after.png"
 import Before from "./before.png"
@@ -75,7 +73,7 @@ const ConservationPage = () => {
                         Before Reseeding
                     </Header>
                     <div className="w-full aspect-[3/4] relative">
-                        <Image src={Before} alt="Before" fill className="object-cover object-center" />
+                        <ImageWithAuthorCredit src={Before} alt="Before" fill className="object-cover object-center" wrapperClassName="w-full h-full" />
                     </div>
                     <div className="text-ink font-sans text-base md:text-[20px] text-center">
                         RTF staff seeding for the regenerative grazing project in San Luis Obispo, CA.
@@ -86,7 +84,7 @@ const ConservationPage = () => {
                         After Reseeding
                     </Header>
                     <div className="w-full aspect-[3/4] relative">
-                        <Image src={After} alt="After" fill className="object-cover object-center" />
+                        <ImageWithAuthorCredit src={After} alt="After" fill className="object-cover object-center" wrapperClassName="w-full h-full" />
                     </div>
                     <div className="text-ink font-sans text-base md:text-[20px] text-center">
                         Grass growth at San Luis Obispo - showing progress from our regenerative grazing project.
@@ -190,7 +188,7 @@ const ConservationPage = () => {
                             widget: (
                                 <div className="w-full h-full flex items-center justify-center gap-8">
                                     <div className="hidden md:block h-[350px] aspect-[4/3] relative">
-                                        <Image
+                                        <ImageWithAuthorCredit
                                             src={image}
                                             alt={title}
                                             className="w-full h-full object-cover object-center" />
@@ -214,52 +212,7 @@ const ConservationPage = () => {
                 <NewsCarousel topic="conservation" />
             </ScrollReveal>
 
-            <ScrollReveal variant="fade-up" className="w-10/12 mx-auto">
-                <Header color="sage-green" className="mb-8">
-                    Conservation in Action
-                </Header>
-                <div className="w-full h-fit flex flex-col items-center justify-center bg-pewter rounded-md overflow-hidden">
-                    <div className="w-full h-[400px] relative">
-                        <Image
-                            src={CarouselDummy2}
-                            alt="Foo"
-                            fill className="w-full h-full object-cover object-center" />
-                    </div>
-                    <div className="w-full h-[95px] flex items-center justify-center">
-                        <div className="text-white text-lg text-center m-0 p-0">
-                            Celeste Carlisle, our biologist, reseeding the sanctuary
-                        </div>
-                    </div>
-                </div>
-                {/* <Carousel
-                    nDisplayItems={1}
-                    autoPlay={false}
-                    leftButton={<FaCaretLeft size={30} className="text-pewter" />}
-                    rightButton={<FaCaretRight size={30} className="text-pewter" />}
-                    items={[
-                        {
-                            id: "foo",
-                            widget: (
-                                <div className="w-full h-fit flex flex-col items-center justify-center gap-4 bg-pewter">
-                                    <div className="w-full h-[400px] relative">
-                                        <Image
-                                            src={CarouselDummy2}
-                                            alt="Foo"
-                                            fill className="w-full h-full object-cover object-center" />
-                                    </div>
-                                    <div className="w-full h-8 flex items-center justify-center">
-                                        <div className="text-white text-lg">
-                                            Celeste Carlisle, our biologist, reseeding the sanctuary
-                                        </div>
-                                    </div>
-                                </div>
-                            )
-                        }
-                    ]}
-                /> */}
-            </ScrollReveal>
-
-            <div className="w-full">
+            <div className="w-10/12 lg:w-8/12 mx-auto">
                 <ScrollReveal variant="fade-in">
                     <Header className="mb-8 text-cinnamon underline">
                         Fertility Control
@@ -325,21 +278,15 @@ const ConservationPage = () => {
             </div>
 
             <ScrollReveal variant="fade-up" className="w-11/12 md:w-10/12 mx-auto">
-                <BlurredImageCard image={BlurredBg}>
-                    <div className="w-full h-full py-10 md:py-16 px-6 md:px-10 flex flex-col items-center justify-center gap-4">
-                        <div className="text-2xl md:text-4xl md:max-w-7/12 font-serif text-white text-center">
-                            Support our conservation efforts by donating to our Sanctuary Fund
-                        </div>
-                        <div className="max-w-[650px] text-base md:text-lg text-white text-center">
-                            The Wild Horse Defense Fund fuels Return to Freedom's frontline work to end cruel
-                            roundups, advance humane on-range management, and defend wild horses through advocacy,
-                            legal action, and education.
-                        </div>
-                        <GenericDonateDialogue defaultPathwayName="Sanctuary Fund">
-                            <Button color="cinnamon">Donate Now</Button>
-                        </GenericDonateDialogue>
-                    </div>
-                </BlurredImageCard>
+                <DonationCallout
+                    image={BlurredBg}
+                    heading="Support our conservation efforts by donating to our Sanctuary Fund"
+                    description="The Wild Horse Defense Fund fuels Return to Freedom's frontline work to end cruel roundups, advance humane on-range management, and defend wild horses through advocacy, legal action, and education."
+                    donatePathway="Sanctuary Fund"
+                    buttonText="Donate Now"
+                    align="center"
+                    analyticsName="sanctuary_fund_conservation"
+                />
             </ScrollReveal>
         </div>
     )

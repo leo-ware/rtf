@@ -184,28 +184,16 @@ const TimelineCreateDialog = ({
                     </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <Label htmlFor="order">Order</Label>
-                            <Input
-                                id="order"
-                                type="number"
-                                value={formData.order}
-                                disabled={editingDisabled}
-                                onChange={(e) => setFormData(prev => ({ ...prev, order: parseInt(e.target.value) || 0 }))}
-                            />
-                        </div>
-                        <div>
-                            <Label htmlFor="date">Date</Label>
-                            <Input
-                                id="date"
-                                type="text"
-                                value={formData.date}
-                                disabled={editingDisabled}
-                                onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-                                placeholder="e.g., October - November 2023"
-                            />
-                        </div>
+                    <div>
+                        <Label htmlFor="date">Date</Label>
+                        <Input
+                            id="date"
+                            type="text"
+                            value={formData.date}
+                            disabled={editingDisabled}
+                            onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                            placeholder="e.g., October - November 2023"
+                        />
                     </div>
 
                     <div>

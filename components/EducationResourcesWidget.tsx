@@ -19,6 +19,9 @@ const EducationResourcesWidget = () => {
             <Header className="text-sage-green mx-auto underline">
                 Resources
             </Header>
+            <p className="w-10/12 md:w-8/12 -mt-2 text-center text-lg md:text-xl text-ink">
+                Articles, guides, and educational materials to deepen your understanding of wild horse conservation and advocacy.
+            </p>
 
             <Tabs items={tree?.superGroups
                 .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity))
@@ -26,11 +29,11 @@ const EducationResourcesWidget = () => {
                     id: superGroup._id,
                     title: superGroup.title,
                     content: (
-                        <div>
+                        <div className="w-full">
                             <Header level={2} className="text-pewter mx-auto underline">
                                 {superGroup.title}
             </Header>
-            <div className="md:grid lg:px-24 my-6 gap-16" style={{ gridTemplateColumns: "300px 1fr" }}>
+            <div className="md:grid my-6 gap-16" style={{ gridTemplateColumns: "300px 1fr" }}>
                                 {superGroup.groups.map((group) => (
                                     <Fragment key={group._id}>
                         <div

@@ -1,12 +1,12 @@
 "use client"
 
-import Image from "next/image"
+import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import Button from "@/components/public-ui/Button"
 import Link from "next/link"
 import SponsorAHorseDialog from "./SponsorAHorseDialog"
 import { usePaginatedQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
-import SpiritImage from "./spirit.png"
+import SpiritImage from "./imgs/spirit.png"
 import Header from "../public-ui/Header"
 import { Id } from "@/convex/_generated/dataModel"
 import Select from "@/components/public-ui/form/Select"
@@ -15,6 +15,7 @@ import { ImSpinner8 } from "react-icons/im"
 import CardLayout from "../public-ui/CardLayout"
 import { horseDetailsString } from "@/lib/utils"
 import { FaAnglesRight } from "react-icons/fa6"
+import { trackEvent, AnalyticsEvents } from "@/lib/analytics"
 
 type SponsorAHorseMenuProps = {
     title?: string
@@ -23,16 +24,17 @@ type SponsorAHorseMenuProps = {
     type?: "horse" | "burro"
     showControls?: boolean
     excludeAnimalIds?: Id<"animals">[]
+    includeInMemoriam?: boolean
 }
 
-const SponsorAHorseMenu = ({ title, initialNumItems: limit, herdId = undefined, type = undefined, showControls = false, excludeAnimalIds = [] }: SponsorAHorseMenuProps) => {
+const SponsorAHorseMenu = ({ title, initialNumItems: limit, herdId = undefined, type = undefined, showControls = false, excludeAnimalIds = [], includeInMemoriam = false }: SponsorAHorseMenuProps) => {
 
     const [selectedHerdId, setSelectedHerdId] = useState<Id<"herds"> | null>(herdId || null)
     const [selectedType, setSelectedType] = useState<"horse" | "burro" | null>(type || null)
 
     const { results: _animals, loadMore, status: animalsStatus } = usePaginatedQuery(
         api.animals.getAnimalsForSponsorship,
-        { herdId: selectedHerdId ?? undefined, type: selectedType ?? undefined },
+        { herdId: selectedHerdId ?? undefined, type: selectedType ?? undefined, includeInMemoriam: includeInMemoriam || undefined },
         { initialNumItems: limit ? (showControls ? limit : limit + 2) : 6 }
     )
     const { results: herds } = usePaginatedQuery(
@@ -55,9 +57,9 @@ const SponsorAHorseMenu = ({ title, initialNumItems: limit, herdId = undefined, 
     }
 
     return (
-        <div className="w-full h-fit flex flex-col items-center justify-center gap-8 px-4">
+        <div className="isolate w-full h-fit flex flex-col items-center justify-center gap-8 px-4">
             <Header className="text-cinnamon">
-                {title || "Sponsor a Horse"}
+                {title || (type === "burro" ? "Sponsor a Burro" : "Sponsor a Horse")}
             </Header>
 
             {showControls && (
@@ -109,30 +111,32 @@ const SponsorAHorseMenu = ({ title, initialNumItems: limit, herdId = undefined, 
 
                 {animals.map((animal) => (
                     <div key={animal._id} className="col-span-1 w-full h-fit bg-seashell rounded-sm overflow-hidden">
-                        <div className="relative w-full h-[300px]">
-                            <Image
-                                className="w-full h-full object-cover object-center"
+                        <div className="relative z-0 w-full h-[300px] overflow-hidden">
+                            <ImageWithAuthorCredit
+                                className="relative z-0 w-full h-full object-cover object-center"
                                 src={animal.image?.url || SpiritImage}
                                 alt={animal.image?.altText || animal.name}
                                 width={400}
                                 height={300}
+                                authorCredit={animal.image?.authorCredit}
+                                wrapperClassName="w-full h-full"
                             />
                         </div>
                         <div className="w-full h-fit p-4 flex flex-col items-center justify-start gap-2">
                             <div className="text-cinnamon text-[28px] font-serif">{animal.name}</div>
                             <div className="text-[16px] line-clamp-4 h-[100px]">{animal.description}</div>
                             <div className="text-[14px] text-left font-semibold line-clamp-1 h-[20px]">
-                                {horseDetailsString(animal as any)}
+                                {animal.inMemoriam ? <span className="italic">In Memoriam</span> : horseDetailsString(animal as any)}
                             </div>
                             <div className="w-full flex justify-center gap-4 text-[16px]">
-                                <Link href={`/horses/our-horses/${animal.slug}`}>
+                                <Link href={`/horses/${animal.type === "burro" ? "our-burros" : "our-horses"}/${animal.slug}`}>
                                     <Button color="transparent" className="py-1 px-4 text-cinnamon">
                                         Learn More
                                     </Button>
                                 </Link>
                                 <SponsorAHorseDialog animalId={animal._id}>
-                                    <Button color="transparent" className="py-1 px-4 text-sage-green">
-                                        SPONSOR
+                                    <Button color="transparent" className="py-1 px-4 text-sage-green" onClick={() => trackEvent(AnalyticsEvents.SPONSOR_HORSE_CLICKED, { animalName: animal.name, animalId: animal._id })}>
+                                        {animal.inMemoriam ? "GIFT IN MEMORY" : "SPONSOR"}
                                     </Button>
                                 </SponsorAHorseDialog>
                             </div>
@@ -143,10 +147,10 @@ const SponsorAHorseMenu = ({ title, initialNumItems: limit, herdId = undefined, 
                 {!showControls && (
                     <div className="col-span-full flex items-center justify-center">
                         <Link
-                            href="/donate/sponsor-a-horse"
+                            href={type === "burro" ? "/donate/sponsor-a-burro" : "/donate/sponsor-a-horse"}
                             className="flex items-center gap-[2px] group">
                             <div className="text-pewter text-lg font-semibold underline group-hover:text-pewter/90">
-                                See All Horses
+                                {type === "burro" ? "See All Burros" : "See All Horses"}
                             </div>
                             <div className="w-fit h-fit transition-transform group-hover:translate-x-1">
                                 <FaAnglesRight

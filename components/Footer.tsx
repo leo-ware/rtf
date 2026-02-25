@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link"
 import Image from "next/image"
 import { MdOutlineEmail } from "react-icons/md"
@@ -9,6 +11,8 @@ import CharityNavigator from "./images/charity-navigator.png"
 import OnePercent from "./images/1_percent_planet.png"
 import NatureDefense from "./images/nature-defense-foundation.png"
 import { IoSendOutline } from "react-icons/io5"
+import { trackEvent, AnalyticsEvents } from "@/lib/analytics"
+import EmailLink from "./public-ui/EmailLink"
 
 export default function Footer() {
     return (
@@ -97,6 +101,7 @@ export default function Footer() {
                                         target="_blank"
                                         href="https://shop.returntofreedom.org"
                                         className="hover:underline flex items-center gap-1"
+                                        onClick={() => trackEvent(AnalyticsEvents.SHOP_LINK_CLICKED)}
                                     >
                                         Shop
                                         <FaExternalLinkAlt
@@ -191,7 +196,7 @@ export default function Footer() {
                     </div>
 
                     <div className="text-white text-[12px]">
-                        <div>info@returntofreedom.org</div>
+                        <EmailLink className="text-white text-[12px]">info@returntofreedom.org</EmailLink>
                         <div>(805) 737-9246PO</div>
                         <div>Box 926, Lompoc, CA 93438 USA</div>
                     </div>

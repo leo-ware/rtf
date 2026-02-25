@@ -3,6 +3,7 @@ import { v } from "convex/values"
 import { getCurrentUserOrThrow } from "./users"
 import { resolveImageId } from "./images"
 import ProgramManager from "./models/programManager"
+import { eventsAggregate } from "./aggregates"
 
 export const getProgramGroups = query({
     args: {},
@@ -286,6 +287,13 @@ export const deleteProgram = mutation({
         }
 
         const manager = new ProgramManager(args.id)
+
+        // Delete aggregate entries for associated events before deleting
+        const events = await manager.getEvents(ctx)
+        for (const event of events) {
+            await eventsAggregate.delete(ctx, event)
+        }
+
         await manager.delete(ctx)
         return null
     },
@@ -333,11 +341,18 @@ export const createEventFromProgram = mutation({
         }
 
         const manager = new ProgramManager(args.programId)
-        return await manager.createEvent(ctx, {
+        const eventId = await manager.createEvent(ctx, {
             startDate: args.startDate,
             endDate: args.endDate,
             title: args.title,
             registrationLink: args.registrationLink,
         })
+
+        const event = await ctx.db.get(eventId)
+        if (event) {
+            await eventsAggregate.insert(ctx, event)
+        }
+
+        return eventId
     },
 })

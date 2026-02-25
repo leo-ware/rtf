@@ -119,9 +119,9 @@ const AdminUsersPage = () => {
 
     return (
         <div className="flex flex-col items-start justify-start gap-8 w-full mx-auto lg:w-2/3 py-12 px-8 lg:px-2">
-            {/* <div className="w-full flex flex-row items-center justify-end">
+            <div className="w-full flex flex-row items-center justify-end">
                 <Dialog>
-                    <DialogTrigger>
+                    <DialogTrigger asChild>
                         <Button>
                             Invite User
                         </Button>
@@ -156,11 +156,10 @@ const AdminUsersPage = () => {
                                         <SelectItem value="admin">Admin</SelectItem>
                                         <SelectItem value="authorized">Authorized</SelectItem>
                                         <SelectItem value="guest">Guest</SelectItem>
-                                        <SelectItem value="dev">Dev</SelectItem>
                                     </SelectContent>
                                 </Select>
                                 {inviteError && <p className="text-red-500">{inviteError}</p>}
-                                {inviteSuccess && <p className="text-green-500">success</p>}
+                                {inviteSuccess && <p className="text-green-500">Invitation sent successfully</p>}
                             </div>
                         </div>
                         <DialogFooter>
@@ -168,7 +167,7 @@ const AdminUsersPage = () => {
                                 <ImSpinner8 className="h-4 w-4 animate-spin" />
                             ) : (
                                 <>
-                                    <DialogClose>
+                                    <DialogClose asChild>
                                         <Button variant="outline">Cancel</Button>
                                     </DialogClose>
                                     <Button onClick={handleInviteUser}>Invite</Button>
@@ -178,7 +177,7 @@ const AdminUsersPage = () => {
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
-            </div> */}
+            </div>
 
             <h1 className="text-2xl font-bold">Current Users</h1>
 
@@ -286,7 +285,7 @@ const AdminUsersPage = () => {
                 ))}
             </div>
 
-            {/* {invitedUsers && invitedUsers.length > 0 && (
+            {invitedUsers && invitedUsers.length > 0 && (
                 <>
                     <h1 className="text-2xl font-bold">Invited Users</h1>
                     <div className="w-full flex flex-col items-start justify-start gap-4">
@@ -301,11 +300,11 @@ const AdminUsersPage = () => {
                                     </div>
                                 </div>
                                 <div className="flex flex-col items-end justify-start gap-2">
-                                    {rescindingInvitations.includes(invitedUser.email) ? (
+                                    {rescindingInvitations.includes(invitedUser._id) ? (
                                         <ImSpinner8 className="h-4 w-4 animate-spin" />
                                     ) : (
                                         <Dialog>
-                                            <DialogTrigger>
+                                            <DialogTrigger asChild>
                                                 <Button variant="outline" size="icon">
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>
@@ -318,7 +317,7 @@ const AdminUsersPage = () => {
                                                     The invitation to {invitedUser.email} will be rescinded.
                                                 </DialogDescription>
                                                 <DialogFooter className="flex flex-row items-center justify-end gap-2">
-                                                    <DialogClose>
+                                                    <DialogClose asChild>
                                                         <Button variant="outline">
                                                             Cancel
                                                         </Button>
@@ -330,7 +329,7 @@ const AdminUsersPage = () => {
                                             </DialogContent>
                                         </Dialog>
                                     )}
-                                    {rescindInvitationError.includes(invitedUser.email) ? (
+                                    {rescindInvitationError.includes(invitedUser._id) ? (
                                         <p className="text-red-500">Error rescinding invitation</p>
                                     ) : null}
                                 </div>
@@ -338,7 +337,7 @@ const AdminUsersPage = () => {
                         ))}
                     </div>
                 </>
-            )} */}
+            )}
         </div>
     )
 }

@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import ImagePickerDialog from "@/components/images/ImagePickerDialog"
 import { Loader2, Plus } from "lucide-react"
-import DonationFormConfigurationDialog from "@/components/DonationFormAdmin/DonationFormConfigurationDialog"
+import DonationFormSection from "@/components/DonationFormAdmin/DonationFormSection"
 
 type HerdCreateDialogProps = {
     children?: React.ReactNode
@@ -147,41 +147,11 @@ const HerdCreateDialog = (props: HerdCreateDialogProps) => {
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <Label>Donation Form (Optional)</Label>
-                        {donationFormId === undefined ? (
-                            <div className="flex items-center gap-2">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => setDonationFormId(null)}
-                                    disabled={editingDisabled}
-                                >
-                                    Add Donation Form
-                                </Button>
-                                <div className="text-sm text-gray-500">
-                                    No donation form configured
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="flex items-center justify-between gap-4">
-                                <DonationFormConfigurationDialog
-                                    donationFormId={donationFormId}
-                                    setDonationFormId={setDonationFormId}
-                                />
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => setDonationFormId(undefined)}
-                                    disabled={editingDisabled}
-                                >
-                                    Clear
-                                </Button>
-                            </div>
-                        )}
-                    </div>
+                    <DonationFormSection
+                        donationFormId={donationFormId}
+                        setDonationFormId={setDonationFormId}
+                        disabled={editingDisabled}
+                    />
 
                     {error && (
                         <div className="text-red-500 text-sm">{error}</div>

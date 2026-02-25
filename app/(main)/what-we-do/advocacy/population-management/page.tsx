@@ -2,7 +2,7 @@ import Hero from "@/components/public-ui/Hero"
 import Callout from "@/components/public-ui/Callout"
 import Header from "@/components/public-ui/Header"
 import Carousel from "@/components/Carousel"
-import Image from "next/image"
+import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
 import CardLayout from "@/components/public-ui/CardLayout"
 import TakeActionLink from "@/components/TakeActionLink"
@@ -125,7 +125,7 @@ const PopulationManagementPage = () => {
                             widget: (
                                 <div className="w-full h-full flex items-center justify-center gap-8">
                                     <div className="hidden md:block h-[350px] aspect-[4/3] relative">
-                                        <Image
+                                        <ImageWithAuthorCredit
                                             src={image}
                                             alt={title}
                                             className="w-full h-full object-cover object-center" />

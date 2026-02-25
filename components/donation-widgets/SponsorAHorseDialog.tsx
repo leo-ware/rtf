@@ -1,6 +1,6 @@
 "use client"
 
-import Image from "next/image";
+import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit";
 import {
     Dialog,
     DialogClose,
@@ -8,7 +8,7 @@ import {
     DialogTrigger,
 } from "@/components/public-ui/Dialog";
 import { IoMdClose } from "react-icons/io";
-import SponsorAHorseImg from "./isadora.jpg";
+import SponsorAHorseImg from "./imgs/isadora.jpg";
 import { Id } from "@/convex/_generated/dataModel";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -18,14 +18,14 @@ import SalsaDonateFormEmbed from "../SalsaDonateFormEmbed";
 import { useRef } from "react";
 
 const SponsorAHorseDialog = ({ children, animalId }: { children?: React.ReactNode, animalId: Id<"animals"> }) => {
-    const animal = useQuery(api.animals.getAnimal, { id: animalId })
+    const animal = useQuery(api.animals.getAnimal, animalId ? { id: animalId } : "skip")
     // const scrollingContainerRef = useRef<HTMLDivElement>(null)
     return (
         <Dialog>
             <DialogTrigger>
                 {children ? children : (
                     <Button color="cinnamon" size="large">
-                        Sponsor {animal?.name || ""}
+                        {animal?.inMemoriam ? `Gift in Memory of ${animal?.name || ""}` : `Sponsor ${animal?.name || ""}`}
                     </Button>
                 )}
             </DialogTrigger>
@@ -45,20 +45,29 @@ const SponsorAHorseDialog = ({ children, animalId }: { children?: React.ReactNod
                                     width={animal.image.width || 400}
                                     height={animal.image.height || 300}
                                     className="w-full h-full object-cover object-center"
+                                    authorCredit={animal.image.authorCredit}
                                 />
                             ) : (
-                                <Image
+                                <ImageWithAuthorCredit
                                     src={SponsorAHorseImg}
                                     alt="Sponsor A Horse"
                                     fill
                                     className="w-full h-full object-cover object-center"
+                                    wrapperClassName="w-full h-full"
                                 />
                             )}
                     </div>
 
                     <div className="w-full px-4 pt-6 pb-2 md:px-6 md:pt-10 basis-0 grow">
                         <div className="w-full mb-4 md:mb-6 flex flex-col gap-2 items-center justify-between">
-                            <div className="text-xl md:text-3xl font-serif text-white">Sponsor {animal?.name}</div>
+                            <div className="text-xl md:text-3xl font-serif text-white">
+                                {animal?.inMemoriam ? `Gift in Memory of ${animal?.name}` : `Sponsor ${animal?.name}`}
+                            </div>
+                            {animal?.inMemoriam && (
+                                <p className="text-white/90 text-sm md:text-base text-center px-2">
+                                    {animal.name} is no longer with us, but their legacy lives on. Your gift in their memory helps support the horses and burros still in our care.
+                                </p>
+                            )}
                             {animal?.donationFormId && (
                                 <SalsaDonateFormEmbed donationFormId={animal.donationFormId} />
                             )}

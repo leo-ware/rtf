@@ -1,16 +1,25 @@
 "use client"
 
-import Image from "next/image"
+import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import Tabs from "@/components/public-ui/Tabs"
 import { useQuery, usePaginatedQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Id } from "@/convex/_generated/dataModel"
 import SponsorHerdBg from "./imgs/sponsor-herd-bg.jpg"
 import SponsorAHerdDialog from "@/components/donation-widgets/SponsorAHerdDialog"
+import { ArticleRenderer } from "@/components/ArticleRenderer"
+import { useEffect } from "react"
+import { trackEvent, AnalyticsEvents } from "@/lib/analytics"
 
 const HerdContent = ({ herdId }: { herdId: Id<"herds"> }) => {
     const herd = useQuery(api.herds.getHerd, { id: herdId })
     const timeline = useQuery(api.herds.getHerdTimeline, { herdId })
+
+    useEffect(() => {
+        if (herd) {
+            trackEvent(AnalyticsEvents.HERD_PROFILE_VIEWED, { name: herd.name, herdId })
+        }
+    }, [herd, herdId])
 
     if (!herd) {
         return <div className="text-pewter text-[20px]">Loading herd details...</div>
@@ -26,11 +35,13 @@ const HerdContent = ({ herdId }: { herdId: Id<"herds"> }) => {
                 {herd.image && (
                     <div className="relative w-full h-[500px]">
                         {herd.image.url && (
-                            <Image
+                            <ImageWithAuthorCredit
                                 src={herd.image.url}
                                 alt={herd.image.altText || herd.name}
                                 className="w-full h-full object-cover object-center"
                                 fill
+                                wrapperClassName="w-full h-full"
+                                authorCredit={herd.image.authorCredit}
                             />
                         )}
                     </div>
@@ -40,8 +51,8 @@ const HerdContent = ({ herdId }: { herdId: Id<"herds"> }) => {
             </div>
 
             {herd.content && (
-                <div
-                    dangerouslySetInnerHTML={{ __html: herd.content }}
+                <ArticleRenderer
+                    content={herd.content}
                     className="text-lg prose prose-lg max-w-10/12"
                 />
             )}
@@ -69,11 +80,13 @@ const HerdContent = ({ herdId }: { herdId: Id<"herds"> }) => {
                                         <div className="text-ink">{tm.description}</div>
                                     </div>
                                     <div className="relative basis-0 grow h-72 flex flex-col">
-                                        {tm.image && tm.image.url && (<Image
+                                        {tm.image && tm.image.url && (<ImageWithAuthorCredit
                                             src={tm.image.url}
                                             alt={tm.image.altText || tm.title}
                                             className="w-full h-full object-cover object-center"
                                             fill
+                                            wrapperClassName="w-full h-full"
+                                            authorCredit={tm.image.authorCredit}
                                         />)}
                                     </div>
                                 </div>
@@ -84,10 +97,12 @@ const HerdContent = ({ herdId }: { herdId: Id<"herds"> }) => {
             )}
 
             <div className="z-0 w-full relative">
-                <Image
+                <ImageWithAuthorCredit
                     src={SponsorHerdBg}
                     alt="Sponsor Herd Background"
-                    className="z-0 absolute top-0 left-0 w-full h-full object-cover object-bottom" fill />
+                    className="z-0 absolute top-0 left-0 w-full h-full object-cover object-bottom"
+                    fill
+                    wrapperClassName="z-0 absolute top-0 left-0 w-full h-full" />
 
                 <div className="z-10 relative top-0 left-0 w-full h-full p-20 flex justify-end">
                     <div className="w-5/12 flex flex-col gap-4 items-start justify-start">

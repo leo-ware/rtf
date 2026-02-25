@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { cn, formatDateRange } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { MdArrowRightAlt } from "react-icons/md";
 import { api } from "@/convex/_generated/api";
 import { usePaginatedQuery } from "convex/react";
@@ -10,39 +10,71 @@ import ScrollDiv from "./ScrollDiv";
 import { ImSpinner8 } from "react-icons/im";
 import Link from "next/link";
 
+const monthStrings = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+const formatEventDate = (startDate: string, endDate: string) => {
+  const start = new Date(startDate)
+  const end = new Date(endDate)
+  const sDay = start.getDate()
+  const sMonth = monthStrings[start.getMonth()]
+  const sYear = start.getFullYear()
+  const eDay = end.getDate()
+  const eMonth = monthStrings[end.getMonth()]
+  const eYear = end.getFullYear()
+  const sTime = start.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
+  const eTime = end.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
+
+  const sameDay = sDay === eDay && start.getMonth() === end.getMonth() && sYear === eYear
+
+  if (sameDay) {
+    return {
+      dateLine: `${sMonth} ${sDay}`,
+      timeLine: sTime !== eTime ? `${sTime} - ${eTime}` : sTime,
+    }
+  }
+
+  if (sYear !== eYear) {
+    return { dateLine: `${sMonth} ${sDay}, ${sYear} - ${eMonth} ${eDay}, ${eYear}`, timeLine: null }
+  }
+  if (start.getMonth() !== end.getMonth()) {
+    return { dateLine: `${sMonth} ${sDay} - ${eMonth} ${eDay}`, timeLine: null }
+  }
+  return { dateLine: `${sMonth} ${sDay}-${eDay}`, timeLine: null }
+}
+
 const UpcomingEventsWidget = ({ className }: { className?: string }) => {
   const {
     results: events,
     loadMore,
     status: eventsStatus,
   } = usePaginatedQuery(
-    api.events.getPaginatedEvents,
+    api.events.getUpcomingPaginatedEvents,
     { paginationOpts: { numItems: 100 } },
     { initialNumItems: 100 },
   );
 
-  // const [tabState, setTabState] = useState<"all" | "week" | "month" | "year">("all")
   const [selectedEventId, setSelectedEventId] = useState<Id<"events"> | null>(
     null,
   );
+
 
   return (
     <div
       className={cn(
         `
-            w-auto h-full @container
+            w-auto h-full max-h-[400px] @container
             mx-auto px-8 py-8
             flex flex-col items-center justify-center
-            bg-seashell
+            bg-seashell overflow-hidden
         `,
         className,
       )}
     >
       <div
         className={`
-                    w-full h-full max-w-5xl
-                    grid gap-8
-                    grid-rows-[auto_1fr]
+                    relative w-full h-full min-h-0 max-w-5xl
+                    grid gap-x-8
+                    grid-rows-[1fr]
                     grid-cols-[1fr]
                     @xl:grid-cols-[250px_1fr]
                     @4xl:grid-cols-[250px_1fr_250px]
@@ -55,10 +87,10 @@ const UpcomingEventsWidget = ({ className }: { className?: string }) => {
             }
           }}
           className={`
-                        col-start-1 col-span-1 @xl:col-span-2
-                        h-fit max-h-full
+                        col-start-1 col-span-1 @xl:col-span-2 @4xl:col-span-3
+                        min-h-0
                         grid grid-cols-subgrid
-                        overflow-y-scroll scrollbar-always
+                        overflow-y-auto scrollbar-always
                     `}
         >
           {events?.map((event) => (
@@ -66,25 +98,44 @@ const UpcomingEventsWidget = ({ className }: { className?: string }) => {
               key={event._id}
               className="col-span-full grid grid-cols-subgrid pr-2"
             >
-              <div className="hidden @xl:block col-span-1">
-                <div className={`text-[18px] font-semibold leading-none`}>
-                  {formatDateRange(
-                    new Date(event.startDate),
-                    new Date(event.endDate),
-                  )}
-                </div>
+              <div className="hidden @xl:block col-span-1 text-right pt-1">
+                {(() => {
+                  const { dateLine, timeLine } = formatEventDate(event.startDate, event.endDate)
+                  return (
+                    <div
+                      className={cn(
+                        "leading-tight tracking-wide transition-all duration-300 ease-in-out",
+                        selectedEventId === event._id
+                          ? "text-cinnamon"
+                          : "text-pewter",
+                      )}
+                    >
+                      <div className={cn(
+                        "font-semibold transition-all duration-300 ease-in-out",
+                        selectedEventId === event._id ? "text-[18px]" : "text-[16px]",
+                      )}>
+                        {dateLine}
+                      </div>
+                      {timeLine && (
+                        <div className="text-[14px] mt-0.5">
+                          {timeLine}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })()}
               </div>
-              <div className="col-span-1 mb-8">
+              <div className="col-span-1 mb-6">
                 <div
-                  className={`
-                      cursor-pointer
-                      hover:font-semibold
-                      text-ink
-                      hover:text-cinnamon
-                      flex items-center gap-1
-                      leading-none text-[22px]
-                      ${selectedEventId === event._id ? "text-cinnamon" : ""}
-                  `}
+                  className={cn(
+                    `cursor-pointer
+                    flex items-center gap-1
+                    leading-tight text-[20px] font-medium
+                    transition-colors duration-150`,
+                    selectedEventId === event._id
+                      ? "text-cinnamon"
+                      : "text-ink hover:text-cinnamon",
+                  )}
                   onClick={() =>
                     setSelectedEventId((prev) => {
                       if (prev === event._id) {
@@ -96,35 +147,48 @@ const UpcomingEventsWidget = ({ className }: { className?: string }) => {
                 >
                   {event.title}
                 </div>
-                <div className="block @xl:hidden mt-2">
-                  <div className={`text-[14px] leading-none`}>
-                    {formatDateRange(
-                      new Date(event.startDate),
-                      new Date(event.endDate),
-                    )}
+                <div className="block @xl:hidden mt-1.5 text-pewter tracking-wide">
+                  {(() => {
+                    const { dateLine, timeLine } = formatEventDate(event.startDate, event.endDate)
+                    return (
+                      <>
+                        <div className="text-[13px] leading-tight font-semibold">{dateLine}</div>
+                        {timeLine && (
+                          <div className="text-[12px] leading-tight mt-0.5">{timeLine}</div>
+                        )}
+                      </>
+                    )
+                  })()}
+                </div>
+                <div
+                  className={cn(
+                    "grid transition-[grid-template-rows] duration-300 ease-in-out",
+                    selectedEventId === event._id
+                      ? "grid-rows-[1fr]"
+                      : "grid-rows-[0fr]",
+                  )}
+                >
+                  <div className="overflow-hidden">
+                    <div className="space-y-3 mt-2">
+                      <div className="text-[15px] text-ink/55 leading-relaxed">
+                        {event.description}
+                      </div>
+                      <Link
+                        onClick={(e) => e.stopPropagation()}
+                        href={`/visit-us/events/${event._id}`}
+                        className="group inline-flex items-center gap-1 cursor-pointer"
+                      >
+                        <div
+                          className="text-[14px] text-pewter font-semibold uppercase tracking-wide
+                                     group-hover:text-cinnamon transition-colors duration-150"
+                        >
+                          View Event Details
+                        </div>
+                        <MdArrowRightAlt className="w-5 h-5 text-pewter group-hover:text-cinnamon transition-all duration-150 group-hover:translate-x-1" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
-                {selectedEventId === event._id && (
-                  <div className="space-y-4 mt-2">
-                    <div className="text-[16px] text-ink/60">
-                      {event.description}
-                    </div>
-                    <Link
-                      onClick={(e) => e.stopPropagation()}
-                      href={`/visit-us/events/${event._id}`}
-                      className="group flex items-center gap-1 cursor-pointer"
-                    >
-                      <div
-                        className={`
-                                                text-[16px] text-pewter font-semibold uppercase
-                                                group-hover:underline decoration-1 underline-offset-4
-                                                `}
-                      >
-                        View Full Event Details
-                      </div>
-                    </Link>
-                  </div>
-                )}
               </div>
             </div>
           ))}
@@ -135,12 +199,11 @@ const UpcomingEventsWidget = ({ className }: { className?: string }) => {
                             flex items-center justify-center gap-2
                             `}
             >
-              <ImSpinner8 className="w-4 h-4 animate-spin" />
-              <div className="text-lg text-ink">Loading events...</div>
+              <ImSpinner8 className="w-4 h-4 animate-spin text-pewter" />
+              <div className="text-sm text-ink/50">Loading events...</div>
             </div>
           )}
         </ScrollDiv>
-        <div className="col-span-full" />
       </div>
     </div>
   );

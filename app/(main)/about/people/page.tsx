@@ -1,6 +1,6 @@
 "use client"
 
-import Image from "next/image"
+// Image import removed — using ConvexImage/ImageWithAuthorCredit instead
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import Button from "@/components/public-ui/Button"
@@ -66,6 +66,7 @@ const PeoplePage = () => {
                 people,
             }
         }))
+        .sort((a, b) => (a.board.order ?? Infinity) - (b.board.order ?? Infinity))
 
     return (
         <div className="w-full h-fit">
@@ -97,7 +98,7 @@ const PeoplePage = () => {
                                     <AccordionItem
                                         key={board._id}
                                         value={board._id}
-                                        className="w-full h-fit my-1"
+                                        className="w-full h-fit my-1 border-b-0"
                                     >
                                         <div className="w-full h-fit rounded-sm border border-dark-green bg-cream">
                                             <AccordionTrigger
@@ -110,10 +111,16 @@ const PeoplePage = () => {
                                             </AccordionTrigger>
                                             <AccordionContent className="w-full h-fit py-4">
                                                 <ul className="w-3/4 h-fit mx-auto">
-                                                    {people.map(person => (
+                                                    {people
+                                                        .map(person => {
+                                                            const boardWithOrder = person.boards.find(b => b._id === board._id)
+                                                            return { ...person, pabOrder: boardWithOrder?.pabOrder ?? Infinity }
+                                                        })
+                                                        .sort((a, b) => a.pabOrder - b.pabOrder)
+                                                        .map(person => (
                                                         <li key={person._id} className="text-lg flex items-center gap-4">
                                                             <div className="w-1 h-1 bg-sage-green rounded-full" />
-                                                            <div className="text-[25px]">{person.name}, {person.title}</div>
+                                                            <div className="text-[25px]">{person.name}{person.title ? `, ${person.title}` : ""}</div>
                                                         </li>
                                                     ))}
                                                 </ul>
@@ -201,7 +208,7 @@ const PeoplePage = () => {
                                             {person.name}
                                         </div>
                                         {/* <div className="text-xs uppercase">{person.title}</div> */}
-                                        <p className="text-[20px]">{person.bio}</p>
+                                        <p className="text-[20px]">{person.bio ?? ""}</p>
                                         <Button className="bg-cinnamon border-none py-1 px-4" color="cinnamon">
                                             Read More
                                         </Button>

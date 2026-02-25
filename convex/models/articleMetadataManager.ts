@@ -64,11 +64,29 @@ const resolvePaginatedResult = async (ctx: QMCtxType, articleMetadata: Doc<"arti
         : `/api/redirect/article/${articleMetadata.articleId}`
     const image = await resolveImageId(ctx, articleMetadata.imageId);
 
-    // Fetch author credit if this is an internal article
+    // Fetch author credit and authors if this is an internal article
     let authorCredit: string | undefined = undefined
+    let authorNames: string[] = []
     if (articleMetadata.articleId) {
         const article = await ctx.db.get(articleMetadata.articleId)
-        authorCredit = article?.authorCredit
+        if (article?.authorCredit) {
+            authorCredit = article.authorCredit
+        }
+        if (article?.authors && article.authors.length > 0) {
+            const people = await Promise.all(
+                article.authors.map(id => ctx.db.get(id))
+            )
+            for (const person of people) {
+                if (person?.name) authorNames.push(person.name)
+            }
+        }
+    }
+
+    // Fetch organization if this is an external article
+    let organization: string | undefined = undefined
+    if (articleMetadata.externalArticleId) {
+        const externalArticle = await ctx.db.get(articleMetadata.externalArticleId)
+        organization = externalArticle?.organization
     }
 
     return {
@@ -76,6 +94,8 @@ const resolvePaginatedResult = async (ctx: QMCtxType, articleMetadata: Doc<"arti
         link,
         image,
         authorCredit,
+        authorNames,
+        organization,
     }
 }
 

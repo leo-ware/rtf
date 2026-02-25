@@ -24,7 +24,7 @@ const OurHerdsPage = ({ searchParams }: { searchParams: Promise<{ slug?: string 
 
             <HerdsTabsSection defaultSlug={slug} />
 
-            <div className="w-full h-fit">
+            <div className="isolate z-0 w-full h-fit">
                 <SponsorAHorseMenu />
             </div>
         </div>

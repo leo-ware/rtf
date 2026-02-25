@@ -15,6 +15,15 @@ This is a Next.js application for Return to Freedom (RTF), a wild horse conserva
 
 ## Development Commands
 
+### Running TypeScript
+
+```bash
+# Run TypeScript compiler in watch mode
+yarn run tsc
+```
+
+You always run TypeScript before reporting that a task is done (unless it's something tiny, like a small css fix etc.)
+
 ### Running the Application
 
 ```bash
@@ -123,6 +132,8 @@ Important Convex function patterns:
 - Use Tailwind CSS for all styling
 - Fallback to inline styles only when necessary
 - Never create independent CSS files
+- Do not use the burnt-orange color for anything. Use cinnamon instead.
+- Everything in the admin interface /admin/* should be black and white. No colors in this part of the site.
 
 ### Convex
 

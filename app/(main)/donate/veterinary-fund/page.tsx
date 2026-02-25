@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 import Hero from "@/components/public-ui/Hero"
 import Callout from "@/components/public-ui/Callout"
 import Header from "@/components/public-ui/Header"
-import Image from "next/image"
+import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 
 import Azure from "./azure.jpg"
 import Stella from "./stella.png"
@@ -30,7 +30,7 @@ const VeterinaryFundPage = () => {
 
             <div className="w-10/12 mx-auto flex gap-12 items-center justify-center">
                 <div className="w-1/2 aspect-[5/3] relative">
-                    <Image src={Stella} alt="Stella" className="w-full h-fullobject-cover object-center" />
+                    <ImageWithAuthorCredit src={Stella} alt="Stella" className="w-full h-full object-cover object-center" />
                 </div>
                 <div className="w-1/2 flex flex-col gap-4 text-left text-lg">
                     <div className="text-3xl font-serif text-cinnamon">Stella DeMayo</div>
@@ -59,7 +59,7 @@ const VeterinaryFundPage = () => {
                 <div className="mt-8 w-full flex flex-col gap-4">
                     <div className="bg-seashell w-full pr-8 flex gap-4 items-center justify-between">
                         <div className="w-[300px] aspect-square relative">
-                            <Image src={Azure} alt="Azure" className="w-full h-full object-cover object-center" />
+                            <ImageWithAuthorCredit src={Azure} alt="Azure" className="w-full h-full object-cover object-center" />
                         </div>
                         <div className="font-serif text-pewter text-4xl">
                             Azure

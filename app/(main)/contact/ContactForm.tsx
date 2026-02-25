@@ -5,6 +5,7 @@ import { api } from "@/convex/_generated/api"
 import { useState, useEffect, useRef } from "react"
 import Button from "@/components/public-ui/Button"
 import { Loader2 } from "lucide-react"
+import { trackEvent, AnalyticsEvents } from "@/lib/analytics"
 
 const initialFormData = {
     name: null as string | null,
@@ -98,6 +99,7 @@ const ContactForm = () => {
                     message: formData.message!,
                 })
                 setSuccess(true)
+                trackEvent(AnalyticsEvents.CONTACT_FORM_SUBMITTED, { topic: formData.topic })
                 // Reset form after successful submission
                 setFormData(initialFormData)
             } catch (error) {

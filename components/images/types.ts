@@ -7,6 +7,9 @@ export type ResolvedImageType = {
     altText?: string | undefined;
     width?: number | undefined;
     height?: number | undefined;
+    authorCredit?: string | undefined;
+    authors?: Id<"people">[] | undefined;
+    authorNames?: string[] | undefined;
     title: string;
     fileName: string;
     originalName: string;

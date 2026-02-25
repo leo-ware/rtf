@@ -3,8 +3,8 @@
 import { usePaginatedQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import Link from "next/link"
-import Image from "next/image"
-import React, { useState } from "react"
+import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
+import React, { useState, useCallback } from "react"
 import Input from "@/components/public-ui/form/Input"
 import Select, { SelectOption } from "@/components/public-ui/form/Select"
 import NewsHeroImage from "./news-hero-image.jpg"
@@ -13,6 +13,7 @@ import { FaSearch } from "react-icons/fa"
 import ConvexImage from "@/components/images/ConvexImage"
 import Button from "@/components/public-ui/Button"
 import { ExternalLink, Loader2 } from "lucide-react"
+import { trackEvent, AnalyticsEvents } from "@/lib/analytics"
 
 
 const NewsOptionBox = (props: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>) => (
@@ -47,11 +48,12 @@ export default function NewsPage() {
     return (
         <div className="w-full h-fit">
             <div className="w-full h-[500px] relative flex items-center justify-center bg-sage-green">
-                <Image
+                <ImageWithAuthorCredit
                     src={NewsHeroImage}
                     alt="News Hero"
                     className="z-0 absolute top-0 left-0 w-full h-full object-cover object-center"
                     fill
+                    wrapperClassName="z-0 absolute top-0 left-0 w-full h-full"
                 />
                 <div className="z-10 p-4 text-white text-6xl font-serif">
                     News
@@ -112,6 +114,7 @@ export default function NewsPage() {
                                                         width={article.image?.width}
                                                         height={article.image?.height}
                                                         className="w-full h-full object-cover"
+                                                        authorCredit={article.image?.authorCredit}
                                                     />
                                                 )}
                                             </div>
@@ -121,18 +124,34 @@ export default function NewsPage() {
                                                         {article.title}
                                                     </Link>
                                                 ): (
-                                                    <Link href={`/api/redirect/external-article/${article.externalArticleId}`} className="text-lg font-serif">
+                                                    <Link
+                                                        href={`/api/redirect/external-article/${article.externalArticleId}`}
+                                                        target="_blank"
+                                                        rel="noopener"
+                                                        className="text-lg font-serif inline-flex items-center"
+                                                        onClick={() => trackEvent(AnalyticsEvents.EXTERNAL_LINK_CLICKED, {
+                                                            title: article.title,
+                                                            organization: article.organization,
+                                                            externalArticleId: article.externalArticleId,
+                                                        })}
+                                                    >
                                                         {article.title}
-                                                        <ExternalLink className="w-4 h-4 ml-1" />
+                                                        <ExternalLink className="w-4 h-4 ml-1 shrink-0" />
                                                     </Link>
                                                 )}
                                                 <div className="text-sm uppercase font-semibold">
                                                     {article.date ? formatDate(new Date(article.date)) : formatDate(new Date(article._creationTime))}
-                                                    {article.authorCredit && (
+                                                    {(article.externalArticleId && article.organization) ? (
+                                                        <> | {article.organization}</>
+                                                    ) : (article.authorNames && article.authorNames.length > 0) ? (
+                                                        <> | {article.authorNames.join(", ")}</>
+                                                    ) : article.authorCredit ? (
                                                         <> | {article.authorCredit}</>
-                                                    )}
+                                                    ) : null}
+                                                    {" | "}
+                                                    {article.externalArticleId ? "External" : "RTF"}
                                                 </div>
-                                                <div className="text-sm">
+                                                <div className="text-sm line-clamp-4">
                                                     {article.excerpt}
                                                 </div>
                                             </div>

@@ -18,7 +18,6 @@ import Img2 from "./img2.png"
 import Img3 from "./img3.png"
 import NewsCarousel from "@/components/NewsCarousel"
 import { Fragment } from "react/jsx-runtime"
-import EducationResourcesWidget from "@/components/EducationResourcesWidget"
 
 
 
@@ -97,14 +96,14 @@ const EducationPage = () => {
                         {
                             title: "Learn About the Issues",
                             description: (
-                                <div>
+                                <p>
                                     For in-depth information on issues surrounding Wild horse conservation in the United States, such as
                                     <Link href="/what-we-do/advocacy/roundups" className="ml-1 text-cinnamon hover:underline">Roundups</Link>,
                                     <Link href="/what-we-do/advocacy/population-management" className="ml-1 text-cinnamon hover:underline">Population Management</Link>,
                                     <Link href="/what-we-do/advocacy/herd-management" className="ml-1 text-cinnamon hover:underline">Herd Management Areas</Link>, and
                                     <Link href="/what-we-do/advocacy/horse-slaughter" className="ml-1 text-cinnamon hover:underline">Horse Slaughter</Link>,
                                     visit our <Link href="/what-we-do/advocacy">Advocacy Page</Link> for more information.
-                                </div>
+                                </p>
                             ),
                             image: Img3
                         }
@@ -117,10 +116,6 @@ const EducationPage = () => {
                 <div className="w-11/12 md:w-8/12 mx-auto">
                     <UpcomingEventsWidget />
                 </div>
-            </ScrollReveal>
-
-            <ScrollReveal variant="fade-up">
-                <EducationResourcesWidget />
             </ScrollReveal>
 
             <ScrollReveal variant="fade-up">

@@ -30,6 +30,8 @@ export const createImage = mutation({
         altText: v.optional(v.string()),
         width: v.optional(v.number()),
         height: v.optional(v.number()),
+        authorCredit: v.optional(v.string()),
+        authors: v.optional(v.array(v.id("people"))),
     },
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
@@ -82,14 +84,17 @@ export const updateImage = mutation({
         title: v.optional(v.string()),
         width: v.optional(v.number()),
         height: v.optional(v.number()),
+        authorCredit: v.optional(v.string()),
+        authors: v.optional(v.array(v.id("people"))),
     },
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx);
         if (!user.atLeastAuthorized) {
             throw new Error("Insufficient permissions");
         }
-        const manager = new ImageManager(args.id);
-        await manager.update(ctx, args);
+        const { id, ...updateFields } = args;
+        const manager = new ImageManager(id);
+        await manager.update(ctx, updateFields);
         return manager.id;
     },
 });

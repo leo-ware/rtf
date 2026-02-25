@@ -12,6 +12,18 @@ const nextConfig: NextConfig = {
     turbopack: {
         root: process.cwd(),
     },
+    async rewrites() {
+        return [
+            {
+                source: "/ingest/static/:path*",
+                destination: "https://us-assets.i.posthog.com/static/:path*",
+            },
+            {
+                source: "/ingest/:path*",
+                destination: "https://us.i.posthog.com/:path*",
+            },
+        ]
+    },
     async redirects() {
         return [
             // Donate path changes
@@ -34,6 +46,12 @@ const nextConfig: NextConfig = {
             {
                 source: "/visit/:path*",
                 destination: "/visit-us/:path*",
+                permanent: true,
+            },
+            // Weddings → Host Your Event
+            {
+                source: "/visit-us/weddings",
+                destination: "/visit-us/host-your-event",
                 permanent: true,
             },
             // Learn path changes

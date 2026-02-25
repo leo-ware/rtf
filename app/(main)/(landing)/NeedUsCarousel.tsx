@@ -3,7 +3,8 @@
 import Button from "@/components/public-ui/Button"
 import Carousel from "@/components/Carousel"
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
-import Image, { StaticImageData } from "next/image"
+import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
+import { StaticImageData } from "next/image"
 import Link from "next/link"
 import ScrollReveal from "@/components/public-ui/ScrollReveal"
 
@@ -27,7 +28,7 @@ const CarouselItemWidget = ({title, description, link, reversed, image}: Carouse
             className={`
                 w-full
                 h-[700px] md:h-[450px]
-                flex flex-col-reverse
+                flex flex-col-reverse md:items-center
                 ${reversed ? "md:flex-row-reverse" : "md:flex-row"}
             `}>
             <ScrollReveal
@@ -50,7 +51,7 @@ const CarouselItemWidget = ({title, description, link, reversed, image}: Carouse
                 variant={reversed ? "slide-left" : "slide-right"}
                 className="w-full md:w-1/2 h-full"
             >
-                <Image src={image} alt={title} className="w-full h-full object-cover object-center" />
+                <ImageWithAuthorCredit src={image} alt={title} className="w-full h-full object-cover object-center" />
             </ScrollReveal>
         </div>
     )

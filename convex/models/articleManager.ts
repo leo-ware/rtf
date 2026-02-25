@@ -12,6 +12,7 @@ type CreateArgs = {
     content?: string,
     imageId: Id<"images">,
     authorCredit?: string,
+    authors?: Id<"people">[],
 }
 
 type UpdateArgs = {
@@ -19,6 +20,7 @@ type UpdateArgs = {
     content?: string,
     imageId?: Id<"images">,
     authorCredit?: string,
+    authors?: Id<"people">[],
 }
 
 export default class ArticleManager {
@@ -44,6 +46,7 @@ export default class ArticleManager {
             articleMetadataId: articleMetadataManager.id,
             imageId: args.imageId,
             authorCredit: args.authorCredit,
+            authors: args.authors,
         });
         await articleMetadataManager.assignArticle(ctx, {
             articleId: articleId,
@@ -90,10 +93,20 @@ export default class ArticleManager {
         if (!articleMetadata) {
             return null
         }
+        const authorNames: string[] = []
+        if (article.authors && article.authors.length > 0) {
+            const people = await Promise.all(
+                article.authors.map(id => ctx.db.get(id))
+            )
+            for (const person of people) {
+                if (person?.name) authorNames.push(person.name)
+            }
+        }
         return {
             ...article,
             image,
             articleMetadata,
+            authorNames,
         };
     }
 
@@ -125,7 +138,7 @@ export default class ArticleManager {
             .query("articles")
             .withIndex("by_slug", (q) => q.eq("slug", slug))
             .first();
-    
+
         if (existingArticle) {
             if (!id || existingArticle._id !== id) {
                 throw new Error("An article with this slug already exists");

@@ -9,7 +9,7 @@ import DefaultHeroImage from "./default-program-image.png"
 import DefaultEventImage from "./default-event-image.jpg"
 import ConvexImage from "@/components/images/ConvexImage"
 import Header from "@/components/public-ui/Header"
-import Image from "next/image"
+import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import RegisterButton from "@/components/RegisterButton"
 import Button from "@/components/public-ui/Button"
 
@@ -40,13 +40,15 @@ const ProgramGroupContent = ({ programGroupId }: ProgramGroupContentProps) => {
                         width={programGroup?.image?.width || 0}
                         height={programGroup?.image?.height || 0}
                         className="w-full h-full object-cover"
+                        authorCredit={programGroup?.image?.authorCredit}
                     />
                 ) : (
-                    <Image
+                    <ImageWithAuthorCredit
                         src={DefaultHeroImage}
                         alt="Default Event Image"
                         className="w-full h-full object-cover"
                         fill
+                        wrapperClassName="w-full h-full"
                     />
                 )}
             </div>
@@ -73,13 +75,15 @@ const ProgramGroupContent = ({ programGroupId }: ProgramGroupContentProps) => {
                                                 width={program.image?.width || 0}
                                                 height={program.image?.height || 0}
                                                 className="w-full h-full object-cover"
+                                                authorCredit={program.image?.authorCredit}
                                             />
                                         ) : (
-                                            <Image
+                                            <ImageWithAuthorCredit
                                                 src={DefaultEventImage}
                                                 alt="Default Event Image"
                                                 className="w-full h-full object-cover"
                                                 fill
+                                                wrapperClassName="w-full h-full"
                                             />
                                         )}
                                     </div>

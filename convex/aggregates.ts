@@ -9,7 +9,7 @@ export const articleMetadataAggregate = new TableAggregate<{
     Key: null
     DataModel: DataModel
     TableName: "articleMetadata"
-}>(components.aggregate, {
+}>(components.articleMetadataAggregate, {
     sortKey: () => null,
 })
 
@@ -18,7 +18,7 @@ export const eventsAggregate = new TableAggregate<{
     Key: null
     DataModel: DataModel
     TableName: "events"
-}>(components.aggregate, {
+}>(components.eventsAggregate, {
     sortKey: () => null,
 })
 
@@ -27,7 +27,7 @@ export const imagesAggregate = new TableAggregate<{
     Key: null
     DataModel: DataModel
     TableName: "images"
-}>(components.aggregate, {
+}>(components.imagesAggregate, {
     sortKey: () => null,
 })
 
@@ -36,7 +36,7 @@ export const animalsAggregate = new TableAggregate<{
     Key: null
     DataModel: DataModel
     TableName: "animals"
-}>(components.aggregate, {
+}>(components.animalsAggregate, {
     sortKey: () => null,
 })
 
@@ -45,7 +45,7 @@ export const peopleAggregate = new TableAggregate<{
     Key: null
     DataModel: DataModel
     TableName: "people"
-}>(components.aggregate, {
+}>(components.peopleAggregate, {
     sortKey: () => null,
 })
 
@@ -54,7 +54,7 @@ export const sponsorsAggregate = new TableAggregate<{
     Key: null
     DataModel: DataModel
     TableName: "sponsors"
-}>(components.aggregate, {
+}>(components.sponsorsAggregate, {
     sortKey: () => null,
 })
 

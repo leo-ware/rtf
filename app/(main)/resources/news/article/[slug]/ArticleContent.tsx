@@ -1,9 +1,12 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { notFound } from "next/navigation";
 import { UserIcon } from "lucide-react";
+import { ArticleRenderer } from "@/components/ArticleRenderer";
+import { trackEvent, AnalyticsEvents } from "@/lib/analytics";
 
 type ArticleContentProps = {
     slug: string
@@ -11,6 +14,18 @@ type ArticleContentProps = {
 
 const ArticleContent = ({ slug }: ArticleContentProps) => {
     const article = useQuery(api.articles.getArticleBySlug, { slug });
+    const tracked = useRef(false);
+
+    useEffect(() => {
+        if (article && !tracked.current) {
+            tracked.current = true;
+            trackEvent(AnalyticsEvents.ARTICLE_VIEWED, {
+                type: "news",
+                title: article.articleMetadata.title,
+                slug,
+            });
+        }
+    }, [article, slug]);
 
     if (article === undefined) {
         return (
@@ -52,10 +67,10 @@ const ArticleContent = ({ slug }: ArticleContentProps) => {
                     </h1>
 
                     <div className="flex items-center space-x-6 text-gray-600 mb-6">
-                        {article.authorCredit && (
+                        {(article.authorNames && article.authorNames.length > 0 ? article.authorNames.join(", ") : article.authorCredit) && (
                             <div className="flex items-center space-x-2">
                                 <UserIcon className="w-4 h-4" />
-                                <span>{article.authorCredit}</span>
+                                <span>{article.authorNames && article.authorNames.length > 0 ? article.authorNames.join(", ") : article.authorCredit}</span>
                             </div>
                         )}
                         {article.articleMetadata.date && (
@@ -71,14 +86,15 @@ const ArticleContent = ({ slug }: ArticleContentProps) => {
                         <img
                             src={article.image.url || ""}
                             alt={article.image.altText || article.articleMetadata.title}
-                            className="max-w-full max-h-[400px] aspect-video object-cover mx-auto rounded-lg"
+                            className="w-full h-auto rounded-lg"
                         />
                     </div>
                 )}
 
-                <div
+                <ArticleRenderer
+                    content={article.content}
                     className="prose prose-lg max-w-none"
-                    dangerouslySetInnerHTML={{ __html: article.content }} />
+                />
             </div>
         </div>
     );

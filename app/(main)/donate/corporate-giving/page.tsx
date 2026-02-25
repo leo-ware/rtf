@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 import Hero from "@/components/public-ui/Hero"
 import Callout from "@/components/public-ui/Callout"
 import Header from "@/components/public-ui/Header"
-import Image from "next/image"
+import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 
 import hero from "./hero.jpg"
 import img1 from "./img1.png"
@@ -35,7 +35,7 @@ const CorporateGivingPage = () => {
                 <Header color="pewter">Matching Funds</Header>
                 <div className="w-full flex gap-12 flex-col md:flex-row-reverse items-center justify-center">
                     <div className="h-[350px] md:w-1/2 relative">
-                        <Image className="w-full h-full object-cover object-center" src={img1} alt="Matching Funds" />
+                        <ImageWithAuthorCredit className="w-full h-full object-cover object-center" src={img1} alt="Matching Funds" />
                     </div>
                     <div className="w-full md:w-1/2 flex flex-col gap-4 text-left text-lg">
                         <div>

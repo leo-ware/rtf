@@ -39,14 +39,18 @@ import {
     Heart,
     Image as ImageIcon,
     Trash2,
-    Code
+    Code,
+    Video
 } from "lucide-react"
 import Link from "next/link"
 import { Id } from "@/convex/_generated/dataModel"
 import ConvexImage from "@/components/images/ConvexImage"
 import { formatDate, generateSlug } from "@/lib/utils"
-import GalleryPicker, { GalleryPickerProps } from "@/components/GalleryPicker"
-import DonationFormConfigurationDialog from "@/components/DonationFormAdmin/DonationFormConfigurationDialog"
+import GalleryItemPicker, { GalleryItemType } from "@/components/GalleryItemPicker"
+import VideoPickerDialog from "@/components/VideoPickerDialog"
+import DonationFormSection from "@/components/DonationFormAdmin/DonationFormSection"
+import ReorderableList from "@/components/ReorderableList"
+import { VideoSource } from "@/lib/videoUtils"
 
 
 type AnimalEditPageProps = {
@@ -63,14 +67,13 @@ type FormDataType = {
     herdId: Id<"herds"> | undefined
     description: string
     imageId: string | Id<"images">
-    gallery: Array<{
-        imageId: Id<"images">,
-        url: string,
-    }>
+    gallery: GalleryItemType[]
     gender: string
     dob: number | undefined
     sanctuary: string
     inMemoriam: boolean | undefined
+    adoptable: boolean | undefined
+    adoptionFee: string
     content: string
     donationFormId: Id<"donationForms"> | null | undefined
 }
@@ -82,10 +85,14 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
     })
     const {results: herds} = usePaginatedQuery(api.herds.listHerds, {}, {initialNumItems: 100})
     const updateAnimal = useMutation(api.animals.updateAnimal)
-    const galleryImagesRaw = useQuery(api.animals.getAnimalGalleryImages,
+    const createImageGalleryItem = useMutation(api.galleryItems.createImageGalleryItem)
+    const createVideoGalleryItem = useMutation(api.galleryItems.createVideoGalleryItem)
+    const deleteGalleryItem = useMutation(api.galleryItems.deleteGalleryItem)
+
+    const galleryItemsRaw = useQuery(api.animals.getAnimalGalleryItems,
         { ids: (animal && animal._id) ? [animal._id] : [] as Id<"animals">[] }
     )
-    const galleryImagesServer = galleryImagesRaw?.[0]?.images || []
+    const galleryItemsServer = galleryItemsRaw?.[0]?.items || []
 
     const [formData, setFormData] = useState<FormDataType>({
         _initialized: false,
@@ -100,21 +107,45 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
         dob: undefined,
         sanctuary: "",
         inMemoriam: undefined,
+        adoptable: undefined,
+        adoptionFee: "",
         content: "",
         donationFormId: undefined,
     })
 
     useEffect(() => {
-        if (galleryImagesServer) {
-            const validImages = galleryImagesServer.filter(
-                (image): image is NonNullable<typeof image> => image !== null && image._id !== undefined && image.url !== null
-            )
+        if (galleryItemsServer && galleryItemsServer.length > 0) {
+            const validItems: GalleryItemType[] = galleryItemsServer
+                .filter((item): item is NonNullable<typeof item> => item !== null)
+                .map(item => {
+                    if (item.type === "image" && item.imageId && item.image) {
+                        return {
+                            type: "image" as const,
+                            galleryItemId: item._id,
+                            imageId: item.imageId,
+                            url: item.image.url || "",
+                            altText: item.image.altText,
+                        }
+                    } else if (item.type === "video" && item.videoSource && item.videoId) {
+                        return {
+                            type: "video" as const,
+                            galleryItemId: item._id,
+                            videoSource: item.videoSource,
+                            videoId: item.videoId,
+                            videoTitle: item.videoTitle,
+                            thumbnailUrl: item.thumbnailUrl,
+                        }
+                    }
+                    return null
+                })
+                .filter((item): item is GalleryItemType => item !== null)
+
             setFormData(prev => ({
                 ...prev,
-                gallery: validImages.map(image => ({ imageId: image._id, url: image.url! }))
+                gallery: validItems
             }))
         }
-    }, [galleryImagesServer.filter(img => img !== null).map(image => image?._id).sort().join(",")])
+    }, [galleryItemsServer.map(item => item?._id).sort().join(",")])
 
     const [isSaving, setIsSaving] = useState(false)
     const [lastSaved, setLastSaved] = useState<Date | null>(null)
@@ -123,7 +154,8 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
 
     const [isPrimaryImagePickerOpen, setIsPrimaryImagePickerOpen] = useState(false)
     const [idxGalleryImagePickerOpen, setIdxGalleryImagePickerOpen] = useState<number | null>(null)
-    const [emptyPickerOpen, setEmptyPickerOpen] = useState(false)
+    const [emptyImagePickerOpen, setEmptyImagePickerOpen] = useState(false)
+    const [videoPickerOpen, setVideoPickerOpen] = useState(false)
 
     useEffect(() => {
         if (animal && !formData._initialized) {
@@ -140,6 +172,8 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
                 dob: animal.dob || undefined,
                 sanctuary: animal.sanctuary || "",
                 inMemoriam: animal.inMemoriam,
+                adoptable: animal.adoptable,
+                adoptionFee: animal.adoptionFee || "",
                 content: animal.content || "",
                 donationFormId: animal.donationFormId ?? undefined,
             }))
@@ -149,6 +183,8 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
     // Determine if there are unsaved changes
     useEffect(() => {
         if (animal) {
+            const currentGalleryIds = formData.gallery.map(item => item.galleryItemId).sort().join(",")
+            const serverGalleryIds = (animal.gallery || []).sort().join(",")
             const hasChanges =
                 formData.name !== animal.name ||
                 formData.slug !== animal.slug ||
@@ -156,11 +192,13 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
                 formData.herdId !== animal.herdId ||
                 formData.description !== animal.description ||
                 formData.imageId !== (animal.imageId || "") ||
-                formData.gallery.map(each => each.imageId).sort().join(",") !== animal.gallery?.sort().join(",") ||
+                currentGalleryIds !== serverGalleryIds ||
                 formData.gender !== (animal.gender || "") ||
                 formData.dob !== (animal.dob || undefined) ||
                 formData.sanctuary !== (animal.sanctuary || "") ||
                 formData.inMemoriam !== animal.inMemoriam ||
+                formData.adoptable !== animal.adoptable ||
+                formData.adoptionFee !== (animal.adoptionFee || "") ||
                 formData.content !== (animal.content || "") ||
                 formData.donationFormId !== (animal.donationFormId ?? undefined)
             setHasUnsavedChanges(hasChanges)
@@ -172,10 +210,9 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
 
         setIsSaving(true)
         try {
-            // Filter out empty gallery slots
             const validGallery = formData.gallery
-                .map(image => image.imageId)
-                .filter(id => id !== "")
+                .map(item => item.galleryItemId)
+                .filter(id => id !== undefined && id !== null)
 
             await updateAnimal({
                 id: animal._id,
@@ -191,6 +228,8 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
                 dob: formData.dob || undefined,
                 sanctuary: formData.sanctuary || undefined,
                 inMemoriam: formData.inMemoriam,
+                adoptable: formData.adoptable,
+                adoptionFee: formData.adoptionFee || undefined,
                 donationFormId: formData.donationFormId ?? undefined,
             })
 
@@ -206,6 +245,106 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
 
     const handleImageSelect = (imageData: { imageId: Id<"images">; url: string }) => {
         setFormData(prev => ({ ...prev, imageId: imageData.imageId }))
+    }
+
+    const handleGalleryReorder = (newOrder: string[]) => {
+        const reorderedGallery = newOrder
+            .map(id => formData.gallery.find(item => item.galleryItemId === id))
+            .filter((item): item is GalleryItemType => item !== undefined)
+        setFormData(prev => ({ ...prev, gallery: reorderedGallery }))
+    }
+
+    const handleAddImage = async (imageData: { imageId: Id<"images">; url: string }) => {
+        try {
+            const galleryItemId = await createImageGalleryItem({ imageId: imageData.imageId })
+            const newItem: GalleryItemType = {
+                type: "image",
+                galleryItemId,
+                imageId: imageData.imageId,
+                url: imageData.url,
+            }
+            setFormData(prev => ({
+                ...prev,
+                gallery: [...prev.gallery, newItem]
+            }))
+            setEmptyImagePickerOpen(false)
+        } catch (error: any) {
+            console.error("Error creating gallery item:", error)
+            setErrorMessage(error?.message || "Failed to add image to gallery.")
+        }
+    }
+
+    const handleAddVideo = async (videoData: {
+        videoSource: VideoSource
+        videoId: string
+        videoTitle?: string
+        thumbnailUrl?: string
+    }) => {
+        try {
+            const galleryItemId = await createVideoGalleryItem({
+                videoSource: videoData.videoSource,
+                videoId: videoData.videoId,
+                videoTitle: videoData.videoTitle,
+                thumbnailUrl: videoData.thumbnailUrl,
+            })
+            const newItem: GalleryItemType = {
+                type: "video",
+                galleryItemId,
+                videoSource: videoData.videoSource,
+                videoId: videoData.videoId,
+                videoTitle: videoData.videoTitle,
+                thumbnailUrl: videoData.thumbnailUrl,
+            }
+            setFormData(prev => ({
+                ...prev,
+                gallery: [...prev.gallery, newItem]
+            }))
+            setVideoPickerOpen(false)
+        } catch (error: any) {
+            console.error("Error creating video gallery item:", error)
+            setErrorMessage(error?.message || "Failed to add video to gallery.")
+        }
+    }
+
+    const handleDeleteGalleryItem = async (index: number) => {
+        const item = formData.gallery[index]
+        if (item && item.galleryItemId) {
+            try {
+                await deleteGalleryItem({ id: item.galleryItemId })
+            } catch (error) {
+                console.error("Error deleting gallery item:", error)
+            }
+        }
+        setFormData(prev => ({
+            ...prev,
+            gallery: prev.gallery.filter((_, i) => i !== index)
+        }))
+    }
+
+    const handleGalleryImageChange = async (index: number, imageData: { imageId: Id<"images">; url: string }) => {
+        const item = formData.gallery[index]
+        if (item && item.type === "image") {
+            // Delete old gallery item and create new one
+            if (item.galleryItemId) {
+                try {
+                    await deleteGalleryItem({ id: item.galleryItemId })
+                } catch (error) {
+                    console.error("Error deleting old gallery item:", error)
+                }
+            }
+            const newGalleryItemId = await createImageGalleryItem({ imageId: imageData.imageId })
+            const newItem: GalleryItemType = {
+                type: "image",
+                galleryItemId: newGalleryItemId,
+                imageId: imageData.imageId,
+                url: imageData.url,
+            }
+            setFormData(prev => ({
+                ...prev,
+                gallery: prev.gallery.map((g, i) => i === index ? newItem : g)
+            }))
+        }
+        setIdxGalleryImagePickerOpen(null)
     }
 
     if (animal === undefined) {
@@ -307,58 +446,67 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
                         {/* Gallery Management */}
                         <Card>
                             <CardHeader>
-                                <CardTitle>Gallery Images</CardTitle>
+                                <CardTitle>Gallery</CardTitle>
                                 <CardDescription>
-                                    Manage additional images for the animal's gallery
+                                    Manage images and videos for the animal's gallery
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-3">
-                                    {formData.gallery.map((image, index) => {
-                                        return (
-                                            <GalleryPicker
-                                                open={idxGalleryImagePickerOpen === index}
-                                                onOpen={() => setIdxGalleryImagePickerOpen(index)}
-                                                onClose={() => setIdxGalleryImagePickerOpen(null)}
-                                                onDelete={() => setFormData(prev => ({ ...prev, gallery: prev.gallery.filter((_, i) => i !== index) }))}
-                                                onImageSelect={handleImageSelect}
-                                                image={image}
-                                            />
-                                        )
-                                    })}
-                                    {emptyPickerOpen && (
-                                        <GalleryPicker
-                                            open={idxGalleryImagePickerOpen === -1}
-                                            onOpen={() => setIdxGalleryImagePickerOpen(-1)}
-                                            onClose={() => setIdxGalleryImagePickerOpen(null)}
-                                            onDelete={() => setEmptyPickerOpen(false)}
-                                            onImageSelect={(newImage) => {
-                                                setFormData(prev => ({
-                                                    ...prev,
-                                                    gallery: [...prev.gallery, newImage as any]
-                                                }))
-                                                setEmptyPickerOpen(false)
-                                                // setIdxImagePickerOpen(null)
-                                            }}
-                                        />
-                                    )}
+                                    <ReorderableList
+                                        items={formData.gallery.map((item, index) => ({
+                                            id: item.galleryItemId,
+                                            widget: (
+                                                <GalleryItemPicker
+                                                    item={item}
+                                                    imagePickerOpen={idxGalleryImagePickerOpen === index}
+                                                    onOpenImagePicker={() => setIdxGalleryImagePickerOpen(index)}
+                                                    onCloseImagePicker={() => setIdxGalleryImagePickerOpen(null)}
+                                                    onDelete={() => handleDeleteGalleryItem(index)}
+                                                    onImageChange={(imageData) => handleGalleryImageChange(index, imageData)}
+                                                />
+                                            ),
+                                        }))}
+                                        onReorder={handleGalleryReorder}
+                                    />
                                 </div>
 
-                                {!emptyPickerOpen && (
+                                <div className="flex gap-2">
                                     <Button
                                         variant="outline"
-                                        onClick={() => setEmptyPickerOpen(true)}
-                                        className="w-full"
+                                        onClick={() => setEmptyImagePickerOpen(true)}
+                                        className="flex-1"
                                     >
                                         <ImageIcon className="h-4 w-4 mr-2" />
-                                        Add Gallery Image
+                                        Add Image
                                     </Button>
-                                )}
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => setVideoPickerOpen(true)}
+                                        className="flex-1"
+                                    >
+                                        <Video className="h-4 w-4 mr-2" />
+                                        Add Video
+                                    </Button>
+                                </div>
+
+                                <ImagePicker
+                                    isOpen={emptyImagePickerOpen}
+                                    onClose={() => setEmptyImagePickerOpen(false)}
+                                    onImageSelect={handleAddImage}
+                                />
+
+                                <VideoPickerDialog
+                                    isOpen={videoPickerOpen}
+                                    onClose={() => setVideoPickerOpen(false)}
+                                    onVideoSelect={handleAddVideo}
+                                />
 
                                 {formData.gallery.length === 0 && (
                                     <div className="text-center py-8 border-2 border-dashed rounded-lg">
                                         <ImageIcon className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                                        <p className="text-sm text-gray-500">No gallery images yet</p>
+                                        <p className="text-sm text-gray-500">No gallery items yet</p>
+                                        <p className="text-xs text-gray-400 mt-1">Add images or videos to create a gallery</p>
                                     </div>
                                 )}
                             </CardContent>
@@ -504,6 +652,29 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
                                             In Memoriam
                                         </Label>
                                     </div>
+
+                                    <div className="flex items-center space-x-2">
+                                        <Switch
+                                            id="adoptable"
+                                            checked={formData.adoptable}
+                                            onCheckedChange={(checked) => setFormData(prev => ({ ...prev, adoptable: checked }))}
+                                        />
+                                        <Label htmlFor="adoptable">
+                                            Available for Adoption
+                                        </Label>
+                                    </div>
+
+                                    {formData.adoptable && (
+                                        <div>
+                                            <Label htmlFor="adoptionFee">Adoption Fee</Label>
+                                            <Input
+                                                id="adoptionFee"
+                                                value={formData.adoptionFee}
+                                                onChange={(e) => setFormData(prev => ({ ...prev, adoptionFee: e.target.value }))}
+                                                placeholder="e.g., $2000, Contact us"
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             </CardContent>
                         </Card>
@@ -567,7 +738,7 @@ const AnimalEditPage = ({ params }: AnimalEditPageProps) => {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <DonationFormConfigurationDialog
+                                <DonationFormSection
                                     donationFormId={formData.donationFormId}
                                     setDonationFormId={(donationFormId) => setFormData((prev) => ({ ...prev, donationFormId }))}
                                 />

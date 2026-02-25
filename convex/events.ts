@@ -38,6 +38,26 @@ export const getPaginatedEvents = query({
     },
 })
 
+export const getUpcomingPaginatedEvents = query({
+    args: {
+        paginationOpts: paginationOptsValidator,
+    },
+    handler: async (ctx, args) => {
+        const user = await getCurrentUser(ctx)
+        const publicOnly = !user || !user.atLeastAuthorized
+
+        return await EventManager.getUpcomingPaginated(ctx, { publicOnly }, args.paginationOpts)
+    },
+})
+
+// Get upcoming standalone (one-off) events, public only
+export const getUpcomingStandaloneEvents = query({
+    args: {},
+    handler: async (ctx) => {
+        return await EventManager.getUpcomingStandalone(ctx)
+    },
+})
+
 // Get a single event by ID
 export const getEventById = query({
     args: { id: v.id("events") },

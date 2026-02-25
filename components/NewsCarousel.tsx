@@ -1,7 +1,7 @@
 "use client"
 
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
-import Image from "next/image"
+import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import Link from "next/link"
 import { useState, useEffect } from "react"
 import { usePaginatedQuery } from "convex/react"
@@ -67,12 +67,14 @@ const NewsCarousel = ({
                         cursor-pointer hover:opacity-90 transition-opacity
                         `}>
                         <div className="h-5/12 sm:h-full basis-0 grow overflow-hidden">
-                            <Image
+                            <ImageWithAuthorCredit
                                 src={article.image?.url || BrosChilling}
                                 alt={article.image?.altText || "Article image"}
                                 width={article.image?.width || 400}
                                 height={article.image?.height || 300}
-                                className="w-full h-full object-cover" />
+                                className="w-full h-full object-cover"
+                                wrapperClassName="w-full h-full"
+                                authorCredit={article.image?.authorCredit} />
                         </div>
                         <div className="basis-0 grow bg-white flex flex-col items-center justify-center">
                             <div className="w-3/4 h-fit md:border-l-4 border-burnt-orange md:pl-4 py-2 flex flex-col justify-start gap-2">

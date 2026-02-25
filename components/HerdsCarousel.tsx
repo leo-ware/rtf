@@ -1,6 +1,6 @@
 "use client"
 
-import Image from "next/image"
+import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import Link from "next/link"
 import Button from "@/components/public-ui/Button"
 import Carousel from "@/components/Carousel"
@@ -22,11 +22,13 @@ const HerdsCarousel = () => {
             <div className="w-full h-fit flex items-center justify-center gap-6">
                 <div className="relative w-1/2 h-[300px]">
                     {(herd.image && herd.image.url) ? (
-                        <Image
+                        <ImageWithAuthorCredit
                             src={herd.image.url}
                             alt={herd.image.altText || herd.name}
                             className="w-full h-full object-cover object-center"
                             fill
+                            wrapperClassName="w-full h-full"
+                            authorCredit={herd.image.authorCredit}
                         />
                     ) : (
                         <div className="w-full h-full bg-gray-200 flex items-center justify-center">

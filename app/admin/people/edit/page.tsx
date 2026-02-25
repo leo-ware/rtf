@@ -25,8 +25,8 @@ const PeopleTab = () => {
         const searchLower = searchTerm.toLowerCase()
         return (
             person.name.toLowerCase().includes(searchLower) ||
-            person.title.toLowerCase().includes(searchLower) ||
-            person.bio.toLowerCase().includes(searchLower)
+            (person.title ?? "").toLowerCase().includes(searchLower) ||
+            (person.bio ?? "").toLowerCase().includes(searchLower)
         )
     })
 
@@ -78,7 +78,7 @@ const PeopleTab = () => {
                             <div className="flex justify-between items-start">
                                 <div className="flex-1">
                                     <CardTitle className="text-lg line-clamp-2">{person.name}</CardTitle>
-                                    <p className="text-sm text-gray-600 mt-1">{person.title}</p>
+                                    <p className="text-sm text-gray-600 mt-1">{person.title ?? ""}</p>
                                     <div className="flex items-center space-x-2 mt-2 flex-wrap gap-1">
                                         {person.isDirector && (
                                             <Badge className="bg-blue-100 text-blue-800">

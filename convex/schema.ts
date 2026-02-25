@@ -162,6 +162,7 @@ export default defineSchema({
         slug: v.string(),
         content: v.string(),
         authorCredit: v.optional(v.string()),
+        authors: v.optional(v.array(v.id("people"))),
         articleMetadataId: v.id("articleMetadata"),
         imageId: v.id("images"),
     })
@@ -292,6 +293,8 @@ export default defineSchema({
         altText: v.optional(v.string()),
         width: v.optional(v.number()),
         height: v.optional(v.number()),
+        authorCredit: v.optional(v.string()),
+        authors: v.optional(v.array(v.id("people"))),
     })
         .searchIndex("searchTitle", {
             searchField: "title"
@@ -398,6 +401,27 @@ export default defineSchema({
         updatedAt: v.number(),
     }),
 
+    learnTimelines: defineTable({
+        title: v.string(),
+        slug: v.string(),
+        isPublic: v.boolean(),
+        order: v.number(),
+    })
+        .index("by_order", ["order"])
+        .index("by_isPublic", ["isPublic"])
+        .index("by_slug", ["slug"]),
+
+    learnTimelineItems: defineTable({
+        timelineId: v.id("learnTimelines"),
+        order: v.number(),
+        date: v.string(),
+        title: v.string(),
+        content: v.string(),
+        imageId: v.optional(v.id("images")),
+    })
+        .index("by_timelineId", ["timelineId"])
+        .index("by_timelineId_and_order", ["timelineId", "order"]),
+
     jobListings: defineTable({
         name: v.string(),
         description: v.string(),
@@ -420,6 +444,17 @@ export default defineSchema({
         articleMetadataIds: v.optional(v.array(v.id("articleMetadata"))),
     }).index("by_slug", ["slug"]),
 
+    galleryItems: defineTable({
+        type: v.union(v.literal("image"), v.literal("video")),
+        // For images
+        imageId: v.optional(v.id("images")),
+        // For videos
+        videoSource: v.optional(v.union(v.literal("youtube"), v.literal("vimeo"))),
+        videoId: v.optional(v.string()),
+        videoTitle: v.optional(v.string()),
+        thumbnailUrl: v.optional(v.string()),
+    }),
+
     animals: defineTable({
         name: v.string(),
         slug: v.string(),
@@ -429,12 +464,14 @@ export default defineSchema({
 
         herdId: v.optional(v.id("herds")),
         content: v.optional(v.string()),
-        gallery: v.optional(v.array(v.id("images"))),
+        gallery: v.optional(v.array(v.id("galleryItems"))),
         gender: v.optional(v.string()),
         dob: v.optional(v.number()),
         sanctuary: v.optional(v.string()),
         inMemoriam: v.optional(v.boolean()),
         promoted: v.optional(v.boolean()),
+        adoptable: v.optional(v.boolean()),
+        adoptionFee: v.optional(v.string()),
 
         donationFormId: v.optional(v.id("donationForms")),
 
@@ -444,20 +481,21 @@ export default defineSchema({
         .index("by_type", ["type"])
         .index("by_herd", ["herdId"])
         .index("by_in_memoriam", ["inMemoriam"])
+        .index("by_adoptable", ["adoptable"])
         .index("by_image", ["imageId"]),
 
     people: defineTable({
         name: v.string(),
-        title: v.string(),
-        bio: v.string(),
+        title: v.optional(v.string()),
+        bio: v.optional(v.string()),
         imageId: v.optional(v.id("images")),
 
-        isDirector: v.boolean(),
+        isDirector: v.optional(v.boolean()),
         isStaff: v.optional(v.boolean()),
         isEquine: v.optional(v.boolean()),
         isStoryTeller: v.optional(v.boolean()),
         isAmbassador: v.optional(v.boolean()),
-        inMemoriam: v.boolean(),
+        inMemoriam: v.optional(v.boolean()),
 
         directorOrder: v.optional(v.number()),
         staffOrder: v.optional(v.number()),

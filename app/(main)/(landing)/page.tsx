@@ -1,10 +1,10 @@
 "use client"
 
 import Button from "@/components/public-ui/Button"
-import Image from "next/image"
+import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import Link from "next/link"
 import { Fragment } from "react"
-import GenericDonateDialogue from "@/components/donation-widgets/GenericDonateDialogue"
+import DonationCallout, { DonationCalloutGrid } from "@/components/DonationCallout"
 import UpcomingEventsWidget from "@/components/UpcomingEventsWidget"
 import LongRightArrow from "@/components/LongRightArrow"
 import ScrollReveal from "@/components/public-ui/ScrollReveal"
@@ -21,10 +21,8 @@ import EducationImage from "./imgs/education-image.jpg"
 import OminouseHorses from "./imgs/ominous-horses.jpg"
 import SpiritImage from "./imgs/spirit-zooming.png"
 import BlurredDonateBackgroundOne from "./imgs/blurred-donate-frame-1.png"
-import BlurredDonateBackgroundTwo from "./imgs/blurred-donate-frame-2.png"
 import ProgramsAndEventsImage from "./imgs/programs-and-events-image.png"
 import Header from "@/components/public-ui/Header"
-import BlurredImageCard from "@/components/public-ui/BlurredImageCard"
 import TakeActionSection from "@/components/TakeActionSection"
 import SubscribePrimary from "../contact/SubscribePrimary"
 
@@ -161,23 +159,22 @@ const HomePage = () => {
                             },
                         ].map(({ title, image, description, link }) => (
                             <Fragment key={title}>
-                                <div
+                                <Link
+                                    href={link}
                                     className="hidden md:block
                                     relative group transition-all duration-500 flex-grow hover:flex-grow-2 basis-0
                                     h-full bg-pewter flex flex-col items-center justify-center gap-2"
                                 >
-                                    <Image
+                                    <ImageWithAuthorCredit
                                         src={image}
                                         alt={title + " image"}
-                                        className="z-0 absolute top-0 left-0
-                                            w-full h-full object-cover object-center
-                                            "
+                                        className="w-full h-full object-cover object-center"
+                                        wrapperClassName="z-0 absolute inset-0"
                                     />
                                     <div className="z-10 h-full w-full relative px-4 flex flex-col items-center group-hover:items-start justify-center">
                                         <div className="grow basis-0" />
                                         <div className="relative w-full h-16 grow-0 basis-fit">
-                                            <Link
-                                                href={link}
+                                            <span
                                                 className="w-fit text-white text-[44px] font-serif
                                                     absolute left-1/2 -translate-x-1/2
                                                     group-hover:left-0 group-hover:-translate-x-0
@@ -185,7 +182,7 @@ const HomePage = () => {
                                                     "
                                             >
                                                 {title}
-                                            </Link>
+                                            </span>
                                         </div>
                                         <div className="grow basis-0 max-w-3/4 overflow-hidden">
                                             <p
@@ -198,20 +195,21 @@ const HomePage = () => {
                                             </p>
                                         </div>
                                     </div>
-                                </div>
-                                <div className="block md:hidden relative w-1/2 aspect-square flex items-center justify-center">
-                                    <Image
+                                </Link>
+                                <Link
+                                    href={link}
+                                    className="block md:hidden relative w-1/2 aspect-square flex items-center justify-center"
+                                >
+                                    <ImageWithAuthorCredit
                                         src={image}
                                         alt={title + " image"}
-                                        className="z-0 absolute top-0 left-0 w-full h-full object-cover object-center"
+                                        className="w-full h-full object-cover object-center"
+                                        wrapperClassName="z-0 absolute inset-0"
                                     />
-                                    <Link
-                                        href={link}
-                                        className="z-10 text-white text-2xl font-bold"
-                                    >
+                                    <span className="z-10 text-white text-2xl font-bold">
                                         {title}
-                                    </Link>
-                                </div>
+                                    </span>
+                                </Link>
                             </Fragment>
                         ))}
                     </div>
@@ -240,82 +238,37 @@ const HomePage = () => {
                     <Header color="pewter">Be Their Voice</Header>
                 </ScrollReveal>
 
-                <div className="flex flex-col md:flex-row gap-4 h-fit">
-                    <ScrollReveal variant="fade-up" className="flex-1 h-auto">
-                        <BlurredImageCard
+                <DonationCalloutGrid>
+                    <ScrollReveal variant="fade-up" className="md:row-span-3 md:grid md:grid-rows-[subgrid]">
+                        <DonationCallout
+                            gridAligned
                             image={BlurredDonateBackgroundOne}
-                            className="h-full"
-                        >
-                            <div
-                                className={`
-                            w-full h-full md:min-h-[530px]
-                            py-12 px-8
-                            md:py-16 md:px-10
-                            flex flex-col justify-center gap-6 text-white
-                            `}
-                            >
-                                <div className="text-[36px] md:text-[48px] md:max-w-3/4 font-serif leading-none">
-                                    Donate to Wild Horse Defense Fund
-                                </div>
-                                <div className="text-[16px] md:text-[20px]">
-                                    The Wild Horse Defense Fund fuels Return to
-                                    Freedom's frontline work to end cruel
-                                    roundups, advance humane on-range
-                                    management, and defend wild horses through
-                                    advocacy, legal action, and education.
-                                </div>
-                                <GenericDonateDialogue defaultPathwayName="Wild Horse Defense Fund">
-                                    <Button
-                                        color="cinnamon"
-                                        className="py-1 px-4 text-[16px]"
-                                    >
-                                        Donate
-                                    </Button>
-                                </GenericDonateDialogue>
-                            </div>
-                        </BlurredImageCard>
+                            heading="Donate to Wild Horse Defense Fund"
+                            description="The Wild Horse Defense Fund fuels Return to Freedom's frontline work to end cruel roundups, advance humane on-range management, and defend wild horses through advocacy, legal action, and education."
+                            donatePathway="Wild Horse Defense Fund"
+                            buttonText="Donate"
+                            align="left"
+                            analyticsName="whd_fund"
+                        />
                     </ScrollReveal>
 
                     <ScrollReveal
                         variant="fade-up"
                         delay={0.15}
-                        className="flex-1 h-auto"
+                        className="md:row-span-3 md:grid md:grid-rows-[subgrid]"
                     >
-                        <BlurredImageCard
+                        <DonationCallout
+                            gridAligned
                             image={BlurredDonateBackgroundOne}
-                            className="h-full"
-                        >
-                            <div
-                                className={`
-                            w-full h-full md:min-h-[530px]
-                            py-12 px-8
-                            md:py-16 md:px-10
-                            flex flex-col justify-center gap-6 text-white
-                            `}
-                            >
-                                <div className="text-[36px] md:text-[48px] md:max-w-3/4 font-serif leading-none">
-                                    Donate to Return to Freedom Sanctuary Fund
-                                </div>
-                                <div className="text-[16px] md:text-[20px]">
-                                    Return to Freedom Sanctuary Fund supports
-                                    our ongoing work to care for and protect
-                                    America's wild horses and burros in our
-                                    sanctuaries. Your donation helps us provide
-                                    the best possible care for these animals,
-                                    ensuring they have a safe and healthy home.
-                                </div>
-                                <GenericDonateDialogue defaultPathwayName="Sanctuary Fund">
-                                    <Button
-                                        color="cinnamon"
-                                        className="py-1 px-4 text-[16px]"
-                                    >
-                                        Donate
-                                    </Button>
-                                </GenericDonateDialogue>
-                            </div>
-                        </BlurredImageCard>
+                            heading="Donate to Return to Freedom Sanctuary Fund"
+                            description="Return to Freedom Sanctuary Fund supports our ongoing work to care for and protect America's wild horses and burros in our sanctuaries. Your donation helps us provide the best possible care for these animals, ensuring they have a safe and healthy home."
+                            donatePathway="Sanctuary Fund"
+                            buttonText="Donate"
+                            align="left"
+                            analyticsName="sanctuary_fund"
+                        />
                     </ScrollReveal>
-                </div>
+                </DonationCalloutGrid>
             </div>
 
             <ScrollReveal variant="fade-up" className="w-full h-fit my-8">
@@ -324,7 +277,7 @@ const HomePage = () => {
 
             <div className="relative w-full h-[400px] md:h-fit md:py-16 py-4 flex items-end md:items-center justify-end px-4 md:px-24">
                 <div className="z-0 absolute top-0 left-0 w-full h-full overflow-hidden">
-                    <Image
+                    <ImageWithAuthorCredit
                         src={SpiritImage}
                         alt="Spirit"
                         className="z-0 absolute top-0 md:top-[-155px] left-0 w-full md:h-auto h-[400px] object-cover object-top"
@@ -380,7 +333,7 @@ const HomePage = () => {
                     className="flex-1 h-auto flex flex-col items-center justify-center gap-8"
                 >
                     <Header color="pewter">Programs & Events</Header>
-                    <Image
+                    <ImageWithAuthorCredit
                         src={ProgramsAndEventsImage}
                         alt="Programs and Events"
                         className="w-full md:max-w-[550px] h-full object-cover object-center"

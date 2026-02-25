@@ -7,7 +7,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Typography from "@tiptap/extension-typography";
 import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
-import Image from "@tiptap/extension-image";
+import { CustomImage } from "@/components/extensions/CustomImage";
 import Youtube from "@tiptap/extension-youtube";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -75,16 +75,9 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
                     class: "text-blue-600 hover:text-blue-800 underline",
                 },
             }),
-            Image.configure({
+            CustomImage.configure({
                 HTMLAttributes: {
-                    class: "max-w-full max-h-[400px] aspect-video object-cover mx-auto rounded-lg",
-                },
-                resize: {
-                    enabled: true,
-                    directions: ['top', 'bottom', 'left', 'right'], // can be any direction or diagonal combination
-                    minWidth: 50,
-                    minHeight: 50,
-                    alwaysPreserveAspectRatio: true,
+                    // No styling classes - applied via CSS at render time
                 },
             }),
             Youtube.configure({
@@ -128,14 +121,17 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
     };
 
     const handleImagePickerSelect = (imageData: { imageId: Id<"images">; url: string }) => {
-        editor.chain().focus().setImage({ src: imageData.url }).run();
+        editor.chain().focus().setImage({
+            src: imageData.url,
+            "data-image-id": imageData.imageId,
+        } as { src: string }).run();
         setIsImagePickerOpen(false);
     };
 
     return (
-        <div className="border border-gray-200 rounded-lg overflow-hidden">
+        <div className="border border-gray-200 rounded-lg overflow-hidden flex flex-col max-h-[80vh]">
             {/* Toolbar */}
-            <div className="border-b border-gray-200 p-2 bg-gray-50 flex flex-wrap gap-1">
+            <div className="border-b border-gray-200 p-2 bg-gray-50 flex flex-wrap gap-1 flex-shrink-0">
                 {/* Text Formatting */}
                 <div className="flex items-center space-x-1 pr-2 border-r border-gray-300">
                     <Button
@@ -311,7 +307,7 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
             </div>
 
             {/* Editor Content */}
-            <div className="bg-white prose">
+            <div className="bg-white prose overflow-y-auto flex-1 min-h-0">
                 <EditorContent editor={editor} />
             </div>
 

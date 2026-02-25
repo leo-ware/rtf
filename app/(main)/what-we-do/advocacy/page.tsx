@@ -4,7 +4,7 @@ import Hero from "@/components/public-ui/Hero"
 import AdvocacyHero from "./advocacy-hero.jpg"
 import Callout from "@/components/public-ui/Callout"
 import Header from "@/components/public-ui/Header"
-import Image from "next/image"
+import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import Link from "next/link"
 import Button from "@/components/public-ui/Button"
 import NewsCarousel from "@/components/NewsCarousel"
@@ -91,7 +91,7 @@ const AdvocacyPage = () => {
                         <ScrollReveal key={each.title} variant={i % 2 === 0 ? "slide-left" : "slide-right"}>
                             <div className={`w-full flex flex-col md:flex-row items-center gap-6 md:gap-8 ${i % 2 === 0 ? "md:flex-row-reverse" : ""}`}>
                                 <div className="relative w-full md:w-1/2 h-[250px] md:h-[350px] overflow-hidden">
-                                    <Image
+                                    <ImageWithAuthorCredit
                                         src={each.image}
                                         alt={each.title}
                                         className="w-full h-full object-cover object-center"

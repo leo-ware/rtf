@@ -47,9 +47,7 @@ const PersonCreateDialog = () => {
     const editingDisabled = isLoading
     const saveDisabled = (
         isLoading ||
-        !formData.name ||
-        !formData.title ||
-        !formData.bio
+        !formData.name
     )
 
     const handleCreate = async () => {
@@ -60,15 +58,15 @@ const PersonCreateDialog = () => {
         try {
             await createPerson({
                 name: formData.name,
-                title: formData.title,
-                bio: formData.bio,
+                title: formData.title || undefined,
+                bio: formData.bio || undefined,
                 imageId: formData.imageId || undefined,
-                isDirector: formData.isDirector,
-                isStaff: formData.isStaff,
-                isEquine: formData.isEquine,
-                isStoryTeller: formData.isStoryTeller,
-                isAmbassador: formData.isAmbassador,
-                inMemoriam: formData.inMemoriam,
+                isDirector: formData.isDirector || undefined,
+                isStaff: formData.isStaff || undefined,
+                isEquine: formData.isEquine || undefined,
+                isStoryTeller: formData.isStoryTeller || undefined,
+                isAmbassador: formData.isAmbassador || undefined,
+                inMemoriam: formData.inMemoriam || undefined,
                 advisoryBoardIds: formData.advisoryBoardIds.length > 0 ? formData.advisoryBoardIds : undefined,
             })
             setIsOpen(false)

@@ -11,6 +11,7 @@ import { ClerkProvider } from '@clerk/nextjs'
 import { TooltipProvider } from "@/components/ui/tooltip"
 import DnDProvider from "@/providers/DnDProvider"
 import ToastProvider from "@/providers/ToastProvider"
+import PostHogProvider from "@/providers/PostHogProvider"
 
 const workSans = Work_Sans({
     variable: "--font-work-sans",
@@ -44,6 +45,7 @@ export default function RootLayout({
             >
                 <ClerkProvider>
                     <ConvexClientProvider>
+                        <PostHogProvider>
                         <TooltipProvider>
                             <DnDProvider>
                                 <ToastProvider>
@@ -51,6 +53,7 @@ export default function RootLayout({
                                 </ToastProvider>
                             </DnDProvider>
                         </TooltipProvider>
+                        </PostHogProvider>
                     </ConvexClientProvider>
                 </ClerkProvider>
             </body>

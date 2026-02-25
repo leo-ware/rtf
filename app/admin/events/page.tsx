@@ -6,13 +6,13 @@ import {
     Calendar as CalendarIcon,
     Folder,
     BookOpen,
-    Ticket,
+    // Ticket,
 } from "lucide-react"
 
 import EventsTab from "./events/EventsTab"
 import ProgramGroupsTab from "./programGroups/ProgramGroupsTab"
 import ProgramsTab from "./programs/ProgramsTab"
-import DiscountCodesTab from "./discountCodes/DiscountCodesTab"
+// import DiscountCodesTab from "./discountCodes/DiscountCodesTab"
 
 const AdminEventsPage = () => {
     useEffect(() => {
@@ -20,7 +20,7 @@ const AdminEventsPage = () => {
     }, [])
 
     const [activeTab, setActiveTab] = useState<
-        "events" | "programGroups" | "programs" | "discountCodes"
+        "events" | "programGroups" | "programs"
     >("events")
 
     return (
@@ -73,10 +73,10 @@ const AdminEventsPage = () => {
                     <TabsContent value="programGroups" className="space-y-6">
                         <ProgramGroupsTab />
                     </TabsContent>
-
+                    {/*
                     <TabsContent value="discountCodes" className="space-y-6">
                         <DiscountCodesTab />
-                    </TabsContent>
+                    </TabsContent>*/}
                 </Tabs>
             </div>
         </div>

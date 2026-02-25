@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Image from "next/image"
+import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import Button from "@/components/public-ui/Button"
 import {
     Dialog,
@@ -10,6 +10,13 @@ import {
     DialogTrigger,
 } from "@/components/public-ui/Dialog"
 import { IoMdClose } from "react-icons/io"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import SalsaDonateFormEmbed, {
     SalsaDonateFormEmbedInner,
 } from "@/components/SalsaDonateFormEmbed"
@@ -17,7 +24,8 @@ import { Id } from "@/convex/_generated/dataModel"
 import { useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 
-import isadora from "./isadora.jpg"
+import isadora from "./imgs/isadora.jpg"
+import { trackEvent, AnalyticsEvents } from "@/lib/analytics"
 
 type GenericDonateDialogueInnerProps = {
     donationFormId?: Id<"donationForms">
@@ -31,6 +39,10 @@ const GenericDonateDialogueInner = ({
     const dialogPathways = useQuery(api.donatePathways.listDialogPathways)
     const [selectedPathwayId, setSelectedPathwayId] =
         useState<Id<"donatePathways"> | null>(null)
+
+    useEffect(() => {
+        trackEvent(AnalyticsEvents.DONATE_DIALOG_OPENED, { defaultPathwayName })
+    }, [defaultPathwayName])
 
     // Determine initial selection based on defaultPathwayName
     useEffect(() => {
@@ -99,11 +111,12 @@ const GenericDonateDialogueInner = ({
 
             {/* Image - shows on top on mobile, right side on desktop */}
             <div className="order-first md:order-none relative w-full md:w-1/2 h-[200px] md:h-auto md:absolute md:inset-y-0 md:right-0 shrink-0">
-                <Image
+                <ImageWithAuthorCredit
                     src={isadora}
                     alt="Isadora"
                     fill
                     className="object-cover object-center"
+                    wrapperClassName="w-full h-full"
                 />
             </div>
 
@@ -114,26 +127,30 @@ const GenericDonateDialogueInner = ({
                         Every Horse Needs a Hero
                     </div>
                     {showDropdown ? (
-                        <select
+                        <Select
                             value={selectedPathwayId || ""}
-                            onChange={(e) =>
-                                setSelectedPathwayId(
-                                    e.target.value as Id<"donatePathways">,
-                                )
-                            }
-                            className="uppercase font-semibold bg-transparent border-b border-milk/50
-                                       text-milk py-1 cursor-pointer focus:outline-none"
+                            onValueChange={(newId) => {
+                                setSelectedPathwayId(newId as Id<"donatePathways">)
+                                const pathway = dialogPathways.find(p => p._id === newId)
+                                trackEvent(AnalyticsEvents.DONATE_PATHWAY_SELECTED, { pathway: pathway?.name })
+                            }}
                         >
-                            {dialogPathways.map((p) => (
-                                <option
-                                    key={p._id}
-                                    value={p._id}
-                                    className="text-ink bg-milk"
-                                >
-                                    {p.name}
-                                </option>
-                            ))}
-                        </select>
+                            <SelectTrigger
+                                className="uppercase font-semibold bg-transparent border-0 border-b border-milk/50
+                                           text-milk rounded-none shadow-none px-0 py-1 cursor-pointer
+                                           focus-visible:ring-0 focus-visible:border-milk
+                                           [&_svg]:text-milk [&_svg]:opacity-70"
+                            >
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {dialogPathways.map((p) => (
+                                    <SelectItem key={p._id} value={p._id}>
+                                        {p.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     ) : (
                         <div className="uppercase font-semibold">
                             {displayName}

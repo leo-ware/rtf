@@ -1,9 +1,10 @@
 "use client"
 
-import Image from "next/image"
+import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import Link from "next/link"
 import { Id } from "@/convex/_generated/dataModel"
 import GenericDonateDialogue from "./GenericDonateDialogue"
+import { trackEvent, AnalyticsEvents } from "@/lib/analytics"
 
 type DonatePathwayCardProps = {
     pathway: {
@@ -27,18 +28,19 @@ const CardContent = ({ name, imageUrl, altText }: { name: string; imageUrl: stri
             `}>
                 <div className="relative h-3/4 w-full">
                     {imageUrl ? (
-                        <Image
+                        <ImageWithAuthorCredit
                             src={imageUrl}
                             alt={altText || name}
                             fill
                             className="object-cover object-center"
+                            wrapperClassName="w-full h-full"
                         />
                     ) : (
                         <div className="w-full h-full bg-gray-200" />
                     )}
                 </div>
                 <div className="h-1/4 w-full p-4 flex items-center justify-center">
-                    <div className="text-2xl font-serif text-charcoal">
+                    <div className="text-2xl font-serif text-charcoal text-center">
                         {name}
                     </div>
                 </div>
@@ -55,17 +57,23 @@ const DonatePathwayCard = ({ pathway }: DonatePathwayCardProps) => {
     // If it's a link pathway
     if (link) {
         const isExternal = link.startsWith("http://") || link.startsWith("https://")
+        const handleClick = () => {
+            trackEvent(AnalyticsEvents.DONATE_PATHWAY_CARD_CLICKED, {
+                pathway: name,
+                type: "link",
+            })
+        }
 
         if (isExternal) {
             return (
-                <a href={link} target="_blank" rel="noopener noreferrer">
+                <a href={link} target="_blank" rel="noopener noreferrer" onClick={handleClick}>
                     <CardContent name={name} imageUrl={imageUrl} altText={altText} />
                 </a>
             )
         }
 
         return (
-            <Link href={link}>
+            <Link href={link} onClick={handleClick}>
                 <CardContent name={name} imageUrl={imageUrl} altText={altText} />
             </Link>
         )

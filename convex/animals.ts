@@ -3,6 +3,7 @@ import { v } from "convex/values"
 import { Doc, Id } from "./_generated/dataModel"
 import { getCurrentUserOrThrow } from "./users"
 import { resolveImageId } from "./images"
+import { resolveGalleryItem } from "./galleryItems"
 import { generateSlug } from "./utils"
 import { animalsAggregate } from "./aggregates"
 import { QMCtxType } from "./types"
@@ -168,11 +169,13 @@ export const updateAnimal = mutation({
         description: v.optional(v.string()),
         content: v.optional(v.string()),
         imageId: v.optional(v.id("images")),
-        gallery: v.optional(v.array(v.id("images"))),
+        gallery: v.optional(v.array(v.id("galleryItems"))),
         gender: v.optional(v.string()),
         age: v.optional(v.number()),
         sanctuary: v.optional(v.string()),
         inMemoriam: v.optional(v.boolean()),
+        adoptable: v.optional(v.boolean()),
+        adoptionFee: v.optional(v.string()),
         donationFormId: v.optional(v.id("donationForms")),
     },
     returns: v.null(),
@@ -257,6 +260,18 @@ export const updateAnimal = mutation({
             updates.inMemoriam = args.inMemoriam
         }
 
+        if (args.adoptable !== undefined) {
+            updates.adoptable = args.adoptable
+        }
+
+        if (args.adoptionFee !== undefined) {
+            updates.adoptionFee = args.adoptionFee
+        }
+
+        if (args.donationFormId !== undefined) {
+            updates.donationFormId = args.donationFormId
+        }
+
         await ctx.db.patch(args.id, updates)
         return null
     },
@@ -305,21 +320,27 @@ export const getPromotedAnimalForSponsorship = query({
 
         const herdPromise = selectedAnimal?.herdId ? ctx.db.get(selectedAnimal.herdId) : null
         const imagePromise = selectedAnimal?.imageId ? resolveImageId(ctx, selectedAnimal.imageId) : null
-        const galleryImagesPromise = selectedAnimal?.gallery
-            ? Promise.all(selectedAnimal.gallery.map(async (imageId) => resolveImageId(ctx, imageId)))
+        const galleryItemsPromise = selectedAnimal?.gallery
+            ? Promise.all(selectedAnimal.gallery.map(async (itemId) => resolveGalleryItem(ctx, itemId as Id<"galleryItems">)))
             : null
 
-        const [herd, image, galleryImages] = await Promise.all([
+        const [herd, image, galleryItems] = await Promise.all([
             herdPromise,
             imagePromise,
-            galleryImagesPromise,
+            galleryItemsPromise,
         ])
+
+        // Filter to just images for backwards compatibility
+        const galleryImages = galleryItems
+            ?.filter(item => item !== null && item.type === "image")
+            .map(item => item?.image) || null
 
         return {
             ...selectedAnimal,
             herd,
             image,
             galleryImages,
+            galleryItems: galleryItems?.filter(item => item !== null) || null,
         }
     }
 })
@@ -329,10 +350,14 @@ export const getAnimalsForSponsorship = query({
         herdId: v.optional(v.id("herds")),
         type: v.optional(v.union(v.literal("horse"), v.literal("burro"))),
         promoted: v.optional(v.boolean()),
+        includeInMemoriam: v.optional(v.boolean()),
         paginationOpts: paginationOptsValidator,
     },
     handler: async (ctx, args) => {
-        let query = ctx.db.query("animals").filter((q) => q.neq(q.field("inMemoriam"), true))
+        let query = ctx.db.query("animals")
+        if (!args.includeInMemoriam) {
+            query = query.filter((q) => q.neq(q.field("inMemoriam"), true))
+        }
         if (args.herdId) {
             query = query.filter((q) => q.eq(q.field("herdId"), args.herdId!))
         }
@@ -375,14 +400,46 @@ export const getAnimalGalleryImages = query({
             const animal = await ctx.db.get(id)
             if (!animal) return null
 
-            const imagesForAnimal = await Promise.all(
-                ((animal.gallery || []) as Id<"images">[])
-                    .map(async (imageId) => resolveImageId(ctx, imageId))
+            const galleryIds = animal.gallery || []
+
+            const itemsForAnimal = await Promise.all(
+                galleryIds.map(async (itemId) => resolveGalleryItem(ctx, itemId))
+            )
+
+            // Filter to only image items and extract the image data for backwards compatibility
+            const imageItems = itemsForAnimal.filter(item => item !== null && item.type === "image")
+            const images = imageItems.map(item => {
+                if (item && item.type === "image") {
+                    return item.image
+                }
+                return null
+            })
+
+            return {
+                animalId: animal._id,
+                items: itemsForAnimal.filter(item => item !== null),
+                images: images.filter(img => img !== null)
+            }
+        }))
+    },
+})
+
+export const getAnimalGalleryItems = query({
+    args: { ids: v.array(v.id("animals")) },
+    handler: async (ctx, args) => {
+        return await Promise.all(args.ids.map(async (id) => {
+            const animal = await ctx.db.get(id)
+            if (!animal) return null
+
+            const galleryIds = animal.gallery || []
+
+            const itemsForAnimal = await Promise.all(
+                galleryIds.map(async (itemId) => resolveGalleryItem(ctx, itemId))
             )
 
             return {
                 animalId: animal._id,
-                images: imagesForAnimal
+                items: itemsForAnimal.filter(item => item !== null)
             }
         }))
     },
@@ -405,6 +462,18 @@ export const getAnimalStats = query({
             burros: allAnimals.filter(a => a.type === "burro").length,
             inMemoriam: allAnimals.filter(a => a.inMemoriam).length,
         }
+    },
+})
+
+export const getAdoptableAnimals = query({
+    args: {},
+    handler: async (ctx) => {
+        const animals = await ctx.db
+            .query("animals")
+            .withIndex("by_adoptable", (q) => q.eq("adoptable", true))
+            .collect()
+
+        return await resolveAnimalRelations(ctx, animals)
     },
 })
 

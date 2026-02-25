@@ -1,10 +1,58 @@
 import { v } from "convex/values"
+import { paginationOptsValidator } from "convex/server"
 import { query, mutation } from "./_generated/server"
 import { indexArray } from "./utils"
 import { getCurrentUserOrThrow } from "./users"
 import { peopleAggregate } from "./aggregates"
 import { resolveImageId } from "./images"
 import { Doc, Id } from "./_generated/dataModel"
+
+export const searchPeopleLight = query({
+    args: {
+        query: v.string(),
+    },
+    handler: async (ctx, args) => {
+        let people
+        if (!args.query.trim()) {
+            people = await ctx.db
+                .query("people")
+                .take(20)
+        } else {
+            people = await ctx.db
+                .query("people")
+                .withSearchIndex("searchName", (q) => q.search("name", args.query))
+                .take(20)
+        }
+        return people.map(p => ({ _id: p._id, name: p.name }))
+    },
+})
+
+export const searchPeoplePaginated = query({
+    args: {
+        query: v.string(),
+        paginationOpts: paginationOptsValidator,
+    },
+    handler: async (ctx, args) => {
+        if (!args.query.trim()) {
+            const results = await ctx.db
+                .query("people")
+                .order("desc")
+                .paginate(args.paginationOpts)
+            return {
+                ...results,
+                page: results.page.map(p => ({ _id: p._id, name: p.name })),
+            }
+        }
+        const results = await ctx.db
+            .query("people")
+            .withSearchIndex("searchName", (q) => q.search("name", args.query))
+            .paginate(args.paginationOpts)
+        return {
+            ...results,
+            page: results.page.map(p => ({ _id: p._id, name: p.name })),
+        }
+    },
+})
 
 export const searchPeople = query({
     args: {
@@ -130,7 +178,10 @@ export const listPeople = query({
             const boardsForPeople = people.map(person => {
                 const pabs = peopleAdvisoryBoardsMap.get(person._id) || []
                 const boards = pabs
-                    .map(pab => boardsMap.get(pab.advisoryBoardId) || [])
+                    .map(pab => {
+                        const boardsForId = boardsMap.get(pab.advisoryBoardId) || []
+                        return boardsForId.map(board => ({ ...board, pabOrder: pab.order }))
+                    })
                     .flat()
                     .filter(x => !!x)
                 return boards
@@ -214,15 +265,15 @@ export const getPersonWithAdvisoryBoards = query({
 export const createPerson = mutation({
     args: {
         name: v.string(),
-        title: v.string(),
-        bio: v.string(),
+        title: v.optional(v.string()),
+        bio: v.optional(v.string()),
         imageId: v.optional(v.id("images")),
-        isDirector: v.boolean(),
-        isStaff: v.boolean(),
-        isEquine: v.boolean(),
-        isStoryTeller: v.boolean(),
-        isAmbassador: v.boolean(),
-        inMemoriam: v.boolean(),
+        isDirector: v.optional(v.boolean()),
+        isStaff: v.optional(v.boolean()),
+        isEquine: v.optional(v.boolean()),
+        isStoryTeller: v.optional(v.boolean()),
+        isAmbassador: v.optional(v.boolean()),
+        inMemoriam: v.optional(v.boolean()),
         advisoryBoardIds: v.optional(v.array(v.id("advisoryBoards"))),
     },
     handler: async (ctx, args) => {

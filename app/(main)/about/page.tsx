@@ -1,11 +1,11 @@
-import Image from "next/image";
-import Link from "next/link";
-import Button from "@/components/public-ui/Button";
+import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit";
 
 import NewsCarousel from "../../../components/NewsCarousel";
 import DocumentsWidget from "./DocumentsWidget";
+import OurPeopleBento from "./OurPeopleBento";
 import AboutHeroImg from "@/public/img/about_hero.jpg";
-import NedaAndSpirit from "@/public/img/neda-and-spirit.jpg";
+import MissionImg from "@/public/img/ares-mares.jpg";
+import VisionImg from "@/public/img/Owyhee-9925-scaled.jpg";
 import Hero from "@/components/public-ui/Hero";
 import Callout from "@/components/public-ui/Callout";
 import ScrollReveal from "@/components/public-ui/ScrollReveal";
@@ -31,29 +31,45 @@ const AboutPage = () => {
         </ScrollReveal>
       </div>
 
-      <div className="w-full h-fit py-4 px-4 flex flex-col items-center justify-center gap-12">
-        <ScrollReveal variant="fade-up" className="w-7/12">
-          <div
-            className="bg-pewter px-14 py-16 rounded-[33px]
-                  flex flex-col items-center justify-center gap-4"
-          >
-            <div className="text-[70px] font-serif text-white">Mission</div>
-            <div className="text-[24px] text-white text-center">
+      <div className="w-full relative h-[90vh] flex items-center justify-center overflow-hidden">
+        <ImageWithAuthorCredit
+          src={MissionImg}
+          alt="Wild horses at Return to Freedom"
+          fill
+          className="absolute inset-0 w-full h-full object-cover object-center"
+          wrapperClassName="absolute inset-0 w-full h-full"
+        />
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="relative z-10 flex flex-col items-center justify-center gap-6 px-6 max-w-4xl">
+          <ScrollReveal variant="fade-up" duration={0.8}>
+            <div className="text-[70px] font-serif text-white text-center">Mission</div>
+          </ScrollReveal>
+          <ScrollReveal variant="fade-up" delay={0.2} duration={0.8}>
+            <div className="text-[22px] md:text-[24px] text-white text-center leading-relaxed">
               Return to Freedom is dedicated to preserving the freedom, diversity,
               and habitat of America's wild horses and burros through sanctuary,
               education, advocacy, and conservation, while enriching the human
               spirit through direct experience with the natural world.
             </div>
-          </div>
-        </ScrollReveal>
+          </ScrollReveal>
+        </div>
+      </div>
 
-        <ScrollReveal variant="fade-up" delay={0.15} className="w-7/12">
-          <div
-            className="bg-pewter px-14 py-16 rounded-[33px]
-                  flex flex-col items-center justify-center gap-4"
-          >
-            <div className="text-[48px] font-serif text-white">Vision</div>
-            <div className="text-[20px] text-white text-center">
+      <div className="w-full relative h-[90vh] flex items-center justify-center overflow-hidden">
+        <ImageWithAuthorCredit
+          src={VisionImg}
+          alt="Wild horses in open landscape"
+          fill
+          className="absolute inset-0 w-full h-full object-cover object-center"
+          wrapperClassName="absolute inset-0 w-full h-full"
+        />
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="relative z-10 flex flex-col items-center justify-center gap-6 px-6 max-w-4xl">
+          <ScrollReveal variant="fade-up" duration={0.8}>
+            <div className="text-[56px] md:text-[64px] font-serif text-white text-center">Vision</div>
+          </ScrollReveal>
+          <ScrollReveal variant="fade-up" delay={0.2} duration={0.8}>
+            <div className="text-[18px] md:text-[20px] text-white text-center leading-relaxed">
               Return to Freedom is poised to take our management model to the next
               level by creating a first-of-its-kind Wild Horse and Burro
               Conservancy and Wilderness Preserve. This historical Land Trust will
@@ -62,37 +78,11 @@ const AboutPage = () => {
               horse ranges, and be home to natural family bands captured from
               federal lands.
             </div>
-          </div>
-        </ScrollReveal>
+          </ScrollReveal>
+        </div>
       </div>
 
-      <ScrollReveal variant="fade-in" className="w-full h-fit py-12 flex flex-col items-center justify-center gap-4">
-        <div className="border-[3px] border-sage-green rounded-md max-w-11/12 md:max-w-1/2 h-fit flex flex-col md:flex-row">
-          <div className="relative w-full md:w-1/2">
-            <Image
-              src={NedaAndSpirit}
-              alt="Neda and Spirit"
-              className="w-full aspect-square md:h-full object-cover"
-            />
-          </div>
-          <div className="md:w-1/2 p-6 flex flex-col items-start justify-center gap-2">
-            <div className="text-[36px] font-serif text-sage-green">
-              Our People
-            </div>
-            <div className="text-[16px] text-ink">
-              The RTF team is dedicated to preserving the freedom, diversity,
-              and habitat of America's wild horses and burros through sanctuary,
-              education, advocacy, and conservation, while enriching the human
-              spirit through direct experience with the natural world.
-            </div>
-            <Link href="/about/people">
-              <Button color="burnt-orange" className="py-1">
-                MEET THE TEAM
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </ScrollReveal>
+      <OurPeopleBento />
 
       <ScrollReveal variant="fade-up">
         <NewsCarousel bgColor="transparent" title="RTF in the News" />

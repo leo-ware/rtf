@@ -1,12 +1,21 @@
 "use client"
 
 import CardLayout from "@/components/public-ui/CardLayout"
-import { DonationWidgets } from "./DonationWidgets"
+import DonatePathwayCard from "./DonatePathwayCard"
 import { randomChoice } from "@/lib/utils"
 import { useRef } from "react"
+import { useQuery } from "convex/react"
+import { api } from "@/convex/_generated/api"
 
 const MoreWaysWidget = () => {
-    const widgets = useRef(randomChoice(3, Object.entries(DonationWidgets), {stable: true}))
+    const pathways = useQuery(api.donatePathways.listPublicDonatePathways)
+    const selectedRef = useRef<NonNullable<typeof pathways> | null>(null)
+
+    if (!pathways) return null
+
+    if (selectedRef.current === null) {
+        selectedRef.current = randomChoice(3, pathways, { stable: true })
+    }
 
     return (
         <div className="w-full flex flex-col gap-6">
@@ -16,7 +25,9 @@ const MoreWaysWidget = () => {
 
             <div className="w-10/12 mx-auto h-fit">
                 <CardLayout>
-                    {widgets.current.map(([key, Widget]) => <Widget key={key} />)}
+                    {selectedRef.current.map((pathway) => (
+                        <DonatePathwayCard key={pathway._id} pathway={pathway} />
+                    ))}
                 </CardLayout>
             </div>
         </div>

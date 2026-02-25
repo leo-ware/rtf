@@ -200,6 +200,7 @@ export const ImagePicker = ({onClose, onImageSelect, isOpen}: ImagePickerProps) 
                                 onImageUploaded={(imageData) => setSelectedImage({imageId: imageData._id, url: imageData.url || ''})}
                                 multiple={false}
                                 maxSizeInMB={10}
+                                accept="image/png,image/jpeg"
                             />
                         </div>
                     )}

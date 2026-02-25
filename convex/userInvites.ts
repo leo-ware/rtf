@@ -74,10 +74,16 @@ export const inviteUser = action({
             throw new Error("Insufficient permissions");
         }
 
+        // Only dev users can invite other dev users
+        if (args.role === "dev" && currentUser.role !== "dev") {
+            throw new Error("Only dev users can invite dev users");
+        }
+
         const clerkClient = createClerkClient();
+        const baseUrl = process.env.SITE_URL || "https://returntofreedom.org";
         const invitation = await clerkClient.invitations.createInvitation({
             emailAddress: args.email,
-            redirectUrl: "/admin"
+            redirectUrl: `${baseUrl}/admin`
         });
         
         // if this operation fails, then the user will be invtited but we won't know about it

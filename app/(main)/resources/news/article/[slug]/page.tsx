@@ -29,7 +29,7 @@ export const generateMetadata = async ({ params }: Props): Promise<Metadata> => 
             publishedTime: article.articleMetadata.date
                 ? new Date(article.articleMetadata.date).toISOString()
                 : undefined,
-            authors: article.authorCredit ? [article.authorCredit] : undefined,
+            authors: article.authorNames && article.authorNames.length > 0 ? article.authorNames : (article.authorCredit ? [article.authorCredit] : undefined),
             images: article.image?.url ? [{ url: article.image.url }] : [],
         },
         twitter: {

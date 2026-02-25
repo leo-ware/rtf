@@ -1,9 +1,12 @@
 "use client"
 
+import { useEffect, useRef } from "react"
 import { useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import Hero from "@/components/public-ui/Hero"
 import HeroImg from "../learn-hero.jpg"
+import { ArticleRenderer } from "@/components/ArticleRenderer"
+import { trackEvent, AnalyticsEvents } from "@/lib/analytics"
 
 type LearnArticleContentProps = {
     slug: string
@@ -11,6 +14,18 @@ type LearnArticleContentProps = {
 
 const LearnArticleContent = ({ slug }: LearnArticleContentProps) => {
     const article = useQuery(api.educationArticles.getPublicBySlug, { slug })
+    const tracked = useRef(false)
+
+    useEffect(() => {
+        if (article && !tracked.current) {
+            tracked.current = true
+            trackEvent(AnalyticsEvents.ARTICLE_VIEWED, {
+                type: "learn",
+                title: article.title,
+                slug,
+            })
+        }
+    }, [article, slug])
 
     if (article === undefined) {
         return (
@@ -52,9 +67,9 @@ const LearnArticleContent = ({ slug }: LearnArticleContentProps) => {
                     </div>
                 </div>
 
-                <div
+                <ArticleRenderer
+                    content={article.content}
                     className="prose prose-lg max-w-none"
-                    dangerouslySetInnerHTML={{ __html: article.content }}
                 />
             </div>
         </div>

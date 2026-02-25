@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useRef } from "react"
 import { useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Id } from "@/convex/_generated/dataModel"
@@ -8,6 +9,7 @@ import Header from "@/components/public-ui/Header"
 import ConvexImage from "@/components/images/ConvexImage"
 import LargeLoader from "@/components/public-ui/LargeLoader"
 import RegisterButton from "@/components/RegisterButton"
+import { trackEvent, AnalyticsEvents } from "@/lib/analytics"
 
 type EventContentProps = {
     eventId: Id<"events">
@@ -15,6 +17,17 @@ type EventContentProps = {
 
 const EventContent = ({ eventId }: EventContentProps) => {
     const event = useQuery(api.events.getEventById, { id: eventId })
+    const tracked = useRef(false)
+
+    useEffect(() => {
+        if (event && !tracked.current) {
+            tracked.current = true
+            trackEvent(AnalyticsEvents.EVENT_VIEWED, {
+                title: event.title,
+                eventId,
+            })
+        }
+    }, [event, eventId])
 
     if (event === null) {
         return notFound()
@@ -35,6 +48,7 @@ const EventContent = ({ eventId }: EventContentProps) => {
                         width={event?.image?.width || 0}
                         height={event?.image?.height || 0}
                         className="w-full h-full object-cover"
+                        authorCredit={event?.image?.authorCredit}
                     />
                 ) : (
                     null
@@ -70,7 +84,7 @@ const EventContent = ({ eventId }: EventContentProps) => {
                     </div>
                 </div>
 
-                <div className="w-full my-8 mx-auto h-fit flex items-center justify-center">
+                <div className="not-prose w-full my-8 mx-auto h-fit flex items-center justify-center">
                     <RegisterButton eventId={eventId} />
                 </div>
             </div>

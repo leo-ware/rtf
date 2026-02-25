@@ -55,6 +55,7 @@ const SponsorABurroPage = () => {
                                         width={promotedAnimal.image.width || 400}
                                         height={promotedAnimal.image.height || 300}
                                         className="w-full h-full object-cover object-center"
+                                        authorCredit={promotedAnimal.image.authorCredit}
                                     />
                                 </div>
                             )}
@@ -68,6 +69,7 @@ const SponsorABurroPage = () => {
                                         width={galleryImages[0]!.width || 400}
                                         height={galleryImages[0]!.height || 300}
                                         className="w-full h-full object-cover object-center"
+                                        authorCredit={"authorCredit" in galleryImages[0]! ? galleryImages[0]!.authorCredit : undefined}
                                     />
                                 </div>
                             )}
@@ -88,6 +90,7 @@ const SponsorABurroPage = () => {
                                                         width={image!.width || 400}
                                                         height={image!.height || 300}
                                                         className="w-full h-full object-cover object-center"
+                                                        authorCredit={"authorCredit" in image! ? image!.authorCredit : undefined}
                                                     />
                                                 </div>
                                             )
@@ -119,7 +122,7 @@ const SponsorABurroPage = () => {
                 )}
             </div>
 
-            <SponsorAHorseMenu title="Explore Other Burros to Sponsor" type="burro" />
+            <SponsorAHorseMenu title="Explore Other Burros to Sponsor" type="burro" includeInMemoriam />
 
         </div>
     )

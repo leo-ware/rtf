@@ -151,7 +151,19 @@ const AdvisoryBoardPage = (props: PageProps<{ advisoryBoardId: Id<"advisoryBoard
                                                         <AlertDialogCancel onClick={() => setRemoveDialogOpen(null)}>
                                                             Cancel
                                                         </AlertDialogCancel>
-                                                        <AlertDialogAction>
+                                                        <AlertDialogAction
+                                                            onClick={async () => {
+                                                                const currentPeople = advisoryBoard.peopleAdvisoryBoards
+                                                                    .filter(pab => pab._id !== removeDialogOpen)
+                                                                    .sort((a, b) => a.order - b.order)
+                                                                    .map(pab => pab.person._id)
+                                                                await updatePeopleAdvisoryBoards({
+                                                                    id: advisoryBoardId,
+                                                                    people: currentPeople
+                                                                })
+                                                                setRemoveDialogOpen(null)
+                                                            }}
+                                                        >
                                                             Remove
                                                         </AlertDialogAction>
                                                     </AlertDialogFooter>

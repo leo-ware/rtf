@@ -76,8 +76,12 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
 
         const uploadObjects = files.map(file => {
             let validationError: string | null = null
-            if (!file.type.startsWith("image/")) {
-                validationError =  "File must be an image";
+            const allowedTypes = accept.split(",").map(t => t.trim())
+            if (!allowedTypes.includes(file.type)) {
+                const friendlyTypes = allowedTypes
+                    .map(t => t.replace("image/", "").toUpperCase())
+                    .join(" or ")
+                validationError = `Only ${friendlyTypes} files are allowed`
             }
             // Check file size
             const sizeInMB = file.size / (1024 * 1024);

@@ -324,6 +324,60 @@ export default class EventManager {
         }
     }
 
+    static async getUpcomingPaginated(
+        ctx: QMCtxType,
+        options: { publicOnly?: boolean },
+        paginationOpts: { numItems: number; cursor: string | null }
+    ) {
+        const now = Date.now()
+
+        const result = await ctx.db
+            .query("events")
+            .withIndex("by_date_number", q => q.gte("dateNumber", now))
+            .order("asc")
+            .paginate(paginationOpts)
+
+        const eventsWithRelations = await Promise.all(
+            result.page.map(event => EventManager.assembleRelations(ctx, event))
+        )
+        const eventsFiltered = eventsWithRelations
+            .filter((e): e is EventWithProgram => e !== null)
+            .filter(e => (!options.publicOnly || e.isPublic))
+
+        return {
+            ...result,
+            page: eventsFiltered,
+        }
+    }
+
+    static async getUpcomingStandalone(
+        ctx: QMCtxType
+    ): Promise<Array<EventWithProgram>> {
+        const now = Date.now()
+
+        const events = await ctx.db
+            .query("events")
+            .withIndex("by_date_number", q => q.gte("dateNumber", now))
+            .order("asc")
+            .collect()
+
+        const eventsWithRelations = await Promise.all(
+            events.map(event => EventManager.assembleRelations(ctx, event))
+        )
+
+        const filtered: EventWithProgram[] = []
+        for (const event of eventsWithRelations) {
+            if (!event || !event.isPublic || !event.programId) continue
+            const program = await ctx.db.get(event.programId)
+            if (!program) continue
+            const programGroup = await ctx.db.get(program.programGroupId)
+            if (!programGroup || programGroup.name !== STANDALONE_EVENTS_GROUP_NAME) continue
+            filtered.push(event)
+        }
+
+        return filtered
+    }
+
     static async getById(
         ctx: QMCtxType,
         id: Id<"events">

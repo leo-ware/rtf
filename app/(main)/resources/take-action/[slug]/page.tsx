@@ -1,19 +1,33 @@
 "use client"
 
-import { use } from "react"
+import { use, useEffect, useRef } from "react"
 import { useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { notFound } from "next/navigation"
 import { PageProps } from "@/lib/types"
 import ConvexImageFromId from "@/components/images/ConvexImageFromId"
-import Image from "next/image"
+import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import FallbackImage from "@/components/images/take-action-1.jpg"
+import { ArticleRenderer } from "@/components/ArticleRenderer"
+import { trackEvent, AnalyticsEvents } from "@/lib/analytics"
 
 const TakeActionArticlePage = ({ params }: PageProps<{ slug: string }>) => {
     const resolvedParams = use(params)
     const article = useQuery(api.takeActionArticle.getTakeActionArticleBySlug, {
         slug: resolvedParams.slug,
     })
+    const tracked = useRef(false)
+
+    useEffect(() => {
+        if (article && !tracked.current) {
+            tracked.current = true
+            trackEvent(AnalyticsEvents.ARTICLE_VIEWED, {
+                type: "take_action",
+                title: article.title,
+                slug: resolvedParams.slug,
+            })
+        }
+    }, [article, resolvedParams.slug])
 
     if (article === undefined) {
         return (
@@ -57,7 +71,7 @@ const TakeActionArticlePage = ({ params }: PageProps<{ slug: string }>) => {
                                 className="w-full h-full object-cover"
                             />
                         ) : (
-                            <Image
+                            <ImageWithAuthorCredit
                                 src={FallbackImage}
                                 alt={article.title}
                                 className="w-full h-full object-cover"
@@ -66,9 +80,9 @@ const TakeActionArticlePage = ({ params }: PageProps<{ slug: string }>) => {
                     </div>
                 </div>
 
-                <div
+                <ArticleRenderer
+                    content={article.content}
                     className="prose prose-lg max-w-none"
-                    dangerouslySetInnerHTML={{ __html: article.content }}
                 />
             </div>
         </div>

@@ -1,7 +1,8 @@
-import Image, { StaticImageData } from "next/image"
+import { StaticImageData } from "next/image"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import ConvexImage from "./images/ConvexImage"
+import ImageWithAuthorCredit from "./images/ImageWithAuthorCredit"
 import { ResolvedImageType } from "@/lib/types"
 
 type TakeActionLinkProps = {
@@ -13,6 +14,8 @@ type TakeActionLinkProps = {
 }
 
 const TakeActionLink = ({ title, fallbackImage, image, href, className }: TakeActionLinkProps) => {
+    const authorCredit = image?.authorCredit
+
     const card = (
         <div className={cn("aspect-[8/7] w-full bg-seashell rounded-md overflow-hidden", className)}>
             <div className="relative w-full h-8/12">
@@ -23,10 +26,11 @@ const TakeActionLink = ({ title, fallbackImage, image, href, className }: TakeAc
                         width={image.width}
                         height={image.height}
                         className="w-full h-full object-cover object-center"
+                        authorCredit={authorCredit}
                     />
                 ) : (
                 fallbackImage ? (
-                    <Image
+                    <ImageWithAuthorCredit
                         src={fallbackImage}
                         alt={title}
                         className="w-full h-full object-cover object-center" />

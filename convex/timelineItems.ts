@@ -83,3 +83,26 @@ export const deleteTimelineItem = mutation({
     },
 })
 
+// Reorder timeline items
+export const reorderTimelineItems = mutation({
+    args: {
+        items: v.array(v.object({
+            id: v.id("timelineItem"),
+            order: v.number(),
+        })),
+    },
+    returns: v.null(),
+    handler: async (ctx, args) => {
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions")
+        }
+
+        const now = Date.now()
+        for (const item of args.items) {
+            await ctx.db.patch(item.id, { order: item.order, updatedAt: now })
+        }
+        return null
+    },
+})
+

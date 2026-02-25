@@ -9,16 +9,18 @@ type TabItem = {
     content: React.ReactNode
 }
 
-const Tabs = ({ 
-    items, 
-    className, 
+const Tabs = ({
+    items,
+    className,
     showDivider = true,
-    defaultTabSelector
-}: { 
-    items: TabItem[], 
-    className?: string, 
+    defaultTabSelector,
+    onTabChange
+}: {
+    items: TabItem[],
+    className?: string,
     showDivider?: boolean,
-    defaultTabSelector?: (item: TabItem) => boolean
+    defaultTabSelector?: (item: TabItem) => boolean,
+    onTabChange?: (id: string) => void
 }) => {
     const getDefaultTab = () => {
         if (defaultTabSelector) {
@@ -43,7 +45,10 @@ const Tabs = ({
                             text-md uppercase font-semibold
                             ${activeTab === id ? "text-cinnamon" : "text-ink"}
                         `}
-                        onClick={() => setActiveTab(id)}
+                        onClick={() => {
+                            setActiveTab(id)
+                            onTabChange?.(id)
+                        }}
                     >
                         {title}
                     </div>

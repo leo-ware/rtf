@@ -3,6 +3,7 @@ import { query, mutation } from "./_generated/server";
 import { getCurrentUserOrThrow } from "./users";
 import ExternalArticleManager from "./models/externalArticleManager";
 import { paginationOptsValidator } from "convex/server";
+import { articleMetadataAggregate } from "./aggregates";
 
 export const listExternalArticles = query({
     args: {
@@ -47,6 +48,15 @@ export const createExternalArticle = mutation({
             throw new Error("Insufficient permissions");
         }
         const manager = await ExternalArticleManager.create(ctx, args);
+
+        const externalArticle = await ctx.db.get(manager.id)
+        if (externalArticle) {
+            const articleMetadata = await ctx.db.get(externalArticle.articleMetadataId)
+            if (articleMetadata) {
+                await articleMetadataAggregate.insert(ctx, articleMetadata)
+            }
+        }
+
         return manager.id;
     },
 });
@@ -82,6 +92,16 @@ export const deleteExternalArticle = mutation({
             throw new Error("Insufficient permissions");
         }
         const manager = new ExternalArticleManager(args.id);
+
+        // Delete aggregate entry before deleting
+        const externalArticle = await ctx.db.get(args.id)
+        if (externalArticle) {
+            const articleMetadata = await ctx.db.get(externalArticle.articleMetadataId)
+            if (articleMetadata) {
+                await articleMetadataAggregate.delete(ctx, articleMetadata)
+            }
+        }
+
         await manager.delete(ctx);
         return manager.id;
     },

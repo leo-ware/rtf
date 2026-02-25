@@ -7,6 +7,7 @@ import Link from "next/link"
 import Button from "./public-ui/Button"
 import { formatDate } from "@/lib/utils"
 import { ImSpinner8 } from "react-icons/im"
+import { trackEvent, AnalyticsEvents } from "@/lib/analytics"
 
 type RegisterButtonProps = {
     eventId: Id<"events">
@@ -27,6 +28,7 @@ const EventRegisterButton = ({ eventId }: { eventId: Id<"events"> }) => {
                 href={`/visit-us/events/${eventId}/register`}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackEvent(AnalyticsEvents.EVENT_REGISTER_CLICKED, { eventId })}
                 className={`
                     py-2 px-[26px] w-full
                     text-white text-[16px] font-bold uppercase no-underline
@@ -103,6 +105,7 @@ const ProgramRegisterButton = ({ programId }: { programId: Id<"programs"> }) => 
                                     onMouseDown={(e) => {
                                         e.stopPropagation()
                                     }}
+                                    onClick={() => trackEvent(AnalyticsEvents.EVENT_REGISTER_CLICKED, { eventId: date.id, programId })}
                                     className={`
                                     w-fit min-w-[200px] whitespace-nowrap py-2 px-2
                                     text-center text-[16px]

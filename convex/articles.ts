@@ -3,6 +3,7 @@ import { query, mutation } from "./_generated/server";
 import { getCurrentUserOrThrow } from "./users";
 import ArticleManager from "./models/articleManager";
 import { extractTopicsList } from "./models/articleMetadataManager";
+import { articleMetadataAggregate } from "./aggregates";
 
 
 export const getArticle = query({
@@ -45,9 +46,19 @@ export const createArticle = mutation({
         date: v.number(),
         imageId: v.id("images"),
         authorCredit: v.optional(v.string()),
+        authors: v.optional(v.array(v.id("people"))),
     },
     handler: async (ctx, args) => {
         const manager = await ArticleManager.create(ctx, args);
+
+        const article = await manager.get(ctx)
+        if (article) {
+            const articleMetadata = await ctx.db.get(article.articleMetadataId)
+            if (articleMetadata) {
+                await articleMetadataAggregate.insert(ctx, articleMetadata)
+            }
+        }
+
         return manager.id;
     },
 });
@@ -59,6 +70,7 @@ export const updateArticle = mutation({
         content: v.optional(v.string()),
         imageId: v.optional(v.id("images")),
         authorCredit: v.optional(v.string()),
+        authors: v.optional(v.array(v.id("people"))),
     },
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
@@ -72,6 +84,7 @@ export const updateArticle = mutation({
             content: args.content,
             imageId: args.imageId,
             authorCredit: args.authorCredit,
+            authors: args.authors,
         });
         return manager.id;
     }
@@ -88,6 +101,16 @@ export const deleteArticle = mutation({
         }
 
         const manager = new ArticleManager(args.id);
+
+        // Delete aggregate entry before deleting
+        const article = await manager.get(ctx)
+        if (article) {
+            const articleMetadata = await ctx.db.get(article.articleMetadataId)
+            if (articleMetadata) {
+                await articleMetadataAggregate.delete(ctx, articleMetadata)
+            }
+        }
+
         await manager.delete(ctx);
         return manager.id;
     },

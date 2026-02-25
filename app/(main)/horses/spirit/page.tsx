@@ -1,6 +1,6 @@
 import Hero from "@/components/public-ui/Hero"
 import Header from "@/components/public-ui/Header"
-import Image from "next/image"
+import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import AlternatingPictureLayout from "@/components/public-ui/AlternatingPictureLayout"
 import GenericDonateDialogue from "@/components/donation-widgets/GenericDonateDialogue"
 
@@ -28,11 +28,12 @@ const SpiritPage = () => {
                 for 'Spirit: Stallion of the Cimarron'
             </Header>
             <div className="relative w-full h-[60vh]">
-                <Image
+                <ImageWithAuthorCredit
                     src={SpiritAnimated}
                     alt="Spirit"
                     className="w-full h-[60vh] object-cover object-center"
                     fill
+                    wrapperClassName="w-full h-full"
                 />
             </div>
             <AlternatingPictureLayout
@@ -85,11 +86,12 @@ const SpiritPage = () => {
                 ]} />
 
             <div className="relative w-full h-[80vh]">
-                <Image
+                <ImageWithAuthorCredit
                     src={SpiritRunning}
                     alt="Spirit Running"
                     className="w-full h-full object-cover object-center"
                     fill
+                    wrapperClassName="w-full h-full"
                 />
             </div>
 
@@ -107,11 +109,12 @@ const SpiritPage = () => {
 
             <div className="w-full h-[500px] flex bg-black">
                 <div className="relative w-1/2 h-full">
-                    <Image
+                    <ImageWithAuthorCredit
                         src={SpiritHeadshot}
                         alt="Spirit Headshot"
                         className="w-full h-full object-cover object-center"
                         fill
+                        wrapperClassName="w-full h-full"
                     />
                 </div>
 
