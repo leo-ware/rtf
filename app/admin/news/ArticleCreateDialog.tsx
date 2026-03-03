@@ -21,6 +21,8 @@ import { generateSlug } from "@/lib/utils";
 import InfoWidget from "@/components/InfoWidget";
 import { useRouter } from "next/navigation";
 import ImagePickerDialog from "@/components/images/ImagePickerDialog";
+import { ArticleCategorization } from "@/components/ArticleCategorization";
+import { TopicNameType } from "@/lib/topicType";
 
 const ArticleCreateDialog = () => {
 
@@ -35,6 +37,10 @@ const ArticleCreateDialog = () => {
         slug: "",
         imageId: null as Id<"images"> | null,
         authorCredit: "",
+        herdIds: [] as Id<"herds">[],
+        animalIds: [] as Id<"animals">[],
+        topics: [] as TopicNameType[],
+        tags: [] as Id<"tags">[],
     });
     const [slugSetManually, setSlugSetManually] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -65,6 +71,10 @@ const ArticleCreateDialog = () => {
                 imageId: formData.imageId,
                 authorCredit: formData.authorCredit,
                 date: new Date().getTime(),
+                herdIds: formData.herdIds,
+                animalIds: formData.animalIds,
+                topics: formData.topics,
+                tags: formData.tags,
             })
             router.push(`/admin/news/article/${articleId}/edit`);
         } catch (error) {
@@ -86,6 +96,10 @@ const ArticleCreateDialog = () => {
             excerpt: "",
             imageId: null as Id<"images"> | null,
             authorCredit: "",
+            herdIds: [],
+            animalIds: [],
+            topics: [],
+            tags: [],
         });
     }
 
@@ -97,7 +111,7 @@ const ArticleCreateDialog = () => {
                     Create Article
                 </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Create New Article</DialogTitle>
                     <DialogDescription>
@@ -173,6 +187,25 @@ const ArticleCreateDialog = () => {
                             imageId={formData.imageId || null}
                             onImageSelect={(imageId) => setFormData({ ...formData, imageId: imageId || null })}
                             disabled={editingDisabled}
+                        />
+                    </div>
+
+                    <div className="space-y-4 border-t pt-4">
+                        <div>
+                            <h3 className="text-lg font-medium">Tags & Categories</h3>
+                            <p className="text-sm text-muted-foreground">
+                                Associate this article with tags and categories.
+                            </p>
+                        </div>
+                        <ArticleCategorization
+                            herdIds={formData.herdIds}
+                            setHerdIds={(herdIds) => setFormData({ ...formData, herdIds })}
+                            animalIds={formData.animalIds}
+                            setAnimalIds={(animalIds) => setFormData({ ...formData, animalIds })}
+                            topics={formData.topics}
+                            setTopics={(topics) => setFormData({ ...formData, topics })}
+                            tags={formData.tags}
+                            setTags={(tags) => setFormData({ ...formData, tags })}
                         />
                     </div>
 

@@ -18,6 +18,7 @@ import ImagePickerDialog from "@/components/images/ImagePickerDialog";
 import { Id } from "@/convex/_generated/dataModel";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { ArticleCategorization } from "@/components/ArticleCategorization";
 
 const ExternalArticleCreateDialog = ({ children }: { children?: React.ReactNode }) => {
 
@@ -29,6 +30,7 @@ const ExternalArticleCreateDialog = ({ children }: { children?: React.ReactNode 
         organization: "",
         blurb: "",
         imageId: null as Id<"images"> | null,
+        tags: [] as Id<"tags">[],
     });
 
     const resetExternalForm = () => {
@@ -38,6 +40,7 @@ const ExternalArticleCreateDialog = ({ children }: { children?: React.ReactNode 
             organization: "",
             blurb: "",
             imageId: null,
+            tags: [],
         });
     }
 
@@ -82,21 +85,22 @@ const ExternalArticleCreateDialog = ({ children }: { children?: React.ReactNode 
             setSaving(true);
             setError(null);
             try {
-                const externalArticleId = await createExternalArticle({
+                await createExternalArticle({
                     title: externalFormData.title,
                     link: externalFormData.url,
                     date: new Date().getTime(),
                     imageId: externalFormData.imageId!,
                     organization: externalFormData.organization,
                     blurb: externalFormData.blurb,
+                    tags: externalFormData.tags,
                 });
+                resetExternalForm();
+                setOpen(false);
             } catch (error) {
                 console.error("Error creating external article:", error);
                 setError("Failed to create external article");
             } finally {
                 setSaving(false);
-                resetExternalForm();
-                setOpen(false);
             }
         }
     }
@@ -117,7 +121,7 @@ const ExternalArticleCreateDialog = ({ children }: { children?: React.ReactNode 
                     )
                 }
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Add External Article</DialogTitle>
                     <DialogDescription>
@@ -187,6 +191,19 @@ const ExternalArticleCreateDialog = ({ children }: { children?: React.ReactNode 
                                     onImageSelect={(imageId) => (
                                         setExternalFormData({ ...externalFormData, imageId: imageId || null })
                                     )}
+                                />
+                            </div>
+
+                            <div className="space-y-4 border-t pt-4">
+                                <div>
+                                    <h3 className="text-lg font-medium">Tags & Categories</h3>
+                                    <p className="text-sm text-muted-foreground">
+                                        Associate this article with tags and categories.
+                                    </p>
+                                </div>
+                                <ArticleCategorization
+                                    tags={externalFormData.tags}
+                                    setTags={(tags) => setExternalFormData({ ...externalFormData, tags })}
                                 />
                             </div>
 

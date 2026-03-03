@@ -23,6 +23,7 @@ export const getExternalArticle = query({
 
 export const getExternalArticleLink = query({
     args: { id: v.id("externalArticles") },
+    returns: v.union(v.string(), v.null()),
     handler: async (ctx, args) => {
         const externalArticle = await ctx.db.get(args.id);
         if (!externalArticle) {
@@ -40,7 +41,9 @@ export const createExternalArticle = mutation({
         blurb: v.string(),
         organization: v.string(),
         date: v.number(),
+        tags: v.optional(v.array(v.id("tags"))),
     },
+    returns: v.id("externalArticles"),
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
@@ -60,7 +63,9 @@ export const updateExternalArticle = mutation({
         blurb: v.optional(v.string()),
         organization: v.optional(v.string()),
         date: v.optional(v.number()),
+        tags: v.optional(v.array(v.id("tags"))),
     },
+    returns: v.id("externalArticles"),
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
@@ -76,6 +81,7 @@ export const deleteExternalArticle = mutation({
     args: {
         id: v.id("externalArticles"),
     },
+    returns: v.id("externalArticles"),
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {

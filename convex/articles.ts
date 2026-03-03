@@ -2,7 +2,7 @@ import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { getCurrentUserOrThrow } from "./users";
 import ArticleManager from "./models/articleManager";
-import { extractTopicsList } from "./models/articleMetadataManager";
+import { extractTopicsList, convexTopicEnum } from "./models/articleMetadataManager";
 
 
 export const getArticle = query({
@@ -45,7 +45,12 @@ export const createArticle = mutation({
         date: v.number(),
         imageId: v.id("images"),
         authorCredit: v.optional(v.string()),
+        tags: v.optional(v.array(v.id("tags"))),
+        herdIds: v.optional(v.array(v.id("herds"))),
+        animalIds: v.optional(v.array(v.id("animals"))),
+        topics: v.optional(v.array(convexTopicEnum)),
     },
+    returns: v.id("articles"),
     handler: async (ctx, args) => {
         const manager = await ArticleManager.create(ctx, args);
         return manager.id;
@@ -59,7 +64,12 @@ export const updateArticle = mutation({
         content: v.optional(v.string()),
         imageId: v.optional(v.id("images")),
         authorCredit: v.optional(v.string()),
+        tags: v.optional(v.array(v.id("tags"))),
+        herdIds: v.optional(v.array(v.id("herds"))),
+        animalIds: v.optional(v.array(v.id("animals"))),
+        topics: v.optional(v.array(convexTopicEnum)),
     },
+    returns: v.id("articles"),
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
@@ -72,6 +82,10 @@ export const updateArticle = mutation({
             content: args.content,
             imageId: args.imageId,
             authorCredit: args.authorCredit,
+            tags: args.tags,
+            herdIds: args.herdIds,
+            animalIds: args.animalIds,
+            topics: args.topics,
         });
         return manager.id;
     }
@@ -81,6 +95,7 @@ export const deleteArticle = mutation({
     args: {
         id: v.id("articles"),
     },
+    returns: v.id("articles"),
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {

@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { FaCaretDown, FaCaretUp } from "react-icons/fa6";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export type SelectOption<T> = {
     label: string;
@@ -21,63 +21,47 @@ const Select = <T,>(props: SelectProps<T>) => {
     const [open, setOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
+    useEffect(() => {
+        if (!open) return
+        const handleMouseDown = (e: MouseEvent) => {
+            if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+                setOpen(false)
+            }
+        }
+        document.addEventListener("mousedown", handleMouseDown)
+        return () => document.removeEventListener("mousedown", handleMouseDown)
+    }, [open])
+
     return (
-        <div className={cn(
-            "w-40 h-10 relative",
-            props.containerClassName
-        )}>
+        <div className={cn("w-40 h-10 relative", props.containerClassName)} ref={containerRef}>
             <div
-                className={`
-                    absolute top-0 left-0 w-40 min-h-10
-                    flex flex-col items-center justify-between
-                    border-2 border-pewter rounded-sm
-                    bg-white
-                `}
-                ref={containerRef}
-                tabIndex={0}
-                onBlur={() => setOpen(false)}
+                className="h-10 w-full border-2 border-pewter rounded-sm px-2 flex items-center justify-between cursor-pointer bg-white"
+                onClick={() => setOpen(!open)}
             >
-
-                <div
-                    className="w-full h-10 py-1 px-2 flex items-center justify-between"
-                    onClick={() => setOpen(!open)}
-                >
-                    <div className="uppercase text-sm font-semibold text-pewter">
-                        {props.selectedValue === null
-                            ? props.placeholder
-                            : props.selectedValue.label
-                        }
-                    </div>
-
-                    {open
-                        ? (
-                            <div className="w-fit h-fit">
-                                <FaCaretUp size={16} className="text-pewter" />
-                            </div>
-                        ) : (
-                            <div className="w-fit h-fit">
-                                <FaCaretDown size={16} className="text-pewter" />
-                            </div>
-                        )
+                <div className="uppercase text-sm font-semibold text-pewter">
+                    {props.selectedValue === null
+                        ? props.placeholder
+                        : props.selectedValue.label
                     }
                 </div>
+                {open
+                    ? <FaCaretUp size={16} className="text-pewter" />
+                    : <FaCaretDown size={16} className="text-pewter" />
+                }
+            </div>
 
-                {open && (
-                    <div className="w-10/12 h-px mx-auto border-t-2 border-pewter opacity-50" />
-                )}
-
-                {open && (
-                    <div className="w-full h-fit flex flex-col my-2">
+            {open && (
+                <div className="absolute top-full left-0 w-full z-50 bg-white border-2 border-pewter rounded-sm mt-0.5">
+                    <div className="w-full h-fit flex flex-col py-1">
                         {props.options.map((option, i) => (
                             <div
                                 key={`${option.label}-${i}`}
                                 className={`
-                                    w-40 py-1 px-2
+                                    w-full py-1 px-2
                                     cursor-pointer
                                     flex items-center justify-between
                                     text-pewter uppercase text-sm font-semibold
                                     hover:underline underline-offset-2 decoration-2 decoration-pewter
-                                    ${props.selectedValue === option.value ? "text-semibold" : ""}
                                 `}
                                 onClick={() => {
                                     props.onSelect(option)
@@ -88,8 +72,8 @@ const Select = <T,>(props: SelectProps<T>) => {
                             </div>
                         ))}
                     </div>
-                )}
-            </div>
+                </div>
+            )}
         </div>
     )
 }
