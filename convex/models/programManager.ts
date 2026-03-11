@@ -2,6 +2,7 @@ import { Doc, Id } from "../_generated/dataModel"
 import { MutationCtx, QMCtxType } from "../types"
 import { removeUndefinedFields } from "../utils"
 import { resolveImageId, ResolvedImage } from "./imageManager"
+import { resolveGalleryItem } from "../galleryItems"
 
 // Shared types for ticket pricing
 export type TicketPriceOption = {
@@ -25,6 +26,7 @@ export type ProgramDetails = {
     contactEmail?: string
     contactPhone?: string
     maxAttendees?: number
+    gallery?: Id<"galleryItems">[]
 }
 
 // Resolved program details with related documents
@@ -60,6 +62,7 @@ export type ProgramCreateArgs = {
     contactPhone?: string
     maxAttendees?: number
     ticketPriceText?: string
+    gallery?: Id<"galleryItems">[]
 }
 
 // Args for updating a program
@@ -77,11 +80,14 @@ export type ProgramUpdateArgs = {
     contactPhone?: string
     maxAttendees?: number
     ticketPriceText?: string
+    gallery?: Id<"galleryItems">[]
 }
 
 // Internal aliases for class usage
 type CreateArgs = ProgramCreateArgs
 type UpdateArgs = ProgramUpdateArgs
+
+export type ResolvedGalleryItem = NonNullable<Awaited<ReturnType<typeof resolveGalleryItem>>>
 
 export type ProgramWithRelations = Doc<"programs"> & {
     image: ResolvedImage | null
@@ -89,6 +95,7 @@ export type ProgramWithRelations = Doc<"programs"> & {
     programGroup?: Doc<"programGroups">
     ticketPrice?: Doc<"ticketPrice"> | null
     location?: Doc<"locations"> | null
+    galleryItems?: ResolvedGalleryItem[]
 }
 
 export default class ProgramManager {
@@ -159,6 +166,13 @@ export default class ProgramManager {
             await ctx.db.delete(event._id)
         }
 
+        // Delete associated gallery items
+        if (existingProgram.gallery) {
+            for (const galleryItemId of existingProgram.gallery) {
+                await ctx.db.delete(galleryItemId)
+            }
+        }
+
         // Delete the program
         await ctx.db.delete(this.id)
     }
@@ -207,7 +221,7 @@ export default class ProgramManager {
         ctx: QMCtxType,
         program: Doc<"programs">
     ): Promise<ProgramWithRelations> {
-        const [image, events, ticketPrice, location] = await Promise.all([
+        const [image, events, ticketPrice, location, galleryItems] = await Promise.all([
             program.imageId ? resolveImageId(ctx, program.imageId) : null,
             ctx.db
                 .query("events")
@@ -216,6 +230,9 @@ export default class ProgramManager {
                 .collect(),
             program.ticketPriceId ? ctx.db.get(program.ticketPriceId) : null,
             program.locationId ? ctx.db.get(program.locationId) : null,
+            program.gallery
+                ? Promise.all(program.gallery.map(id => resolveGalleryItem(ctx, id)))
+                : [],
         ])
 
         return {
@@ -224,6 +241,7 @@ export default class ProgramManager {
             events,
             ticketPrice,
             location,
+            galleryItems: galleryItems.filter((item): item is NonNullable<typeof item> => item !== null) as ResolvedGalleryItem[],
         }
     }
 
@@ -289,7 +307,7 @@ export default class ProgramManager {
     static async getByProgramGroup(
         ctx: QMCtxType,
         programGroupId: Id<"programGroups">
-    ): Promise<Array<Doc<"programs"> & { image: ResolvedImage | null }>> {
+    ): Promise<Array<Doc<"programs"> & { image: ResolvedImage | null, galleryItems: ResolvedGalleryItem[] }>> {
         const programs = await ctx.db
             .query("programs")
             .withIndex("by_program_group", (q) =>
@@ -299,12 +317,21 @@ export default class ProgramManager {
             .collect()
 
         return await Promise.all(
-            programs.map(async (program) => ({
-                ...program,
-                image: program.imageId
-                    ? await resolveImageId(ctx, program.imageId)
-                    : null,
-            }))
+            programs.map(async (program) => {
+                const [image, galleryItems] = await Promise.all([
+                    program.imageId
+                        ? resolveImageId(ctx, program.imageId)
+                        : null,
+                    program.gallery
+                        ? Promise.all(program.gallery.map(id => resolveGalleryItem(ctx, id)))
+                        : [],
+                ])
+                return {
+                    ...program,
+                    image,
+                    galleryItems: galleryItems.filter((item): item is NonNullable<typeof item> => item !== null) as ResolvedGalleryItem[],
+                }
+            })
         )
     }
 }

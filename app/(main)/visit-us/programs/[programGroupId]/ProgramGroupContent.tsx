@@ -12,6 +12,9 @@ import Header from "@/components/public-ui/Header"
 import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import RegisterButton from "@/components/RegisterButton"
 import Button from "@/components/public-ui/Button"
+import Carousel from "@/components/Carousel"
+import GalleryVideoItem from "@/components/GalleryVideoItem"
+import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
 
 type ProgramGroupContentProps = {
     programGroupId: Id<"programGroups">
@@ -21,6 +24,11 @@ const ProgramGroupContent = ({ programGroupId }: ProgramGroupContentProps) => {
     const programGroup = useQuery(
         api.programs.getProgramGroupById,
         { id: programGroupId }
+    )
+
+    const galleryItems = useQuery(
+        api.programs.getGalleryImagesForProgramGroup,
+        { programGroupId }
     )
 
     const [openIdx, setOpenIdx] = useState<number | undefined>(undefined)
@@ -53,11 +61,10 @@ const ProgramGroupContent = ({ programGroupId }: ProgramGroupContentProps) => {
                 )}
             </div>
 
-            <Header level={1} className="text-pewter">
-                {programGroup?.name || ""}
-            </Header>
-
             <div className="w-10/12 h-fit mx-auto pb-12 flex flex-col items-center justify-center gap-16">
+                <Header level={1} className="text-pewter w-full">
+                    {programGroup?.name || ""}
+                </Header>
                 {programGroup?.programs && programGroup?.programs.length > 0
                     ? (<div className="w-full h-full flex flex-col items-center justify-center gap-12">
                         {programGroup?.programs.map((program, i) => {
@@ -89,7 +96,7 @@ const ProgramGroupContent = ({ programGroupId }: ProgramGroupContentProps) => {
                                     </div>
 
                                     <div className="basis-0 grow flex flex-col gap-4 text-[20px]">
-                                        <Header level={2} className="text-sage-green text-left">{program.name}</Header>
+                                        <Header level={2} className="text-sage-green text-left md:text-left">{program.name}</Header>
                                         <p>{program.description}</p>
                                         {isOpen && (
                                             <div>
@@ -124,6 +131,57 @@ const ProgramGroupContent = ({ programGroupId }: ProgramGroupContentProps) => {
                     )
                 }
             </div>
+
+            {galleryItems && galleryItems.length > 0 && (
+                <div className="w-8/12 h-fit flex flex-col items-center justify-center gap-4 mb-16">
+                    <Header color="sage-green" className="text-4xl">
+                        Gallery
+                    </Header>
+                    <Carousel
+                        nDisplayItems={1}
+                        autoPlay={"right"}
+                        transitionDuration={1500}
+                        autoPlayInterval={6000}
+                        leftButton={<FaCaretLeft size={30} className="text-pewter" />}
+                        rightButton={<FaCaretRight size={30} className="text-pewter" />}
+                        items={galleryItems
+                            .filter(item => !!item)
+                            .map((item, index) => {
+                                if (item.type === "image" && item.image?.url) {
+                                    return {
+                                        id: `gallery-item-${index}`,
+                                        widget: (
+                                            <div key={index} className="relative w-full aspect-[16/9]">
+                                                <ConvexImage
+                                                    src={item.image.url}
+                                                    alt={item.image.altText || `Gallery image ${index + 1}`}
+                                                    width={item.image.width || 800}
+                                                    height={item.image.height || 450}
+                                                    className="w-full h-full object-cover object-center"
+                                                />
+                                            </div>
+                                        )
+                                    }
+                                } else if (item.type === "video" && item.videoSource && item.videoId) {
+                                    return {
+                                        id: `gallery-item-${index}`,
+                                        widget: (
+                                            <GalleryVideoItem
+                                                key={index}
+                                                videoSource={item.videoSource}
+                                                videoId={item.videoId}
+                                                videoTitle={item.videoTitle}
+                                                thumbnailUrl={item.thumbnailUrl}
+                                            />
+                                        )
+                                    }
+                                }
+                                return null
+                            })
+                            .filter(item => item !== null)}
+                    />
+                </div>
+            )}
         </div>
     )
 }

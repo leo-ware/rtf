@@ -32,11 +32,10 @@ const ConservationPage = () => {
 
             <ScrollReveal variant="fade-up">
                 <Callout className="text-sage-green">
-                    Conservation at Return to Freedom is where science meets stewardship. For more than
-                    25 years, we've modeled solutions that balance the needs of wild horses, land, and
-                    people—translating sanctuary-based learning into national standards for humane management.
-                    Our conservation work focuses on three interconnected pillars: fertility control, holistic
-                    land management, and the preservation of rare historic horse strains.
+                    Return to Freedom is proud of its groundbreaking conservation work, including our
+                    pioneering use of fertility control, model holistic grazing program and preservation of
+                    threatened strains of America's mustangs. Taken together, these efforts help form the
+                    foundation of our advocacy work on behalf of wild horses and burros on our public lands.
                 </Callout>
             </ScrollReveal>
 

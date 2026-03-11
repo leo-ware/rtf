@@ -49,13 +49,13 @@ const OurPeopleBento = () => {
     const textBlock = (
         <div className="flex flex-col items-start justify-center gap-3 px-6 py-4">
             <div className="text-[36px] font-serif text-sage-green">
-                Our People
+                Our Team
             </div>
             <div className="text-[16px] text-ink leading-relaxed">
-                The RTF team is dedicated to preserving the freedom, diversity,
-                and habitat of America&apos;s wild horses and burros through sanctuary,
-                education, advocacy, and conservation, while enriching the human
-                spirit through direct experience with the natural world.
+                The people behind Return to Freedom bring together decades of experience
+                in animal care, conservation, education, and advocacy. From daily sanctuary
+                operations to national policy work, our team is united by a commitment to
+                protecting wild horses and burros and the landscapes they depend on.
             </div>
             <Link href="/about/people">
                 <Button color="cinnamon" className="py-1">

@@ -54,10 +54,10 @@ export default function Footer() {
                                 </div>
                                 <div className="text-white text-[12px] flex flex-col gap-[2px]">
                                     <Link
-                                        href="/horses/our-horses"
+                                        href="/about"
                                         className="hover:underline"
                                     >
-                                        Our Horses
+                                        About
                                     </Link>
                                     <Link
                                         href="/about/people"
@@ -66,19 +66,81 @@ export default function Footer() {
                                         Our Team
                                     </Link>
                                     <Link
+                                        href="/about/our-storytellers"
+                                        className="hover:underline"
+                                    >
+                                        Our Storytellers
+                                    </Link>
+                                    <Link
                                         href="/about/people/opportunities"
                                         className="hover:underline"
                                     >
                                         Opportunities
+                                    </Link>
+                                    <Link
+                                        href="/contact"
+                                        className="hover:underline"
+                                    >
+                                        Contact Us
                                     </Link>
                                 </div>
                             </div>
 
                             <div className="grow basis-auto">
                                 <div className="text-white font-serif text-[25px]">
-                                    Act Now
+                                    What We Do
                                 </div>
                                 <div className="text-white text-[12px] flex flex-col gap-[2px]">
+                                    <Link
+                                        href="/what-we-do/sanctuary"
+                                        className="hover:underline"
+                                    >
+                                        Sanctuary
+                                    </Link>
+                                    <Link
+                                        href="/what-we-do/conservation"
+                                        className="hover:underline"
+                                    >
+                                        Conservation
+                                    </Link>
+                                    <Link
+                                        href="/what-we-do/education"
+                                        className="hover:underline"
+                                    >
+                                        Education
+                                    </Link>
+                                    <Link
+                                        href="/what-we-do/advocacy"
+                                        className="hover:underline"
+                                    >
+                                        Advocacy
+                                    </Link>
+                                </div>
+                            </div>
+
+                            <div className="grow basis-auto">
+                                <div className="text-white font-serif text-[25px]">
+                                    Our Animals
+                                </div>
+                                <div className="text-white text-[12px] flex flex-col gap-[2px]">
+                                    <Link
+                                        href="/horses/our-horses"
+                                        className="hover:underline"
+                                    >
+                                        Our Horses
+                                    </Link>
+                                    <Link
+                                        href="/horses/our-burros"
+                                        className="hover:underline"
+                                    >
+                                        Our Burros
+                                    </Link>
+                                    <Link
+                                        href="/horses/our-herds"
+                                        className="hover:underline"
+                                    >
+                                        Our Herds
+                                    </Link>
                                     <Link
                                         href="/donate/sponsor-a-horse"
                                         className="hover:underline"
@@ -86,10 +148,48 @@ export default function Footer() {
                                         Sponsor a Horse
                                     </Link>
                                     <Link
+                                        href="/donate/sponsor-a-burro"
+                                        className="hover:underline"
+                                    >
+                                        Sponsor a Burro
+                                    </Link>
+                                </div>
+                            </div>
+
+                            <div className="grow basis-auto">
+                                <div className="text-white font-serif text-[25px]">
+                                    Explore
+                                </div>
+                                <div className="text-white text-[12px] flex flex-col gap-[2px]">
+                                    <Link
+                                        href="/resources/learn"
+                                        className="hover:underline"
+                                    >
+                                        Learn
+                                    </Link>
+                                    <Link
+                                        href="/resources/learn/articles"
+                                        className="hover:underline"
+                                    >
+                                        Resources
+                                    </Link>
+                                    <Link
                                         href="/visit-us"
                                         className="hover:underline"
                                     >
                                         Visit Us
+                                    </Link>
+                                    <Link
+                                        href="/visit-us/events"
+                                        className="hover:underline"
+                                    >
+                                        Events
+                                    </Link>
+                                    <Link
+                                        href="/visit-us/host-your-event"
+                                        className="hover:underline"
+                                    >
+                                        Host Your Event
                                     </Link>
                                     <Link
                                         href="/what-we-do/advocacy#take-action"
@@ -108,58 +208,6 @@ export default function Footer() {
                                             size={12}
                                             className="inline-block"
                                         />
-                                    </Link>
-                                </div>
-                            </div>
-
-                            <div className="grow basis-auto">
-                                <div className="text-white font-serif text-[25px]">
-                                    What We Do
-                                </div>
-                                <div className="text-white text-[12px] flex flex-col gap-[2px]">
-                                    <Link
-                                        href="/what-we-do/conservation"
-                                        className="hover:underline"
-                                    >
-                                        Conservation
-                                    </Link>
-                                    <Link
-                                        href="/what-we-do/advocacy"
-                                        className="hover:underline"
-                                    >
-                                        Advocacy
-                                    </Link>
-                                    <Link
-                                        href="/what-we-do/sanctuary"
-                                        className="hover:underline"
-                                    >
-                                        Sanctuary
-                                    </Link>
-                                    <Link
-                                        href="/what-we-do/education"
-                                        className="hover:underline"
-                                    >
-                                        Education
-                                    </Link>
-                                </div>
-                            </div>
-
-                            <div className="grow basis-auto">
-                                <div className="text-white font-serif text-[25px]">
-                                    Explore
-                                </div>
-                                <div className="text-white text-[12px] flex flex-col gap-[2px]">
-                                    <Link
-                                        href="/resources/news"
-                                        className="hover:underline"
-                                    >
-                                        News
-                                    </Link>
-                                    <Link
-                                        href="/resources/learn"
-                                        className="hover:underline"
-                                    >
-                                        Learn
                                     </Link>
                                 </div>
                             </div>

@@ -28,6 +28,13 @@ const OpportunitiesPage = () => {
             <Hero title="Opportunities" image={OpportunitiesHero} />
 
             <div className="w-full h-fit py-16 px-4 flex flex-col items-center justify-center gap-12">
+                <div className="w-10/12 md:w-8/12 lg:max-w-1/2 text-center text-lg text-ink">
+                    If you believe in protecting wild horses and burros and preserving the
+                    landscapes they depend on, we invite you to explore opportunities to work
+                    with Return to Freedom. Our team, volunteers, and partners all play a vital
+                    role in advancing humane conservation and advocacy.
+                </div>
+
                 <Header className="text-cinnamon">
                     Current Openings
                 </Header>

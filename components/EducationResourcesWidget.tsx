@@ -23,6 +23,13 @@ const EducationResourcesWidget = () => {
                 Articles, guides, and educational materials to deepen your understanding of wild horse conservation and advocacy.
             </p>
 
+            <Link
+                href="/resources/learn/articles"
+                className="text-cinnamon font-semibold text-lg hover:underline"
+            >
+                See all resources →
+            </Link>
+
             <Tabs className="w-full" items={tree?.superGroups
                 .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity))
                 .map(superGroup => ({

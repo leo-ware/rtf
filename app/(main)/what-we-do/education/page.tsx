@@ -27,10 +27,10 @@ const EducationPage = () => {
             <Hero title="Education" image={HeroImg} />
             <ScrollReveal variant="fade-up">
                 <Callout className="text-sage-green">
-                    Education is at the heart of Return to Freedom's mission. Through hands-on programs, guided
-                    tours, and immersive experiences at our sanctuaries, we connect people to the lives of wild
-                    horses and burros—building understanding, empathy, and advocacy. Our goal is to inspire
-                    informed action and a deeper respect for the world we share.
+                    Return to Freedom believes education is the most potent catalyst for change. Our experiential
+                    programs are designed to provide our visitors an understanding and appreciation of wild horses
+                    and burros and to reconnect them to the natural world. It is our hope that they will feel
+                    inspired and empowered to find their own voices as advocates for America's wild horses.
                 </Callout>
             </ScrollReveal>
             <div>
@@ -42,7 +42,7 @@ const EducationPage = () => {
                 <AlternatingPictureLayout
                     items={[
                         {
-                            title: "Programs & Events",
+                            title: "Programs & Experiences",
                             description: (
                                 <div>
                                     Join us at our sanctuaries for guided tours, Wild Horse Hikes, Photo Safaris,

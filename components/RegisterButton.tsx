@@ -31,7 +31,7 @@ const EventRegisterButton = ({ eventId }: { eventId: Id<"events"> }) => {
                 onClick={() => trackEvent(AnalyticsEvents.EVENT_REGISTER_CLICKED, { eventId })}
                 className={`
                     py-2 px-[26px] w-full
-                    text-white text-[16px] font-bold uppercase no-underline
+                    !text-white text-[16px] font-bold uppercase !no-underline
                     flex items-center justify-center`}>
                 Register
             </Link>

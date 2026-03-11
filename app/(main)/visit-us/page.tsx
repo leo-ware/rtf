@@ -9,12 +9,17 @@ import Hero from "@/components/public-ui/Hero"
 import UpcomingEventsWidget from "@/components/UpcomingEventsWidget"
 import Header from "@/components/public-ui/Header"
 import AlternatingPictureLayout from "@/components/public-ui/AlternatingPictureLayout"
+import Carousel from "@/components/Carousel"
+import ConvexImage from "@/components/images/ConvexImage"
+import GalleryVideoItem from "@/components/GalleryVideoItem"
+import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
 
 import HeroImg from "./visit-us-hero.jpg"
 import DefaultEventImage from "./defaultEventImage.png"
 
 const VisitPage = () => {
     const programGroupsRaw = useQuery(api.programs.getPublicProgramGroups)
+    const galleryItems = useQuery(api.programs.getGalleryImagesForAllPrograms)
     const status = programGroupsRaw === undefined
         ? "loading"
         : programGroupsRaw.length === 0
@@ -89,6 +94,57 @@ const VisitPage = () => {
                     />
                 )}
             </div>
+
+            {galleryItems && galleryItems.length > 0 && (
+                <div className="w-8/12 h-fit flex flex-col items-center justify-center gap-4 mb-16">
+                    <Header color="sage-green" className="text-4xl">
+                        Gallery
+                    </Header>
+                    <Carousel
+                        nDisplayItems={1}
+                        autoPlay={"right"}
+                        transitionDuration={1500}
+                        autoPlayInterval={6000}
+                        leftButton={<FaCaretLeft size={30} className="text-pewter" />}
+                        rightButton={<FaCaretRight size={30} className="text-pewter" />}
+                        items={galleryItems
+                            .filter(item => !!item)
+                            .map((item, index) => {
+                                if (item.type === "image" && item.image?.url) {
+                                    return {
+                                        id: `gallery-item-${index}`,
+                                        widget: (
+                                            <div key={index} className="relative w-full aspect-[16/9]">
+                                                <ConvexImage
+                                                    src={item.image.url}
+                                                    alt={item.image.altText || `Gallery image ${index + 1}`}
+                                                    width={item.image.width || 800}
+                                                    height={item.image.height || 450}
+                                                    className="w-full h-full object-cover object-center"
+                                                />
+                                            </div>
+                                        )
+                                    }
+                                } else if (item.type === "video" && item.videoSource && item.videoId) {
+                                    return {
+                                        id: `gallery-item-${index}`,
+                                        widget: (
+                                            <GalleryVideoItem
+                                                key={index}
+                                                videoSource={item.videoSource}
+                                                videoId={item.videoId}
+                                                videoTitle={item.videoTitle}
+                                                thumbnailUrl={item.thumbnailUrl}
+                                            />
+                                        )
+                                    }
+                                }
+                                return null
+                            })
+                            .filter(item => item !== null)}
+                    />
+                </div>
+            )}
         </div>
     )
 }

@@ -27,7 +27,7 @@ const CarouselItemWidget = ({title, description, link, reversed, image}: Carouse
         <div
             className={`
                 w-full
-                lg:h-[450px]
+                lg:h-[550px]
                 flex flex-col-reverse lg:items-center gap-2 lg:gap-0
                 ${reversed ? "lg:flex-row-reverse" : "lg:flex-row"}
             `}>
@@ -51,7 +51,7 @@ const CarouselItemWidget = ({title, description, link, reversed, image}: Carouse
             <ScrollReveal
                 variant={reversed ? "slide-left" : "slide-right"}
                 disableBelow="lg"
-                className="w-full lg:w-1/2 h-[250px] md:h-[350px] lg:h-full shrink-0 overflow-hidden"
+                className="w-full lg:w-1/2 h-[250px] md:h-[350px] lg:h-fit lg:max-h-full shrink-0 overflow-hidden lg:my-auto"
             >
                 <ImageWithAuthorCredit src={image} alt={title} className="w-full h-full object-cover object-center" />
             </ScrollReveal>
@@ -63,20 +63,23 @@ const items = [
     {
         title: "America's Wild Horses Are in Crisis",
         description: `
-            Once numbering in the millions, fewer than 80,000 wild horses remain on our public lands today. 
-            They share these lands with millions of privately owned cattle and sheep — yet wild horses 
-            receive only a small fraction of available forage and water.
+            Once numbering in the millions, fewer than 80,000 wild horses remain on our public lands today.
+            They share these lands with millions of privately owned cattle and sheep — yet wild horses
+            receive only a small fraction of available forage and water. Forage and water allocated to
+            privately owned livestock exceeds that for wild horses 50 to 1.
         `,
         link: "/",
         image: SkyDarkens
     },
     {
-        title: "The BLM's Management System Is Broken",
+        title: "The BLM's \"Management\" System Is Broken",
         description: `
-            The Bureau of Land Management (BLM) sets low population targets, called Appropriate Management 
-            Levels (AMLs), to prioritize livestock grazing. When herds exceed those numbers, helicopters chase 
-            horses into traps in violent roundups. Over 60,000 wild horses are now confined in government 
-            holding pens — more than live wild and free.
+            The Bureau of Land Management (BLM) sets low population targets, called Appropriate Management
+            Levels (AMLs), to prioritize livestock grazing. When herds exceed those numbers, livestock
+            ranchers who hold grazing permits get angry. The horses continue to reproduce and eventually the
+            BLM hires contractors who chase horses for miles over rough terrain with low flying helicopters
+            into traps. This antiquated management is costly, violent, unsustainable and unnecessary. Over
+            65,000 wild horses are now confined in government holding pens.
         `,
         link: "/what-we-do/advocacy/roundups",
         image: ThunderingHerd
@@ -84,29 +87,42 @@ const items = [
     {
         title: "Captivity Isn't the Answer",
         description: `
-            Roundups destroy family bands and cost taxpayers hundreds of millions. Many captured horses lose 
-            their federal protection under outdated laws, leaving them vulnerable to slaughter. This broken 
-            system removes horses from the wild without addressing the real causes of imbalance on our public lands.
+            Roundups and overcrowded government corrals destroy family bands and cost taxpayers hundreds of
+            millions a year, year after year. It is not a sustainable solution. The greater the expense the
+            more vulnerable the horses are. Once captured, wild horses lose their federal protection under
+            outdated laws, leaving them vulnerable to slaughter. This cycle of capture, confinement, and
+            killing doesn't manage—it destroys. While they wait in overcrowded pens, the cycle
+            continues…every foal born on the range faces an uncertain fate.
         `,
         link: "/what-we-do/advocacy/herd-management",
         image: SexyBoy
     },
     {
-        title: "There's a Humane, Science-Based Solution",
+        title: "Since 1999, Return to Freedom Has Pioneered Humane, Science-Based Solutions",
         description: `
-            Return to Freedom is one of the pioneers of PZP fertility control, a proven, safe, and reversible 
-            vaccine that stabilizes herds on the range—without roundups. With the right investment, this 
-            approach can save wild horses, save money, and restore balance to our public lands.
+            Modeled at the sanctuary which can be applied on the range. PZP fertility control, a proven,
+            safe, and reversible vaccine that can stabilize herd growth on the range by simply slowing down
+            reproduction—without roundups. By redirecting funds used for roundups and overcrowded holding
+            pens, this approach can save wild horses, save money, and restore balance to our public lands.
         `,
         link: "/what-we-do/advocacy/population-management",
         image: Munchers
     },
     {
-        title: "Return to Freedom Leads the Way",
+        title: "A Proud Vision for Our Public Lands and the American Mustang",
         description: `
-            For more than 25 years, we've combined sanctuary care, field science, and advocacy to protect wild 
-            horses and burros. Our team works in Washington and on the range—pushing for humane management, 
-            stronger laws, and a permanent end to slaughter.
+            Holistic land management can change the current paradigm allowing areas to rest and regenerate.
+            Waterholes and springs can recover, and the ecosystem thrives for all wildlife.
+        `,
+        link: "/what-we-do/conservation",
+        image: OnTheMove
+    },
+    {
+        title: "Return to Freedom Is Leading the Way",
+        description: `
+            For more than 25 years, we've combined sanctuary care, field science, and advocacy to protect
+            wild horses and burros. Our team works in Washington and on the range—pushing for humane
+            management, stronger laws, and a permanent end to horse slaughter.
         `,
         link: "/what-we-do/advocacy",
         image: OnTheMove

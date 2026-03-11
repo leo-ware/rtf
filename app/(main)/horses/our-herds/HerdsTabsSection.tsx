@@ -33,7 +33,7 @@ const HerdContent = ({ herdId }: { herdId: Id<"herds"> }) => {
                 </div>
 
                 {herd.image && (
-                    <div className="relative w-full h-[500px]">
+                    <div className="relative w-full h-[500px] rounded-lg overflow-hidden">
                         {herd.image.url && (
                             <ImageWithAuthorCredit
                                 src={herd.image.url}
@@ -96,7 +96,7 @@ const HerdContent = ({ herdId }: { herdId: Id<"herds"> }) => {
                 </div>
             )}
 
-            <div className="w-full relative">
+            <div className="w-11/12 md:w-8/12 mx-auto relative rounded-lg overflow-hidden">
                 <ImageWithAuthorCredit
                     src={SponsorHerdBg}
                     alt="Sponsor Herd Background"

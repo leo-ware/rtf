@@ -22,7 +22,7 @@ const AboutPage = () => {
         <ScrollReveal variant="fade-up">
           <Callout className="text-ink">
             Return to Freedom is a 501(c)(3) nonprofit wild horse sanctuary
-            founded in the late 1990s by equine enthusiast Neda DeMayo. What began
+            founded in 1997 by equine enthusiast Neda DeMayo. What began
             as a childhood dream blossomed into a thriving sanctuary dedicated to
             preserving the freedom, diversity, and natural habitats of America's
             wild horses and burros.

@@ -21,6 +21,7 @@ type NavSubpage = {
     href: string
     description: string
     image: string
+    children?: NavSubpage[]
 }
 
 type NavDropdownConfig = {
@@ -41,7 +42,7 @@ const dropdownConfigs: NavDropdownConfig[] = [
                 image: "/img/about_hero.jpg",
             },
             {
-                label: "Our People",
+                label: "Our Team",
                 href: "/about/people",
                 description: "Meet the dedicated team behind Return to Freedom — staff, board members, and volunteers who make our mission possible.",
                 image: "/img/about_hero.jpg",
@@ -51,6 +52,12 @@ const dropdownConfigs: NavDropdownConfig[] = [
                 href: "/about/our-storytellers",
                 description: "Photographers, filmmakers, and writers who share the beauty and spirit of wild horses with the world.",
                 image: "/img/neda-and-spirit.jpg",
+            },
+            {
+                label: "Contact Us",
+                href: "/contact",
+                description: "Get in touch with Return to Freedom — we'd love to hear from you.",
+                image: "/img/about_hero.jpg",
             },
         ],
     },
@@ -81,30 +88,32 @@ const dropdownConfigs: NavDropdownConfig[] = [
                 href: "/what-we-do/advocacy",
                 description: "Working to shape policy and legislation that safeguards wild horses and their habitats.",
                 image: "/img/Owyhee-9925-scaled.jpg",
-            },
-            {
-                label: "Herd Management",
-                href: "/what-we-do/advocacy/herd-management",
-                description: "Designated Herd Management Areas balance wild horse populations with other public-land uses, but decades of over-allocation threaten the future of wild herds.",
-                image: "/img/Owyhee-9925-scaled.jpg",
-            },
-            {
-                label: "Horse Slaughter",
-                href: "/what-we-do/advocacy/horse-slaughter",
-                description: "Though horse slaughter is banned in the U.S., thousands are still exported for slaughter each year. RTF advocates for lasting protections through the SAFE Act.",
-                image: "/img/Owyhee-9925-scaled.jpg",
-            },
-            {
-                label: "Population Management",
-                href: "/what-we-do/advocacy/population-management",
-                description: "Humane, science-based fertility control can replace roundups, reduce costs, and allow wild herds to live naturally on the range.",
-                image: "/img/Owyhee-9925-scaled.jpg",
-            },
-            {
-                label: "Roundups",
-                href: "/what-we-do/advocacy/roundups",
-                description: "Each year, thousands of wild horses and burros are chased by helicopters into traps on public lands, destroying family bands and costing taxpayers hundreds of millions.",
-                image: "/img/Owyhee-9925-scaled.jpg",
+                children: [
+                    {
+                        label: "Herd Management",
+                        href: "/what-we-do/advocacy/herd-management",
+                        description: "Designated Herd Management Areas balance wild horse populations with other public-land uses, but decades of over-allocation threaten the future of wild herds.",
+                        image: "/img/Owyhee-9925-scaled.jpg",
+                    },
+                    {
+                        label: "Horse Slaughter",
+                        href: "/what-we-do/advocacy/horse-slaughter",
+                        description: "Though horse slaughter is banned in the U.S., thousands are still exported for slaughter each year. RTF advocates for lasting protections through the SAFE Act.",
+                        image: "/img/Owyhee-9925-scaled.jpg",
+                    },
+                    {
+                        label: "Population Management",
+                        href: "/what-we-do/advocacy/population-management",
+                        description: "Humane, science-based fertility control can replace roundups, reduce costs, and allow wild herds to live naturally on the range.",
+                        image: "/img/Owyhee-9925-scaled.jpg",
+                    },
+                    {
+                        label: "Roundups",
+                        href: "/what-we-do/advocacy/roundups",
+                        description: "Each year, thousands of wild horses and burros are chased by helicopters into traps on public lands, destroying family bands and costing taxpayers hundreds of millions.",
+                        image: "/img/Owyhee-9925-scaled.jpg",
+                    },
+                ],
             },
         ],
     },
@@ -146,6 +155,24 @@ const dropdownConfigs: NavDropdownConfig[] = [
                 label: "Sponsor a Burro",
                 href: "/donate/sponsor-a-burro",
                 description: "Support a wild burro's care with a sponsorship — a meaningful way to make a difference.",
+                image: "/img/ares-mares.jpg",
+            },
+        ],
+    },
+    {
+        label: "Learn",
+        href: "/resources/learn",
+        subpages: [
+            {
+                label: "Learn Hub",
+                href: "/resources/learn",
+                description: "Dive into the history, science, and policy behind America's wild horses and burros.",
+                image: "/img/grazing-brown-horses-e1721864397332.png",
+            },
+            {
+                label: "Resources",
+                href: "/resources/learn/articles",
+                description: "News, articles, and resources about wild horse conservation and advocacy.",
                 image: "/img/ares-mares.jpg",
             },
         ],
@@ -204,9 +231,8 @@ const HeaderLink = (props: {
 }
 
 const DropdownNavItem = ({ config, align = "left" }: { config: NavDropdownConfig, align?: "left" | "right" }) => {
-    const [hoveredIndex, setHoveredIndex] = useState(0)
-    const safeIndex = Math.min(hoveredIndex, config.subpages.length - 1)
-    const active = config.subpages[safeIndex]
+    const [activeItem, setActiveItem] = useState<NavSubpage>(config.subpages[0])
+    const [expandedParent, setExpandedParent] = useState<string | null>(null)
 
     return (
         <NavigationMenuItem>
@@ -229,36 +255,65 @@ const DropdownNavItem = ({ config, align = "left" }: { config: NavDropdownConfig
                 className={`bg-white! border-none! rounded-lg! shadow-xl! ${align === "right" ? "right-0! left-auto!" : ""}`}
             >
                 <div className="grid grid-cols-[180px_1fr_160px] gap-4 p-5 w-[600px]">
-                    <div className="flex flex-col gap-2">
-                        {config.subpages.map((subpage, i) => (
-                            <Link
-                                key={subpage.href}
-                                href={subpage.href}
-                                onMouseEnter={() => setHoveredIndex(i)}
-                                className={`text-sm py-1.5 px-2 rounded transition-colors ${
-                                    i === safeIndex
-                                        ? "text-pewter bg-pewter/10 font-semibold"
-                                        : "text-pewter/70 hover:text-pewter hover:bg-pewter/10"
-                                }`}
-                            >
-                                {subpage.label}
-                            </Link>
+                    <div className="flex flex-col gap-1">
+                        {config.subpages.map((subpage) => (
+                            <div key={subpage.href}>
+                                <Link
+                                    href={subpage.href}
+                                    onMouseEnter={() => {
+                                        setActiveItem(subpage)
+                                        setExpandedParent(subpage.children ? subpage.href : null)
+                                    }}
+                                    className={`flex items-center gap-1 text-sm py-1.5 px-2 rounded transition-colors ${
+                                        activeItem.href === subpage.href
+                                            ? "text-pewter bg-pewter/10 font-semibold"
+                                            : "text-pewter/70 hover:text-pewter hover:bg-pewter/10"
+                                    }`}
+                                >
+                                    {subpage.label}
+                                    {subpage.children && (
+                                        <IoChevronDown
+                                            className={`text-[10px] transition-transform duration-200 ${
+                                                expandedParent === subpage.href ? "rotate-180" : ""
+                                            }`}
+                                        />
+                                    )}
+                                </Link>
+                                {subpage.children && expandedParent === subpage.href && (
+                                    <div className="flex flex-col gap-0.5 ml-3 mt-0.5">
+                                        {subpage.children.map((child) => (
+                                            <Link
+                                                key={child.href}
+                                                href={child.href}
+                                                onMouseEnter={() => setActiveItem(child)}
+                                                className={`text-xs py-1 px-2 rounded transition-colors ${
+                                                    activeItem.href === child.href
+                                                        ? "text-pewter bg-pewter/10 font-semibold"
+                                                        : "text-pewter/60 hover:text-pewter hover:bg-pewter/10"
+                                                }`}
+                                            >
+                                                {child.label}
+                                            </Link>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         ))}
                     </div>
 
                     <div className="flex flex-col gap-2 px-2">
                         <h3 className="text-pewter font-serif font-semibold text-sm">
-                            {active.label}
+                            {activeItem.label}
                         </h3>
                         <p className="text-pewter/70 text-xs leading-relaxed font-normal">
-                            {active.description}
+                            {activeItem.description}
                         </p>
                     </div>
 
                     <div className="relative rounded overflow-hidden">
                         <Image
-                            src={active.image}
-                            alt={active.label}
+                            src={activeItem.image}
+                            alt={activeItem.label}
                             fill
                             className="object-cover"
                             sizes="160px"
@@ -337,14 +392,29 @@ const MobileNavSection = ({
                 }`}
             >
                 {subpages.map((sub) => (
-                    <Link
-                        key={sub.href}
-                        href={sub.href}
-                        className="text-white/60 hover:text-white transition-colors pl-4 text-[0.85em]"
-                        onClick={onNavigate}
-                    >
-                        {sub.label}
-                    </Link>
+                    <div key={sub.href} className="flex flex-col">
+                        <Link
+                            href={sub.href}
+                            className="text-white/60 hover:text-white transition-colors pl-4 text-[0.85em]"
+                            onClick={onNavigate}
+                        >
+                            {sub.label}
+                        </Link>
+                        {sub.children && (
+                            <div className="flex flex-col gap-1 mt-1">
+                                {sub.children.map((child) => (
+                                    <Link
+                                        key={child.href}
+                                        href={child.href}
+                                        className="text-white/40 hover:text-white transition-colors pl-8 text-[0.75em]"
+                                        onClick={onNavigate}
+                                    >
+                                        {child.label}
+                                    </Link>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 ))}
             </div>
         </div>
@@ -415,12 +485,6 @@ export default function Navbar() {
                         <HeaderLink
                             href="/what-we-do/advocacy#take-action"
                             text="Take Action"
-                        />
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
-                        <HeaderLink
-                            href="/resources/news"
-                            text="News"
                         />
                     </NavigationMenuItem>
                     <DropdownNavItem config={getDropdownConfig("Visit Us")!} align="right" />
@@ -621,15 +685,13 @@ export default function Navbar() {
                         expanded={expandedSection === "What We Do"}
                         onToggle={() => setExpandedSection(expandedSection === "What We Do" ? null : "What We Do")}
                     />
-                    <MobileHeaderLink
+                    <MobileNavSection
+                        label="Learn"
                         href="/resources/learn"
-                        text="Learn"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                    />
-                    <MobileHeaderLink
-                        href="/resources/news"
-                        text="News"
-                        onClick={() => setIsMobileMenuOpen(false)}
+                        subpages={getDropdownConfig("Learn")?.subpages}
+                        onNavigate={() => setIsMobileMenuOpen(false)}
+                        expanded={expandedSection === "Learn"}
+                        onToggle={() => setExpandedSection(expandedSection === "Learn" ? null : "Learn")}
                     />
                     <MobileNavSection
                         label="Our Horses"
@@ -638,6 +700,14 @@ export default function Navbar() {
                         onNavigate={() => setIsMobileMenuOpen(false)}
                         expanded={expandedSection === "Our Horses"}
                         onToggle={() => setExpandedSection(expandedSection === "Our Horses" ? null : "Our Horses")}
+                    />
+                    <MobileNavSection
+                        label="Our Burros"
+                        href="/horses/our-burros"
+                        subpages={getDropdownConfig("Our Burros")?.subpages}
+                        onNavigate={() => setIsMobileMenuOpen(false)}
+                        expanded={expandedSection === "Our Burros"}
+                        onToggle={() => setExpandedSection(expandedSection === "Our Burros" ? null : "Our Burros")}
                     />
                     <MobileHeaderLink
                         href="/take-action"

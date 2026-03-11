@@ -72,7 +72,8 @@ export default defineSchema({
         isPublic: v.boolean(),
     })
         .index("by_is_public", ["isPublic"])
-        .index("by_slug", ["slug"]),
+        .index("by_slug", ["slug"])
+        .searchIndex("searchTitle", { searchField: "title", filterFields: ["isPublic"] }),
 
     educationArticleGroups: defineTable({
         title: v.string(),
@@ -220,6 +221,7 @@ export default defineSchema({
 
         isPublic: v.boolean(),
         imageId: v.optional(v.id("images")),
+        gallery: v.optional(v.array(v.id("galleryItems"))),
     })
         .index("by_program_group", ["programGroupId"])
         .index("by_order", ["order"])

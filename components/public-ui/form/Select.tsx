@@ -28,7 +28,7 @@ const Select = <T,>(props: SelectProps<T>) => {
         )}>
             <div
                 className={`
-                    absolute top-0 left-0 w-40 min-h-10
+                    absolute top-0 left-0 w-full min-h-10
                     flex flex-col items-center justify-between
                     border-2 border-pewter rounded-sm
                     bg-white
@@ -72,7 +72,7 @@ const Select = <T,>(props: SelectProps<T>) => {
                             <div
                                 key={`${option.label}-${i}`}
                                 className={`
-                                    w-40 py-1 px-2
+                                    w-full py-1 px-2
                                     cursor-pointer
                                     flex items-center justify-between
                                     text-pewter uppercase text-sm font-semibold

@@ -38,7 +38,7 @@ const HerdCard = ({ herd, alwaysShowContent }: {
             )}
 
             {/* Brownish overlay — more opaque on hover */}
-            <div className={`absolute inset-0 transition-all duration-500 ${alwaysShowContent ? "bg-amber-950/55" : "bg-stone-900/20 group-hover/card:bg-amber-950/55"}`} />
+            <div className={`absolute inset-0 transition-all duration-500 ${alwaysShowContent ? "bg-red-950/50" : "bg-stone-900/20 group-hover/card:bg-red-950/50"}`} />
 
             {/* Content container — everything centered */}
             <div className="absolute inset-0 p-6 flex flex-col items-center justify-center text-center">

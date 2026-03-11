@@ -9,7 +9,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Edit, Loader2 } from "lucide-react"
+import { Edit, Loader2, Image as ImageIcon, Video } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -19,9 +19,14 @@ import { Id } from "@/convex/_generated/dataModel"
 import { useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import ImagePickerDialog from "@/components/images/ImagePickerDialog"
+import { ImagePicker } from "@/components/images/ImagePicker"
 import LocationPickerDialog from "@/components/locations/LocationPickerDialog"
 import { TiptapEditor } from "@/components/TiptapEditor"
 import { Switch } from "@/components/ui/switch"
+import GalleryItemPicker, { GalleryItemType } from "@/components/GalleryItemPicker"
+import VideoPickerDialog from "@/components/VideoPickerDialog"
+import ReorderableList from "@/components/ReorderableList"
+import { VideoSource } from "@/lib/videoUtils"
 
 export type Program = {
     _id: Id<"programs">
@@ -54,10 +59,24 @@ const ProgramEditDialog = ({ children, ...props }: ProgramEditDialogProps) => {
 
     const updateProgram = useMutation(api.programs.updateProgram)
     const programGroups = useQuery(api.programGroups.getAllProgramGroups)
+    const createImageGalleryItem = useMutation(api.galleryItems.createImageGalleryItem)
+    const createVideoGalleryItem = useMutation(api.galleryItems.createVideoGalleryItem)
+    const deleteGalleryItemMutation = useMutation(api.galleryItems.deleteGalleryItem)
+
+    const galleryItemsRaw = useQuery(api.galleryItems.getGalleryItems,
+        program?.gallery && program.gallery.length > 0
+            ? { ids: program.gallery }
+            : "skip"
+    )
 
     const [isOpen, setIsOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+
+    const [gallery, setGallery] = useState<GalleryItemType[]>([])
+    const [idxGalleryImagePickerOpen, setIdxGalleryImagePickerOpen] = useState<number | null>(null)
+    const [emptyImagePickerOpen, setEmptyImagePickerOpen] = useState(false)
+    const [videoPickerOpen, setVideoPickerOpen] = useState(false)
 
     const [formData, setFormData] = useState({
         name: undefined as string | undefined,
@@ -92,6 +111,39 @@ const ProgramEditDialog = ({ children, ...props }: ProgramEditDialogProps) => {
         }
     }, [program])
 
+    // Sync gallery items from server
+    useEffect(() => {
+        if (galleryItemsRaw && galleryItemsRaw.length > 0) {
+            const validItems: GalleryItemType[] = galleryItemsRaw
+                .filter((item): item is NonNullable<typeof item> => item !== null)
+                .map(item => {
+                    if (item.type === "image" && item.imageId && item.image) {
+                        return {
+                            type: "image" as const,
+                            galleryItemId: item._id,
+                            imageId: item.imageId,
+                            url: item.image.url || "",
+                            altText: item.image.altText,
+                        }
+                    } else if (item.type === "video" && item.videoSource && item.videoId) {
+                        return {
+                            type: "video" as const,
+                            galleryItemId: item._id,
+                            videoSource: item.videoSource,
+                            videoId: item.videoId,
+                            videoTitle: item.videoTitle,
+                            thumbnailUrl: item.thumbnailUrl,
+                        }
+                    }
+                    return null
+                })
+                .filter((item): item is GalleryItemType => item !== null)
+            setGallery(validItems)
+        } else if (galleryItemsRaw && galleryItemsRaw.length === 0) {
+            setGallery([])
+        }
+    }, [galleryItemsRaw?.map(item => item?._id).sort().join(",")])
+
     const editingDisabled = isLoading
     const saveDisabled = (
         isLoading ||
@@ -100,6 +152,124 @@ const ProgramEditDialog = ({ children, ...props }: ProgramEditDialogProps) => {
         !formData.locationId ||
         !formData.programGroupId
     )
+
+    const handleGalleryReorder = (newOrder: string[]) => {
+        const reorderedGallery = newOrder
+            .map(id => gallery.find(item => item.galleryItemId === id))
+            .filter((item): item is GalleryItemType => item !== undefined)
+        setGallery(reorderedGallery)
+    }
+
+    const handleAddImage = async (imageData: { imageId: Id<"images">; url: string }) => {
+        try {
+            const galleryItemId = await createImageGalleryItem({ imageId: imageData.imageId })
+            const newItem: GalleryItemType = {
+                type: "image",
+                galleryItemId,
+                imageId: imageData.imageId,
+                url: imageData.url,
+            }
+            const newGallery = [...gallery, newItem]
+            setGallery(newGallery)
+            setEmptyImagePickerOpen(false)
+            await updateProgram({
+                id: programId,
+                gallery: newGallery.map(item => item.galleryItemId),
+            })
+        } catch (err) {
+            console.error("Error adding gallery image:", err)
+            setError(`Failed to add image. ${err}`)
+        }
+    }
+
+    const handleAddVideo = async (videoData: {
+        videoSource: VideoSource
+        videoId: string
+        videoTitle?: string
+        thumbnailUrl?: string
+    }) => {
+        try {
+            const galleryItemId = await createVideoGalleryItem({
+                videoSource: videoData.videoSource,
+                videoId: videoData.videoId,
+                videoTitle: videoData.videoTitle,
+                thumbnailUrl: videoData.thumbnailUrl,
+            })
+            const newItem: GalleryItemType = {
+                type: "video",
+                galleryItemId,
+                videoSource: videoData.videoSource,
+                videoId: videoData.videoId,
+                videoTitle: videoData.videoTitle,
+                thumbnailUrl: videoData.thumbnailUrl,
+            }
+            const newGallery = [...gallery, newItem]
+            setGallery(newGallery)
+            setVideoPickerOpen(false)
+            await updateProgram({
+                id: programId,
+                gallery: newGallery.map(item => item.galleryItemId),
+            })
+        } catch (err) {
+            console.error("Error adding gallery video:", err)
+            setError(`Failed to add video. ${err}`)
+        }
+    }
+
+    const handleDeleteGalleryItem = async (index: number) => {
+        const item = gallery[index]
+        if (item && item.galleryItemId) {
+            try {
+                await deleteGalleryItemMutation({ id: item.galleryItemId })
+            } catch (err) {
+                console.error("Error deleting gallery item:", err)
+            }
+        }
+        const newGallery = gallery.filter((_, i) => i !== index)
+        setGallery(newGallery)
+        await updateProgram({
+            id: programId,
+            gallery: newGallery.map(item => item.galleryItemId),
+        })
+    }
+
+    const handleGalleryImageChange = async (index: number, imageData: { imageId: Id<"images">; url: string }) => {
+        const item = gallery[index]
+        if (item && item.type === "image") {
+            if (item.galleryItemId) {
+                try {
+                    await deleteGalleryItemMutation({ id: item.galleryItemId })
+                } catch (err) {
+                    console.error("Error deleting old gallery item:", err)
+                }
+            }
+            const newGalleryItemId = await createImageGalleryItem({ imageId: imageData.imageId })
+            const newItem: GalleryItemType = {
+                type: "image",
+                galleryItemId: newGalleryItemId,
+                imageId: imageData.imageId,
+                url: imageData.url,
+            }
+            const newGallery = gallery.map((g, i) => i === index ? newItem : g)
+            setGallery(newGallery)
+            await updateProgram({
+                id: programId,
+                gallery: newGallery.map(item => item.galleryItemId),
+            })
+        }
+        setIdxGalleryImagePickerOpen(null)
+    }
+
+    const handleGalleryReorderAndSave = async (newOrder: string[]) => {
+        handleGalleryReorder(newOrder)
+        const reorderedGallery = newOrder
+            .map(id => gallery.find(item => item.galleryItemId === id))
+            .filter((item): item is GalleryItemType => item !== undefined)
+        await updateProgram({
+            id: programId,
+            gallery: reorderedGallery.map(item => item.galleryItemId),
+        })
+    }
 
     const handleUpdate = async () => {
         if (saveDisabled || !formData.locationId) return
@@ -288,6 +458,68 @@ const ProgramEditDialog = ({ children, ...props }: ProgramEditDialogProps) => {
                             onImageSelect={(imageId) => setFormData({ ...formData, imageId: imageId || null })}
                             disabled={editingDisabled}
                         />
+                    </div>
+
+                    <div>
+                        <Label>Gallery</Label>
+                        <div className="space-y-3 mt-2">
+                            <ReorderableList
+                                items={gallery.map((item, index) => ({
+                                    id: item.galleryItemId,
+                                    widget: (
+                                        <GalleryItemPicker
+                                            item={item}
+                                            imagePickerOpen={idxGalleryImagePickerOpen === index}
+                                            onOpenImagePicker={() => setIdxGalleryImagePickerOpen(index)}
+                                            onCloseImagePicker={() => setIdxGalleryImagePickerOpen(null)}
+                                            onDelete={() => handleDeleteGalleryItem(index)}
+                                            onImageChange={(imageData) => handleGalleryImageChange(index, imageData)}
+                                        />
+                                    ),
+                                }))}
+                                onReorder={handleGalleryReorderAndSave}
+                            />
+
+                            <div className="flex gap-2">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => setEmptyImagePickerOpen(true)}
+                                    className="flex-1"
+                                >
+                                    <ImageIcon className="h-4 w-4 mr-2" />
+                                    Add Image
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => setVideoPickerOpen(true)}
+                                    className="flex-1"
+                                >
+                                    <Video className="h-4 w-4 mr-2" />
+                                    Add Video
+                                </Button>
+                            </div>
+
+                            <ImagePicker
+                                isOpen={emptyImagePickerOpen}
+                                onClose={() => setEmptyImagePickerOpen(false)}
+                                onImageSelect={handleAddImage}
+                            />
+
+                            <VideoPickerDialog
+                                isOpen={videoPickerOpen}
+                                onClose={() => setVideoPickerOpen(false)}
+                                onVideoSelect={handleAddVideo}
+                            />
+
+                            {gallery.length === 0 && (
+                                <div className="text-center py-4 border-2 border-dashed rounded-lg">
+                                    <ImageIcon className="h-6 w-6 text-gray-400 mx-auto mb-1" />
+                                    <p className="text-sm text-gray-500">No gallery items yet</p>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <div className="flex items-center space-x-2">

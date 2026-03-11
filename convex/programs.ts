@@ -1,7 +1,9 @@
 import { query, mutation } from "./_generated/server"
 import { v } from "convex/values"
+import { Id } from "./_generated/dataModel"
 import { getCurrentUserOrThrow } from "./users"
 import { resolveImageId } from "./images"
+import { resolveGalleryItem } from "./galleryItems"
 import ProgramManager from "./models/programManager"
 import { eventsAggregate } from "./aggregates"
 
@@ -106,6 +108,7 @@ export const getPublicPrograms = query({
             requiresRegistration: v.optional(v.boolean()),
             contactEmail: v.optional(v.string()),
             contactPhone: v.optional(v.string()),
+            gallery: v.optional(v.array(v.id("galleryItems"))),
         })
     ),
     handler: async (ctx) => {
@@ -127,6 +130,7 @@ export const getPublicPrograms = query({
             requiresRegistration,
             contactEmail,
             contactPhone,
+            gallery,
         }) => ({
             _id,
             _creationTime,
@@ -144,6 +148,7 @@ export const getPublicPrograms = query({
             requiresRegistration,
             contactEmail,
             contactPhone,
+            gallery,
         }))
     },
 })
@@ -231,6 +236,7 @@ export const createProgram = mutation({
         contactPhone: v.optional(v.string()),
         maxAttendees: v.optional(v.number()),
         ticketPriceText: v.optional(v.string()),
+        gallery: v.optional(v.array(v.id("galleryItems"))),
     },
     returns: v.id("programs"),
     handler: async (ctx, args) => {
@@ -261,6 +267,7 @@ export const updateProgram = mutation({
         contactPhone: v.optional(v.string()),
         maxAttendees: v.optional(v.number()),
         ticketPriceText: v.optional(v.string()),
+        gallery: v.optional(v.array(v.id("galleryItems"))),
     },
     returns: v.null(),
     handler: async (ctx, args) => {
@@ -354,5 +361,60 @@ export const createEventFromProgram = mutation({
         }
 
         return eventId
+    },
+})
+
+// Get gallery images for a specific program group (up to 8)
+export const getGalleryImagesForProgramGroup = query({
+    args: { programGroupId: v.id("programGroups") },
+    handler: async (ctx, args) => {
+        const programs = await ctx.db
+            .query("programs")
+            .withIndex("by_program_group", (q) =>
+                q.eq("programGroupId", args.programGroupId)
+            )
+            .collect()
+
+        const allGalleryIds: Id<"galleryItems">[] = []
+        for (const program of programs) {
+            if (!program.isPublic) continue
+            for (const id of program.gallery || []) {
+                allGalleryIds.push(id)
+                if (allGalleryIds.length >= 8) break
+            }
+            if (allGalleryIds.length >= 8) break
+        }
+
+        const resolved = await Promise.all(
+            allGalleryIds.map(id => resolveGalleryItem(ctx, id))
+        )
+
+        return resolved.filter(item => item !== null)
+    },
+})
+
+// Get gallery images for all public programs (up to 8)
+export const getGalleryImagesForAllPrograms = query({
+    args: {},
+    handler: async (ctx) => {
+        const programs = await ctx.db
+            .query("programs")
+            .withIndex("by_public", (q) => q.eq("isPublic", true))
+            .collect()
+
+        const allGalleryIds: Id<"galleryItems">[] = []
+        for (const program of programs) {
+            for (const id of program.gallery || []) {
+                allGalleryIds.push(id)
+                if (allGalleryIds.length >= 8) break
+            }
+            if (allGalleryIds.length >= 8) break
+        }
+
+        const resolved = await Promise.all(
+            allGalleryIds.map(id => resolveGalleryItem(ctx, id))
+        )
+
+        return resolved.filter(item => item !== null)
     },
 })
