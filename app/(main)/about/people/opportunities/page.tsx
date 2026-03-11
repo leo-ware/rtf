@@ -2,6 +2,7 @@
 
 import Hero from "@/components/public-ui/Hero"
 import Header from "@/components/public-ui/Header"
+import Callout from "@/components/public-ui/Callout"
 import OpportunitiesHero from "./opportunities-hero.png"
 import Button from "@/components/public-ui/Button"
 import EmailLink from "@/components/public-ui/EmailLink"
@@ -28,12 +29,12 @@ const OpportunitiesPage = () => {
             <Hero title="Opportunities" image={OpportunitiesHero} />
 
             <div className="w-full h-fit py-16 px-4 flex flex-col items-center justify-center gap-12">
-                <div className="w-10/12 md:w-8/12 lg:max-w-1/2 text-center text-lg text-ink">
+                <Callout className="w-10/12">
                     If you believe in protecting wild horses and burros and preserving the
                     landscapes they depend on, we invite you to explore opportunities to work
                     with Return to Freedom. Our team, volunteers, and partners all play a vital
                     role in advancing humane conservation and advocacy.
-                </div>
+                </Callout>
 
                 <Header className="text-cinnamon">
                     Current Openings
@@ -92,7 +93,7 @@ const OpportunitiesPage = () => {
                     Volunteer at RTF
                 </Header>
 
-                <div className="w-10/12 h-fit flex flex-col items-start justify-center gap-6">
+                <div className="w-full md:w-10/12 lg:w-8/12 h-fit flex flex-col items-start justify-center gap-6">
                     <div className="text-[28px] font-serif text-pewter">
                         Public Volunteer Days
                     </div>
@@ -115,7 +116,7 @@ const OpportunitiesPage = () => {
                     </div>
                 </div>
 
-                <div className="w-10/12 h-fit flex flex-col items-start justify-center gap-6">
+                <div className="w-full md:w-10/12 lg:w-8/12 h-fit flex flex-col items-start justify-center gap-6">
                     <div className="text-[28px] font-serif text-pewter">
                         Volunteer at our San Luis Obispo Location
                     </div>
@@ -137,7 +138,7 @@ const OpportunitiesPage = () => {
                     </div>
                 </div>
 
-                <div className="w-10/12 h-fit flex flex-col items-start justify-center gap-6">
+                <div className="w-full md:w-10/12 lg:w-8/12 h-fit flex flex-col items-start justify-center gap-6">
                     <div className="text-[28px] font-serif text-pewter">
                         In Residence / Long-Term Volunteer Form
                     </div>

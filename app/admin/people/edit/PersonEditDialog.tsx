@@ -46,7 +46,9 @@ const PersonEditDialog = ({ personId, children }: PersonEditDialogProps) => {
         isEquine: false,
         isStoryTeller: false,
         isAmbassador: false,
+        isPhotographer: false,
         inMemoriam: false,
+        link: "",
         advisoryBoardIds: [] as Id<"advisoryBoards">[],
     })
 
@@ -63,7 +65,9 @@ const PersonEditDialog = ({ personId, children }: PersonEditDialogProps) => {
                 isEquine: person.isEquine ?? false,
                 isStoryTeller: person.isStoryTeller ?? false,
                 isAmbassador: person.isAmbassador ?? false,
+                isPhotographer: person.isPhotographer ?? false,
                 inMemoriam: person.inMemoriam ?? false,
+                link: person.link ?? "",
                 advisoryBoardIds: (person.advisoryBoards || [])
                     .map(ab => ab?.advisoryBoardId)
                     .filter(id => id !== undefined),
@@ -94,7 +98,9 @@ const PersonEditDialog = ({ personId, children }: PersonEditDialogProps) => {
                 isEquine: formData.isEquine,
                 isStoryTeller: formData.isStoryTeller,
                 isAmbassador: formData.isAmbassador,
+                isPhotographer: formData.isPhotographer,
                 inMemoriam: formData.inMemoriam,
+                link: formData.link || undefined,
                 advisoryBoardIds: formData.advisoryBoardIds.length > 0 ? formData.advisoryBoardIds : undefined,
             })
             setIsOpen(false)
@@ -166,6 +172,17 @@ const PersonEditDialog = ({ personId, children }: PersonEditDialogProps) => {
                                 onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                                 placeholder="Enter person's biography"
                                 rows={4}
+                            />
+                        </div>
+
+                        <div>
+                            <Label htmlFor="edit-link">Link</Label>
+                            <Input
+                                id="edit-link"
+                                value={formData.link}
+                                disabled={editingDisabled}
+                                onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+                                placeholder="External URL (e.g. website or portfolio)"
                             />
                         </div>
 
@@ -284,6 +301,16 @@ const PersonEditDialog = ({ personId, children }: PersonEditDialogProps) => {
                                         onCheckedChange={(checked) => setFormData({ ...formData, isAmbassador: !!checked })}
                                     />
                                     <Label htmlFor="edit-is-ambassador">Ambassador</Label>
+                                </div>
+
+                                <div className="flex items-center space-x-2">
+                                    <Checkbox
+                                        id="edit-is-photographer"
+                                        disabled={editingDisabled}
+                                        checked={formData.isPhotographer}
+                                        onCheckedChange={(checked) => setFormData({ ...formData, isPhotographer: !!checked })}
+                                    />
+                                    <Label htmlFor="edit-is-photographer">Photographer</Label>
                                 </div>
 
                                 <div className="flex items-center space-x-2">

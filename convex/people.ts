@@ -81,6 +81,7 @@ export const listPeople = query({
             v.literal("equine"),
             v.literal("storyteller"),
             v.literal("ambassador"),
+            v.literal("photographer"),
             v.literal("inMemoriam")
         )),
     },
@@ -130,6 +131,14 @@ export const listPeople = query({
                         .collect()
                         .then(p => p.filter(person => person.isAmbassador))
                         .then(p => p.sort((a, b) => (a.ambassadorOrder ?? Infinity) - (b.ambassadorOrder ?? Infinity)))
+                        .then(p => p.slice(0, limit));
+                    break;
+                case "photographer":
+                    people = await ctx.db
+                        .query("people")
+                        .withIndex("by_is_photographer", (q) => q.eq("isPhotographer", true))
+                        .collect()
+                        .then(p => p.sort((a, b) => (a.photographerOrder ?? Infinity) - (b.photographerOrder ?? Infinity)))
                         .then(p => p.slice(0, limit));
                     break;
                 case "inMemoriam":
@@ -273,7 +282,9 @@ export const createPerson = mutation({
         isEquine: v.optional(v.boolean()),
         isStoryTeller: v.optional(v.boolean()),
         isAmbassador: v.optional(v.boolean()),
+        isPhotographer: v.optional(v.boolean()),
         inMemoriam: v.optional(v.boolean()),
+        link: v.optional(v.string()),
         advisoryBoardIds: v.optional(v.array(v.id("advisoryBoards"))),
     },
     handler: async (ctx, args) => {
@@ -287,11 +298,13 @@ export const createPerson = mutation({
             title: args.title,
             bio: args.bio,
             imageId: args.imageId,
+            link: args.link,
             isDirector: args.isDirector,
             isStaff: args.isStaff ?? false,
             isEquine: args.isEquine ?? false,
             isStoryTeller: args.isStoryTeller ?? false,
             isAmbassador: args.isAmbassador ?? false,
+            isPhotographer: args.isPhotographer ?? false,
             inMemoriam: args.inMemoriam,
 
             directorOrder: 1000 + Math.floor(Math.random() * 1000),
@@ -299,6 +312,7 @@ export const createPerson = mutation({
             equineOrder: 1000 + Math.floor(Math.random() * 1000),
             storytellerOrder: 1000 + Math.floor(Math.random() * 1000),
             ambassadorOrder: 1000 + Math.floor(Math.random() * 1000),
+            photographerOrder: 1000 + Math.floor(Math.random() * 1000),
             inMemoriamOrder: 1000 + Math.floor(Math.random() * 1000),
         })
 
@@ -336,7 +350,9 @@ export const updatePerson = mutation({
         isEquine: v.optional(v.boolean()),
         isStoryTeller: v.optional(v.boolean()),
         isAmbassador: v.optional(v.boolean()),
+        isPhotographer: v.optional(v.boolean()),
         inMemoriam: v.optional(v.boolean()),
+        link: v.optional(v.string()),
         advisoryBoardIds: v.optional(v.array(v.id("advisoryBoards"))),
 
         directorOrder: v.optional(v.number()),
@@ -344,6 +360,7 @@ export const updatePerson = mutation({
         equineOrder: v.optional(v.number()),
         storytellerOrder: v.optional(v.number()),
         ambassadorOrder: v.optional(v.number()),
+        photographerOrder: v.optional(v.number()),
         inMemoriamOrder: v.optional(v.number()),
     },
     handler: async (ctx, args) => {
@@ -368,12 +385,15 @@ export const updatePerson = mutation({
         if (args.isEquine !== undefined) updateData.isEquine = args.isEquine;
         if (args.isStoryTeller !== undefined) updateData.isStoryTeller = args.isStoryTeller;
         if (args.isAmbassador !== undefined) updateData.isAmbassador = args.isAmbassador;
+        if (args.isPhotographer !== undefined) updateData.isPhotographer = args.isPhotographer;
         if (args.inMemoriam !== undefined) updateData.inMemoriam = args.inMemoriam;
+        if (args.link !== undefined) updateData.link = args.link;
         if (args.directorOrder !== undefined) updateData.directorOrder = args.directorOrder;
         if (args.staffOrder !== undefined) updateData.staffOrder = args.staffOrder;
         if (args.equineOrder !== undefined) updateData.equineOrder = args.equineOrder;
         if (args.storytellerOrder !== undefined) updateData.storytellerOrder = args.storytellerOrder;
         if (args.ambassadorOrder !== undefined) updateData.ambassadorOrder = args.ambassadorOrder;
+        if (args.photographerOrder !== undefined) updateData.photographerOrder = args.photographerOrder;
         if (args.inMemoriamOrder !== undefined) updateData.inMemoriamOrder = args.inMemoriamOrder;
 
         await ctx.db.patch(args.id, updateData);
@@ -486,6 +506,7 @@ export const updatePersonOrder = mutation({
             v.literal("equine"),
             v.literal("storyteller"),
             v.literal("ambassador"),
+            v.literal("photographer"),
             v.literal("inMemoriam")
         ),
         order: v.number(),
@@ -519,6 +540,9 @@ export const updatePersonOrder = mutation({
                 break;
             case "ambassador":
                 updateData.ambassadorOrder = args.order;
+                break;
+            case "photographer":
+                updateData.photographerOrder = args.order;
                 break;
             case "inMemoriam":
                 updateData.inMemoriamOrder = args.order;

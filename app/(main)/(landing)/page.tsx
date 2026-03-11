@@ -13,14 +13,17 @@ import CorporateCarousel from "./CorporateCarousel"
 import NewsCarousel from "../../../components/NewsCarousel"
 import VideoCarousel from "../../../components/VideoCarousel"
 import NeedUsCarousel from "./NeedUsCarousel"
+import StatsBar from "@/components/StatsBar"
 
-import ConservationImage from "./imgs/conservation-image.jpg"
-import AdvocacyImage from "./imgs/advocacy-image.jpg"
-import SanctuaryImage from "./imgs/sanctuary-image.jpg"
-import EducationImage from "./imgs/education-image.jpg"
+import ConservationImage from "./imgs/new_conservation_image.jpg"
+import AdvocacyImage from "./imgs/new_advocacy_image.jpg"
+import SanctuaryImage from "./imgs/new_sanctuary_image.jpg"
+import EducationImage from "./imgs/new_education_image.jpg"
 import OminouseHorses from "./imgs/ominous-horses.jpg"
 import SpiritImage from "./imgs/spirit-zooming.png"
 import BlurredDonateBackgroundOne from "./imgs/blurred-donate-frame-1.png"
+import WhdfImage from "./imgs/whdf.jpg"
+import SanctuaryFundImage from "./imgs/sanctuary_fund.jpg"
 import ProgramsAndEventsImage from "./imgs/programs-and-events-image.png"
 import Header from "@/components/public-ui/Header"
 import TakeActionSection from "@/components/TakeActionSection"
@@ -247,6 +250,8 @@ const HomePage = () => {
                 </ScrollReveal>
             </div>
 
+            <StatsBar />
+
             <div className="w-11/12 mx-auto h-fit md:py-16 flex flex-col items-center justify-center gap-8">
                 <ScrollReveal variant="fade-in" className="md:mb-8">
                     <Header color="pewter">Be Their Voice</Header>
@@ -256,7 +261,7 @@ const HomePage = () => {
                     <ScrollReveal variant="fade-up" className="md:row-span-3 md:grid md:grid-rows-[subgrid]">
                         <DonationCallout
                             gridAligned
-                            image={BlurredDonateBackgroundOne}
+                            image={WhdfImage}
                             heading="Donate to Wild Horse Defense Fund"
                             description="The Wild Horse Defense Fund fuels Return to Freedom's frontline work to end cruel roundups, advance humane on-range management, and defend wild horses through advocacy, legal action, and education."
                             donatePathway="Wild Horse Defense Fund"
@@ -274,7 +279,7 @@ const HomePage = () => {
                     >
                         <DonationCallout
                             gridAligned
-                            image={BlurredDonateBackgroundOne}
+                            image={SanctuaryFundImage}
                             heading="Donate to Return to Freedom Sanctuary Fund"
                             description="Return to Freedom Sanctuary Fund supports our ongoing work to care for and protect America's wild horses and burros in our sanctuaries. Your donation helps us provide the best possible care for these animals, ensuring they have a safe and healthy home."
                             donatePathway="Sanctuary Fund"

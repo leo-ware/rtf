@@ -5,6 +5,7 @@ export const roles = [
     "equine",
     "storyteller",
     "ambassador",
+    "photographer",
     "inMemoriam",
 ] as const
 
@@ -22,6 +23,8 @@ export const roleTypeToMembershipField = (roleType: RoleType) => {
             return "isStoryTeller"
         case "ambassador":
             return "isAmbassador"
+        case "photographer":
+            return "isPhotographer"
         case "inMemoriam":
             return "inMemoriam"
     }
@@ -39,6 +42,8 @@ export const roleTypeToLabel = (roleType: RoleType) => {
             return "Storyteller"
         case "ambassador":
             return "Ambassador"
+        case "photographer":
+            return "Photographer"
         case "inMemoriam":
             return "In Memoriam"
     }

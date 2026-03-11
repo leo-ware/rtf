@@ -8,11 +8,11 @@ import { StaticImageData } from "next/image"
 import Link from "next/link"
 import ScrollReveal from "@/components/public-ui/ScrollReveal"
 
-import Munchers from "./need-us-images/munchers.png"
-import OnTheMove from "./need-us-images/on-the-move.png"
-import SexyBoy from "./need-us-images/sexy-boy.png"
-import SkyDarkens from "./need-us-images/sky-darkens.png"
-import ThunderingHerd from "./need-us-images/thundering-herd.png"
+import HorsesInCrisis from "./need-us-images/horses_in_crisis.jpg"
+import BlmBroken from "./need-us-images/blm_broken.png"
+import CaptivityNoAnswer from "./need-us-images/captivity_no_answer.png"
+import HumaneSolution from "./need-us-images/humane_solution.png"
+import RtfLeads from "./need-us-images/rtf_leads.jpg"
 
 type CarouselItemWidgetProps = {
     title: string
@@ -69,7 +69,7 @@ const items = [
             privately owned livestock exceeds that for wild horses 50 to 1.
         `,
         link: "/",
-        image: SkyDarkens
+        image: HorsesInCrisis
     },
     {
         title: "The BLM's \"Management\" System Is Broken",
@@ -82,7 +82,7 @@ const items = [
             65,000 wild horses are now confined in government holding pens.
         `,
         link: "/what-we-do/advocacy/roundups",
-        image: ThunderingHerd
+        image: BlmBroken
     },
     {
         title: "Captivity Isn't the Answer",
@@ -95,7 +95,7 @@ const items = [
             continues…every foal born on the range faces an uncertain fate.
         `,
         link: "/what-we-do/advocacy/herd-management",
-        image: SexyBoy
+        image: CaptivityNoAnswer
     },
     {
         title: "Since 1999, Return to Freedom Has Pioneered Humane, Science-Based Solutions",
@@ -106,7 +106,7 @@ const items = [
             pens, this approach can save wild horses, save money, and restore balance to our public lands.
         `,
         link: "/what-we-do/advocacy/population-management",
-        image: Munchers
+        image: HumaneSolution
     },
     {
         title: "A Proud Vision for Our Public Lands and the American Mustang",
@@ -115,7 +115,7 @@ const items = [
             Waterholes and springs can recover, and the ecosystem thrives for all wildlife.
         `,
         link: "/what-we-do/conservation",
-        image: OnTheMove
+        image: RtfLeads
     },
     {
         title: "Return to Freedom Is Leading the Way",
@@ -125,7 +125,7 @@ const items = [
             management, stronger laws, and a permanent end to horse slaughter.
         `,
         link: "/what-we-do/advocacy",
-        image: OnTheMove
+        image: RtfLeads
     },
 ]
 

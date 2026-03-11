@@ -40,7 +40,9 @@ const PersonCreateDialog = () => {
         isEquine: false,
         isStoryTeller: false,
         isAmbassador: false,
+        isPhotographer: false,
         inMemoriam: false,
+        link: "",
         advisoryBoardIds: [] as Id<"advisoryBoards">[],
     })
 
@@ -66,7 +68,9 @@ const PersonCreateDialog = () => {
                 isEquine: formData.isEquine || undefined,
                 isStoryTeller: formData.isStoryTeller || undefined,
                 isAmbassador: formData.isAmbassador || undefined,
+                isPhotographer: formData.isPhotographer || undefined,
                 inMemoriam: formData.inMemoriam || undefined,
+                link: formData.link || undefined,
                 advisoryBoardIds: formData.advisoryBoardIds.length > 0 ? formData.advisoryBoardIds : undefined,
             })
             setIsOpen(false)
@@ -92,7 +96,9 @@ const PersonCreateDialog = () => {
             isEquine: false,
             isStoryTeller: false,
             isAmbassador: false,
+            isPhotographer: false,
             inMemoriam: false,
+            link: "",
             advisoryBoardIds: [],
         })
         setError(null)
@@ -155,6 +161,17 @@ const PersonCreateDialog = () => {
                                 onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                                 placeholder="Enter person's biography"
                                 rows={4}
+                            />
+                        </div>
+
+                        <div>
+                            <Label htmlFor="link">Link</Label>
+                            <Input
+                                id="link"
+                                value={formData.link}
+                                disabled={editingDisabled}
+                                onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+                                placeholder="External URL (e.g. website or portfolio)"
                             />
                         </div>
 
@@ -273,6 +290,16 @@ const PersonCreateDialog = () => {
                                         onCheckedChange={(checked) => setFormData({ ...formData, isAmbassador: !!checked })}
                                     />
                                     <Label htmlFor="is-ambassador">Ambassador</Label>
+                                </div>
+
+                                <div className="flex items-center space-x-2">
+                                    <Checkbox
+                                        id="is-photographer"
+                                        disabled={editingDisabled}
+                                        checked={formData.isPhotographer}
+                                        onCheckedChange={(checked) => setFormData({ ...formData, isPhotographer: !!checked })}
+                                    />
+                                    <Label htmlFor="is-photographer">Photographer</Label>
                                 </div>
 
                                 <div className="flex items-center space-x-2">

@@ -99,6 +99,41 @@ export const updateImage = mutation({
     },
 });
 
+export const listImagesByAuthors = query({
+    args: {
+        authorIds: v.array(v.id("people")),
+    },
+    returns: v.array(v.object({
+        _id: v.id("images"),
+        _creationTime: v.number(),
+        fileName: v.string(),
+        originalName: v.string(),
+        title: v.string(),
+        mimeType: v.string(),
+        size: v.number(),
+        storageId: v.id("_storage"),
+        altText: v.optional(v.string()),
+        width: v.optional(v.number()),
+        height: v.optional(v.number()),
+        authorCredit: v.optional(v.string()),
+        authors: v.optional(v.array(v.id("people"))),
+        url: v.union(v.string(), v.null()),
+        authorNames: v.array(v.string()),
+    })),
+    handler: async (ctx, args) => {
+        if (args.authorIds.length === 0) return []
+        const authorIdSet = new Set(args.authorIds.map(id => id.toString()))
+        const allImages = await ctx.db.query("images").collect()
+        const matched = allImages.filter(image =>
+            image.authors?.some(authorId => authorIdSet.has(authorId.toString()))
+        )
+        const resolved = await Promise.all(
+            matched.map(image => resolveImageId(ctx, image._id))
+        )
+        return resolved.filter((img): img is NonNullable<typeof img> => img !== null)
+    },
+})
+
 export const deleteImage = mutation({
     args: {
         id: v.id("images"),

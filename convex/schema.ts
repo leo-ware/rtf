@@ -497,13 +497,17 @@ export default defineSchema({
         isEquine: v.optional(v.boolean()),
         isStoryTeller: v.optional(v.boolean()),
         isAmbassador: v.optional(v.boolean()),
+        isPhotographer: v.optional(v.boolean()),
         inMemoriam: v.optional(v.boolean()),
+
+        link: v.optional(v.string()),
 
         directorOrder: v.optional(v.number()),
         staffOrder: v.optional(v.number()),
         equineOrder: v.optional(v.number()),
         storytellerOrder: v.optional(v.number()),
         ambassadorOrder: v.optional(v.number()),
+        photographerOrder: v.optional(v.number()),
         inMemoriamOrder: v.optional(v.number()),
     })
         .index("by_image", ["imageId"])
@@ -515,6 +519,8 @@ export default defineSchema({
         .index("by_equine_order", ["equineOrder"])
         .index("by_storyteller_order", ["storytellerOrder"])
         .index("by_ambassador_order", ["ambassadorOrder"])
+        .index("by_is_photographer", ["isPhotographer"])
+        .index("by_photographer_order", ["photographerOrder"])
         .index("by_in_memoriam_order", ["inMemoriamOrder"])
         .searchIndex("searchName", {
             searchField: "name",

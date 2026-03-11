@@ -80,7 +80,7 @@ const PeoplePage = () => {
                                 Board of Directors
                             </Header>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-18">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-18">
                                 {boardOfDirectors.map((person) => (
                                     <div key={person._id} className="mb-4">
                                         <PersonCard key={person._id} person={person} />
@@ -196,7 +196,7 @@ const PeoplePage = () => {
                         items={inMemoriam.map((person) => ({
                             id: person._id,
                             widget: (
-                                <div className="w-[92vw] md:w-[85vw] lg:w-[75vw] flex flex-col md:flex-row md:items-stretch">
+                                <div className="w-[92vw] md:w-[85vw] lg:w-[75vw] flex flex-col md:flex-row md:items-stretch rounded-lg overflow-hidden">
                                     <div className="w-full aspect-square md:w-[400px] md:aspect-square shrink-0">
                                         {person.image && (
                                             <ConvexImage
