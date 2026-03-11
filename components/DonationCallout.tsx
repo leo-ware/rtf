@@ -28,6 +28,7 @@ type DonationCalloutProps = {
     buttonColor?: string
     // Layout
     align?: "center" | "left"
+    buttonAlign?: "center" | "left"
     gridAligned?: boolean
     className?: string
     // Analytics
@@ -44,6 +45,7 @@ const DonationCallout = ({
     buttonText = "Donate Now",
     buttonColor = "cinnamon",
     align = "center",
+    buttonAlign = "center",
     gridAligned = false,
     className,
     analyticsName,
@@ -97,8 +99,10 @@ const DonationCallout = ({
                 <div className={`text-base md:text-lg ${isCenter ? "max-w-[650px]" : ""}`}>
                     {description}
                 </div>
-                <div className={isCenter ? "w-full flex justify-center" : undefined}>
-                    {cta}
+                <div className={buttonAlign === "center" ? "w-full flex justify-center" : undefined}>
+                    <div className="w-fit">
+                        {cta}
+                    </div>
                 </div>
             </div>
         </BlurredImageCard>

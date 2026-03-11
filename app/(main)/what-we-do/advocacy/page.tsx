@@ -1,35 +1,32 @@
 "use client"
 
+import { useEffect, useRef, useState } from "react"
 import Hero from "@/components/public-ui/Hero"
 import AdvocacyHero from "./advocacy-hero.jpg"
 import Callout from "@/components/public-ui/Callout"
 import Header from "@/components/public-ui/Header"
-import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
+import Image from "next/image"
 import Link from "next/link"
-import Button from "@/components/public-ui/Button"
 import NewsCarousel from "@/components/NewsCarousel"
 import TakeActionSection from "@/components/TakeActionSection"
 import ScrollReveal from "@/components/public-ui/ScrollReveal"
+import DonationCallout from "@/components/DonationCallout"
+import BlurredBg from "@/components/images/blurred-bg.jpg"
+import { motion, useInView } from "motion/react"
 
 import Policy1 from "./policy1.png"
 import Policy2 from "./policy2.jpg"
 import Policy3 from "./policy-3.jpg"
 import Policy4 from "./policy-4.jpg"
-import Random1 from "./random1.jpg"
-import Random2 from "./random2.jpg"
-import Random3 from "./random3.jpg"
-import Random4 from "./random4.jpg"
-import Random5 from "./random5.jpg"
-import Random6 from "./random6.jpg"
-import WHDCallout from "@/components/WHDCallout"
+import StatsImage from "./random6.jpg"
 
 
 const policies = [
     {
         title: "End Roundups & Removals",
         description: `
-            Helicopter roundups traumatize wild herds and cost taxpayers millions. We advocate 
-            for science-based, humane fertility control and ecosystem management to keep horses 
+            Helicopter roundups traumatize wild herds and cost taxpayers millions. We advocate
+            for science-based, humane fertility control and ecosystem management to keep horses
             wild and free.
         `,
         link: "advocacy/roundups",
@@ -38,18 +35,18 @@ const policies = [
     {
         title: "Population Management",
         description: `
-            Thousands of American horses, both wild and domestic, are shipped abroad for slaughter 
-            each year. We're fighting to pass the SAFE Act — a permanent federal ban on horse 
+            Thousands of American horses, both wild and domestic, are shipped abroad for slaughter
+            each year. We're fighting to pass the SAFE Act — a permanent federal ban on horse
             slaughter.
         `,
         link: "advocacy/population-management",
         image: Policy2
     },
     {
-        title: "Protect Herd Management Area",
+        title: "Protect Herd Management Areas",
         description: `
-            The BLM's land allocation system prioritizes private livestock over federally protected 
-            wild herds. We defend critical rangelands through policy reform, legal action, and 
+            The BLM's land allocation system prioritizes private livestock over federally protected
+            wild herds. We defend critical rangelands through policy reform, legal action, and
             habitat restoration.
         `,
         link: "advocacy/herd-management",
@@ -58,8 +55,8 @@ const policies = [
     {
         title: "End Horse Slaughter",
         description: `
-            Thousands of American horses, both wild and domestic, are shipped abroad for slaughter 
-            each year. We're fighting to pass the SAFE Act — a permanent federal ban on horse 
+            Thousands of American horses, both wild and domestic, are shipped abroad for slaughter
+            each year. We're fighting to pass the SAFE Act — a permanent federal ban on horse
             slaughter and transport.
         `,
         link: "advocacy/horse-slaughter",
@@ -67,66 +64,193 @@ const policies = [
     },
 ]
 
+const stats = [
+    { value: 4000, label: "horses rescued", prefix: "", suffix: "" },
+    { value: 300, label: "land restored", prefix: "", suffix: " km²" },
+    { value: 3450, label: "lives changed", prefix: "", suffix: "" },
+]
+
+const AnimatedNumber = ({ value, prefix, suffix }: { value: number, prefix: string, suffix: string }) => {
+    const ref = useRef<HTMLSpanElement>(null)
+    const isInView = useInView(ref, { once: true, amount: 0.5 })
+    const [display, setDisplay] = useState(0)
+
+    useEffect(() => {
+        if (!isInView) return
+        const duration = 2000
+        const steps = 60
+        const increment = value / steps
+        let current = 0
+        const interval = setInterval(() => {
+            current += increment
+            if (current >= value) {
+                current = value
+                clearInterval(interval)
+            }
+            setDisplay(Math.round(current))
+        }, duration / steps)
+        return () => clearInterval(interval)
+    }, [isInView, value])
+
+    return (
+        <span ref={ref}>
+            {prefix}{display.toLocaleString()}{suffix}
+        </span>
+    )
+}
+
+const PolicyCard = ({ policy, index }: { policy: typeof policies[number], index: number }) => {
+    const isEven = index % 2 === 0
+
+    return (
+        <Link href={policy.link} className="block relative w-full h-[300px] md:h-[350px] overflow-hidden group">
+            <Image
+                src={policy.image}
+                alt={policy.title}
+                fill
+                className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+            />
+            {/* Base subtle gradient — always visible */}
+            <div className={`absolute inset-0 ${
+                isEven
+                    ? "bg-gradient-to-r from-black/50 to-transparent"
+                    : "bg-gradient-to-l from-black/50 to-transparent"
+            }`} />
+            {/* Hover gradient — animates in */}
+            <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
+                isEven
+                    ? "bg-gradient-to-r from-black/70 to-transparent"
+                    : "bg-gradient-to-l from-black/70 to-transparent"
+            }`} />
+            {/* Text content */}
+            <div className={`absolute inset-0 flex flex-col justify-end gap-0 px-8 md:px-16 pb-10 md:pb-12 ${
+                isEven ? "items-start text-left" : "items-end text-right"
+            }`}>
+                {/* Title — large by default, shrinks and moves up on hover */}
+                <h3 className="font-serif text-[32px] md:text-[46px] group-hover:text-[26px] md:group-hover:text-[34px] text-white leading-tight max-w-[500px] transition-all duration-500 ease-out">
+                    {policy.title}
+                </h3>
+                {/* Description — hidden by default, slides in on hover */}
+                <p className="text-white/90 text-sm md:text-base max-w-[450px] leading-relaxed max-h-0 opacity-0 group-hover:max-h-[200px] group-hover:opacity-100 group-hover:mt-3 transition-all duration-500 ease-out overflow-hidden">
+                    {policy.description.trim()}
+                </p>
+                {/* Learn more — hidden by default, fades in on hover */}
+                <span className="text-white text-sm font-medium tracking-wide uppercase max-h-0 opacity-0 group-hover:max-h-[40px] group-hover:opacity-100 group-hover:mt-3 transition-all duration-500 ease-out overflow-hidden hover:underline">
+                    Learn More →
+                </span>
+            </div>
+        </Link>
+    )
+}
+
+const StatsBar = () => {
+    return (
+        <div className="relative bg-slate-900 overflow-hidden">
+            {/* Background horse image */}
+            <div className="absolute inset-0">
+                <Image
+                    src={StatsImage}
+                    alt=""
+                    fill
+                    className="object-cover object-center opacity-40"
+                />
+                <div className="absolute inset-0 bg-gradient-to-l from-transparent via-stone-900/40 to-stone-900/70" />
+                <div className="absolute inset-0 bg-red-950/20" />
+            </div>
+
+            <div className="relative z-10 py-14 md:py-20 px-6">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6 }}
+                    className="text-center mb-10"
+                >
+                    <span className="text-white/60 text-sm md:text-base tracking-[0.2em] uppercase">
+                        Since 1997
+                    </span>
+                </motion.div>
+
+                <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8 text-center">
+                    {stats.map((stat, i) => (
+                        <motion.div
+                            key={stat.label}
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6, delay: i * 0.15 }}
+                            className="flex flex-col items-center gap-2"
+                        >
+                            <div className="text-white text-[48px] md:text-[56px] font-serif leading-none">
+                                <AnimatedNumber value={stat.value} prefix={stat.prefix} suffix={stat.suffix} />
+                            </div>
+                            <div className="text-white/60 text-sm md:text-base tracking-wide">
+                                {stat.label}
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    )
+}
+
 const AdvocacyPage = () => {
     return (
-        <div className="w-full h-fit flex flex-col items-center justify-start gap-16">
+        <div className="w-full h-fit flex flex-col items-center justify-start">
             <Hero title="Advocacy" image={AdvocacyHero} />
-            <ScrollReveal variant="fade-up">
-                <Callout className="">
-                    Return to Freedom is leading the fight to protect America's wild
-                    horses and burros through policy reform, legal action, and grassroots
-                    mobilization. Every voice matters — together we can end roundups, stop
-                    slaughter, and ensure humane, science-based management for generations
-                    to come.
-                </Callout>
-            </ScrollReveal>
-            <ScrollReveal variant="fade-in">
+
+            <div className="py-16">
+                <ScrollReveal variant="fade-up">
+                    <Callout className="">
+                        Return to Freedom is leading the fight to protect America's wild
+                        horses and burros through policy reform, legal action, and grassroots
+                        mobilization. Every voice matters — together we can end roundups, stop
+                        slaughter, and ensure humane, science-based management for generations
+                        to come.
+                    </Callout>
+                </ScrollReveal>
+            </div>
+
+            <ScrollReveal variant="fade-in" className="mb-8 px-6 md:px-8">
                 <Header color="sage-green">
                     Our Policy & Legislative Priorities
                 </Header>
             </ScrollReveal>
-            <div className="w-11/12 md:w-9/12 mx-auto flex flex-col items-center justify-center gap-12 md:gap-18">
-                {policies.map((each, i) => {
-                    return (
-                        <ScrollReveal key={each.title} variant={i % 2 === 0 ? "slide-left" : "slide-right"}>
-                            <div className={`w-full flex flex-col md:flex-row items-center gap-6 md:gap-8 ${i % 2 === 0 ? "md:flex-row-reverse" : ""}`}>
-                                <div className="relative w-full md:w-1/2 h-[250px] md:h-[350px] overflow-hidden">
-                                    <ImageWithAuthorCredit
-                                        src={each.image}
-                                        alt={each.title}
-                                        className="w-full h-full object-cover object-center"
-                                    />
-                                </div>
-                                <div className="w-full md:w-1/2 flex flex-col items-start justify-center gap-2">
-                                    <div className="font-serif text-[28px] md:text-[40px] text-pewter">
-                                        {each.title}
-                                    </div>
-                                    <div className="text-base md:text-lg text-ink">
-                                        {each.description}
-                                    </div>
-                                    <Link href={each.link} className="mt-2">
-                                        <Button className="" color="cinnamon">Learn More</Button>
-                                    </Link>
-                                </div>
-                            </div>
-                        </ScrollReveal>
-                    )
-                })}
+
+            {/* Policy cards — full-width, stacked with no gap */}
+            <div className="w-full flex flex-col">
+                {policies.map((policy, i) => (
+                    <ScrollReveal key={policy.title} variant="fade-in">
+                        <PolicyCard policy={policy} index={i} />
+                    </ScrollReveal>
+                ))}
             </div>
 
-            <ScrollReveal variant="fade-up">
-                <TakeActionSection rows={1} showControls={true} />
-            </ScrollReveal>
-
-            <ScrollReveal variant="fade-up">
+            <ScrollReveal variant="fade-up" className="w-full">
                 <NewsCarousel title="RTF's Advocacy Work" topic="advocacy" />
             </ScrollReveal>
 
-            <ScrollReveal variant="fade-up">
-                <WHDCallout />
-            </ScrollReveal>
+            {/* Donate callout + TakeAction + Stats — flush, no gaps */}
+            <div className="w-full flex flex-col">
+                <ScrollReveal variant="fade-up" className="w-full">
+                    <DonationCallout
+                        image={BlurredBg}
+                        heading={<>Donate to <br /> Wild Horse Defense Fund</>}
+                        description="The Wild Horse Defense Fund fuels Return to Freedom's frontline work to end cruel roundups, advance humane on-range management, and defend wild horses through advocacy, legal action, and education."
+                        donatePathway="Wild Horse Defense Fund"
+                        buttonText="Donate Now"
+                        align="center"
+                        analyticsName="whd_fund"
+                        className="min-h-[300px] md:min-h-[350px] rounded-none"
+                    />
+                </ScrollReveal>
 
-            <div className="h-8"/>
+                <TakeActionSection rows={1} showControls={true} />
+
+                <StatsBar />
+            </div>
+
         </div>
     )
 }

@@ -17,8 +17,8 @@ const TakeActionLink = ({ title, fallbackImage, image, href, className }: TakeAc
     const authorCredit = image?.authorCredit
 
     const card = (
-        <div className={cn("aspect-[8/7] w-full bg-seashell rounded-md overflow-hidden", className)}>
-            <div className="relative w-full h-8/12">
+        <div className={cn("aspect-[8/7] w-full rounded-md overflow-hidden relative group", className)}>
+            <div className="absolute inset-0 transition-transform duration-300 group-hover:scale-105">
                 {(image && image.url) ? (
                     <ConvexImage
                         src={image.url}
@@ -37,8 +37,8 @@ const TakeActionLink = ({ title, fallbackImage, image, href, className }: TakeAc
                 ) : null
                 )}
             </div>
-            <div className="px-6 py-2 w-full h-4/12 flex items-center justify-center">
-                <div className="text-2xl font-serif text-pewter text-center line-clamp-3">
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-5 pt-12 pb-4">
+                <div className="text-2xl font-serif text-white text-left line-clamp-3">
                     {title}
                 </div>
             </div>

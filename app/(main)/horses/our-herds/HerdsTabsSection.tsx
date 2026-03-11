@@ -27,7 +27,7 @@ const HerdContent = ({ herdId }: { herdId: Id<"herds"> }) => {
 
     return (
         <div className="w-full flex flex-col items-center gap-16">
-            <div className="w-8/12 flex flex-col items-center justify-center gap-4">
+            <div className="w-11/12 md:w-8/12 flex flex-col items-center justify-center gap-4">
                 <div className="text-cinnamon text-[48px] font-serif">
                     {herd.name}
                 </div>
@@ -60,26 +60,16 @@ const HerdContent = ({ herdId }: { herdId: Id<"herds"> }) => {
             {timeline && timeline.length > 0 && (
                 <div className="w-full flex flex-col items-center justify-center gap-8">
                     <div className="text-pewter text-[40px] font-serif">Rescue Timeline</div>
-                    <div className="relative w-8/12 flex flex-col items-between gap-12">
-                        <div className={`absolute top-0 left-1/2 w-1 h-full ${timeline.length > 1 && " border-l-2 border-ink"}`} />
+                    <div className="relative w-11/12 md:w-8/12 flex flex-col items-between gap-12">
+                        <div className={`hidden md:block absolute top-0 left-1/2 w-1 h-full ${timeline.length > 1 && " border-l-2 border-ink"}`} />
                         {timeline.map((tm, i) => {
                             const even = i % 2 === 0
                             return (
                                 <div
                                     key={tm._id}
-                                    className={`w-full h-fit flex items-center justify-between gap-12
-                                                ${even ? "flex-row" : "flex-row-reverse"}`}>
-                                    <div className={`basis-0 grow flex flex-col
-                                    ${even ? "items-end text-right" : "items-start text-left"}`}>
-                                        <div className={`text-[24px] font-serif ${even ? "text-cinnamon" : "text-pewter"}`}>
-                                            {tm.date}
-                                        </div>
-                                        <div className={`text-[24px] font-serif ${even ? "text-cinnamon" : "text-pewter"}`}>
-                                            {tm.title}
-                                        </div>
-                                        <div className="text-ink">{tm.description}</div>
-                                    </div>
-                                    <div className="relative basis-0 grow h-72 flex flex-col">
+                                    className={`w-full h-fit flex flex-col md:flex-row items-center justify-between gap-4 md:gap-12
+                                                ${even ? "md:flex-row" : "md:flex-row-reverse"}`}>
+                                    <div className="relative w-full md:basis-0 md:grow h-56 md:h-72 flex flex-col">
                                         {tm.image && tm.image.url && (<ImageWithAuthorCredit
                                             src={tm.image.url}
                                             alt={tm.image.altText || tm.title}
@@ -89,6 +79,16 @@ const HerdContent = ({ herdId }: { herdId: Id<"herds"> }) => {
                                             authorCredit={tm.image.authorCredit}
                                         />)}
                                     </div>
+                                    <div className={`w-full md:w-auto md:basis-0 md:grow flex flex-col items-start text-left
+                                    ${even ? "md:items-end md:text-right" : "md:items-start md:text-left"}`}>
+                                        <div className={`text-[24px] font-serif ${even ? "text-cinnamon" : "text-pewter"}`}>
+                                            {tm.date}
+                                        </div>
+                                        <div className={`text-[24px] font-serif ${even ? "text-cinnamon" : "text-pewter"}`}>
+                                            {tm.title}
+                                        </div>
+                                        <div className="text-ink">{tm.description}</div>
+                                    </div>
                                 </div>
                             )
                         })}
@@ -96,7 +96,7 @@ const HerdContent = ({ herdId }: { herdId: Id<"herds"> }) => {
                 </div>
             )}
 
-            <div className="z-0 w-full relative">
+            <div className="w-full relative">
                 <ImageWithAuthorCredit
                     src={SponsorHerdBg}
                     alt="Sponsor Herd Background"
@@ -104,8 +104,8 @@ const HerdContent = ({ herdId }: { herdId: Id<"herds"> }) => {
                     fill
                     wrapperClassName="z-0 absolute top-0 left-0 w-full h-full" />
 
-                <div className="z-10 relative top-0 left-0 w-full h-full p-20 flex justify-end">
-                    <div className="w-5/12 flex flex-col gap-4 items-start justify-start">
+                <div className="z-10 relative top-0 left-0 w-full h-full p-8 md:p-20 flex justify-start md:justify-end">
+                    <div className="w-full md:w-5/12 flex flex-col gap-4 items-start justify-start">
                         <div className="text-white text-[40px] text-left font-serif">
                             Sponsor the {herd.name}
                         </div>

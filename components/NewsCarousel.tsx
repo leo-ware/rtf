@@ -3,7 +3,7 @@
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
 import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import Link from "next/link"
-import { useState, useEffect } from "react"
+import { useMemo } from "react"
 import { usePaginatedQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Id } from "@/convex/_generated/dataModel"
@@ -20,33 +20,29 @@ type NewsCarouselProps = {
     herdId?: Id<"herds">
     animalId?: Id<"animals">
     topic?: TopicType
-    preventFallback?: boolean
 }
 
 const NewsCarousel = ({
     title = "Latest News",
     bgColor = "seashell",
     topic,
-    preventFallback = false,
 }: NewsCarouselProps) => {
-    const [topicState, setTopicState] = useState<TopicType | undefined>(topic)
+    const { results: topicArticles } = usePaginatedQuery(
+        api.articleMetadata.carouselSearch,
+        topic ? { topic } : "skip",
+        { initialNumItems: 6 }
+    )
+    const { results: generalArticles } = usePaginatedQuery(
+        api.articleMetadata.carouselSearch,
+        {},
+        { initialNumItems: 6 }
+    )
 
-    const { results: topicArticles, status } = usePaginatedQuery(api.articleMetadata.carouselSearch, {
-        topic: topicState,
-    }, { initialNumItems: 4 })
-
-    const articles = topicArticles
-
-    useEffect(() => {
-        setTopicState(topic)
-    }, [topic])
-
-    // if we can't find any articles for this topic, fallback to loading any articles we can find
-    useEffect(() => {
-        if (status !== "LoadingFirstPage" && articles.length === 0 && !preventFallback) {
-            setTopicState(undefined)
-        }
-    }, [status, articles])
+    const articles = useMemo(() => {
+        const topicIds = new Set(topicArticles.map(a => a._id))
+        const supplemental = generalArticles.filter(a => !topicIds.has(a._id))
+        return [...topicArticles, ...supplemental].slice(0, 6)
+    }, [topicArticles, generalArticles])
 
     if (!articles || articles.length === 0) {
         return null
@@ -60,24 +56,24 @@ const NewsCarousel = ({
         return {
             id: article._id,
             widget: (
-                <Link href={article.link}>
+                <Link href={article.link} className="w-full">
                     <div className={`
-                        w-full sm:w-[75vw] h-[80vh] sm:h-[300px]
-                        flex flex-col sm:flex-row stretch
+                        w-full h-[420px] sm:w-[75vw] sm:h-[300px]
+                        flex flex-col sm:flex-row mx-auto
                         cursor-pointer hover:opacity-90 transition-opacity
                         `}>
-                        <div className="h-5/12 sm:h-full basis-0 grow overflow-hidden">
+                        <div className="h-[200px] sm:h-full shrink-0 sm:basis-0 sm:grow overflow-hidden">
                             <ImageWithAuthorCredit
                                 src={article.image?.url || BrosChilling}
                                 alt={article.image?.altText || "Article image"}
                                 width={article.image?.width || 400}
                                 height={article.image?.height || 300}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover object-center"
                                 wrapperClassName="w-full h-full"
                                 authorCredit={article.image?.authorCredit} />
                         </div>
-                        <div className="basis-0 grow bg-white flex flex-col items-center justify-center">
-                            <div className="w-3/4 h-fit md:border-l-4 border-burnt-orange md:pl-4 py-2 flex flex-col justify-start gap-2">
+                        <div className="grow sm:basis-0 bg-white flex flex-col items-center justify-start py-3 sm:justify-center sm:py-0 overflow-hidden">
+                            <div className="w-3/4 h-fit md:border-l-4 border-burnt-orange md:pl-4 py-2 flex flex-col justify-start gap-1 sm:gap-2">
                                 <div className="text-sm">
                                     {formattedDate}
                                 </div>
@@ -87,7 +83,7 @@ const NewsCarousel = ({
                                 <div className="text-[20px] md:text-[28px] font-serif text-pewter line-clamp-2">
                                     {article.title}
                                 </div>
-                                <div className="text-[14px] md:text-[16px] text-ink line-clamp-3">
+                                <div className="text-[14px] md:text-[16px] text-ink line-clamp-4">
                                     {article.excerpt}
                                 </div>
                             </div>
@@ -100,7 +96,7 @@ const NewsCarousel = ({
 
     return (
         <div className={`w-full h-fit pt-12 pb-16 flex flex-col items-center justify-center gap-6 bg-${bgColor}`}>
-            <div className="px-4 text-[32px] md:text-[48px] font-serif text-cinnamon underline decoration-cinnamon decoration-2 underline-offset-8 md:underline-offset-12">
+            <div className="px-4 text-center text-[32px] md:text-[48px] font-serif text-cinnamon underline decoration-cinnamon decoration-2 underline-offset-8 md:underline-offset-12">
                 {title}
             </div>
             <div className="w-full flex items-center justify-center gap-4">
@@ -108,6 +104,8 @@ const NewsCarousel = ({
                     items={items}
                     nDisplayItems={1}
                     autoPlay={"right"}
+                    navigationPosition="bottom"
+                    dotIndicators
                     leftButton={<FaCaretLeft size={30} className="text-pewter" />}
                     rightButton={<FaCaretRight size={30} className="text-pewter" />}
                     transitionDuration={1500}

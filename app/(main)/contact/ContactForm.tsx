@@ -192,14 +192,17 @@ const ContactForm = () => {
                             Inquiry*
                         </div>
                         <div className="h-fit flex flex-col gap-2 items-start justify-start">
-                            {(
-                                [
-                                    {
-                                        id: "general_inquiry",
-                                        label: "General Inquiry",
-                                    },
-                                ] as const
-                            ).map(({ id, label }) => (
+                            {([
+                                    { id: "general_inquiry", label: "General Inquiry" },
+                                    { id: "donor_inquiry", label: "Donor Inquiry" },
+                                    { id: "corporate_sponsorship", label: "Corporate Sponsorship" },
+                                    { id: "host_an_event", label: "Host an Event" },
+                                    { id: "media", label: "Media" },
+                                    { id: "volunteer", label: "Volunteer" },
+                                    { id: "education_outreach", label: "Education & Outreach" },
+                                    { id: "adoptions_sanctuary", label: "Adoptions & Sanctuary" },
+                                    { id: "other", label: "Other" },
+                            ]).map(({ id, label }) => (
                                 <div
                                     key={id}
                                     className="flex items-center gap-4 cursor-pointer select-none"

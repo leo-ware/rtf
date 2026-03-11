@@ -13,7 +13,7 @@ const OurHerdsPage = ({ searchParams }: { searchParams: Promise<{ slug?: string 
         <div className="w-full h-fit mb-16 flex flex-col items-center justify-start gap-16 text-center">
             <Hero title="Our Herds" image={OurHerdsHeroImage} />
 
-            <div className="w-8/12 h-fit flex flex-col items-center justify-center text-pewter text-[24px] font-serif">
+            <div className="w-10/12 md:w-8/12 h-fit flex flex-col items-start md:items-center justify-center text-left md:text-center text-pewter text-[24px] font-serif">
                 The majority of the horses who range free at the Return to Freedom Wild Horse Sanctuary
                 are part of a herd or bachelor band. Some herds arrived together. Others formed after
                 they arrived. Still others found new family members among horses already residing at

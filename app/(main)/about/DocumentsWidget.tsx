@@ -49,7 +49,7 @@ const DocumentsWidget = () => {
                     fill
                     wrapperClassName="z-0 absolute top-0 left-0 w-full h-full" />
                 <div className="z-10 flex flex-col items-start justify-center gap-4">
-                    <div className="text-white text-[48px] font-serif leading-tight">
+                    <div className="text-white text-[36px] md:text-[48px] font-serif leading-tight">
                         Read our latest<br />
                         Annual Report
                     </div>
@@ -73,17 +73,17 @@ const DocumentsWidget = () => {
                     </Link>
                 </div>
             </div>
-            <div className="w-full h-fit bg-pewter py-20 px-8 md:px-1/12 flex flex-row items-center justify-center gap-8">
-                
-                <div className="w-fit flex flex-col items-start justify-start gap-2">
-                    <div className="text-white text-[48px] font-serif leading-tight">Financials</div>
-                    <div className="text-white text-[20px] max-w-[215px]">
+            <div className="w-full h-fit bg-pewter py-12 md:py-20 px-4 md:px-1/12 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-8">
+
+                <div className="w-full md:w-fit flex flex-col items-center md:items-start justify-start gap-2 text-center md:text-left md:shrink-0">
+                    <div className="text-white text-[36px] md:text-[48px] font-serif leading-tight">Financials</div>
+                    <div className="text-white text-[16px] md:text-[20px] max-w-[280px] md:max-w-[215px]">
                         Return to Freedom is a 501(c)3 nonprofit organization. Tax ID: #06-1484961
                     </div>
                 </div>
 
-                <div className="w-[800px] h-fit flex flex-col items-start justify-center gap-4">
-                    <div className="w-full flex stretch gap-4">
+                <div className="w-full md:w-[800px] h-fit flex flex-col items-start justify-center gap-3 md:gap-4">
+                    <div className="w-full flex gap-2 md:gap-4">
                         {([
                             {
                                 title: "ANNUAL REPORTS",
@@ -103,8 +103,8 @@ const DocumentsWidget = () => {
                                 onClick={() => setActiveTab(item.id)}
                                 className={`
                                     cursor-pointer grow basis-0 bg-white rounded-xl
-                                    py-1 px-3 text-pewter text-[16px]
-                                    flex items-center justify-center border-4
+                                    py-2 px-2 md:px-3 text-pewter text-[13px] md:text-[16px] text-center
+                                    flex items-center justify-center border-3 md:border-4
                                     ${activeTab === item.id
                                         ? "border-cinnamon"
                                         : "border-pewter"
@@ -116,13 +116,13 @@ const DocumentsWidget = () => {
                         ))}
                     </div>
 
-                    <div className="w-full bg-white rounded p-8 flex flex-col md:flex-row">
+                    <div className="w-full bg-white rounded p-4 md:p-8 flex flex-col md:flex-row">
                         {chunk(listDocuments, 8).map(rl => (
                             <div className="w-full md:w-1/3 flex flex-col items-start justify-start gap-1">
                                 {rl.map(r => (
                                     <Link
                                         href={r.link}
-                                        className="text-pewter text-[20px]"
+                                        className="text-pewter text-[17px] md:text-[20px]"
                                         onClick={() => trackEvent(AnalyticsEvents.DOCUMENT_OPENED, {
                                             name: r.title,
                                             type: activeTab,

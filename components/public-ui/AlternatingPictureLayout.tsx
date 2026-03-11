@@ -3,6 +3,8 @@
 import { StaticImageData } from "next/image"
 import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import ScrollReveal from "./ScrollReveal"
+import Button from "./Button"
+import Link from "next/link"
 
 type AlternatingPictureLayoutProps = {
     items: {
@@ -12,17 +14,21 @@ type AlternatingPictureLayoutProps = {
         image: StaticImageData | string
         imageAlt?: string
         authorCredit?: string
+        buttonLabel?: string
+        buttonHref?: string
     }[]
     alternateTitleColors?: boolean
     showDivider?: boolean
     imageMode?: "natural" | "standardized"
+    className?: string
 }
 
 const AlternatingPictureLayout = ({
     items,
     alternateTitleColors = false,
     showDivider = false,
-    imageMode = "standardized"
+    imageMode = "standardized",
+    className
 }: AlternatingPictureLayoutProps) => {
     const titleColor = (idx: number) => {
         if (alternateTitleColors) {
@@ -32,26 +38,26 @@ const AlternatingPictureLayout = ({
     }
 
     return (
-        <div className="relative w-full mx-auto h-fit flex flex-col gap-16">
+        <div className={`relative w-10/12 mx-auto h-fit flex flex-col gap-16 ${className ?? ""}`}>
             {showDivider && (
                 <div className="absolute top-0 left-0 w-1/2 h-full border-r-2 border-ink" />
             )}
             {items.map((item, index) => {
                 const isEven = index % 2 === 0
-                const textOrder = isEven ? "md:order-last" : "md:order-first"
-                const textAlign = isEven ? "md:text-left md:items-start" : "md:text-right md:items-end"
+                const textOrder = isEven ? "lg:order-last" : "lg:order-first"
+                const textAlign = isEven ? "lg:text-left lg:items-start" : "lg:text-right lg:items-end"
                 const gapSize = showDivider ? "gap-20" : "gap-8"
 
                 return (
                     <div
                         key={`${item.title}-${index}`}
-                        className={`w-full h-fit flex flex-col md:flex-row items-center justify-center ${gapSize}`}
+                        className={`w-full h-fit flex flex-col lg:flex-row items-center justify-center ${gapSize}`}
                     >
                         <ScrollReveal
                             variant={isEven ? "slide-left" : "slide-right"}
                             className={imageMode === "standardized"
-                                ? "md:w-1/2 h-fit max-h-[400px] aspect-square relative"
-                                : "md:w-1/2 h-fit flex items-center justify-center"
+                                ? "w-full lg:w-1/2 h-fit max-h-[400px] aspect-square relative rounded-sm overflow-hidden"
+                                : "w-full lg:w-1/2 h-fit flex items-center justify-center rounded-sm overflow-hidden"
                             }
                         >
                             {imageMode === "standardized" ? (
@@ -76,21 +82,28 @@ const AlternatingPictureLayout = ({
                         </ScrollReveal>
                         <ScrollReveal
                             variant="fade-up"
-                            className={`md:w-1/2 flex flex-col gap-4 text-center px-4 md:px-0 ${textAlign} ${textOrder}`}
+                            className={`lg:w-1/2 flex flex-col gap-4 text-left lg:text-center px-4 lg:px-0 items-start lg:items-center ${textAlign} ${textOrder}`}
                         >
                             {item.superTitle && (
-                                <div className="text-xl md:text-[25px] text-ink">
+                                <div className="text-xl lg:text-[25px] text-ink">
                                     {item.superTitle}
                                 </div>
                             )}
                             {item.title && (
-                                <div className={`text-[28px] md:text-[36px] font-serif ${titleColor(index)}`}>
+                                <div className={`text-[28px] lg:text-[36px] font-serif ${titleColor(index)}`}>
                                     {item.title}
                                 </div>
                             )}
-                            <div className={`w-full text-base md:text-[20px] flex flex-col gap-4 items-center ${isEven ? "md:items-start [&>div]:md:flex [&>div]:md:flex-col [&>div]:md:items-start" : "md:items-end [&>div]:md:flex [&>div]:md:flex-col [&>div]:md:items-end"}`}>
+                            <div className={`w-full text-base lg:text-[20px] flex flex-col gap-4 items-center ${isEven ? "lg:items-start [&>div]:lg:flex [&>div]:lg:flex-col [&>div]:lg:items-start" : "lg:items-end [&>div]:lg:flex [&>div]:lg:flex-col [&>div]:lg:items-end"}`}>
                                 {item.description}
                             </div>
+                            {item.buttonLabel && item.buttonHref && (
+                                <Link href={item.buttonHref}>
+                                    <Button size="large" color="cinnamon">
+                                        {item.buttonLabel}
+                                    </Button>
+                                </Link>
+                            )}
                         </ScrollReveal>
                     </div>
                 )

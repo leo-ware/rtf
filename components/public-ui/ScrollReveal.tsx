@@ -1,9 +1,12 @@
 "use client"
 
 import { motion, useReducedMotion, Variants } from "motion/react"
-import { ReactNode } from "react"
+import { ReactNode, useState, useEffect } from "react"
 
 type AnimationVariant = "fade-up" | "fade-in" | "fade-down" | "slide-left" | "slide-right" | "scale" | "none"
+
+const breakpoints = { sm: 640, md: 768, lg: 1024, xl: 1280 } as const
+type Breakpoint = keyof typeof breakpoints
 
 type ScrollRevealProps = {
     children: ReactNode
@@ -13,6 +16,7 @@ type ScrollRevealProps = {
     className?: string
     once?: boolean
     amount?: number | "some" | "all"
+    disableBelow?: Breakpoint
 }
 
 const variants: Record<AnimationVariant, Variants> = {
@@ -53,21 +57,36 @@ const ScrollReveal = ({
     duration = 0.6,
     className = "",
     once = true,
-    amount = 0.2
+    amount = 0.2,
+    disableBelow,
 }: ScrollRevealProps) => {
     const shouldReduceMotion = useReducedMotion()
 
-    const activeVariant = shouldReduceMotion ? "none" : variant
+    const [isBelowBreakpoint, setIsBelowBreakpoint] = useState(false)
+    useEffect(() => {
+        if (!disableBelow) return
+        const mq = window.matchMedia(`(max-width: ${breakpoints[disableBelow] - 1}px)`)
+        setIsBelowBreakpoint(mq.matches)
+        const handler = (e: MediaQueryListEvent) => setIsBelowBreakpoint(e.matches)
+        mq.addEventListener("change", handler)
+        return () => mq.removeEventListener("change", handler)
+    }, [disableBelow])
+
+    const disabled = shouldReduceMotion || isBelowBreakpoint
+
+    if (disabled) {
+        return <div className={className}>{children}</div>
+    }
 
     return (
         <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once, amount }}
-            variants={variants[activeVariant]}
+            variants={variants[variant]}
             transition={{
-                duration: shouldReduceMotion ? 0 : duration,
-                delay: shouldReduceMotion ? 0 : delay,
+                duration,
+                delay,
                 ease: [0.25, 0.1, 0.25, 1]
             }}
             className={className}

@@ -5,6 +5,7 @@ import Link from "next/link"
 
 import RTFLogoWhite from "@/public/img/rtf_logo_white.svg"
 import { IoMdClose, IoMdMenu } from "react-icons/io"
+import { IoChevronDown } from "react-icons/io5"
 import { useState } from "react"
 import { trackEvent, AnalyticsEvents } from "@/lib/analytics"
 import {
@@ -33,6 +34,12 @@ const dropdownConfigs: NavDropdownConfig[] = [
         label: "About",
         href: "/about",
         subpages: [
+            {
+                label: "About RTF",
+                href: "/about",
+                description: "Learn about Return to Freedom's mission to preserve and protect America's wild horses.",
+                image: "/img/about_hero.jpg",
+            },
             {
                 label: "Our People",
                 href: "/about/people",
@@ -75,6 +82,30 @@ const dropdownConfigs: NavDropdownConfig[] = [
                 description: "Working to shape policy and legislation that safeguards wild horses and their habitats.",
                 image: "/img/Owyhee-9925-scaled.jpg",
             },
+            {
+                label: "Herd Management",
+                href: "/what-we-do/advocacy/herd-management",
+                description: "Designated Herd Management Areas balance wild horse populations with other public-land uses, but decades of over-allocation threaten the future of wild herds.",
+                image: "/img/Owyhee-9925-scaled.jpg",
+            },
+            {
+                label: "Horse Slaughter",
+                href: "/what-we-do/advocacy/horse-slaughter",
+                description: "Though horse slaughter is banned in the U.S., thousands are still exported for slaughter each year. RTF advocates for lasting protections through the SAFE Act.",
+                image: "/img/Owyhee-9925-scaled.jpg",
+            },
+            {
+                label: "Population Management",
+                href: "/what-we-do/advocacy/population-management",
+                description: "Humane, science-based fertility control can replace roundups, reduce costs, and allow wild herds to live naturally on the range.",
+                image: "/img/Owyhee-9925-scaled.jpg",
+            },
+            {
+                label: "Roundups",
+                href: "/what-we-do/advocacy/roundups",
+                description: "Each year, thousands of wild horses and burros are chased by helicopters into traps on public lands, destroying family bands and costing taxpayers hundreds of millions.",
+                image: "/img/Owyhee-9925-scaled.jpg",
+            },
         ],
     },
     {
@@ -88,12 +119,6 @@ const dropdownConfigs: NavDropdownConfig[] = [
                 image: "/img/bros-chilling.png",
             },
             {
-                label: "Our Burros",
-                href: "/horses/our-burros",
-                description: "Meet the wild burros at Return to Freedom, resilient and full of personality.",
-                image: "/img/ares-mares.jpg",
-            },
-            {
                 label: "Our Herds",
                 href: "/horses/our-herds",
                 description: "Learn about the distinct herds at Return to Freedom, representing different wild horse populations.",
@@ -104,6 +129,24 @@ const dropdownConfigs: NavDropdownConfig[] = [
                 href: "/donate/sponsor-a-horse",
                 description: "Support a wild horse's care with a sponsorship — a meaningful way to make a difference.",
                 image: "/img/grazing-brown-horses-e1721864397332.png",
+            },
+        ],
+    },
+    {
+        label: "Our Burros",
+        href: "/horses/our-burros",
+        subpages: [
+            {
+                label: "Our Burros",
+                href: "/horses/our-burros",
+                description: "Meet the wild burros at Return to Freedom, resilient and full of personality.",
+                image: "/img/ares-mares.jpg",
+            },
+            {
+                label: "Sponsor a Burro",
+                href: "/donate/sponsor-a-burro",
+                description: "Support a wild burro's care with a sponsorship — a meaningful way to make a difference.",
+                image: "/img/ares-mares.jpg",
             },
         ],
     },
@@ -145,7 +188,7 @@ const HeaderLink = (props: {
     return (
         <Link
             href={props.href}
-            className="relative no-wrap group/link text-white text-[16px] font-semibold"
+            className="relative whitespace-nowrap group/link text-white text-[16px] font-semibold"
             target={props.external ? "_blank" : undefined}
             rel={props.external ? "noopener noreferrer" : undefined}
             onClick={props.onClick}
@@ -173,7 +216,7 @@ const DropdownNavItem = ({ config, align = "left" }: { config: NavDropdownConfig
                     data-[state=open]:bg-transparent!
                     px-0! py-0! h-auto! rounded-none!"
             >
-                <Link href={config.href} className="relative no-wrap group/link">
+                <Link href={config.href} className="relative whitespace-nowrap group/link">
                     <div
                         className="absolute bottom-0 left-0
                         right-0 h-0.5 bg-white scale-x-0 group-hover/link:scale-x-100
@@ -185,7 +228,7 @@ const DropdownNavItem = ({ config, align = "left" }: { config: NavDropdownConfig
             <NavigationMenuContent
                 className={`bg-white! border-none! rounded-lg! shadow-xl! ${align === "right" ? "right-0! left-auto!" : ""}`}
             >
-                <div className="grid grid-cols-[180px_1fr_160px] gap-4 p-5 w-[540px]">
+                <div className="grid grid-cols-[180px_1fr_160px] gap-4 p-5 w-[600px]">
                     <div className="flex flex-col gap-2">
                         {config.subpages.map((subpage, i) => (
                             <Link
@@ -243,15 +286,81 @@ const MobileHeaderLink = (props: {
     )
 }
 
+const MobileNavSection = ({
+    label,
+    href,
+    subpages,
+    onNavigate,
+    expanded,
+    onToggle,
+}: {
+    label: string
+    href: string
+    subpages?: NavSubpage[]
+    onNavigate: () => void
+    expanded: boolean
+    onToggle: () => void
+}) => {
+    if (!subpages || subpages.length === 0) {
+        return (
+            <MobileHeaderLink
+                href={href}
+                text={label}
+                onClick={onNavigate}
+            />
+        )
+    }
+
+    return (
+        <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+                <Link
+                    href={href}
+                    className="relative text-white"
+                    onClick={onNavigate}
+                >
+                    {label}
+                </Link>
+                <button
+                    onClick={onToggle}
+                    aria-label={`${expanded ? "Collapse" : "Expand"} ${label}`}
+                    className="text-white/60 hover:text-white transition-colors p-3 -m-2"
+                >
+                    <IoChevronDown
+                        className={`text-sm transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
+                    />
+                </button>
+            </div>
+            <div
+                className={`flex flex-col gap-1.5 overflow-hidden transition-all duration-200 ${
+                    expanded ? "max-h-[500px] mt-2 opacity-100" : "max-h-0 opacity-0"
+                }`}
+            >
+                {subpages.map((sub) => (
+                    <Link
+                        key={sub.href}
+                        href={sub.href}
+                        className="text-white/60 hover:text-white transition-colors pl-4 text-[0.85em]"
+                        onClick={onNavigate}
+                    >
+                        {sub.label}
+                    </Link>
+                ))}
+            </div>
+        </div>
+    )
+}
+
 export default function Navbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+    const [expandedSection, setExpandedSection] = useState<string | null>(null)
 
     const leftNavItems = [
         { label: "About", href: "/about" },
         { label: "What We Do", href: "/#what-we-do" },
         { label: "Learn", href: "/resources/learn" },
-        { label: "News", href: "/resources/news" },
         { label: "Our Horses", href: "/horses/our-horses" },
+        { label: "Our Burros", href: "/horses/our-burros" },
     ]
 
     return (
@@ -265,10 +374,10 @@ export default function Navbar() {
                 viewport={false}
                 className={`
                 w-full hidden py-2 px-[5%] max-w-none!
-                xl:flex xl:items-center xl:gap-6 xl:px-[3%]
+                xl:flex xl:items-center xl:gap-4 xl:px-[3%]
                 `}
             >
-                <NavigationMenuList className="flex-1 flex items-center justify-end gap-4 xl:gap-6">
+                <NavigationMenuList className="flex-1 flex items-center justify-end gap-3 xl:gap-4">
                     {leftNavItems.map((item) => {
                         const config = getDropdownConfig(item.label)
                         if (config) {
@@ -301,11 +410,17 @@ export default function Navbar() {
                     </Link>
                 </div>
 
-                <NavigationMenuList className="flex-1 flex items-center justify-start gap-4 xl:gap-6">
+                <NavigationMenuList className="flex-1 flex items-center justify-start gap-3 xl:gap-4">
                     <NavigationMenuItem>
                         <HeaderLink
                             href="/what-we-do/advocacy#take-action"
                             text="Take Action"
+                        />
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <HeaderLink
+                            href="/resources/news"
+                            text="News"
                         />
                     </NavigationMenuItem>
                     <DropdownNavItem config={getDropdownConfig("Visit Us")!} align="right" />
@@ -320,7 +435,7 @@ export default function Navbar() {
                         />
                     </NavigationMenuItem>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 whitespace-nowrap">
                         <Link
                             href="/donate"
                             className={`rounded-lg bg-cinnamon border-1 border-cinnamon w-[100px] flex items-center
@@ -361,9 +476,15 @@ export default function Navbar() {
                     </Link>
                     <NavigationMenuList className="flex items-center gap-4">
                         <div className="hidden lg:flex lg:items-center lg:gap-4">
-                            <DropdownNavItem config={getDropdownConfig("About")!} />
-                            <DropdownNavItem config={getDropdownConfig("What We Do")!} />
-                            <DropdownNavItem config={getDropdownConfig("Our Horses")!} />
+                            <NavigationMenuItem>
+                                <HeaderLink href="/about" text="About" />
+                            </NavigationMenuItem>
+                            <NavigationMenuItem>
+                                <HeaderLink href="/#what-we-do" text="What We Do" />
+                            </NavigationMenuItem>
+                            <NavigationMenuItem>
+                                <HeaderLink href="/horses/our-horses" text="Our Horses" />
+                            </NavigationMenuItem>
                         </div>
                         <NavigationMenuItem>
                             <HeaderLink
@@ -371,7 +492,9 @@ export default function Navbar() {
                                 text="Take Action"
                             />
                         </NavigationMenuItem>
-                        <DropdownNavItem config={getDropdownConfig("Visit Us")!} />
+                        <NavigationMenuItem>
+                            <HeaderLink href="/visit-us" text="Visit Us" />
+                        </NavigationMenuItem>
                         <NavigationMenuItem>
                             <HeaderLink
                                 href="https://shop.returntofreedom.org"
@@ -414,7 +537,7 @@ export default function Navbar() {
                 className="
                 sm:hidden
                 flex flex-row items-center justify-between
-                top-0 left-0 w-screen p-2
+                top-0 left-0 w-full p-2
                 "
             >
                 <Link href="/" className="flex-shrink-0">
@@ -447,7 +570,7 @@ export default function Navbar() {
             </nav>
 
             <div
-                className="z-50 bg-pewter w-screen h-screen fixed top-0 left-0"
+                className="z-50 bg-pewter w-full h-screen fixed top-0 left-0"
                 style={{
                     transform: isMobileMenuOpen
                         ? "translateX(0)"
@@ -476,20 +599,27 @@ export default function Navbar() {
 
                 <div
                     className="
-                        absolute left-6 bottom-6 flex flex-col items-start justify-end
-                        font-serif font-base underline underline-offset-4
-                        gap-4 text-lg
-                        md:text-4xl md:p-16 md:gap-6"
+                        absolute inset-0 top-16 flex flex-col items-start justify-end
+                        font-serif font-base underline-offset-4
+                        gap-3 text-lg overflow-y-auto overscroll-contain
+                        px-6 pb-6
+                        md:text-4xl md:px-16 md:pb-16 md:gap-5"
                 >
-                    <MobileHeaderLink
+                    <MobileNavSection
+                        label="About"
                         href="/about"
-                        text="About"
-                        onClick={() => setIsMobileMenuOpen(false)}
+                        subpages={getDropdownConfig("About")?.subpages}
+                        onNavigate={() => setIsMobileMenuOpen(false)}
+                        expanded={expandedSection === "About"}
+                        onToggle={() => setExpandedSection(expandedSection === "About" ? null : "About")}
                     />
-                    <MobileHeaderLink
+                    <MobileNavSection
+                        label="What We Do"
                         href="/#what-we-do"
-                        text="What We Do"
-                        onClick={() => setIsMobileMenuOpen(false)}
+                        subpages={getDropdownConfig("What We Do")?.subpages}
+                        onNavigate={() => setIsMobileMenuOpen(false)}
+                        expanded={expandedSection === "What We Do"}
+                        onToggle={() => setExpandedSection(expandedSection === "What We Do" ? null : "What We Do")}
                     />
                     <MobileHeaderLink
                         href="/resources/learn"
@@ -501,21 +631,51 @@ export default function Navbar() {
                         text="News"
                         onClick={() => setIsMobileMenuOpen(false)}
                     />
-                    <MobileHeaderLink
+                    <MobileNavSection
+                        label="Our Horses"
                         href="/horses/our-horses"
-                        text="Our Horses"
-                        onClick={() => setIsMobileMenuOpen(false)}
+                        subpages={getDropdownConfig("Our Horses")?.subpages}
+                        onNavigate={() => setIsMobileMenuOpen(false)}
+                        expanded={expandedSection === "Our Horses"}
+                        onToggle={() => setExpandedSection(expandedSection === "Our Horses" ? null : "Our Horses")}
                     />
                     <MobileHeaderLink
                         href="/take-action"
                         text="Take Action"
                         onClick={() => setIsMobileMenuOpen(false)}
                     />
-                    <MobileHeaderLink
+                    <MobileNavSection
+                        label="Visit Us"
                         href="/visit-us"
-                        text="Visit Us"
-                        onClick={() => setIsMobileMenuOpen(false)}
+                        subpages={getDropdownConfig("Visit Us")?.subpages}
+                        onNavigate={() => setIsMobileMenuOpen(false)}
+                        expanded={expandedSection === "Visit Us"}
+                        onToggle={() => setExpandedSection(expandedSection === "Visit Us" ? null : "Visit Us")}
                     />
+                    <MobileHeaderLink
+                        href="https://shop.returntofreedom.org"
+                        text="Shop"
+                        onClick={() => {
+                            trackEvent(AnalyticsEvents.SHOP_LINK_CLICKED)
+                            setIsMobileMenuOpen(false)
+                        }}
+                    />
+                    <div className="flex items-center gap-3 pt-2">
+                        <Link
+                            href="/donate"
+                            className="rounded-lg bg-cinnamon border-1 border-cinnamon px-5 py-1.5 text-white text-sm font-sans"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                            DONATE
+                        </Link>
+                        <Link
+                            href="/contact"
+                            className="rounded-lg border-1 border-white px-5 py-1.5 text-white text-sm font-sans"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                            SUBSCRIBE
+                        </Link>
+                    </div>
                 </div>
             </div>
         </header>

@@ -30,7 +30,7 @@ const OurHorsesPage = () => {
 
             <Hero title="Our Horses" image={OurHorsesHeroImage} />
 
-            <div className="w-8/12 h-fit flex flex-col items-center justify-center text-pewter text-[24px] font-serif">
+            <div className="w-10/12 md:w-8/12 h-fit flex flex-col items-center justify-center text-left md:text-center text-pewter text-[24px] font-serif">
                 Every horse at Return to Freedom carries a story—of survival,
                 resilience, and renewal. From the wild herds rescued from
                 government roundups to the rare and historic strains preserved
@@ -41,11 +41,11 @@ const OurHorsesPage = () => {
                 confinement.
             </div>
 
-            <div className="w-10/12 h-fit flex flex-col items-center justify-center gap-4">
+            <div className="w-10/12 h-fit flex flex-col items-start md:items-center justify-center gap-4">
                 <Header level={1} className="text-sage-green">
                     Meet Spirit
                 </Header>
-                <div className="text-[20px] font-serif">
+                <div className="text-left md:text-center text-[20px] font-serif">
                     Spirit, the Kiger mustang who inspired DreamWorks’ Spirit:
                     Stallion of the Cimarron, found his permanent home at
                     Return to Freedom after the film’s release in 2002.
@@ -81,12 +81,12 @@ const OurHorsesPage = () => {
                     alt="Adopt a Horse"
                     className="absolute top-0 left-0 w-full h-full object-cover object-center"
                     wrapperClassName="absolute top-0 left-0 w-full h-full" />
-                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-l from-black/70 from-0% via-transparent via-60% to-transparent" />
-                <div className="relative w-full h-full py-10 px-32 z-10 flex flex-col items-end justify-center gap-2">
-                    <div className="relative z-10 text-white text-[48px] font-serif">
+                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-l from-black/70 from-0% via-transparent via-60% to-transparent md:bg-gradient-to-l max-md:bg-black/50" />
+                <div className="relative w-full h-full py-10 px-8 md:px-32 z-10 flex flex-col items-center md:items-end justify-center gap-2">
+                    <div className="relative z-10 text-white text-[36px] md:text-[48px] font-serif">
                         Adopt a Horse
                     </div>
-                    <div className="text-white text-2xl font-serif">
+                    <div className="text-white text-xl md:text-2xl font-serif">
                         Give a horse a forever home.
                     </div>
                     <Link href="/horses/adopt-a-horse">
@@ -97,7 +97,7 @@ const OurHorsesPage = () => {
 
             {inMemoriamHorse && (
                 <div className="w-full h-fit flex flex-col items-center justify-center gap-8">
-                    <Header className="text-sage-green">
+                    <Header className="text-sage-green px-6 md:px-0">
                         In Memoriam
                     </Header>
                     <div className="w-full h-fit flex flex-col items-center justify-center">
@@ -112,11 +112,11 @@ const OurHorsesPage = () => {
                                 />
                             </div>
                         )}
-                        <div className="w-full h-fit bg-pewter text-white flex py-12 px-48 gap-32">
-                            <div className="basis-[200px] flex flex-col items-end justify-center gap-2">
+                        <div className="w-full h-fit bg-pewter text-white flex flex-col lg:flex-row py-8 px-6 lg:py-12 lg:px-48 gap-4 lg:gap-32">
+                            <div className="lg:basis-[200px] flex flex-col items-start lg:items-end justify-center gap-2">
                                 <div className="text-3xl font-serif">{inMemoriamHorse.name}</div>
                             </div>
-                            <div className="basis-0 grow flex flex-col items-start justify-center gap-2">
+                            <div className="lg:basis-0 lg:grow flex flex-col items-start justify-center gap-2">
                                 <div className="text-lg text-left">
                                     {inMemoriamHorse.description}
                                 </div>

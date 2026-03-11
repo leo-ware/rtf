@@ -25,7 +25,7 @@ const OurBurrosPage = () => {
 
             <Hero title="Our Burros" image={HeroImage} />
 
-            <div className="w-8/12 h-fit flex flex-col items-center justify-center text-pewter text-[24px] font-serif">
+            <div className="w-10/12 md:w-8/12 h-fit flex flex-col items-center justify-center text-pewter text-[24px] font-serif text-left md:text-center">
                 The burros at Return to Freedom are cherished members of our
                 sanctuary family. Rescued from government roundups and other
                 at-risk situations, each burro has found safety and companionship

@@ -16,6 +16,10 @@ type CarouselProps = {
     leftButton?: React.ReactNode
     rightButton?: React.ReactNode
     controls?: boolean
+    navigationPosition?: "sides" | "bottom"
+    dotIndicators?: boolean
+    itemGap?: boolean
+    onIndexChange?: (index: number) => void
 }
 
 const Carousel = ({
@@ -28,15 +32,21 @@ const Carousel = ({
     leftButton,
     rightButton,
     controls = true,
+    navigationPosition = "sides",
+    dotIndicators = true,
+    itemGap = true,
+    onIndexChange,
 }: CarouselProps) => {
     const [currentIndex, setCurrentIndex] = useState(0)
     const [isTransitioning, setIsTransitioning] = useState<CarouselAction | null>(null)
     const [actionQueue, setActionQueue] = useState<CarouselAction[]>([])
-    const [autoplayAction, setAutoplayAction] = useState<CarouselAction | null>(autoPlay || null)
+    const isSingleItem = initialItems.length <= 1
+    const [autoplayAction, setAutoplayAction] = useState<CarouselAction | null>(isSingleItem ? null : (autoPlay || null))
 
     const items = useMemo(() => {
+        if (isSingleItem) return initialItems
         return initialItems.concat(initialItems.map(item => ({ ...item, id: `${item.id}-copy` })))
-    }, [initialItems])
+    }, [initialItems, isSingleItem])
 
     const normalizeIndex = (index: number) => (index + items.length) % items.length
 
@@ -61,6 +71,7 @@ const Carousel = ({
             : (currentIndex + 1) % items.length
         setTimeout(() => {
             setCurrentIndex(nextIndex)
+            onIndexChange?.(initialItems.length > 0 ? nextIndex % initialItems.length : 0)
             setIsTransitioning(null)
         }, transitionDuration)
     }
@@ -99,57 +110,121 @@ const Carousel = ({
     const LeftButton = leftButton || <FaCaretLeft size={30} className="text-pewter" />
     const RightButton = rightButton || <FaCaretRight size={30} className="text-pewter" />
 
+    const activeDotIndex = initialItems.length > 0 ? currentIndex % initialItems.length : 0
+
+    if (isSingleItem) {
+        return (
+            <div className={cn("w-full flex items-center justify-center", className)}>
+                {initialItems[0]?.widget}
+            </div>
+        )
+    }
+
+    const useBottomNav = navigationPosition === "bottom"
+
+    const slidingContent = (
+        <div className={cn("relative overflow-hidden", useBottomNav ? "w-full" : "w-full md:basis-0 md:grow")}>
+            <div
+                className="relative flex"
+                style={{
+                    left: `${(
+                        isTransitioning === null
+                            ? -1 / nDisplayItems
+                            : isTransitioning === 'left'
+                                ? 0
+                                : -2 / nDisplayItems
+                    ) * 100}%`,
+                    transition: !!isTransitioning
+                        ? `left ${transitionDuration}ms ease-in-out`
+                        : undefined,
+                    width: `${(100 / nDisplayItems) * (nDisplayItems + 2)}%`
+                }}
+            >
+                {displayItems.map((item) => (
+                    <div
+                        key={item.id}
+                        className={cn("flex-shrink-0 flex justify-center items-center", itemGap && "px-2")}
+                        style={{ width: `${100 / (nDisplayItems + 2)}%` }}
+                    >
+                        {item.widget}
+                    </div>
+                ))}
+            </div>
+        </div>
+    )
+
+    const bottomControls = controls && (
+        <div className={cn("flex items-center justify-center gap-3", !useBottomNav && "md:hidden")}>
+            <button
+                onClick={() => enqueueAction('left')}
+                className="shrink-0 outline-none"
+                aria-label="Previous item"
+            >
+                {LeftButton}
+            </button>
+            {dotIndicators && initialItems.map((item, index) => (
+                <button
+                    key={item.id}
+                    className={cn(
+                        "w-2.5 h-2.5 rounded-full transition-colors duration-200",
+                        index === activeDotIndex ? "bg-pewter" : "bg-gray-300"
+                    )}
+                    aria-label={`Go to item ${index + 1}`}
+                    onClick={() => {
+                        const diff = index - activeDotIndex
+                        if (diff === 0) return
+                        const action: CarouselAction = diff > 0 ? 'right' : 'left'
+                        const steps = Math.abs(diff)
+                        for (let i = 0; i < steps; i++) {
+                            enqueueAction(action)
+                        }
+                    }}
+                />
+            ))}
+            <button
+                onClick={() => enqueueAction('right')}
+                className="shrink-0 outline-none"
+                aria-label="Next item"
+            >
+                {RightButton}
+            </button>
+        </div>
+    )
+
+    if (useBottomNav) {
+        return (
+            <div className={cn("w-full flex flex-col items-center gap-4", className)}>
+                {slidingContent}
+                {bottomControls}
+            </div>
+        )
+    }
+
     return (
-        <div className={cn("w-full h-full flex items-center justify-center gap-2", className)}>
+        <div className={cn("w-full h-full flex flex-col md:flex-row items-center justify-center gap-4 md:gap-2", className)}>
             {controls && (
                 <button
                     onClick={() => enqueueAction('left')}
-                    className="grow-0 shrink-0 basis-fit h-fit pr-2 rounded-full"
+                    className="hidden md:block grow-0 shrink-0 basis-fit h-fit pr-2 rounded-full outline-none"
                     aria-label="Previous item"
                 >
                     {LeftButton}
                 </button>
             )}
 
-            <div className="relative basis-0 grow overflow-hidden">
-                <div
-                    className="relative flex"
-                    style={{
-                        left: `${(
-                            isTransitioning === null
-                                ? -1 / nDisplayItems
-                                : isTransitioning === 'left'
-                                    ? 0
-                                    : -2 / nDisplayItems
-                        ) * 100}%`,
-                        transition: !!isTransitioning
-                            ? `left ${transitionDuration}ms ease-in-out`
-                            : undefined,
-                        width: `${(100 / nDisplayItems) * (nDisplayItems + 2)}%`
-                    }}
-                >
-                    {displayItems.map((item, index) => (
-                        <div
-                            key={item.id}
-                            className="flex-shrink-0 flex items-center justify-center px-2"
-                            style={{ width: `${100 / (nDisplayItems + 2)}%` }}
-                        >
-                            {item.widget}
-                        </div>
-                    ))}
-                </div>
-            </div>
+            {slidingContent}
 
             {controls && (
                 <button
                     onClick={() => enqueueAction('right')}
-                    className="grow-0 shrink-0 basis-fit h-fit pl-2 rounded-full"
+                    className="hidden md:block grow-0 shrink-0 basis-fit h-fit pl-2 rounded-full outline-none"
                     aria-label="Next item"
                 >
                     {RightButton}
                 </button>
             )}
 
+            {bottomControls}
         </div>
     )
 }

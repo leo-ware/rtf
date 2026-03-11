@@ -43,10 +43,11 @@ const ContactPage = () => {
             </div>
 
             <div className="w-full">
-                <Header className="mb-8">Contact Us</Header>
+                <Header className="mb-8 px-[8.33%] md:px-0">Contact Us</Header>
                 <ContactForm />
             </div>
 
+            <div className="w-full md:max-w-10/12 mx-auto">
             <AlternatingPictureLayout
                 items={[
                     {
@@ -55,41 +56,113 @@ const ContactPage = () => {
                         ),
                         description: (
                             <div>
-                                For any general inquiries, you can email us at{" "}
+                                For any general questions about Return to Freedom
+                                and our mission, you can email us at{" "}
                                 <EmailLink>info@returntofreedom.org</EmailLink>
                             </div>
                         ),
                         image: img1,
                     },
                     {
-                        title: <div className="text-pewter">Donors</div>,
+                        title: <div className="text-pewter">Donor Inquiry</div>,
                         description: (
                             <div>
-                                If you're a donor/foundation interested in
+                                If you're a donor or foundation interested in
                                 supporting our Capital Campaign, Planned Giving
-                                Program or any of our other areas, you can email
-                                us at{" "}
+                                Program or any of our other initiatives, you can
+                                email us at{" "}
                                 <EmailLink>
-                                    development@returntofreedom.org
+                                    info@returntofreedom.org
                                 </EmailLink>
                             </div>
                         ),
                         image: img2,
                     },
                     {
-                        title: <div className="text-pewter">Media</div>,
+                        title: <div className="text-pewter">Corporate Sponsorship</div>,
                         description: (
                             <div>
-                                If you're a news outlet, journalist, storyteller
-                                who is interested in sharing our story, you can
-                                email us at{" "}
-                                <EmailLink>media@returntofreedom.org</EmailLink>
+                                Interested in a corporate partnership or
+                                sponsorship opportunity with Return to Freedom?
+                                Reach out at{" "}
+                                <EmailLink>
+                                    info@returntofreedom.org
+                                </EmailLink>
                             </div>
                         ),
                         image: img3,
                     },
+                    {
+                        title: <div className="text-pewter">Host an Event</div>,
+                        description: (
+                            <div>
+                                Want to host a fundraiser, awareness event or
+                                community gathering in support of wild horses?
+                                Contact us at{" "}
+                                <EmailLink>
+                                    info@returntofreedom.org
+                                </EmailLink>
+                            </div>
+                        ),
+                        image: img1,
+                    },
+                    {
+                        title: <div className="text-pewter">Media</div>,
+                        description: (
+                            <div>
+                                If you're a news outlet, journalist or
+                                storyteller interested in sharing our story, you
+                                can email us at{" "}
+                                <EmailLink>info@returntofreedom.org</EmailLink>
+                            </div>
+                        ),
+                        image: img2,
+                    },
+                    {
+                        title: <div className="text-pewter">Volunteer</div>,
+                        description: (
+                            <div>
+                                Interested in volunteering at the sanctuary or
+                                helping with our programs? We'd love to hear
+                                from you at{" "}
+                                <EmailLink>
+                                    info@returntofreedom.org
+                                </EmailLink>
+                            </div>
+                        ),
+                        image: img3,
+                    },
+                    {
+                        title: <div className="text-pewter">Education & Outreach</div>,
+                        description: (
+                            <div>
+                                For school visits, educational programs or
+                                speaking engagements about wild horse
+                                conservation, reach out at{" "}
+                                <EmailLink>
+                                    info@returntofreedom.org
+                                </EmailLink>
+                            </div>
+                        ),
+                        image: img1,
+                    },
+                    {
+                        title: <div className="text-pewter">Adoptions & Sanctuary</div>,
+                        description: (
+                            <div>
+                                Have questions about our sanctuary horses or
+                                interested in our adoption and foster programs?
+                                Contact us at{" "}
+                                <EmailLink>
+                                    info@returntofreedom.org
+                                </EmailLink>
+                            </div>
+                        ),
+                        image: img2,
+                    },
                 ]}
             />
+            </div>
         </div>
     )
 }

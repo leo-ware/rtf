@@ -17,10 +17,10 @@ const LearnPage = () => {
             <Callout>
                 Understanding the past is the key to protecting the future. Dive into the history, science, and policy behind America's wild horses and burros — and discover why their preservation matters now more than ever.
             </Callout>
-            <Header className="text-cinnamon">
+            <Header className="text-cinnamon w-10/12 md:w-full">
                 Timelines
             </Header>
-            <p className="w-10/12 md:w-8/12 -mt-8 text-center text-lg md:text-xl text-ink">
+            <p className="w-10/12 md:w-8/12 -mt-8 text-left md:text-center text-lg md:text-xl text-ink">
                 Explore the key moments and milestones that have shaped the history of wild horses and burros in America.
             </p>
             <LearnTimelineContent />

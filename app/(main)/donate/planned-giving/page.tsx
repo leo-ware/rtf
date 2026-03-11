@@ -28,7 +28,7 @@ const PlannedGivingPage = () => {
                     to be born.
                 </Callout>
 
-                <div className="w-8/12 mx-auto h-fit flex flex-col items-center justify-center gap-4 text-center text-lg">
+                <div className="w-10/12 md:w-8/12 mx-auto h-fit flex flex-col items-start md:items-center justify-center gap-4 text-left md:text-center text-lg">
                     <div>
                         There is more than one way to help Return to Freedom help horses besides a donation —
                         or in addition to a donation.
@@ -56,7 +56,7 @@ const PlannedGivingPage = () => {
             </div>
 
             <div className="w-full flex flex-col gap-8">
-                <Header color="pewter" className="underline">
+                <Header color="pewter" className="underline px-6 md:px-0">
                     Financial Contributions
                 </Header>
                 <div className="w-full flex flex-col gap-12">
@@ -108,10 +108,10 @@ const PlannedGivingPage = () => {
                             `
                         }
                     ] as const).map(({ title, description }) => (
-                        <div className="w-full flex flex-col md:flex-row gap-8 items-center justify-center">
+                        <div className="w-full flex flex-col md:flex-row gap-4 md:gap-8 items-start md:items-center justify-center px-6 md:px-0">
                             <div className="
-                                font-serif text-cinnamon text-[30px] text-right
-                                flex items-center justify-center
+                                font-serif text-cinnamon text-[30px] text-left md:text-right
+                                flex items-center justify-start
                                 md:justify-start md:w-[220px] md:h-full
                             ">
                                 {title}
@@ -126,11 +126,11 @@ const PlannedGivingPage = () => {
                 </div>
             </div>
 
-            <div className="w-8/12 mx-auto h-fit flex flex-col items-center justify-center gap-6 text-center">
+            <div className="w-10/12 md:w-8/12 mx-auto h-fit flex flex-col items-start md:items-center justify-center gap-6 text-left md:text-center">
                 <div className="text-4xl font-serif text-sage-green">
                     Get Involved
                 </div>
-                <div className="flex flex-col items-center justify-center gap-4 text-center text-lg">
+                <div className="flex flex-col items-start md:items-center justify-center gap-4 text-left md:text-center text-lg">
                     <div>
                         If you'd like to learn more or support our Capital Campaign, please email us at:
                     </div>

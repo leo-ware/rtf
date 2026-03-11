@@ -76,15 +76,10 @@ const nextConfig: NextConfig = {
                 destination: "/resources/news/:path*",
                 permanent: true,
             },
-            // Take action path changes
+            // Take action path changes (individual article slugs)
             {
-                source: "/take-action",
-                destination: "/resources/take-action",
-                permanent: true,
-            },
-            {
-                source: "/take-action/:path*",
-                destination: "/resources/take-action/:path*",
+                source: "/take-action/:path+",
+                destination: "/resources/take-action/:path+",
                 permanent: true,
             },
             // About staff/board redirects

@@ -39,9 +39,9 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html className="w-screen min-h-screen overflow-x-hidden" lang="en">
+        <html className="w-full min-h-screen overflow-x-hidden" lang="en">
             <body
-                className={`${workSans.variable} ${marcellus.variable} antialiased w-screen min-h-screen`}
+                className={`${workSans.variable} ${marcellus.variable} antialiased w-full min-h-screen overflow-x-hidden`}
             >
                 <ClerkProvider>
                     <ConvexClientProvider>

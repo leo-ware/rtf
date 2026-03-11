@@ -17,8 +17,8 @@ type Props = {
 
 const SponsorAHerdDialog = ({ children, title, defaultHerdId }: Props) => {
     return (
-        <Dialog>
-            <DialogTrigger>
+        <Dialog className="w-full">
+            <DialogTrigger className="w-full">
                 {children || (
                     <Button color="cinnamon">
                         {title || "Sponsor a Herd"}

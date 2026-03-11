@@ -16,19 +16,19 @@ import EmailLink from "./public-ui/EmailLink"
 
 export default function Footer() {
     return (
-        <footer className="w-full py-16 flex items-center justify-center bg-[url('/img/footer-bg-blurred.png')] bg-cover bg-center">
+        <footer className="w-full py-10 md:py-16 flex items-center justify-center bg-[url('/img/footer-bg-blurred.png')] bg-cover bg-center">
             <div
                 className={`
                 w-11/12 h-fit flex
-                flex-col gap-8 px-4
-                lg:flex-row lg:justify-between lg:gap-12 lg:px-0
+                flex-col gap-6 px-4
+                lg:flex-row lg:justify-between lg:gap-8 lg:px-0
                 `}
             >
-                <div className="hidden md:block">
+                <div>
                     <Image
                         src={RTFLogoWhite}
                         alt="logo"
-                        className="w-[200px]"
+                        className="w-[140px] md:w-[200px]"
                     />
                     <div className="text-white text-xs max-w-[270px] pl-5">
                         Return to Freedom is a 501(c)3 nonprofit organization
@@ -40,12 +40,12 @@ export default function Footer() {
                 </div>
 
                 <div className="grow flex items-start justify-start">
-                    <div className="w-full max-w-[700px] flex flex-col items-start justify-between gap-8">
+                    <div className="w-full max-w-[700px] flex flex-col items-start justify-between gap-6 lg:gap-8">
                         <div
                             className={`
-                            w-full flex
-                            flex-col gap-4 items-start justify-start
-                            sm:flex-row sm:grow sm:items-start sm:justify-between sm:gap-8
+                            w-full
+                            grid grid-cols-2 gap-4
+                            sm:flex sm:flex-row sm:grow sm:items-start sm:justify-between sm:gap-8
                             `}
                         >
                             <div className="grow basis-auto">
@@ -168,23 +168,23 @@ export default function Footer() {
                         <div
                             className={`
                             w-full flex
-                            flex-col items-center justify-start gap-8
-                            sm:flex-row sm:items-center sm:justify-center sm:gap-12`}
+                            flex-row items-center justify-center gap-8
+                            sm:gap-12`}
                         >
                             <Image
                                 src={CharityNavigator}
                                 alt="Charity Navigator"
-                                className="h-[100px] w-auto"
+                                className="h-[60px] sm:h-[80px] md:h-[100px] w-auto"
                             />
                             <Image
                                 src={OnePercent}
                                 alt="1% for the Planet"
-                                className="h-[100px] w-auto"
+                                className="h-[60px] sm:h-[80px] md:h-[100px] w-auto"
                             />
                             <Image
                                 src={NatureDefense}
                                 alt="Nature Defense Foundation"
-                                className="h-[100px] w-auto"
+                                className="h-[60px] sm:h-[80px] md:h-[100px] w-auto"
                             />
                         </div>
                     </div>
@@ -197,8 +197,8 @@ export default function Footer() {
 
                     <div className="text-white text-[12px]">
                         <EmailLink className="text-white text-[12px]">info@returntofreedom.org</EmailLink>
-                        <div>(805) 737-9246PO</div>
-                        <div>Box 926, Lompoc, CA 93438 USA</div>
+                        <div>(805) 737-9246</div>
+                        <div>PO Box 926, Lompoc, CA 93438 USA</div>
                     </div>
 
                     <div className="flex items-center justify-start gap-3 text-white">

@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import { UserIcon } from "lucide-react";
 import { ArticleRenderer } from "@/components/ArticleRenderer";
 import { trackEvent, AnalyticsEvents } from "@/lib/analytics";
+import MoreWaysWidget from "@/components/donation-widgets/MoreWaysWidget";
 
 type ArticleContentProps = {
     slug: string
@@ -62,7 +63,7 @@ const ArticleContent = ({ slug }: ArticleContentProps) => {
         <div className="py-16">
             <div className="max-w-4xl mx-auto px-4">
                 <header className="mb-8">
-                    <h1 className="text-4xl font-serif mb-4">
+                    <h1 className="text-4xl font-serif mb-4 text-pewter">
                         {article.articleMetadata.title}
                     </h1>
 
@@ -86,7 +87,7 @@ const ArticleContent = ({ slug }: ArticleContentProps) => {
                         <img
                             src={article.image.url || ""}
                             alt={article.image.altText || article.articleMetadata.title}
-                            className="w-full h-auto rounded-lg"
+                            className="w-full aspect-[16/9] object-cover rounded-lg"
                         />
                     </div>
                 )}
@@ -95,6 +96,10 @@ const ArticleContent = ({ slug }: ArticleContentProps) => {
                     content={article.content}
                     className="prose prose-lg max-w-none"
                 />
+            </div>
+
+            <div className="mt-8 text-center">
+                <MoreWaysWidget title="Support RTF's Mission" />
             </div>
         </div>
     );

@@ -65,7 +65,7 @@ const VisitPage = () => {
                 <Hero title="Programs" image={HeroImg} />
 
                 <div className="w-full h-fit bg-seashell py-12">
-                    <Header className="text-pewter">Upcoming Events</Header>
+                    <Header className="text-pewter px-8">Upcoming Events</Header>
                     <UpcomingEventsWidget />
                 </div>
             </div>

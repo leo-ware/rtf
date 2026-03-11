@@ -41,7 +41,7 @@ const ConservationPage = () => {
             </ScrollReveal>
 
             <ScrollReveal variant="fade-up" className="w-full flex flex-col items-center justify-center gap-4">
-                <Header className="text-cinnamon underline">
+                <Header className="text-cinnamon underline w-10/12 md:w-8/12 mx-auto">
                     Holistic Land Management
                 </Header>
                 <Callout className="text-ink">
@@ -92,13 +92,15 @@ const ConservationPage = () => {
                 </div>
             </ScrollReveal>
 
-            <ScrollReveal variant="fade-in" className="md:w-10/12 mx-auto">
+            <ScrollReveal variant="fade-in" className="w-11/12 md:w-10/12 mx-auto">
                 <Header color="cinnamon" className="mb-8">
                     Preservation of Rare Historic Horse Strains
                 </Header>
                 <Carousel
                     nDisplayItems={1}
                     autoPlay={false}
+                    navigationPosition="bottom"
+                    dotIndicators
                     leftButton={<FaCaretLeft size={30} className="text-pewter" />}
                     rightButton={<FaCaretRight size={30} className="text-pewter" />}
                     items={
@@ -186,12 +188,14 @@ const ConservationPage = () => {
                         ].map(({ title, description, image }) => ({
                             id: title,
                             widget: (
-                                <div className="w-full h-full flex items-center justify-center gap-8">
-                                    <div className="hidden md:block h-[350px] aspect-[4/3] relative">
+                                <div className="w-full h-full flex flex-col lg:flex-row items-center justify-center gap-8">
+                                    <div className="w-full lg:w-auto h-[200px] sm:h-[250px] lg:h-[350px] lg:aspect-[4/3] relative">
                                         <ImageWithAuthorCredit
                                             src={image}
                                             alt={title}
-                                            className="w-full h-full object-cover object-center" />
+                                            fill
+                                            className="object-cover object-center"
+                                            wrapperClassName="w-full h-full" />
                                     </div>
                                     <div className="basis-0 grow h-full text-left flex flex-col gap-4 items-start justify-center">
                                         <Header level={2} className="text-left">
@@ -212,14 +216,15 @@ const ConservationPage = () => {
                 <NewsCarousel topic="conservation" />
             </ScrollReveal>
 
-            <div className="w-10/12 lg:w-8/12 mx-auto">
-                <ScrollReveal variant="fade-in">
+            <div className="w-full mx-auto">
+                <ScrollReveal variant="fade-in" className="w-10/12 lg:w-8/12 mx-auto">
                     <Header className="mb-8 text-cinnamon underline">
                         Fertility Control
                     </Header>
                 </ScrollReveal>
 
                 <AlternatingPictureLayout
+                    className="!w-10/12 lg:!w-8/12"
                     alternateTitleColors={true}
                     items={[
                         {

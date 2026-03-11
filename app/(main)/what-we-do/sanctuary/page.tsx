@@ -99,7 +99,7 @@ const SanctuaryPage = () => {
                 </Callout>
             </ScrollReveal>
 
-            <ScrollReveal variant="fade-in">
+            <ScrollReveal variant="fade-in" className="w-full">
                 <WideImage image={SantuaryPasture} alt="Horses in pasture" />
             </ScrollReveal>
 
@@ -118,7 +118,7 @@ const SanctuaryPage = () => {
                 </TitledText>
             </ScrollReveal>
 
-            <ScrollReveal variant="fade-in">
+            <ScrollReveal variant="fade-in" className="w-full">
                 <WideImage image={SantuaryField} alt="Horses in field" />
             </ScrollReveal>
 
@@ -137,7 +137,7 @@ const SanctuaryPage = () => {
             </ScrollReveal>
 
             <ScrollReveal variant="fade-up" className="w-full">
-                <Header color="cinnamon" className="mb-8 underline">
+                <Header color="cinnamon" className="mb-8 underline px-4 md:px-0">
                     Costs of Running Our Sanctuaries
                 </Header>
                 <DonationCalloutGrid className="w-[95vw] mx-auto">
@@ -256,10 +256,10 @@ const SanctuaryPage = () => {
             </ScrollReveal>
 
             <ScrollReveal variant="fade-in" className="w-full bg-seashell py-12">
-                <Header level={1} color="pewter" className="underline">
-                    Visit Us
-                </Header>
                 <div className="w-11/12 md:w-8/12 mx-auto">
+                    <Header level={1} color="pewter" className="underline px-8">
+                        Visit Us
+                    </Header>
                     <UpcomingEventsWidget />
                 </div>
             </ScrollReveal>

@@ -28,17 +28,23 @@ const SalsaDonateFormEmbed = ({
     )
 }
 
+type LoadingVariant = "green" | "white"
+
 type SalsaDonateFormEmbedInnerProps = {
     donationForm: {
         formId: string
         formTemplateId: string
     }
     scrollingContainerRef?: RefObject<HTMLDivElement>
+    zoom?: number
+    loadingVariant?: LoadingVariant
 }
 
 export const SalsaDonateFormEmbedInner = ({
     donationForm,
     scrollingContainerRef,
+    zoom = 1,
+    loadingVariant = "green",
 }: SalsaDonateFormEmbedInnerProps) => {
     const [_iframeHeight, setIframeHeight] = useState(600)
     const [isLoading, setIsLoading] = useState(true)
@@ -85,6 +91,7 @@ export const SalsaDonateFormEmbedInner = ({
                     margin: 0;
                     padding: 0;
                     overflow: hidden;
+                    zoom: ${zoom};
                 }
             </style>
         </head>
@@ -92,8 +99,9 @@ export const SalsaDonateFormEmbedInner = ({
             <div id="${donationForm.formId}"></div>
             <script src="https://default.salsalabs.org/api/widget/template/${donationForm.formTemplateId}/?tId=${donationForm.formId}"></script>
             <script>
+                const zoom = ${zoom};
                 const sendHeight = () => {
-                    const height = document.body.scrollHeight;
+                    const height = Math.ceil(document.body.scrollHeight * zoom);
                     window.parent.postMessage({ type: 'salsa-resize', height }, '*');
                 };
 
@@ -154,8 +162,8 @@ export const SalsaDonateFormEmbedInner = ({
     return (
         <div className="w-full min-h-[200px] relative">
             {!isVisible && (
-                <div className="absolute inset-0 flex items-center justify-center bg-sage-green">
-                    <Loader2 className="w-6 h-6 text-white animate-spin" />
+                <div className={`absolute inset-0 flex items-center justify-center ${loadingVariant === "white" ? "bg-white" : "bg-sage-green"}`}>
+                    <Loader2 className={`w-6 h-6 animate-spin ${loadingVariant === "white" ? "text-sage-green" : "text-white"}`} />
                 </div>
             )}
             {!isLoading && iframeContent && (

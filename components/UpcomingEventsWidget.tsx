@@ -42,7 +42,7 @@ const formatEventDate = (startDate: string, endDate: string) => {
   return { dateLine: `${sMonth} ${sDay}-${eDay}`, timeLine: null }
 }
 
-const UpcomingEventsWidget = ({ className }: { className?: string }) => {
+const UpcomingEventsWidget = ({ className, compact = false }: { className?: string, compact?: boolean }) => {
   const {
     results: events,
     loadMore,
@@ -89,10 +89,15 @@ const UpcomingEventsWidget = ({ className }: { className?: string }) => {
           className={`
                         col-start-1 col-span-1 @xl:col-span-2 @4xl:col-span-3
                         min-h-0
-                        grid grid-cols-subgrid
+                        grid grid-cols-subgrid content-start
                         overflow-y-auto scrollbar-always
                     `}
         >
+          {eventsStatus !== "LoadingFirstPage" && events?.length === 0 && (
+            <div className="col-span-full text-center text-ink/50 py-4">
+              No upcoming events at this time.
+            </div>
+          )}
           {events?.map((event) => (
             <div
               key={event._id}
@@ -125,7 +130,7 @@ const UpcomingEventsWidget = ({ className }: { className?: string }) => {
                   )
                 })()}
               </div>
-              <div className="col-span-1 mb-6">
+              <div className={`col-span-1 ${compact ? "mb-4 @xl:mb-8" : "mb-6 @xl:mb-8"}`}>
                 <div
                   className={cn(
                     `cursor-pointer

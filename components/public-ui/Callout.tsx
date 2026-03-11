@@ -4,7 +4,7 @@ const Callout = ({ children, className }: { children: React.ReactNode, className
     return (
         <div className={cn(
             `mx-auto w-10/12 md:w-8/12
-            h-fit font-serif text-[20px] md:text-[22px] lg:text-[25px] text-pewter text-center
+            h-fit font-serif text-[20px] md:text-[22px] lg:text-[25px] text-pewter text-left md:text-center
             `,
             className
         )}>

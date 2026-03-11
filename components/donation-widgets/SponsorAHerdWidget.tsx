@@ -45,7 +45,7 @@ const SponsorAHerdWidget = ({ defaultHerdId }: { defaultHerdId?: Id<"herds"> }) 
             </div>
             <div className="w-full flex flex-col gap-4 md:gap-6 px-4 py-4 md:px-12 md:py-8 basis-0 grow">
                 <div className="text-left flex flex-col gap-2 md:gap-3">
-                    <div className="text-xl md:text-3xl font-serif">
+                    <div className="text-3xl md:text-3xl font-serif">
                         Sponsor A Herd
                     </div>
                     <select
@@ -58,7 +58,7 @@ const SponsorAHerdWidget = ({ defaultHerdId }: { defaultHerdId?: Id<"herds"> }) 
                             </option>
                         ))}
                     </select>
-                    <div className="text-lg">
+                    <div className="text-lg hidden md:block">
                         {selectedHerd?.description}
                     </div>
                 </div>

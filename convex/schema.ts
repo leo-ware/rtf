@@ -538,6 +538,18 @@ export default defineSchema({
         imageId: v.optional(v.id("images")),
     }),
 
+    wishlistCategories: defineTable({
+        name: v.string(),
+        order: v.number(),
+    }).index("by_order", ["order"]),
+
+    wishlistItems: defineTable({
+        name: v.string(),
+        category: v.string(),
+        order: v.number(),
+        link: v.optional(v.string()),
+    }).index("by_category", ["category", "order"]),
+
     documents: defineTable({
         name: v.string(),
         type: v.union(

@@ -39,6 +39,7 @@ import {
     Mail,
     Gift,
     HelpCircle,
+    ClipboardList,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -144,6 +145,12 @@ const AdminNavbar = () => {
             href: "/admin/donate-pathways",
             icon: Gift,
             description: "Manage donation pathway cards"
+        },
+        {
+            name: "Wishlist",
+            href: "/admin/wishlist",
+            icon: ClipboardList,
+            description: "Manage wishlist categories and items"
         },
     ]
 

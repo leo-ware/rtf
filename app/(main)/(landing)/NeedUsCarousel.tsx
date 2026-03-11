@@ -27,21 +27,22 @@ const CarouselItemWidget = ({title, description, link, reversed, image}: Carouse
         <div
             className={`
                 w-full
-                h-[700px] md:h-[450px]
-                flex flex-col-reverse md:items-center
-                ${reversed ? "md:flex-row-reverse" : "md:flex-row"}
+                lg:h-[450px]
+                flex flex-col-reverse lg:items-center gap-2 lg:gap-0
+                ${reversed ? "lg:flex-row-reverse" : "lg:flex-row"}
             `}>
             <ScrollReveal
                 variant="fade-up"
-                className="w-full flex flex-col gap-4 items-start justify-start text-left md:w-1/2 md:p-6"
+                disableBelow="lg"
+                className="w-full flex flex-col gap-2 lg:gap-4 items-start justify-start text-left lg:w-1/2 lg:p-6"
             >
-                <div className={"text-[28px] md:text-[36px] text-cinnamon " + (reversed ? " md:text-cinnamon" : " md:text-pewter")}>
+                <div className={"text-[28px] lg:text-[36px] text-cinnamon " + (reversed ? " lg:text-cinnamon" : " lg:text-pewter")}>
                     {title}
                 </div>
-                <div className="text-[16px] md:text-[20px] text-ink">
+                <div className="text-[16px] lg:text-[20px] text-ink">
                     {description}
                 </div>
-                <Link href={link} className="mt-4">
+                <Link href={link} className="mt-2 lg:mt-4">
                     <Button color="sage-green" className="py-1 px-4 text-[16px]">
                         Learn More
                     </Button>
@@ -49,7 +50,8 @@ const CarouselItemWidget = ({title, description, link, reversed, image}: Carouse
             </ScrollReveal>
             <ScrollReveal
                 variant={reversed ? "slide-left" : "slide-right"}
-                className="w-full md:w-1/2 h-full"
+                disableBelow="lg"
+                className="w-full lg:w-1/2 h-[250px] md:h-[350px] lg:h-full shrink-0 overflow-hidden"
             >
                 <ImageWithAuthorCredit src={image} alt={title} className="w-full h-full object-cover object-center" />
             </ScrollReveal>

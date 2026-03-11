@@ -18,7 +18,7 @@ type DonatePathwayCardProps = {
 
 const CardContent = ({ name, imageUrl, altText }: { name: string; imageUrl: string | null; altText?: string }) => {
     return (
-        <div className="w-full h-full flex items-center justify-center">
+        <div className="w-full h-full flex items-center justify-center group cursor-pointer">
             <div className={`
                 z-0
                 w-full aspect-square
@@ -26,13 +26,13 @@ const CardContent = ({ name, imageUrl, altText }: { name: string; imageUrl: stri
                 bg-[#F7F6F4]
                 rounded-xl overflow-hidden
             `}>
-                <div className="relative h-3/4 w-full">
+                <div className="relative h-3/4 w-full overflow-hidden">
                     {imageUrl ? (
                         <ImageWithAuthorCredit
                             src={imageUrl}
                             alt={altText || name}
                             fill
-                            className="object-cover object-center"
+                            className="object-cover object-center transition-transform duration-500 group-hover:scale-110"
                             wrapperClassName="w-full h-full"
                         />
                     ) : (

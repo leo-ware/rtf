@@ -24,6 +24,7 @@ import BlurredDonateBackgroundOne from "./imgs/blurred-donate-frame-1.png"
 import ProgramsAndEventsImage from "./imgs/programs-and-events-image.png"
 import Header from "@/components/public-ui/Header"
 import TakeActionSection from "@/components/TakeActionSection"
+import TextCycler from "@/components/public-ui/TextCycler"
 import SubscribePrimary from "../contact/SubscribePrimary"
 
 const landingVideoUrl =
@@ -49,16 +50,29 @@ const HomePage = () => {
                     relative z-10 w-full h-full px-4
                     flex items-center justify-center
                     text-white text-center font-serif
-                    text-[70px]
+                    text-[56px] md:text-[84px] lg:text-[70px]
                     `}
                 >
-                    Wild Horse Conservation
+                    <span>
+                        Wild Horse{" "}
+                        <span className="block lg:inline w-full">
+                            <TextCycler
+                                words={["Conservation", "Sanctuary", "Advocacy", "Education"]}
+                                hrefs={[
+                                    "/what-we-do/conservation",
+                                    "/what-we-do/sanctuary",
+                                    "/what-we-do/advocacy",
+                                    "/what-we-do/education",
+                                ]}
+                            />
+                        </span>
+                    </span>
                 </div>
             </div>
 
             <ScrollReveal
                 variant="fade-up"
-                className="w-10/12 mx-auto h-fit py-8 md:pt-16 md:pb-8 flex flex-col items-center justify-center gap-8"
+                className="w-11/12 lg:w-2/3 mx-auto h-fit py-8 md:pt-16 md:pb-8 flex flex-col items-center justify-center gap-8"
             >
                 <Header
                     color="cinnamon"
@@ -87,7 +101,7 @@ const HomePage = () => {
             >
                 <ScrollReveal
                     variant="fade-up"
-                    className="w-11/12 md:w-2/3 flex flex-col items-start md:items-center justify-center gap-2"
+                    className="w-11/12 lg:w-2/3 flex flex-col items-start md:items-center justify-center gap-2"
                 >
                     <Header
                         color="sage-green"
@@ -112,7 +126,7 @@ const HomePage = () => {
                     variant="scale"
                     className="w-full flex items-center justify-center"
                 >
-                    <div className="md:w-11/12 h-[90vh] flex stretch flex-wrap md:flex-nowrap">
+                    <div className="md:w-10/12 lg:w-11/12 lg:h-[90vh] flex stretch flex-wrap lg:flex-nowrap">
                         {[
                             {
                                 title: "Conservation",
@@ -161,7 +175,7 @@ const HomePage = () => {
                             <Fragment key={title}>
                                 <Link
                                     href={link}
-                                    className="hidden md:block
+                                    className="hidden lg:block
                                     relative group transition-all duration-500 flex-grow hover:flex-grow-2 basis-0
                                     h-full bg-pewter flex flex-col items-center justify-center gap-2"
                                 >
@@ -198,7 +212,7 @@ const HomePage = () => {
                                 </Link>
                                 <Link
                                     href={link}
-                                    className="block md:hidden relative w-1/2 aspect-square flex items-center justify-center"
+                                    className="block lg:hidden relative w-1/2 aspect-[3/4] md:aspect-square flex items-center justify-center"
                                 >
                                     <ImageWithAuthorCredit
                                         src={image}
@@ -206,7 +220,7 @@ const HomePage = () => {
                                         className="w-full h-full object-cover object-center"
                                         wrapperClassName="z-0 absolute inset-0"
                                     />
-                                    <span className="z-10 text-white text-2xl font-bold">
+                                    <span className="z-10 text-white text-[27px] font-serif">
                                         {title}
                                     </span>
                                 </Link>
@@ -216,12 +230,12 @@ const HomePage = () => {
                 </ScrollReveal>
             </div>
 
-            <div className="w-full h-fit py-8 md:py-16 flex flex-col items-center justify-center gap-4 md:gap-8">
+            <div className="w-full h-fit py-4 md:py-8 flex flex-col items-center justify-center gap-4 md:gap-8">
                 <ScrollReveal
                     variant="fade-up"
-                    className="w-11/12 mx-auto mb-8"
+                    className="w-11/12 mx-auto mb-0 md:mb-4"
                 >
-                    <Header color="sage-green" className="md:max-w-1/2 mx-auto">
+                    <Header color="sage-green" className="lg:max-w-1/2 mx-auto">
                         Why America's Wild Horses Need Us Now
                     </Header>
                 </ScrollReveal>
@@ -248,6 +262,7 @@ const HomePage = () => {
                             donatePathway="Wild Horse Defense Fund"
                             buttonText="Donate"
                             align="left"
+                            buttonAlign="left"
                             analyticsName="whd_fund"
                         />
                     </ScrollReveal>
@@ -265,31 +280,28 @@ const HomePage = () => {
                             donatePathway="Sanctuary Fund"
                             buttonText="Donate"
                             align="left"
+                            buttonAlign="left"
                             analyticsName="sanctuary_fund"
                         />
                     </ScrollReveal>
                 </DonationCalloutGrid>
             </div>
 
-            <ScrollReveal variant="fade-up" className="w-full h-fit my-8">
+            <ScrollReveal variant="fade-up" className="w-full h-fit mt-8">
                 <TakeActionSection />
             </ScrollReveal>
 
-            <div className="relative w-full h-[400px] md:h-fit md:py-16 py-4 flex items-end md:items-center justify-end px-4 md:px-24">
-                <div className="z-0 absolute top-0 left-0 w-full h-full overflow-hidden">
+            <div className="relative w-full h-[400px] md:h-fit md:min-h-[400px] md:py-16 py-4 flex items-end md:items-center justify-end px-4 md:px-24">
+                <div className="z-0 absolute inset-0 overflow-hidden">
                     <ImageWithAuthorCredit
                         src={SpiritImage}
                         alt="Spirit"
-                        className="z-0 absolute top-0 md:top-[-155px] left-0 w-full md:h-auto h-[400px] object-cover object-top"
+                        className="w-full h-full object-cover object-top"
+                        wrapperClassName="absolute inset-0"
                     />
                     <div
-                        className="hidden md:block"
+                        className="hidden md:block absolute inset-0"
                         style={{
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
                             background:
                                 "linear-gradient(to left, #292D35 0%, transparent 50%)",
                             pointerEvents: "none",
@@ -303,7 +315,7 @@ const HomePage = () => {
                     <div className="text-white font-serif text-right flex flex-col gap-2">
                         <div className="text-[48px] font-bold">Spirit</div>
                         <div className="text-[28px]">
-                            The Inspiration behind
+                            The Inspiration behind{" "}
                             <br className="hidden md:block" />
                             the DreamWork animation
                         </div>
@@ -344,7 +356,7 @@ const HomePage = () => {
                     delay={0.15}
                     className="flex-1 h-[460px] w-full"
                 >
-                    <UpcomingEventsWidget className="bg-white w-full" />
+                    <UpcomingEventsWidget compact className="bg-white w-full" />
                 </ScrollReveal>
             </div>
 
@@ -383,7 +395,7 @@ const HomePage = () => {
                 variant="fade-up"
                 className="w-fit max-w-11/12 h-fit mt-8 mb-20 mx-auto flex flex-col items-center justify-center"
             >
-                <div className="text-storm font-serif text-3xl mb-2">
+                <div className="text-storm font-serif text-4xl mb-2">
                     Subscribe to receive updates on our work
                 </div>
                 <SubscribePrimary />

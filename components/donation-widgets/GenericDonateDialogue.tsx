@@ -101,16 +101,16 @@ const GenericDonateDialogueInner = ({
 
     return (
         <div
-            className="w-full md:w-[75vw] min-h-full md:min-h-0 md:h-[600px] z-50 relative bg-sage-green md:rounded-md md:overflow-hidden
-            flex flex-col md:flex-row text-milk text-left"
+            className="w-full md:w-[calc(100vw-8rem)] min-h-full md:min-h-0 md:h-[calc(100vh-8rem)] z-50 relative bg-sage-green md:rounded-md md:overflow-hidden
+            flex flex-col lg:flex-row text-milk text-left"
         >
-            {/* Close button - fixed on mobile for always-visible access */}
+            {/* Close button - fixed on mobile/tablet for always-visible access */}
             <DialogClose className="fixed md:absolute top-4 right-4 z-20 text-white text-2xl">
                 <IoMdClose />
             </DialogClose>
 
-            {/* Image - shows on top on mobile, right side on desktop */}
-            <div className="order-first md:order-none relative w-full md:w-1/2 h-[200px] md:h-auto md:absolute md:inset-y-0 md:right-0 shrink-0">
+            {/* Image - shows on top on mobile/tablet, right side on desktop */}
+            <div className="order-first lg:order-none relative w-full lg:w-[40%] h-[200px] md:h-[40%] lg:h-auto lg:absolute lg:inset-y-0 lg:right-0 shrink-0 overflow-hidden">
                 <ImageWithAuthorCredit
                     src={isadora}
                     alt="Isadora"
@@ -121,9 +121,9 @@ const GenericDonateDialogueInner = ({
             </div>
 
             {/* Content area */}
-            <div className="w-full md:w-1/2 flex flex-col gap-4 md:gap-8 py-4 px-3 md:py-8 md:px-4">
+            <div className="w-full lg:w-[60%] flex flex-col gap-4 md:gap-6 lg:gap-8 py-4 px-3 md:py-6 lg:py-8 md:px-4 basis-0 grow overflow-auto">
                 <div className="flex flex-col gap-2 px-2 md:px-4">
-                    <div className="text-2xl md:text-[48px] font-serif">
+                    <div className="text-2xl md:text-4xl lg:text-[48px] font-serif">
                         Every Horse Needs a Hero
                     </div>
                     {showDropdown ? (
@@ -159,7 +159,7 @@ const GenericDonateDialogueInner = ({
                 </div>
 
                 {/*{currentFormId ? "Db Form" : "static form"}*/}
-                <div className="overflow-auto md:max-h-[400px]">
+                <div className="overflow-auto">
                     {currentFormId ? (
                         <SalsaDonateFormEmbed donationFormId={currentFormId} />
                     ) : (

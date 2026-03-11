@@ -23,7 +23,7 @@ import { Fragment } from "react/jsx-runtime"
 
 const EducationPage = () => {
     return (
-        <div className="w-full h-fit mb-16 flex flex-col items-center justify-start gap-16">
+        <div className="w-full h-fit flex flex-col items-center justify-start gap-16">
             <Hero title="Education" image={HeroImg} />
             <ScrollReveal variant="fade-up">
                 <Callout className="text-sage-green">
@@ -35,7 +35,7 @@ const EducationPage = () => {
             </ScrollReveal>
             <div>
                 <ScrollReveal variant="fade-in">
-                    <Header className="text-cinnamon leading-none mb-[-16px]">
+                    <Header className="text-cinnamon leading-none mb-6 w-10/12 mx-auto">
                         Experiential Learning at RTF
                     </Header>
                 </ScrollReveal>
@@ -112,14 +112,10 @@ const EducationPage = () => {
             </div>
 
             <ScrollReveal variant="fade-in" className="w-full bg-seashell py-8">
-                <Header className="text-pewter mx-auto">Upcoming Events</Header>
                 <div className="w-11/12 md:w-8/12 mx-auto">
+                    <Header className="text-pewter pl-8">Upcoming Events</Header>
                     <UpcomingEventsWidget />
                 </div>
-            </ScrollReveal>
-
-            <ScrollReveal variant="fade-up">
-                <NewsCarousel topic="education" />
             </ScrollReveal>
 
             <ScrollReveal variant="fade-up" className="w-10/12 mx-auto flex flex-col items-center justify-center gap-4">
@@ -130,7 +126,7 @@ const EducationPage = () => {
                     Lorem ipsum dolor sit amet consectetur. Mi sollicitudin facilisis imperdiet
                     arcu nisl felis ac sapien tellus. Eleifend aliquam nec et vestibulum pulvinar.
                 </div>
-                <div className="w-10/12 md:w-8/12 mx-auto">
+                <div className="w-full px-6 md:w-8/12 md:px-0 mx-auto">
                     <iframe
                         className="w-full aspect-[16/9]"
                         src="https://www.youtube.com/embed/p1SCLEImIEI?si=wCTlU0O9XD9pRr7C"
@@ -138,6 +134,10 @@ const EducationPage = () => {
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         allowFullScreen />
                 </div>
+            </ScrollReveal>
+
+            <ScrollReveal variant="fade-up" className="w-full">
+                <NewsCarousel topic="education" />
             </ScrollReveal>
 
             {/* <div className="w-10/12 mx-auto flex flex-col items-center justify-center gap-4">

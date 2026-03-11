@@ -19,11 +19,11 @@ const CapitalCampaignPage = () => {
 
             <Hero title="Capital Campaign" image={ccHero} />
             
-            <div className="w-8/12 mx-auto h-fit flex flex-col items-center justify-center gap-8 text-center">
+            <div className="w-10/12 md:w-8/12 mx-auto h-fit flex flex-col items-start md:items-center justify-center gap-8 text-left md:text-center">
                 <div className="text-4xl font-serif text-cinnamon">
                     Building a Legacy for Wild Horse Conservation
                 </div>
-                <div className="flex flex-col items-center justify-center gap-6 text-center text-lg">
+                <div className="flex flex-col items-start md:items-center justify-center gap-6 text-left md:text-center text-lg">
                     <div>
                         Return to Freedom's journey began in 1998 on 309 acres in California's Jalama Valley,
                         near Lompoc. This founding sanctuary—purchased by the DeMayo family—became home to the
@@ -45,11 +45,11 @@ const CapitalCampaignPage = () => {
 
             <ImageWithAuthorCredit src={bg1} alt="Capital Campaign" className="w-full h-[80vh] object-cover object-center" />
 
-            <div className="w-8/12 mx-auto h-fit flex flex-col items-center justify-center gap-8 text-center">
+            <div className="w-10/12 md:w-8/12 mx-auto h-fit flex flex-col items-start md:items-center justify-center gap-8 text-left md:text-center">
                 <div className="text-4xl font-serif text-sage-green">
                 Secure the Lompoc Ranch ($5.5 Million Target)
                 </div>
-                <div className="flex flex-col items-center justify-center gap-6 text-center text-lg">
+                <div className="flex flex-col items-start md:items-center justify-center gap-6 text-left md:text-center text-lg">
                     <div>
                         We have already raised half of the acquisition cost ($2.75 million) to purchase our 
                         founding sanctuary. This property—home to hundreds of wild horses and burros—is 
@@ -61,11 +61,11 @@ const CapitalCampaignPage = () => {
 
             <ImageWithAuthorCredit src={bg2} alt="Capital Campaign" className="w-full h-[80vh] object-cover object-center" />
 
-            <div className="w-8/12 mx-auto h-fit flex flex-col items-center justify-center gap-8 text-center">
+            <div className="w-10/12 md:w-8/12 mx-auto h-fit flex flex-col items-start md:items-center justify-center gap-8 text-left md:text-center">
                 <div className="text-4xl font-serif text-pewter">
                     Establish a $10 Million Endowment
                 </div>
-                <div className="flex flex-col items-center justify-center gap-6 text-center text-lg">
+                <div className="flex flex-col items-start md:items-center justify-center gap-6 text-left md:text-center text-lg">
                     <div>
                         A permanent endowment will ensure the organization's ongoing sustainability—funding 
                         annual operations, regenerative land practices, advocacy, and educational initiatives. 
@@ -77,11 +77,11 @@ const CapitalCampaignPage = () => {
 
             <ImageWithAuthorCredit src={bg3} alt="Capital Campaign" className="w-full h-[80vh] object-cover object-center" />
 
-            <div className="w-8/12 mx-auto h-fit flex flex-col items-center justify-center gap-8 text-center">
+            <div className="w-10/12 md:w-8/12 mx-auto h-fit flex flex-col items-start md:items-center justify-center gap-8 text-left md:text-center">
                 <div className="text-4xl font-serif text-cinnamon">
                     Acquire Land for Return to Freedom's Wild Horse and Wildlife Conservancy
                 </div>
-                <div className="flex flex-col items-center justify-center gap-6 text-center text-lg">
+                <div className="flex flex-col items-start md:items-center justify-center gap-6 text-left md:text-center text-lg">
                     <div>
                         The next step in RTF’s growth is the acquisition of a larger property—over 6,000 
                         acres—to create the Wild Horse and Wildlife Conservancy, a center for conservation, 
@@ -97,11 +97,11 @@ const CapitalCampaignPage = () => {
                 </div>
             </div>
 
-            <div className="w-8/12 mx-auto h-fit flex flex-col items-center justify-center gap-8 text-center">
+            <div className="w-10/12 md:w-8/12 mx-auto h-fit flex flex-col items-start md:items-center justify-center gap-8 text-left md:text-center">
                 <div className="text-4xl font-serif text-sage-green">
                     Get Involved
                 </div>
-                <div className="flex flex-col items-center justify-center gap-6 text-center text-lg">
+                <div className="flex flex-col items-start md:items-center justify-center gap-6 text-left md:text-center text-lg">
                     <div>
                         If you'd like to learn more or support our Capital Campaign, please email us at:
                     </div>

@@ -62,6 +62,7 @@ import type * as userInvites from "../userInvites.js";
 import type * as users from "../users.js";
 import type * as utils from "../utils.js";
 import type * as video from "../video.js";
+import type * as wishlist from "../wishlist.js";
 
 import type {
   ApiFromModules,
@@ -124,6 +125,7 @@ declare const fullApi: ApiFromModules<{
   users: typeof users;
   utils: typeof utils;
   video: typeof video;
+  wishlist: typeof wishlist;
 }>;
 
 /**

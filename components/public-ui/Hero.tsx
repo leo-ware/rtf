@@ -17,7 +17,7 @@ const Hero = ({ title, image, authorCredit }: { title: string; image: StaticImag
         wrapperClassName="z-0 absolute top-0 left-0 w-full h-full"
         authorCredit={authorCredit}
       />
-      <div className="z-10 underline decoration-2 underline-offset-8 border-white text-white text-[70px] md:text-[64px] font-serif">
+      <div className="z-10 underline decoration-2 underline-offset-8 border-white text-white text-[48px] sm:text-[60px] md:text-[70px] lg:text-[80px] font-serif px-8 text-center">
         {title}
       </div>
     </div>

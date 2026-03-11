@@ -10,12 +10,12 @@ const NotFoundPage = () => {
     const router = useRouter()
     return (
         <div>
-            <div className="w-8/12 h-fit py-16 mx-auto flex gap-12 flex-row items-center justify-center">
-                <div className="w-1/2 aspect-auto">
+            <div className="w-10/12 lg:w-8/12 h-fit py-16 mx-auto flex gap-8 lg:gap-12 flex-col lg:flex-row items-center justify-center">
+                <div className="w-full md:w-2/3 lg:w-1/2 aspect-auto">
                     <Image src={NotFoundGif} alt="404 Not Found" />
                 </div>
-                <div className="w-1/2 h-fit flex flex-col items-start justify-center gap-4 text-left">
-                    <Header level={2} className="text-cinnamon text-left">
+                <div className="w-full lg:w-1/2 h-fit flex flex-col items-start justify-center gap-4 text-left">
+                    <Header level={2} className="text-cinnamon !text-left">
                         Looks like you've wandered off the range...
                     </Header>
                     <div className="text-ink text-[20px]">

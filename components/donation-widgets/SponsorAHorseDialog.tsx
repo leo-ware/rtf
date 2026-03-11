@@ -71,6 +71,11 @@ const SponsorAHorseDialog = ({ children, animalId }: { children?: React.ReactNod
                             {animal?.donationFormId && (
                                 <SalsaDonateFormEmbed donationFormId={animal.donationFormId} />
                             )}
+                            {animal && !animal.donationFormId && (
+                                <div className="text-lg text-white/90">
+                                    Donations have not been configured for this animal.
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

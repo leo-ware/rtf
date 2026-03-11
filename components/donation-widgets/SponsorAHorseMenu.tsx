@@ -25,9 +25,10 @@ type SponsorAHorseMenuProps = {
     showControls?: boolean
     excludeAnimalIds?: Id<"animals">[]
     includeInMemoriam?: boolean
+    hideViewAll?: boolean
 }
 
-const SponsorAHorseMenu = ({ title, initialNumItems: limit, herdId = undefined, type = undefined, showControls = false, excludeAnimalIds = [], includeInMemoriam = false }: SponsorAHorseMenuProps) => {
+const SponsorAHorseMenu = ({ title, initialNumItems: limit, herdId = undefined, type = undefined, showControls = false, excludeAnimalIds = [], includeInMemoriam = false, hideViewAll = false }: SponsorAHorseMenuProps) => {
 
     const [selectedHerdId, setSelectedHerdId] = useState<Id<"herds"> | null>(herdId || null)
     const [selectedType, setSelectedType] = useState<"horse" | "burro" | null>(type || null)
@@ -128,7 +129,7 @@ const SponsorAHorseMenu = ({ title, initialNumItems: limit, herdId = undefined, 
                             <div className="text-[14px] text-left font-semibold line-clamp-1 h-[20px]">
                                 {animal.inMemoriam ? <span className="italic">In Memoriam</span> : horseDetailsString(animal as any)}
                             </div>
-                            <div className="w-full flex justify-center gap-4 text-[16px]">
+                            <div className="w-full flex justify-center gap-4 text-[16px] whitespace-nowrap">
                                 <Link href={`/horses/${animal.type === "burro" ? "our-burros" : "our-horses"}/${animal.slug}`}>
                                     <Button color="transparent" className="py-1 px-4 text-cinnamon">
                                         Learn More
@@ -144,7 +145,7 @@ const SponsorAHorseMenu = ({ title, initialNumItems: limit, herdId = undefined, 
                     </div>
                 ))}
 
-                {!showControls && (
+                {!showControls && !hideViewAll && (
                     <div className="col-span-full flex items-center justify-center">
                         <Link
                             href={type === "burro" ? "/donate/sponsor-a-burro" : "/donate/sponsor-a-horse"}

@@ -122,7 +122,7 @@ const SponsorAHorsePage = () => {
                 )}
             </div>
 
-            <SponsorAHorseMenu title="Explore Other Horses to Sponsor" type="horse" includeInMemoriam />
+            <SponsorAHorseMenu title="Explore Other Horses to Sponsor" type="horse" includeInMemoriam hideViewAll showControls />
 
         </div>
     )

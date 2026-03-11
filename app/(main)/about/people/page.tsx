@@ -73,23 +73,25 @@ const PeoplePage = () => {
             <Hero title="Our Team" image={PeopleHero} />
 
             {people.length > 0 && (
-                <div className="w-10/12 h-fit py-16 mx-auto grid grid-cols-3 gap-18">
+                <div className="w-10/12 h-fit py-16 mx-auto flex flex-col gap-18">
                     {boardOfDirectors.length > 0 && (
-                        <div className="w-full h-fit col-span-3 grid grid-cols-subgrid">
-                            <Header className="text-pewter col-span-3 mb-8">
+                        <div className="w-full h-fit">
+                            <Header className="text-pewter mb-8">
                                 Board of Directors
                             </Header>
 
-                            {boardOfDirectors.map((person) => (
-                                <div key={person._id} className="col-span-1 mb-4">
-                                    <PersonCard key={person._id} person={person} />
-                                </div>
-                            ))}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-18">
+                                {boardOfDirectors.map((person) => (
+                                    <div key={person._id} className="mb-4">
+                                        <PersonCard key={person._id} person={person} />
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     )}
 
                     {advisoryBoards.length > 0 && (
-                        <div className="w-full h-fit py-2 col-span-3">
+                        <div className="w-full h-fit py-2">
                             <Header className="text-cinnamon mb-8">
                                 Advisory Boards
                             </Header>
@@ -133,7 +135,7 @@ const PeoplePage = () => {
                     )}
 
                     {(staff.length + ranchAndEquine.length) > 0 && (
-                        <div className="col-span-3 h-fit flex flex-col items-center justify-center gap-1">
+                        <div className="h-fit flex flex-col items-center justify-center gap-1">
                             <Header className="text-pewter no-underline mb-6">
                                 Our Team
                             </Header>
@@ -144,43 +146,47 @@ const PeoplePage = () => {
                     )}
 
                     {staff.length > 0 && (
-                        <div className="w-full h-fit col-span-3 grid grid-cols-subgrid">
-                            <div className="relative mb-8 h-fit col-span-3">
+                        <div className="w-full h-fit">
+                            <div className="relative mb-8 h-fit">
                                 <div className="text-[48px] text-pewter font-serif">
                                     Staff
                                 </div>
                                 <div className="relative top-[-12px] w-full h-1 border-t border-pewter" />
                             </div>
 
-                            {staff.map((person) => (
-                                <div key={person._id} className="col-span-1">
-                                    <PersonCard key={person._id} person={person} />
-                                </div>
-                            ))}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-18">
+                                {staff.map((person) => (
+                                    <div key={person._id}>
+                                        <PersonCard key={person._id} person={person} />
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     )}
 
                     {ranchAndEquine.length > 0 && (
-                        <div className="w-full h-fit col-span-3 grid grid-cols-subgrid">
-                            <div className="relative mb-8 h-fit col-span-3">
+                        <div className="w-full h-fit">
+                            <div className="relative mb-8 h-fit">
                                 <div className="text-[48px] text-pewter font-serif">
                                     Ranch & Equine
                                 </div>
                                 <div className="relative top-[-12px] w-full h-1 border-t border-pewter" />
                             </div>
 
-                            {ranchAndEquine.map((person) => (
-                                <div key={person._id} className="col-span-1">
-                                    <PersonCard key={person._id} person={person} />
-                                </div>
-                            ))}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-18">
+                                {ranchAndEquine.map((person) => (
+                                    <div key={person._id}>
+                                        <PersonCard key={person._id} person={person} />
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     )}
                 </div>
             )}
 
             {inMemoriam.length > 0 && (
-                <div className="w-full h-fit py-12 px-8 flex flex-col items-center justify-center gap-8">
+                <div className="w-full h-fit py-12 px-4 md:px-8 flex flex-col items-center justify-center gap-8">
                     <div className="w-full mb-4 text-center text-[48px] text-pewter font-serif">
                         In Memoriam
                     </div>
@@ -190,8 +196,8 @@ const PeoplePage = () => {
                         items={inMemoriam.map((person) => ({
                             id: person._id,
                             widget: (
-                                <div className="w-[75vw] h-[400px] flex items-stretch">
-                                    <div className="w-1/4 h-full">
+                                <div className="w-[92vw] md:w-[85vw] lg:w-[75vw] flex flex-col md:flex-row md:items-stretch">
+                                    <div className="w-full aspect-square md:w-[400px] md:aspect-square shrink-0">
                                         {person.image && (
                                             <ConvexImage
                                                 src={person.image.src}
@@ -202,13 +208,13 @@ const PeoplePage = () => {
                                             />
                                         )}
                                     </div>
-                                    <div className="w-3/4 h-full bg-pewter text-seashell px-8 
+                                    <div className="w-full md:w-auto md:grow bg-pewter text-seashell px-6 py-8 md:px-8
                                         flex flex-col items-start justify-center gap-4">
-                                        <div className="text-[40px] font-serif">
+                                        <div className="text-[32px] md:text-[40px] font-serif">
                                             {person.name}
                                         </div>
                                         {/* <div className="text-xs uppercase">{person.title}</div> */}
-                                        <p className="text-[20px]">{person.bio ?? ""}</p>
+                                        <p className="text-[18px] md:text-[20px] line-clamp-4">{person.bio ?? ""}</p>
                                         <Button className="bg-cinnamon border-none py-1 px-4" color="cinnamon">
                                             Read More
                                         </Button>

@@ -1,5 +1,3 @@
-import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit";
-
 import NewsCarousel from "../../../components/NewsCarousel";
 import DocumentsWidget from "./DocumentsWidget";
 import OurPeopleBento from "./OurPeopleBento";
@@ -9,6 +7,7 @@ import VisionImg from "@/public/img/Owyhee-9925-scaled.jpg";
 import Hero from "@/components/public-ui/Hero";
 import Callout from "@/components/public-ui/Callout";
 import ScrollReveal from "@/components/public-ui/ScrollReveal";
+import CinematicSection from "@/components/public-ui/CinematicSection";
 
 export const metadata = {
     title: "About Us - Return to Freedom"
@@ -31,56 +30,32 @@ const AboutPage = () => {
         </ScrollReveal>
       </div>
 
-      <div className="w-full relative h-[90vh] flex items-center justify-center overflow-hidden">
-        <ImageWithAuthorCredit
-          src={MissionImg}
-          alt="Wild horses at Return to Freedom"
-          fill
-          className="absolute inset-0 w-full h-full object-cover object-center"
-          wrapperClassName="absolute inset-0 w-full h-full"
-        />
-        <div className="absolute inset-0 bg-black/40" />
-        <div className="relative z-10 flex flex-col items-center justify-center gap-6 px-6 max-w-4xl">
-          <ScrollReveal variant="fade-up" duration={0.8}>
-            <div className="text-[70px] font-serif text-white text-center">Mission</div>
-          </ScrollReveal>
-          <ScrollReveal variant="fade-up" delay={0.2} duration={0.8}>
-            <div className="text-[22px] md:text-[24px] text-white text-center leading-relaxed">
-              Return to Freedom is dedicated to preserving the freedom, diversity,
-              and habitat of America's wild horses and burros through sanctuary,
-              education, advocacy, and conservation, while enriching the human
-              spirit through direct experience with the natural world.
-            </div>
-          </ScrollReveal>
-        </div>
-      </div>
+      <CinematicSection
+        image={MissionImg}
+        imageAlt="Wild horses at Return to Freedom"
+        title="Mission"
+      >
+        Return to Freedom is dedicated to preserving the freedom, diversity,
+        and habitat of America's wild horses and burros through sanctuary,
+        education, advocacy, and conservation, while enriching the human
+        spirit through direct experience with the natural world.
+      </CinematicSection>
 
-      <div className="w-full relative h-[90vh] flex items-center justify-center overflow-hidden">
-        <ImageWithAuthorCredit
-          src={VisionImg}
-          alt="Wild horses in open landscape"
-          fill
-          className="absolute inset-0 w-full h-full object-cover object-center"
-          wrapperClassName="absolute inset-0 w-full h-full"
-        />
-        <div className="absolute inset-0 bg-black/40" />
-        <div className="relative z-10 flex flex-col items-center justify-center gap-6 px-6 max-w-4xl">
-          <ScrollReveal variant="fade-up" duration={0.8}>
-            <div className="text-[56px] md:text-[64px] font-serif text-white text-center">Vision</div>
-          </ScrollReveal>
-          <ScrollReveal variant="fade-up" delay={0.2} duration={0.8}>
-            <div className="text-[18px] md:text-[20px] text-white text-center leading-relaxed">
-              Return to Freedom is poised to take our management model to the next
-              level by creating a first-of-its-kind Wild Horse and Burro
-              Conservancy and Wilderness Preserve. This historical Land Trust will
-              ensure the conservation of disappearing pure in strain Spanish
-              mustangs, expand our management model as it can be applied on wild
-              horse ranges, and be home to natural family bands captured from
-              federal lands.
-            </div>
-          </ScrollReveal>
-        </div>
-      </div>
+      <CinematicSection
+        image={VisionImg}
+        imageAlt="Wild horses in open landscape"
+        title="Vision"
+        titleSize="text-[56px] md:text-[64px]"
+        textSize="text-[18px] md:text-[20px]"
+      >
+        Return to Freedom is poised to take our management model to the next
+        level by creating a first-of-its-kind Wild Horse and Burro
+        Conservancy and Wilderness Preserve. This historical Land Trust will
+        ensure the conservation of disappearing pure in strain Spanish
+        mustangs, expand our management model as it can be applied on wild
+        horse ranges, and be home to natural family bands captured from
+        federal lands.
+      </CinematicSection>
 
       <OurPeopleBento />
 

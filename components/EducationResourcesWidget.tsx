@@ -19,11 +19,11 @@ const EducationResourcesWidget = () => {
             <Header className="text-sage-green mx-auto underline">
                 Resources
             </Header>
-            <p className="w-10/12 md:w-8/12 -mt-2 text-center text-lg md:text-xl text-ink">
+            <p className="w-full md:w-8/12 -mt-2 text-left md:text-center text-lg md:text-xl text-ink">
                 Articles, guides, and educational materials to deepen your understanding of wild horse conservation and advocacy.
             </p>
 
-            <Tabs items={tree?.superGroups
+            <Tabs className="w-full" items={tree?.superGroups
                 .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity))
                 .map(superGroup => ({
                     id: superGroup._id,

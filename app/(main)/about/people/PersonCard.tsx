@@ -28,6 +28,7 @@ export const PersonCard = ({ person, size = "medium" }: { person: Person, size?:
                             alt={person.image.alt}
                             width={person.image.width}
                             height={person.image.height}
+                            wrapperClassName="w-full h-full"
                             className="w-full h-full object-cover object-center rounded-sm"
                             authorCredit={person.image.authorCredit}
                         />
