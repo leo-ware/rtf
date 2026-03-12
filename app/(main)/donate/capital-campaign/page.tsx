@@ -10,7 +10,7 @@ import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import bg1 from './bg-1.jpg'
 import bg2 from './bg-2.jpg'
 import bg3 from './bg-3.jpg'
-import ccHero from './cc-hero.jpg'
+import ccHero from './cc-hero.png'
 import EmailLink from "@/components/public-ui/EmailLink"
 
 const CapitalCampaignPage = () => {

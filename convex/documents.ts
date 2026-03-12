@@ -9,15 +9,17 @@ export const documentTypeValidator = v.union(
     v.literal("annual_report"),
     v.literal("financial_documents"),
     v.literal("form_990"),
+    v.literal("resource"),
     v.literal("other")
 )
 
-export type DocumentType = "annual_report" | "financial_documents" | "form_990" | "other"
+export type DocumentType = "annual_report" | "financial_documents" | "form_990" | "resource" | "other"
 
 export const documentTypeLabels: Record<DocumentType, string> = {
     annual_report: "Annual Report",
     financial_documents: "Financial Documents",
     form_990: "Form 990",
+    resource: "Resource",
     other: "Other",
 }
 

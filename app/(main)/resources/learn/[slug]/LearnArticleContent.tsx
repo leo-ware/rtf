@@ -27,6 +27,13 @@ const LearnArticleContent = ({ slug }: LearnArticleContentProps) => {
         }
     }, [article, slug])
 
+    // Redirect to document page if this is a PDF resource
+    useEffect(() => {
+        if (article?.documentId) {
+            window.location.href = `/resources/documents/${article.documentId}`
+        }
+    }, [article])
+
     if (article === undefined) {
         return (
             <div className="w-full h-fit">
@@ -47,6 +54,20 @@ const LearnArticleContent = ({ slug }: LearnArticleContentProps) => {
                 <div className="h-fit w-10/12 mx-auto flex flex-col gap-8 py-12">
                     <div className="font-serif text-2xl text-center py-16">
                         Article not found
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    // If this is a document resource, show loading while redirect happens
+    if (article.documentId) {
+        return (
+            <div className="w-full h-fit">
+                <Hero title="Learn" image={HeroImg} />
+                <div className="h-fit w-10/12 mx-auto flex flex-col gap-8 py-12">
+                    <div className="font-serif text-2xl text-center py-16">
+                        Redirecting to document...
                     </div>
                 </div>
             </div>

@@ -70,6 +70,7 @@ export default defineSchema({
         description: v.string(),
         content: v.string(),
         isPublic: v.boolean(),
+        documentId: v.optional(v.id("documents")),
     })
         .index("by_is_public", ["isPublic"])
         .index("by_slug", ["slug"])
@@ -564,6 +565,7 @@ export default defineSchema({
             v.literal("annual_report"),
             v.literal("financial_documents"),
             v.literal("form_990"),
+            v.literal("resource"),
             v.literal("other")
         ),
         year: v.number(),

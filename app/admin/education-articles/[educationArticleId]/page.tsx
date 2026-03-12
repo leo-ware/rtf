@@ -16,7 +16,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { handleConvexError } from "@/lib/errorHandler"
-import { ArrowLeft, Eye, EyeOff, Loader2, Save } from "lucide-react"
+import { ArrowLeft, Eye, EyeOff, ExternalLink, FileDown, FileText, Loader2, Save, Trash2, Upload } from "lucide-react"
 
 const EducationArticleEditPage = ({ params }: PageProps<{ educationArticleId: string }>) => {
     const router = useRouter()
@@ -26,10 +26,14 @@ const EducationArticleEditPage = ({ params }: PageProps<{ educationArticleId: st
     const educationArticle = useQuery(api.educationArticles.getById, { id: educationArticleId })
     const updateEducationArticleMetadata = useMutation(api.educationArticles.updateMetadata)
     const updateEducationArticleContent = useMutation(api.educationArticles.updateContent)
+    const generateUploadUrl = useMutation(api.documents.generateUploadUrl)
+    const createDocument = useMutation(api.documents.createDocument)
 
     const [isSaving, setIsSaving] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [isUploadingPdf, setIsUploadingPdf] = useState(false)
     const localInitialized = useRef(false)
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     const [formData, setFormData] = useState({
         title: undefined as string | undefined,
@@ -37,7 +41,14 @@ const EducationArticleEditPage = ({ params }: PageProps<{ educationArticleId: st
         description: undefined as string | undefined,
         content: undefined as string | undefined,
         isPublic: undefined as boolean | undefined,
+        documentId: undefined as Id<"documents"> | undefined,
     })
+
+    // Query the linked document if it exists
+    const linkedDocument = useQuery(
+        api.documents.getDocument,
+        formData.documentId ? { id: formData.documentId } : "skip"
+    )
 
     const articleToFormData = (a: typeof educationArticle): typeof formData => ({
         title: a?.title,
@@ -45,6 +56,7 @@ const EducationArticleEditPage = ({ params }: PageProps<{ educationArticleId: st
         description: a?.description,
         content: a?.content,
         isPublic: a?.isPublic,
+        documentId: a?.documentId,
     })
 
     useEffect(() => {
@@ -65,15 +77,28 @@ const EducationArticleEditPage = ({ params }: PageProps<{ educationArticleId: st
         setIsSaving(true)
         setError(null)
         try {
-            await Promise.all([
-                updateEducationArticleMetadata(removeUndefined({
-                    id: educationArticle._id,
+            const metadataArgs: Parameters<typeof updateEducationArticleMetadata>[0] = {
+                id: educationArticle._id,
+                ...removeUndefined({
                     title: formData.title,
                     slug: formData.slug,
                     description: formData.description,
                     isPublic: formData.isPublic,
-                })),
-                typeof formData.content === "string"
+                }),
+            }
+
+            // Handle documentId changes
+            if (formData.documentId !== educationArticle.documentId) {
+                if (formData.documentId) {
+                    metadataArgs.documentId = formData.documentId
+                } else {
+                    metadataArgs.clearDocumentId = true
+                }
+            }
+
+            await Promise.all([
+                updateEducationArticleMetadata(metadataArgs),
+                typeof formData.content === "string" && !formData.documentId
                     ? updateEducationArticleContent({
                         id: educationArticle._id,
                         content: formData.content,
@@ -87,6 +112,41 @@ const EducationArticleEditPage = ({ params }: PageProps<{ educationArticleId: st
         } finally {
             setIsSaving(false)
         }
+    }
+
+    const handlePdfUpload = async (file: File) => {
+        setIsUploadingPdf(true)
+        setError(null)
+        try {
+            const uploadUrl = await generateUploadUrl()
+            const response = await fetch(uploadUrl, {
+                method: "POST",
+                headers: { "Content-Type": file.type },
+                body: file,
+            })
+            if (!response.ok) throw new Error("Failed to upload file")
+            const { storageId } = await response.json()
+
+            const docId = await createDocument({
+                name: formData.title || file.name.replace(/\.[^/.]+$/, ""),
+                type: "resource",
+                year: new Date().getFullYear(),
+                fileId: storageId,
+                isPublic: true,
+            })
+
+            setFormData(prev => ({ ...prev, documentId: docId }))
+        } catch (err) {
+            console.error("Error uploading PDF:", err)
+            setError("Failed to upload PDF. Please try again.")
+        } finally {
+            setIsUploadingPdf(false)
+            if (fileInputRef.current) fileInputRef.current.value = ""
+        }
+    }
+
+    const handleRemovePdf = () => {
+        setFormData(prev => ({ ...prev, documentId: undefined }))
     }
 
     if (educationArticle === undefined) {
@@ -196,17 +256,36 @@ const EducationArticleEditPage = ({ params }: PageProps<{ educationArticleId: st
                             <CardHeader>
                                 <CardTitle>Article Content</CardTitle>
                                 <CardDescription>
-                                    Edit the education HTML content using the rich text editor.
+                                    {formData.documentId
+                                        ? "This article is a PDF resource. The PDF will open in a new tab when visitors click this article."
+                                        : "Edit the education HTML content using the rich text editor."}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                {typeof formData.content === "string" && (
+                                {formData.documentId ? (
+                                    <div className="flex flex-col items-center gap-4 py-8 text-gray-500">
+                                        <FileDown className="h-16 w-16 text-gray-300" />
+                                        <p className="text-center">
+                                            This article links to a PDF resource.
+                                            <br />
+                                            Visitors will be directed to the PDF when they click this article.
+                                        </p>
+                                        {linkedDocument?.fileUrl && (
+                                            <Button variant="outline" asChild>
+                                                <a href={linkedDocument.fileUrl} target="_blank" rel="noopener noreferrer">
+                                                    <ExternalLink className="h-4 w-4 mr-2" />
+                                                    View PDF
+                                                </a>
+                                            </Button>
+                                        )}
+                                    </div>
+                                ) : typeof formData.content === "string" ? (
                                     <TiptapEditor
                                         content={formData.content}
                                         onChange={(content) => setFormData((prev) => ({ ...prev, content }))}
                                         placeholder="Start writing..."
                                     />
-                                )}
+                                ) : null}
                             </CardContent>
                         </Card>
                     </div>
@@ -273,6 +352,75 @@ const EducationArticleEditPage = ({ params }: PageProps<{ educationArticleId: st
                                 )}
                             </CardContent>
                         </Card>
+
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Resource PDF</CardTitle>
+                                <CardDescription>
+                                    Attach a PDF to make this a downloadable resource instead of a rich text article.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                                {formData.documentId ? (
+                                    <div className="space-y-3">
+                                        <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                                            <FileText className="h-5 w-5 text-gray-600 shrink-0" />
+                                            <span className="text-sm font-medium truncate">
+                                                {linkedDocument?.name || "Loading..."}
+                                            </span>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            {linkedDocument?.fileUrl && (
+                                                <Button variant="outline" size="sm" asChild>
+                                                    <a href={linkedDocument.fileUrl} target="_blank" rel="noopener noreferrer">
+                                                        <ExternalLink className="h-4 w-4 mr-1" />
+                                                        View
+                                                    </a>
+                                                </Button>
+                                            )}
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={handleRemovePdf}
+                                            >
+                                                <Trash2 className="h-4 w-4 mr-1" />
+                                                Remove
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <input
+                                            ref={fileInputRef}
+                                            type="file"
+                                            accept=".pdf,application/pdf"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0]
+                                                if (file) handlePdfUpload(file)
+                                            }}
+                                            className="hidden"
+                                            id="pdf-file-input"
+                                        />
+                                        <label
+                                            htmlFor="pdf-file-input"
+                                            className={`flex flex-col items-center gap-2 p-6 border-2 border-dashed rounded-lg cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition-colors ${isUploadingPdf ? "pointer-events-none opacity-50" : ""}`}
+                                        >
+                                            {isUploadingPdf ? (
+                                                <>
+                                                    <Loader2 className="h-8 w-8 text-gray-400 animate-spin" />
+                                                    <span className="text-sm text-gray-500">Uploading...</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Upload className="h-8 w-8 text-gray-400" />
+                                                    <span className="text-sm text-gray-500">Click to upload a PDF</span>
+                                                </>
+                                            )}
+                                        </label>
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
             </div>
@@ -281,5 +429,3 @@ const EducationArticleEditPage = ({ params }: PageProps<{ educationArticleId: st
 }
 
 export default EducationArticleEditPage
-
-

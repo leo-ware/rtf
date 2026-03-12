@@ -12,6 +12,8 @@ const educationArticleValidator = v.object({
     description: v.string(),
     content: v.string(),
     isPublic: v.boolean(),
+    documentId: v.optional(v.id("documents")),
+    documentUrl: v.optional(v.string()),
 })
 
 const educationGroupValidator = v.object({
@@ -71,7 +73,16 @@ export const getEducationTree = query({
             articlesPromise,
         ])
 
-        const articleById: Record<Id<"educationArticles">, Doc<"educationArticles">> = Object.fromEntries(articles.map(a => [a._id, a]))
+        // Resolve document URLs for articles with documentId
+        const articlesWithDocUrls = await Promise.all(articles.map(async (a) => {
+            if (!a.documentId) return { ...a, documentUrl: undefined }
+            const doc = await ctx.db.get(a.documentId)
+            if (!doc) return { ...a, documentUrl: undefined }
+            const url = await ctx.storage.getUrl(doc.fileId)
+            return { ...a, documentUrl: url ?? undefined }
+        }))
+
+        const articleById = Object.fromEntries(articlesWithDocUrls.map(a => [a._id, a]))
 
         const groupsWithArticles = groups.map(group => ({
             ...group,
@@ -80,7 +91,7 @@ export const getEducationTree = query({
                 .filter(a => !!a),
         }))
 
-        const groupsWithArticlesById: Record<Id<"educationArticleGroups">, typeof groupsWithArticles[number]> = Object.fromEntries(groupsWithArticles.map(g => [g._id, g]))
+        const groupsWithArticlesById = Object.fromEntries(groupsWithArticles.map(g => [g._id, g]))
 
         const superGroupsWithChildren = superGroups
             .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity))
@@ -139,7 +150,7 @@ export const getInvertedEducationTree = query({
             const superGroup = group
                 ? superGroups.find(sg => sg.groupIds.includes(group._id))
                 : null
-            
+
             return {...article, group, superGroup}
         })
 
@@ -217,18 +228,33 @@ export const searchArticles = query({
             }
         }
 
-        return {
-            ...paginatedResult,
-            page: paginatedResult.page.map((article) => ({
+        // Resolve document URLs for articles with documentId
+        const pageWithDocs = await Promise.all(paginatedResult.page.map(async (article) => {
+            let documentUrl: string | undefined
+            if (article.documentId) {
+                const doc = await ctx.db.get(article.documentId)
+                if (doc) {
+                    const url = await ctx.storage.getUrl(doc.fileId)
+                    documentUrl = url ?? undefined
+                }
+            }
+            return {
                 _id: article._id,
                 _creationTime: article._creationTime,
                 title: article.title,
                 slug: article.slug,
                 description: article.description,
                 isPublic: article.isPublic,
+                documentId: article.documentId,
+                documentUrl,
                 groupTitle: articleIdToLabels[article._id]?.groupTitle,
                 superGroupTitle: articleIdToLabels[article._id]?.superGroupTitle,
-            })),
+            }
+        }))
+
+        return {
+            ...paginatedResult,
+            page: pageWithDocs,
         }
     },
 })

@@ -33,6 +33,7 @@ export const getById = query({
             description: v.string(),
             content: v.string(),
             isPublic: v.boolean(),
+            documentId: v.optional(v.id("documents")),
         }),
         v.null()
     ),
@@ -66,6 +67,7 @@ export const getPublicById = query({
             description: v.string(),
             content: v.string(),
             isPublic: v.boolean(),
+            documentId: v.optional(v.id("documents")),
         }),
         v.null()
     ),
@@ -93,6 +95,7 @@ export const listAll = query({
         description: v.string(),
         content: v.string(),
         isPublic: v.boolean(),
+        documentId: v.optional(v.id("documents")),
     })),
     handler: async (ctx) => {
         const user = await getCurrentUserOrThrow(ctx)
@@ -117,6 +120,7 @@ export const listPublic = query({
         description: v.string(),
         content: v.string(),
         isPublic: v.boolean(),
+        documentId: v.optional(v.id("documents")),
     })),
     handler: async (ctx) => {
         return await ctx.db
@@ -132,6 +136,7 @@ export const create = mutation({
         title: v.string(),
         slug: v.string(),
         description: v.string(),
+        documentId: v.optional(v.id("documents")),
     },
     returns: v.id("educationArticles"),
     handler: async (ctx, args) => {
@@ -153,6 +158,7 @@ export const create = mutation({
             description: args.description,
             content: "<p></p>",
             isPublic: false,
+            ...(args.documentId ? { documentId: args.documentId } : {}),
         })
     },
 })
@@ -164,6 +170,8 @@ export const updateMetadata = mutation({
         slug: v.optional(v.string()),
         description: v.optional(v.string()),
         isPublic: v.optional(v.boolean()),
+        documentId: v.optional(v.id("documents")),
+        clearDocumentId: v.optional(v.boolean()),
     },
     returns: v.null(),
     handler: async (ctx, args) => {
@@ -172,13 +180,17 @@ export const updateMetadata = mutation({
             throw new Error("Insufficient permissions")
         }
 
-        const { id, slug, ...updates } = args
+        const { id, slug, clearDocumentId, ...updates } = args
 
-        const nextUpdates = {
+        const nextUpdates: Record<string, any> = {
             ...updates,
             ...(typeof slug === "string"
                 ? { slug: normalizeSlug(slug) }
                 : {}),
+        }
+
+        if (clearDocumentId) {
+            nextUpdates.documentId = undefined
         }
 
         if (typeof slug === "string") {
@@ -256,6 +268,7 @@ export const getPublicBySlug = query({
             description: v.string(),
             content: v.string(),
             isPublic: v.boolean(),
+            documentId: v.optional(v.id("documents")),
         }),
         v.null()
     ),
@@ -292,5 +305,3 @@ export const listPublicSlugs = query({
             .map((a) => a.slug as string)
     },
 })
-
-

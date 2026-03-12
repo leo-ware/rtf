@@ -37,7 +37,9 @@ import {
     Eye,
     EyeOff,
     Calendar,
-    Loader2
+    Loader2,
+    Copy,
+    Check
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { handleConvexError } from "@/lib/errorHandler"
@@ -58,6 +60,14 @@ const AdminDocumentsPage = () => {
     const [searchTerm, setSearchTerm] = useState("")
     const [filterType, setFilterType] = useState<DocumentType | "all">("all")
     const [viewMode, setViewMode] = useState<"grid" | "list">("list")
+    const [copiedDocId, setCopiedDocId] = useState<Id<"documents"> | null>(null)
+
+    const handleCopyPermalink = async (docId: Id<"documents">) => {
+        const url = `${window.location.origin}/resources/documents/${docId}`
+        await navigator.clipboard.writeText(url)
+        setCopiedDocId(docId)
+        setTimeout(() => setCopiedDocId(null), 2000)
+    }
 
     const { results: documents, loadMore: loadMoreDocuments, status: documentsStatus } = usePaginatedQuery(
         api.documents.searchDocuments,
@@ -220,6 +230,18 @@ const AdminDocumentsPage = () => {
                                         )}
                                     </div>
                                     <div className="flex space-x-1">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handleCopyPermalink(doc._id)}
+                                            title="Copy permalink"
+                                        >
+                                            {copiedDocId === doc._id ? (
+                                                <Check className="h-4 w-4 text-green-600" />
+                                            ) : (
+                                                <Copy className="h-4 w-4" />
+                                            )}
+                                        </Button>
                                         {doc.fileUrl && (
                                             <Button
                                                 variant="outline"
@@ -262,6 +284,7 @@ const AdminDocumentsPage = () => {
                                         <th className="text-left py-3 px-4 font-medium text-gray-900">Document</th>
                                         <th className="text-left py-3 px-4 font-medium text-gray-900">Type</th>
                                         <th className="text-left py-3 px-4 font-medium text-gray-900">Year</th>
+                                        <th className="text-left py-3 px-4 font-medium text-gray-900">Permalink</th>
                                         <th className="text-left py-3 px-4 font-medium text-gray-900">Public</th>
                                         <th className="text-right py-3 px-4 font-medium text-gray-900">Actions</th>
                                     </tr>
@@ -288,6 +311,25 @@ const AdminDocumentsPage = () => {
                                             </td>
                                             <td className="py-4 px-4">
                                                 <span className="text-gray-700">{doc.year}</span>
+                                            </td>
+                                            <td className="py-4 px-4">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs text-gray-500 truncate max-w-[200px]">
+                                                        /resources/documents/{doc._id}
+                                                    </span>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => handleCopyPermalink(doc._id)}
+                                                        className="h-7 w-7 p-0"
+                                                    >
+                                                        {copiedDocId === doc._id ? (
+                                                            <Check className="h-3.5 w-3.5 text-green-600" />
+                                                        ) : (
+                                                            <Copy className="h-3.5 w-3.5" />
+                                                        )}
+                                                    </Button>
+                                                </div>
                                             </td>
                                             <td className="py-4 px-4">
                                                 <div className="flex items-center gap-2">

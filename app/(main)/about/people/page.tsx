@@ -13,7 +13,7 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion"
 import { PersonCard } from "./PersonCard"
-import PeopleHero from "./people-hero.png"
+import PeopleHero from "./people-hero.jpg"
 import ConvexImage from "@/components/images/ConvexImage";
 import { dedupArray, indexArrayUnique, multipleIndexArray } from "@/lib/utils";
 import Link from "next/link";

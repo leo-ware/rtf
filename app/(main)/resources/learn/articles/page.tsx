@@ -138,12 +138,23 @@ export default function EducationArticlesPage() {
                                         key={article._id}
                                         className="w-full bg-gray-50 p-8 flex flex-col gap-2"
                                     >
-                                        <Link
-                                            href={`/resources/learn/${article.slug ?? article._id}`}
-                                            className="text-lg font-serif"
-                                        >
-                                            {article.title}
-                                        </Link>
+                                        {article.documentUrl ? (
+                                            <a
+                                                href={article.documentUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-lg font-serif"
+                                            >
+                                                {article.title}
+                                            </a>
+                                        ) : (
+                                            <Link
+                                                href={`/resources/learn/${article.slug ?? article._id}`}
+                                                className="text-lg font-serif"
+                                            >
+                                                {article.title}
+                                            </Link>
+                                        )}
                                         {(article.superGroupTitle || article.groupTitle) && (
                                             <div className="text-sm uppercase font-semibold text-[#618596]">
                                                 {[article.superGroupTitle, article.groupTitle]

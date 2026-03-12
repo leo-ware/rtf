@@ -10,7 +10,7 @@ import ScrollReveal from "@/components/public-ui/ScrollReveal"
 
 import HorsesInCrisis from "./need-us-images/horses_in_crisis.jpg"
 import BlmBroken from "./need-us-images/blm_broken.png"
-import CaptivityNoAnswer from "./need-us-images/captivity_no_answer.png"
+import CaptivityNoAnswer from "./need-us-images/captivity_no_answer.jpg"
 import HumaneSolution from "./need-us-images/humane_solution.png"
 import RtfLeads from "./need-us-images/rtf_leads.jpg"
 

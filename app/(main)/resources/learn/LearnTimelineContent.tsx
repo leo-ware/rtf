@@ -77,9 +77,13 @@ const LearnTimelineContentInner = () => {
         ? activeTimeline.items[activeTimeline.items.length - 1]
         : null
 
+    // Exclude the last item from the alternating layout since it's rendered full-width below
+    const mapItemsExcludingLast = (items: typeof timelines[number]["items"]) =>
+        mapItems(items.length > 1 ? items.slice(0, -1) : items)
+
     const timelineContent = timelines.length === 1 ? (
         (() => {
-            const items = mapItems(timelines[0].items)
+            const items = mapItemsExcludingLast(timelines[0].items)
             if (items.length === 0) return null
             return (
                 <AlternatingPictureLayout
@@ -106,7 +110,7 @@ const LearnTimelineContentInner = () => {
                 id: timeline._id,
                 title: timeline.title,
                 content: (() => {
-                    const items = mapItems(timeline.items)
+                    const items = mapItemsExcludingLast(timeline.items)
                     if (items.length === 0) {
                         return (
                             <div className="text-center py-8 text-gray-500">

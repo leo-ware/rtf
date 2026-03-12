@@ -40,7 +40,7 @@ const AlternatingPictureLayout = ({
     return (
         <div className={`relative w-10/12 mx-auto h-fit flex flex-col gap-16 ${className ?? ""}`}>
             {showDivider && (
-                <div className="absolute top-0 left-0 w-1/2 h-full border-r-2 border-ink" />
+                <div className="absolute top-0 left-0 w-1/2 h-full border-r-2 border-ink hidden lg:block" />
             )}
             {items.map((item, index) => {
                 const isEven = index % 2 === 0
@@ -65,7 +65,7 @@ const AlternatingPictureLayout = ({
                                     src={item.image}
                                     alt={item.imageAlt || ""}
                                     fill
-                                    className="w-full h-full object-cover object-center"
+                                    className="w-full h-full object-cover object-center rounded-sm"
                                     wrapperClassName="w-full h-full"
                                     authorCredit={item.authorCredit}
                                 />
@@ -75,8 +75,8 @@ const AlternatingPictureLayout = ({
                                     alt={item.imageAlt || ""}
                                     width={1200}
                                     height={900}
-                                    className="max-w-full max-h-[500px] w-auto h-auto object-contain"
-                                    wrapperClassName="w-fit"
+                                    className="w-full h-auto max-h-[500px] object-contain rounded-sm"
+                                    wrapperClassName="w-full"
                                     authorCredit={item.authorCredit}
                                 />
                             )}

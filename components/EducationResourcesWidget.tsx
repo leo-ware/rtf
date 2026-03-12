@@ -53,7 +53,11 @@ const EducationResourcesWidget = () => {
                                             {group.articles.map((article) => (
                                                 <div key={article._id}>
                                                     <div className="underline">
-                                                        {article.slug ? (
+                                                        {article.documentUrl ? (
+                                                            <a href={article.documentUrl} target="_blank" rel="noopener noreferrer" className="hover:text-cinnamon">
+                                                                {article.title}
+                                                            </a>
+                                                        ) : article.slug ? (
                                                             <Link href={`/resources/learn/${article.slug}`} className="hover:text-cinnamon">
                                                                 {article.title}
                                                             </Link>

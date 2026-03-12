@@ -6,7 +6,7 @@ import { useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Input } from "@/components/ui/input"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { FileText, Search } from "lucide-react"
+import { FileText, FileDown, Search } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import ArticleCreateDialog from "./ArticleCreateDialog"
 import ArticleEditDialog from "./ArticleEditDialog"
@@ -72,6 +72,12 @@ const ArticlesTab = () => {
                                         <Badge variant={article.isPublic ? "default" : "secondary"} className="shrink-0">
                                             {article.isPublic ? "Public" : "Private"}
                                         </Badge>
+                                        {article.documentId && (
+                                            <Badge variant="outline" className="shrink-0">
+                                                <FileDown className="h-3 w-3 mr-1" />
+                                                PDF
+                                            </Badge>
+                                        )}
                                     </div>
 
                                     <div className="flex items-center gap-2 shrink-0">
