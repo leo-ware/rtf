@@ -73,6 +73,10 @@ const EventsPage = () => {
                     <Header className="text-pewter px-8">Upcoming Events</Header>
                     <UpcomingEventsWidget />
                 </div>
+                <p className="text-center text-ink max-w-2xl mx-auto mt-10 -mb-8 px-8">
+                    These are our special one-off events. Looking for recurring programs like tours and workshops?{" "}
+                    <Link href="/visit-us" className="text-cinnamon underline hover:text-cinnamon/80">Check out our Programs page</Link>.
+                </p>
             </div>
             <div className="w-full py-16">
                 {status === "loading" && (

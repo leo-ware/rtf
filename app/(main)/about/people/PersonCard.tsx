@@ -4,7 +4,8 @@ import { ConvexImageProps } from "@/components/images/ConvexImage"
 import { IoPersonOutline } from "react-icons/io5"
 import { useState } from "react"
 import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog"
+import { XIcon } from "lucide-react"
 
 export type Person = {
     name: string
@@ -51,11 +52,15 @@ export const PersonCard = ({ person }: { person: Person, size?: "small" | "mediu
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent
                     showCloseButton={false}
-                    className="bg-[#4a5e3e] border-none text-white sm:max-w-2xl p-0 overflow-hidden rounded-lg outline-none"
+                    className="bg-sage-green border-none text-white sm:max-w-2xl md:max-w-3xl h-[80vh] sm:h-[55vh] p-0 overflow-hidden rounded-lg outline-none"
                 >
                     <DialogTitle className="sr-only">{person.name}</DialogTitle>
-                    <div className="flex flex-col sm:flex-row">
-                        <div className="sm:w-[240px] sm:min-w-[240px] aspect-square relative bg-gray-600 overflow-hidden">
+                    <DialogClose className="absolute top-3 right-3 z-10 text-white opacity-70 hover:opacity-100 transition-opacity outline-none focus:outline-none">
+                        <XIcon className="size-6" />
+                        <span className="sr-only">Close</span>
+                    </DialogClose>
+                    <div className="flex flex-col sm:flex-row h-full">
+                        <div className="sm:w-[240px] sm:min-w-[240px] aspect-square sm:aspect-auto relative bg-gray-600 overflow-hidden shrink-0">
                             {person.image ? (
                                 <ImageWithAuthorCredit
                                     src={person.image.src}
@@ -72,20 +77,20 @@ export const PersonCard = ({ person }: { person: Person, size?: "small" | "mediu
                                 </div>
                             )}
                         </div>
-                        <div className="p-6 flex flex-col gap-1 overflow-y-auto max-h-[60vh]">
-                            <div className="font-serif text-2xl font-bold">{person.name}</div>
+                        <div className="p-6 flex flex-col gap-1 h-full overflow-hidden">
+                            <div className="font-serif text-2xl font-bold shrink-0">{person.name}</div>
                             {person.title && (
-                                <div className="text-base italic text-white/80">{person.title}</div>
+                                <div className="text-base italic text-white/80 shrink-0">{person.title}</div>
                             )}
                             {person.bio && (
-                                <div className="text-sm leading-relaxed text-white/90 mt-2">{person.bio}</div>
+                                <div className="text-sm leading-relaxed text-white/90 mt-2 overflow-y-auto flex-1 min-h-0">{person.bio}</div>
                             )}
                             {person.link && (
                                 <a
                                     href={person.link}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-sm text-white/60 hover:text-white mt-2 underline"
+                                    className="text-sm text-white/60 hover:text-white mt-2 underline shrink-0"
                                 >
                                     Read more
                                 </a>

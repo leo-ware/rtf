@@ -72,6 +72,7 @@
     --color-slate-teal: #354E56;
     --color-cream: #E5E1D8;
     --color-milk: #F7F6F4;
+    --color-cocoa: #5A3E31;
 
     --radius-sm: calc(var(--radius) - 4px);
     --radius-md: calc(var(--radius) - 2px);

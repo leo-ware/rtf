@@ -174,6 +174,12 @@ export default function Footer() {
                                         Resources
                                     </Link>
                                     <Link
+                                        href="/resources/news"
+                                        className="hover:underline"
+                                    >
+                                        News
+                                    </Link>
+                                    <Link
                                         href="/visit-us"
                                         className="hover:underline"
                                     >

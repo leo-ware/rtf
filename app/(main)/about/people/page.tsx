@@ -215,9 +215,21 @@ const PeoplePage = () => {
                                         </div>
                                         {/* <div className="text-xs uppercase">{person.title}</div> */}
                                         <p className="text-[18px] md:text-[20px] line-clamp-4">{person.bio ?? ""}</p>
-                                        <Button className="bg-cinnamon border-none py-1 px-4" color="cinnamon">
-                                            Read More
-                                        </Button>
+                                        {person.link && (
+                                            person.link.startsWith("/") ? (
+                                                <Link href={person.link}>
+                                                    <Button className="bg-cinnamon border-none py-1 px-4" color="cinnamon">
+                                                        Read More
+                                                    </Button>
+                                                </Link>
+                                            ) : (
+                                                <a href={person.link} target="_blank" rel="noopener noreferrer">
+                                                    <Button className="bg-cinnamon border-none py-1 px-4" color="cinnamon">
+                                                        Read More
+                                                    </Button>
+                                                </a>
+                                            )
+                                        )}
                                     </div>
                                 </div>
                             )

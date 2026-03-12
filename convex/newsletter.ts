@@ -4,7 +4,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { getCurrentUserOrThrow } from "./users";
 
 function generateToken(): string {
-    return Math.random().toString(36).substring(2) + Date.now().toString(36);
+    return crypto.randomUUID()
 }
 
 export const subscribeToNewsletter = mutation({

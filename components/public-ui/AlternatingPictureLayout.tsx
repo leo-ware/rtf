@@ -75,7 +75,8 @@ const AlternatingPictureLayout = ({
                                     alt={item.imageAlt || ""}
                                     width={1200}
                                     height={900}
-                                    className="w-full max-h-[800px] h-auto object-contain"
+                                    className="max-w-full max-h-[500px] w-auto h-auto object-contain"
+                                    wrapperClassName="w-fit"
                                     authorCredit={item.authorCredit}
                                 />
                             )}

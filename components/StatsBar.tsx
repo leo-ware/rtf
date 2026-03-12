@@ -52,7 +52,7 @@ const StatsBar = () => {
                     className="object-cover object-center opacity-40"
                 />
                 <div className="absolute inset-0 bg-gradient-to-l from-transparent via-stone-900/40 to-stone-900/70" />
-                <div className="absolute inset-0 bg-red-950/20" />
+                <div className="absolute inset-0 bg-cocoa/63" />
             </div>
 
             <div className="relative z-10 py-14 md:py-20 px-6">

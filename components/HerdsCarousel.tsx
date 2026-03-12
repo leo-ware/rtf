@@ -38,7 +38,7 @@ const HerdCard = ({ herd, alwaysShowContent }: {
             )}
 
             {/* Brownish overlay — more opaque on hover */}
-            <div className={`absolute inset-0 transition-all duration-500 ${alwaysShowContent ? "bg-red-950/50" : "bg-stone-900/20 group-hover/card:bg-red-950/50"}`} />
+            <div className={`absolute inset-0 transition-all duration-500 ${alwaysShowContent ? "bg-cocoa/63" : "bg-stone-900/20 group-hover/card:bg-cocoa/63"}`} />
 
             {/* Content container — everything centered */}
             <div className="absolute inset-0 p-6 flex flex-col items-center justify-center text-center">
@@ -94,8 +94,7 @@ const HerdsCarousel = () => {
                             widget: <HerdCard herd={herd} alwaysShowContent={isMobile} />
                         }))}
                         nDisplayItems={nDisplay}
-                        autoPlay="right"
-                        autoPlayInterval={8000}
+                        autoPlay={false}
                         transitionDuration={1200}
                         navigationPosition="bottom"
                         dotIndicators={true}

@@ -1,6 +1,7 @@
 import { query, mutation } from "./_generated/server"
 import { v } from "convex/values"
 import RsvpManager from "./models/rsvpManager"
+import { getCurrentUserOrThrow } from "./users"
 
 const ticketValidator = v.object({
     name: v.string(),
@@ -58,6 +59,10 @@ export const getRsvpsByEvent = query({
     },
     returns: v.array(rsvpReturnValidator),
     handler: async (ctx, args) => {
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions")
+        }
         return await RsvpManager.getByEvent(ctx, args.eventId)
     },
 })
@@ -68,6 +73,10 @@ export const getRsvpsByEmail = query({
     },
     returns: v.array(rsvpReturnValidator),
     handler: async (ctx, args) => {
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions")
+        }
         return await RsvpManager.getByEmail(ctx, args.email)
     },
 })
@@ -78,6 +87,10 @@ export const getRsvpById = query({
     },
     returns: v.union(rsvpReturnValidator, v.null()),
     handler: async (ctx, args) => {
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions")
+        }
         return await RsvpManager.getById(ctx, args.id)
     },
 })
@@ -88,6 +101,10 @@ export const deleteRsvp = mutation({
     },
     returns: v.null(),
     handler: async (ctx, args) => {
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAdmin) {
+            throw new Error("Insufficient permissions")
+        }
         const manager = new RsvpManager(args.id)
         await manager.delete(ctx)
         return null

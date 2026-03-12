@@ -3,6 +3,7 @@ import { DataModel } from "./_generated/dataModel"
 import { components } from "./_generated/api"
 import { query } from "./_generated/server"
 import { v } from "convex/values"
+import { getCurrentUserOrThrow } from "./users"
 
 // Aggregate for counting article metadata (both internal and external articles)
 export const articleMetadataAggregate = new TableAggregate<{
@@ -70,6 +71,11 @@ export const getDashboardCounts = query({
         sponsors: v.number(),
     }),
     handler: async (ctx) => {
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions")
+        }
+
         const [articles, events, images, animals, people, sponsors] = await Promise.all([
             articleMetadataAggregate.count(ctx),
             eventsAggregate.count(ctx),

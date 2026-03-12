@@ -8,6 +8,7 @@ import Hero from "@/components/public-ui/Hero";
 import Callout from "@/components/public-ui/Callout";
 import ScrollReveal from "@/components/public-ui/ScrollReveal";
 import CinematicSection from "@/components/public-ui/CinematicSection";
+import StatsBar from "@/components/StatsBar";
 
 export const metadata = {
     title: "About Us - Return to Freedom"
@@ -66,6 +67,8 @@ const AboutPage = () => {
       <ScrollReveal variant="fade-up">
         <DocumentsWidget />
       </ScrollReveal>
+
+      <StatsBar />
     </div>
   );
 };

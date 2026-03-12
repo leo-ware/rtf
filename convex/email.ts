@@ -109,22 +109,35 @@ export const _sendEmail = internalMutation({
     },
 })
 
+const escapeHtml = (str: string): string => {
+    return str
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;")
+}
+
 const generateMessageBody = (args: {
     topic: string | undefined
     subject: string
     userEmail: string
     body: string
 }) => {
+    const subject = escapeHtml(args.subject)
+    const userEmail = escapeHtml(args.userEmail)
+    const body = escapeHtml(args.body).replaceAll("\n", "<br />")
+
     return `
     <p>The following message was submitted to the contact portal on the Return to Freedom website (https://returntofreedom.org).</p>
     <hr />
     <p>
-        Subject: ${args.subject}
+        Subject: ${subject}
         <br />
-        User Email: ${args.userEmail}
+        User Email: ${userEmail}
     </p>
     <hr />
-        <p>${args.body.replaceAll("\n", "<br />")}</p>
+        <p>${body}</p>
     <hr />
     <p>You can reply to this email.</p>
   `
@@ -162,7 +175,7 @@ export const queueEmail = internalMutation({
         const emailOutboxId = await ctx.db.insert("emailOutbox", {
             userName: args.userName,
             userEmail: args.userEmail,
-            internalEmail: "leobpware@gmail.com",
+            internalEmail: process.env.CONTACT_EMAIL || "info@returntofreedom.org",
             subject,
             body: messageBody,
             status: "queued",

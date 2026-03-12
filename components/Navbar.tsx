@@ -487,6 +487,12 @@ export default function Navbar() {
                             text="Take Action"
                         />
                     </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <HeaderLink
+                            href="/resources/news"
+                            text="News"
+                        />
+                    </NavigationMenuItem>
                     <DropdownNavItem config={getDropdownConfig("Visit Us")!} align="right" />
                     <NavigationMenuItem>
                         <HeaderLink
@@ -712,6 +718,11 @@ export default function Navbar() {
                     <MobileHeaderLink
                         href="/take-action"
                         text="Take Action"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                    />
+                    <MobileHeaderLink
+                        href="/resources/news"
+                        text="News"
                         onClick={() => setIsMobileMenuOpen(false)}
                     />
                     <MobileNavSection

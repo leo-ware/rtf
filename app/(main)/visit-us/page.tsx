@@ -73,6 +73,10 @@ const VisitPage = () => {
                     <Header className="text-pewter px-8">Upcoming Events</Header>
                     <UpcomingEventsWidget />
                 </div>
+                <p className="text-center text-ink max-w-2xl mx-auto mt-10 -mb-8 px-8">
+                    Browse our recurring programs including tours, workshops, and more. Looking for special one-off events?{" "}
+                    <Link href="/visit-us/events" className="text-cinnamon underline hover:text-cinnamon/80">Check out our Events page</Link>.
+                </p>
             </div>
             <div className="w-full py-16">
                 {status === "loading" && (

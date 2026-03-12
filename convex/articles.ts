@@ -49,6 +49,11 @@ export const createArticle = mutation({
         authors: v.optional(v.array(v.id("people"))),
     },
     handler: async (ctx, args) => {
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions")
+        }
+
         const manager = await ArticleManager.create(ctx, args);
 
         const article = await manager.get(ctx)
