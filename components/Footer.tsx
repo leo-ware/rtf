@@ -189,13 +189,13 @@ export default function Footer() {
                                         href="/visit-us/events"
                                         className="hover:underline"
                                     >
-                                        Events
+                                        Special Events
                                     </Link>
                                     <Link
                                         href="/visit-us/host-your-event"
                                         className="hover:underline"
                                     >
-                                        Host Your Event
+                                        Your Weddings and Events
                                     </Link>
                                     <Link
                                         href="/what-we-do/advocacy#take-action"

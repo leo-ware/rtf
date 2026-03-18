@@ -110,7 +110,7 @@ const GenericDonateDialogueInner = ({
             </DialogClose>
 
             {/* Image - shows on top on mobile/tablet, right side on desktop */}
-            <div className="order-first lg:order-none relative w-full lg:w-[40%] h-[200px] md:h-[40%] lg:h-auto lg:absolute lg:inset-y-0 lg:right-0 shrink-0 overflow-hidden">
+            <div className="order-first lg:order-last relative w-full lg:w-[40%] h-[200px] md:h-[40%] lg:h-auto shrink-0 overflow-hidden">
                 <ImageWithAuthorCredit
                     src={isadora}
                     alt="Isadora"

@@ -1,7 +1,7 @@
 import { v } from "convex/values"
-import { query, mutation } from "./_generated/server"
+import { query, mutation, internalMutation } from "./_generated/server"
 import { getCurrentUserOrThrow } from "./users"
-import ImageManager, { resolveImageId } from "./models/imageManager"
+import ImageManager, { resolveImageId, buildSearchText } from "./models/imageManager"
 import { paginationOptsValidator } from "convex/server"
 import { imagesAggregate } from "./aggregates"
 
@@ -117,6 +117,7 @@ export const listImagesByAuthors = query({
         height: v.optional(v.number()),
         authorCredit: v.optional(v.string()),
         authors: v.optional(v.array(v.id("people"))),
+        searchText: v.optional(v.string()),
         url: v.union(v.string(), v.null()),
         authorNames: v.array(v.string()),
     })),
@@ -149,5 +150,37 @@ export const deleteImage = mutation({
             await imagesAggregate.delete(ctx, image)
         }
         await manager.delete(ctx)
+    },
+})
+
+export const backfillSearchText = internalMutation({
+    args: {
+        cursor: v.optional(v.string()),
+        batchSize: v.optional(v.number()),
+    },
+    returns: v.object({
+        updated: v.number(),
+        cursor: v.union(v.string(), v.null()),
+        isDone: v.boolean(),
+    }),
+    handler: async (ctx, args) => {
+        const batchSize = args.batchSize ?? 100
+        const result = await ctx.db.query("images")
+            .paginate({ numItems: batchSize, cursor: args.cursor ?? null })
+        let updated = 0
+        for (const image of result.page) {
+            const searchText = await buildSearchText(ctx, {
+                title: image.title,
+                authors: image.authors,
+                authorCredit: image.authorCredit,
+            })
+            await ctx.db.patch(image._id, { searchText })
+            updated++
+        }
+        return {
+            updated,
+            cursor: result.continueCursor,
+            isDone: result.isDone,
+        }
     },
 })

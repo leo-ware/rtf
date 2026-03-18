@@ -36,7 +36,7 @@ const CarouselItemWidget = ({title, description, link, reversed, image}: Carouse
                 disableBelow="lg"
                 className="w-full flex flex-col gap-2 lg:gap-4 items-start justify-start text-left lg:w-1/2 lg:p-6"
             >
-                <div className={"text-[28px] lg:text-[36px] text-cinnamon " + (reversed ? " lg:text-cinnamon" : " lg:text-pewter")}>
+                <div className={"text-[28px] lg:text-[36px] font-serif text-cinnamon " + (reversed ? " lg:text-cinnamon" : " lg:text-pewter")}>
                     {title}
                 </div>
                 <div className="text-[16px] lg:text-[20px] text-ink">

@@ -188,13 +188,13 @@ const dropdownConfigs: NavDropdownConfig[] = [
                 image: "/img/programs-dropdown.jpg",
             },
             {
-                label: "Events",
+                label: "Special Events",
                 href: "/visit-us/events",
                 description: "Browse upcoming events, workshops, and special gatherings at Return to Freedom.",
                 image: "/img/events-dropdown.jpg",
             },
             {
-                label: "Host Your Event",
+                label: "Your Weddings and Events",
                 href: "/visit-us/host-your-event",
                 description: "Host your wedding, fundraiser, retreat, or private gathering at our beautiful sanctuary.",
                 image: "/img/wedding_gallery_1.jpg",

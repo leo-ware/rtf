@@ -117,7 +117,7 @@ const RoundupsPage = () => {
 
             <div className="w-full flex flex-col">
                 <ScrollReveal variant="fade-up" className="w-full">
-                    <TakeActionSection />
+                    <TakeActionSection topic="roundups" />
                 </ScrollReveal>
 
                 <ScrollReveal variant="fade-up">

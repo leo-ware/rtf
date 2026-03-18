@@ -73,7 +73,7 @@ const NewsCarousel = ({
                                 authorCredit={article.image?.authorCredit} />
                         </div>
                         <div className="grow sm:basis-0 bg-white flex flex-col items-center justify-start py-3 sm:justify-center sm:py-0 overflow-hidden">
-                            <div className="w-3/4 h-fit md:border-l-4 border-burnt-orange md:pl-4 py-2 flex flex-col justify-start gap-1 sm:gap-2">
+                            <div className="w-3/4 h-fit md:border-l-4 border-cinnamon md:pl-4 py-2 flex flex-col justify-start gap-1 sm:gap-2">
                                 <div className="text-sm">
                                     {formattedDate}
                                 </div>
@@ -103,13 +103,12 @@ const NewsCarousel = ({
                 <Carosel
                     items={items}
                     nDisplayItems={1}
-                    autoPlay={"right"}
+                    autoPlay={false}
                     navigationPosition="bottom"
                     dotIndicators
                     leftButton={<FaCaretLeft size={30} className="text-pewter" />}
                     rightButton={<FaCaretRight size={30} className="text-pewter" />}
                     transitionDuration={1500}
-                    autoPlayInterval={6000}
                 />
             </div>
         </div>

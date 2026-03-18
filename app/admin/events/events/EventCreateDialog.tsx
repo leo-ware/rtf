@@ -52,7 +52,7 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
 
     // Duration warning
     const durationWarning = selectedDate && selectedEndDate && selectedDate >= selectedEndDate
-        ? "Warning: Event has zero or negative duration"
+        ? "Warning: Special event has zero or negative duration"
         : null
 
     const [formData, setFormData] = useState({
@@ -98,7 +98,7 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
             resetForm()
         } catch (err) {
             console.error("Error creating event:", err)
-            setError(`Failed to create event. ${err}`)
+            setError(`Failed to create special event. ${err}`)
         } finally {
             setIsLoading(false)
         }
@@ -132,27 +132,27 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
                     : (
                         <Button onClick={resetForm}>
                             <Plus className="h-4 w-4 mr-2" />
-                            Create One-Time Event
+                            Create One-Time Special Event
                         </Button>
                     )
                 }
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Create New Event</DialogTitle>
+                    <DialogTitle>Create New Special Event</DialogTitle>
                     <DialogDescription>
-                        Add a new event to the RTF calendar.
+                        Add a new special event to the RTF calendar.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                     <div>
-                        <Label htmlFor="title">Event Title <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="title">Special Event Title <span className="text-red-500">*</span></Label>
                         <Input
                             id="title"
                             value={formData.title}
                             disabled={editingDisabled}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                            placeholder="Enter event title"
+                            placeholder="Enter special event title"
                         />
                     </div>
 
@@ -163,7 +163,7 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
                             value={formData.description}
                             disabled={editingDisabled}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                            placeholder="Enter event description"
+                            placeholder="Enter special event description"
                             rows={3}
                         />
                     </div>
@@ -228,7 +228,7 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <Label>Event Image</Label>
+                            <Label>Special Event Image</Label>
                             <ImagePickerDialog
                                 imageId={imageId}
                                 onImageSelect={setImageId}
@@ -270,7 +270,7 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
                                 disabled={editingDisabled}
                                 onCheckedChange={(checked) => setFormData({ ...formData, isPublic: checked })}
                             />
-                            <Label htmlFor="isPublic">Public Event</Label>
+                            <Label htmlFor="isPublic">Public Special Event</Label>
                         </div>
                         <div className="flex items-center space-x-2">
                             <Switch
@@ -311,7 +311,7 @@ const EventCreateDialog = ({ children }: { children?: React.ReactNode }) => {
                                     Creating...
                                 </>
                             ) : (
-                                "Create Event"
+                                "Create Special Event"
                             )}
                         </Button>
                     </div>

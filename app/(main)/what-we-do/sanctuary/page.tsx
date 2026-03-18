@@ -16,8 +16,8 @@ import SanctuaryHero from "./santuary-hero.jpg"
 import SantuaryPasture from "./santuary-pasture.jpg"
 import SantuaryField from "./santurary-field.jpg"
 
-import Blurred1 from "./blurred-1.jpg"
-import Blurred2 from "./blurred-2.jpg"
+import SanctuaryFundImage from "@/app/(main)/(landing)/imgs/sanctuary_fund.jpg"
+import WhdfImage from "@/app/(main)/(landing)/imgs/whdf.jpg"
 import Blurred3 from "./blurred-3.jpg"
 import Blurred4 from "./blurred-4.jpg"
 
@@ -143,7 +143,7 @@ const SanctuaryPage = () => {
                 <DonationCalloutGrid className="w-[95vw] mx-auto">
                     <DonationCallout
                         gridAligned
-                        image={Blurred1}
+                        image={SanctuaryFundImage}
                         heading={<><div className="text-[36px] md:text-[48px] font-serif leading-none">$550,000</div><div className="text-[22px] md:text-[28px] font-serif">on hay for the horses</div></>}
                         description="This includes the hay and feed required to care for over 460 rescued wild horses and burros at our Lompoc headquarters and San Luis Obispo satellite sanctuary. Many of these animals once faced roundups, neglect, or the threat of slaughter. At Return to Freedom, they now live safely in natural family bands, grazing freely on open pastures."
                         donatePathway="Sanctuary Fund"
@@ -154,7 +154,7 @@ const SanctuaryPage = () => {
                     />
                     <DonationCallout
                         gridAligned
-                        image={Blurred2}
+                        image={WhdfImage}
                         heading={<><div className="text-[36px] md:text-[48px] font-serif leading-none">$1,150,000</div><div className="text-[22px] md:text-[28px] font-serif">on daily care, staffing, land and infrastructure maintenance</div></>}
                         description="Caring for over 460 wild horses and burros takes an extraordinary effort. This amount covers the hands-on work of our staff, land management across Lompoc and San Luis Obispo, and the ongoing upkeep of barns, fences, and water systems that keep the herds safe."
                         donatePathway="Sanctuary Fund"

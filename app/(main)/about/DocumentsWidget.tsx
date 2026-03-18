@@ -65,7 +65,7 @@ const DocumentsWidget = () => {
                             }
                         }}
                     >
-                        <Button color="burnt-orange">
+                        <Button color="cinnamon">
                             {latestAnnualReport
                                 ? `${latestAnnualReport.year} Annual Report`
                                 : "2024 Annual Report"}

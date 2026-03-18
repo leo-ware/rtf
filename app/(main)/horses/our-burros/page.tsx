@@ -2,7 +2,6 @@
 
 import Hero from "@/components/public-ui/Hero"
 import SponsorAHorseMenu from "@/components/donation-widgets/SponsorAHorseMenu"
-import HerdsCarousel from "@/components/HerdsCarousel"
 import Header from "@/components/public-ui/Header"
 import HeroImage from "@/app/(main)/donate/sponsor-a-burro/hero.jpg"
 import GenericDonateDialogue from "@/components/donation-widgets/GenericDonateDialogue"
@@ -33,8 +32,6 @@ const OurBurrosPage = () => {
                 remarkable animals play an important role in the story of
                 America&apos;s wild places—and in our mission to protect them.
             </div>
-
-            <HerdsCarousel />
 
             <SponsorAHorseMenu type="burro" showControls={false} initialNumItems={3} />
 

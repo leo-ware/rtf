@@ -16,7 +16,7 @@ import ProgramsTab from "./programs/ProgramsTab"
 
 const AdminEventsPage = () => {
     useEffect(() => {
-        document.title = "Events & Programs - RTF Admin"
+        document.title = "Special Events & Programs - RTF Admin"
     }, [])
 
     const [activeTab, setActiveTab] = useState<

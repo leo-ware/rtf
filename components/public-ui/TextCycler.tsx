@@ -11,9 +11,10 @@ type TextCyclerProps = {
     interval?: number
     pause?: number
     className?: string
+    hideUnderline?: boolean
 }
 
-const TextCycler = ({ words, hrefs, interval = 800, pause = 3500, className }: TextCyclerProps) => {
+const TextCycler = ({ words, hrefs, interval = 800, pause = 3500, className, hideUnderline }: TextCyclerProps) => {
     const [index, setIndex] = useState(0)
     const shouldReduceMotion = useReducedMotion()
 
@@ -49,7 +50,7 @@ const TextCycler = ({ words, hrefs, interval = 800, pause = 3500, className }: T
     const wordWithBar = (
         <span className="relative">
             {currentWord}
-            {progressBar}
+            {!hideUnderline && progressBar}
         </span>
     )
 

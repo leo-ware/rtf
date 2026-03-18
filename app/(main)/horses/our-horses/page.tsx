@@ -73,9 +73,11 @@ const OurHorsesPage = () => {
 
             <HerdsCarousel />
 
-            <SponsorAHorseMenu showControls={false} initialNumItems={3} />
+            <div className="relative z-20">
+                <SponsorAHorseMenu showControls={false} initialNumItems={3} />
+            </div>
 
-            <div className="relative w-full h-[500px] flex flex-col items-center justify-center gap-8">
+            <div className="relative z-0 w-full h-[500px] flex flex-col items-center justify-center gap-8">
                 <ImageWithAuthorCredit
                     src={AdoptBanner}
                     alt="Adopt a Horse"

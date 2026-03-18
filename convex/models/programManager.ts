@@ -193,6 +193,7 @@ export default class ProgramManager {
             startDate: args.startDate,
             endDate: args.endDate,
             registrationLink: args.registrationLink,
+            status: "scheduled",
         })
     }
 

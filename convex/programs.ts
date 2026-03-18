@@ -51,12 +51,20 @@ export const getProgramGroupById = query({
 
         const programsWithTickets = await Promise.all(
             programs.map(async (program) => {
-                const tickets = program.ticketPriceId
-                    ? await ctx.db.get(program.ticketPriceId)
-                    : null
+                const [tickets, events] = await Promise.all([
+                    program.ticketPriceId
+                        ? ctx.db.get(program.ticketPriceId)
+                        : null,
+                    ctx.db
+                        .query("events")
+                        .withIndex("by_program", (q) => q.eq("programId", program._id))
+                        .order("asc")
+                        .collect(),
+                ])
                 return {
                     ...program,
                     tickets,
+                    events,
                 }
             })
         )

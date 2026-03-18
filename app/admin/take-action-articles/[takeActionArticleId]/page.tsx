@@ -18,6 +18,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { handleConvexError } from "@/lib/errorHandler"
 import { ArrowLeft, ExternalLink, Eye, EyeOff, Loader2, Save } from "lucide-react"
 import ImagePickerDialog from "@/components/images/ImagePickerDialog"
+import { TagSelector } from "@/components/TagSelector"
+import { topicNameList, topicNameToAttributeName } from "@/lib/topicType"
+import type { TopicNameType } from "@/lib/topicType"
 
 const TakeActionArticleEditPage = ({ params }: PageProps<{ takeActionArticleId: string }>) => {
     const router = useRouter()
@@ -38,6 +41,7 @@ const TakeActionArticleEditPage = ({ params }: PageProps<{ takeActionArticleId: 
         description: undefined as string | undefined,
         content: undefined as string | undefined,
         isPublic: undefined as boolean | undefined,
+        topics: [] as TopicNameType[],
     })
 
     const articleToFormData = (a: typeof takeActionArticle): typeof formData => ({
@@ -47,6 +51,7 @@ const TakeActionArticleEditPage = ({ params }: PageProps<{ takeActionArticleId: 
         description: a?.description,
         content: a?.content,
         isPublic: a?.isPublic,
+        topics: a ? topicNameList.filter(t => a[topicNameToAttributeName(t)] === true) as TopicNameType[] : [],
     })
 
     useEffect(() => {
@@ -75,6 +80,7 @@ const TakeActionArticleEditPage = ({ params }: PageProps<{ takeActionArticleId: 
                 description: formData.description,
                 content: formData.content,
                 isPublic: formData.isPublic,
+                topics: formData.topics,
             }))
         } catch (err) {
             console.error("Error saving take action article:", err)
@@ -259,6 +265,22 @@ const TakeActionArticleEditPage = ({ params }: PageProps<{ takeActionArticleId: 
                                         )}
                                     </div>
                                 </div>
+
+                                <TagSelector
+                                    label="Topics"
+                                    description="Select one or more topics for this article"
+                                    selectedIds={formData.topics}
+                                    availableItems={topicNameList.map(topic => ({
+                                        _id: topic,
+                                        name: (topic.charAt(0).toUpperCase() + topic.slice(1)).replaceAll("_", " ")
+                                    }))}
+                                    onSelectionChange={(topics) => setFormData(prev => ({
+                                        ...prev,
+                                        topics: topics as TopicNameType[],
+                                    }))}
+                                    placeholder="Select topics..."
+                                    searchPlaceholder="Search topics..."
+                                />
 
                                 {error && (
                                     <div className="text-red-500 text-sm">{error}</div>

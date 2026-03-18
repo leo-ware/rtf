@@ -20,6 +20,9 @@ import { Loader2 } from "lucide-react"
 import { generateSlug } from "@/lib/utils"
 import ImagePickerDialog from "@/components/images/ImagePickerDialog"
 import { Id } from "@/convex/_generated/dataModel"
+import { TagSelector } from "@/components/TagSelector"
+import { topicNameList } from "@/lib/topicType"
+import type { TopicNameType } from "@/lib/topicType"
 
 type TakeActionArticleCreateDialogProps = {
     children?: React.ReactNode
@@ -39,6 +42,7 @@ const TakeActionArticleCreateDialog = ({ children, onError }: TakeActionArticleC
         slug: "",
         imageId: null as Id<"images"> | null,
         description: "",
+        topics: [] as TopicNameType[],
     })
     const [slugSetManually, setSlugSetManually] = useState(false)
 
@@ -57,6 +61,7 @@ const TakeActionArticleCreateDialog = ({ children, onError }: TakeActionArticleC
             slug: "",
             imageId: null,
             description: "",
+            topics: [],
         })
         setError(null)
         setSlugSetManually(false)
@@ -73,6 +78,7 @@ const TakeActionArticleCreateDialog = ({ children, onError }: TakeActionArticleC
                 slug: formData.slug.trim(),
                 imageId: formData.imageId || undefined,
                 description: formData.description.trim(),
+                topics: formData.topics.length > 0 ? formData.topics : undefined,
             })
             setIsOpen(false)
             resetForm()
@@ -163,6 +169,22 @@ const TakeActionArticleCreateDialog = ({ children, onError }: TakeActionArticleC
                             disabled={editingDisabled}
                         />
                     </div>
+
+                    <TagSelector
+                        label="Topics"
+                        description="Select one or more topics for this article (optional)"
+                        selectedIds={formData.topics}
+                        availableItems={topicNameList.map(topic => ({
+                            _id: topic,
+                            name: (topic.charAt(0).toUpperCase() + topic.slice(1)).replaceAll("_", " ")
+                        }))}
+                        onSelectionChange={(topics) => setFormData(prev => ({
+                            ...prev,
+                            topics: topics as TopicNameType[],
+                        }))}
+                        placeholder="Select topics..."
+                        searchPlaceholder="Search topics..."
+                    />
 
                     {error && (
                         <div className="text-red-500 text-sm">{error}</div>

@@ -130,8 +130,8 @@ const DocumentEditDialog = ({ documentId, onSuccess, children }: DocumentEditDia
     const years = Array.from({ length: 30 }, (_, i) => currentYear - i)
 
     return (
-        <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-            <DialogTrigger>
+        <Dialog open={isOpen} onOpenChange={(open) => open ? setIsOpen(true) : handleClose()}>
+            <DialogTrigger asChild>
                 {children}
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px]">

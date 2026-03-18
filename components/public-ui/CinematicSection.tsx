@@ -28,7 +28,7 @@ const CinematicSection = ({
 
     if (shouldReduceMotion) {
         return (
-            <div className="w-full relative h-[60vh] lg:h-[90vh] flex items-center justify-center overflow-hidden">
+            <div className="w-full relative h-screen flex items-center justify-center overflow-hidden">
                 <ImageWithAuthorCredit
                     src={image}
                     alt={imageAlt}
@@ -50,7 +50,7 @@ const CinematicSection = ({
     return (
         <div
             ref={ref}
-            className="w-full relative h-[60vh] lg:h-[90vh] flex items-center justify-center overflow-hidden"
+            className="w-full relative h-screen flex items-center justify-center overflow-hidden"
         >
             {/* Image — scales in from slightly zoomed with a slow Ken Burns drift */}
             <motion.div

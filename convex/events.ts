@@ -97,6 +97,7 @@ export const createEvent = mutation({
         imageId: v.optional(v.id("images")),
         programId: v.optional(v.id("programs")),
         ticketPriceText: v.optional(v.string()),
+        status: v.optional(v.union(v.literal("scheduled"), v.literal("cancelled"), v.literal("sold_out"))),
     },
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
@@ -137,6 +138,7 @@ export const updateEvent = mutation({
         contactEmail: v.optional(v.string()),
         contactPhone: v.optional(v.string()),
         imageId: v.optional(v.id("images")),
+        status: v.optional(v.union(v.literal("scheduled"), v.literal("cancelled"), v.literal("sold_out"))),
     },
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
@@ -168,6 +170,29 @@ export const updateEvent = mutation({
         const eventManager = new EventManager(id)
         await eventManager.update(ctx, updates)
 
+        return null
+    },
+})
+
+// Quick status update for an event
+export const updateEventStatus = mutation({
+    args: {
+        id: v.id("events"),
+        status: v.union(v.literal("scheduled"), v.literal("cancelled"), v.literal("sold_out")),
+    },
+    returns: v.null(),
+    handler: async (ctx, args) => {
+        const user = await getCurrentUserOrThrow(ctx)
+        if (!user.atLeastAuthorized) {
+            throw new Error("Insufficient permissions")
+        }
+
+        const event = await ctx.db.get(args.id)
+        if (!event) {
+            throw new Error("Event not found")
+        }
+
+        await ctx.db.patch(args.id, { status: args.status })
         return null
     },
 })

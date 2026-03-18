@@ -14,6 +14,14 @@ const EducationResourcesWidget = () => {
         return null
     }
 
+    const nonEmptySuperGroups = tree.superGroups
+        .filter(sg => sg.groups.some(g => g.articles.length > 0))
+        .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity))
+
+    if (nonEmptySuperGroups.length === 0) {
+        return null
+    }
+
     return (
         <div className="w-full flex flex-col items-center justify-center gap-8">
             <Header className="text-sage-green mx-auto underline">
@@ -30,8 +38,7 @@ const EducationResourcesWidget = () => {
                 See all resources →
             </Link>
 
-            <Tabs className="w-full" items={tree?.superGroups
-                .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity))
+            <Tabs className="w-full" items={nonEmptySuperGroups
                 .map(superGroup => ({
                     id: superGroup._id,
                     title: superGroup.title,

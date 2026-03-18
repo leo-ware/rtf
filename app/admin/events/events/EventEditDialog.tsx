@@ -18,6 +18,7 @@ import { useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import { DateTimePicker } from "@/components/DateTimePicker"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 type EventEditDialogProps = {
     eventId: Id<"events">
@@ -35,6 +36,7 @@ const EventEditDialog = (props: EventEditDialogProps) => {
     const [selectedDate, _setSelectedDate] = useState<Date>()
     const [selectedEndDate, _setSelectedEndDate] = useState<Date>()
     const [registrationLink, setRegistrationLink] = useState("")
+    const [status, setStatus] = useState<"scheduled" | "cancelled" | "sold_out">("scheduled")
 
     // Initialize dates and registration link when event data loads
     useEffect(() => {
@@ -42,6 +44,7 @@ const EventEditDialog = (props: EventEditDialogProps) => {
             _setSelectedDate(new Date(event.startDate))
             _setSelectedEndDate(new Date(event.endDate))
             setRegistrationLink(event.registrationLink || "")
+            setStatus(event.status ?? "scheduled")
         }
     }, [event, isOpen])
 
@@ -88,6 +91,7 @@ const EventEditDialog = (props: EventEditDialogProps) => {
                 startDate: selectedDate!.toISOString(),
                 endDate: selectedEndDate!.toISOString(),
                 registrationLink: registrationLink.trim() || undefined,
+                status,
             })
             setIsOpen(false)
         } catch (err) {
@@ -103,6 +107,7 @@ const EventEditDialog = (props: EventEditDialogProps) => {
             _setSelectedDate(new Date(event.startDate))
             _setSelectedEndDate(new Date(event.endDate))
             setRegistrationLink(event.registrationLink || "")
+            setStatus(event.status ?? "scheduled")
         }
         setError(null)
         setDateError(null)
@@ -181,6 +186,24 @@ const EventEditDialog = (props: EventEditDialogProps) => {
                             onChange={(e) => setRegistrationLink(e.target.value)}
                             placeholder="https://..."
                         />
+                    </div>
+
+                    <div>
+                        <Label>Status</Label>
+                        <Select
+                            value={status}
+                            onValueChange={(value) => setStatus(value as "scheduled" | "cancelled" | "sold_out")}
+                            disabled={isLoading}
+                        >
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="scheduled">Scheduled</SelectItem>
+                                <SelectItem value="cancelled">Cancelled</SelectItem>
+                                <SelectItem value="sold_out">Sold Out</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     {error && (

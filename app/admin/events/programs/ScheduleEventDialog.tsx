@@ -61,7 +61,7 @@ const ScheduleEventDialog = (props: ScheduleEventDialogProps) => {
 
     // Duration warning
     const durationWarning = selectedDate && selectedEndDate && selectedDate >= selectedEndDate
-        ? "Warning: Event has zero or negative duration"
+        ? "Warning: Special event has zero or negative duration"
         : null
 
     const setSelectedEndDate = (date: Date | undefined) => {
@@ -101,7 +101,7 @@ const ScheduleEventDialog = (props: ScheduleEventDialogProps) => {
             resetForm()
         } catch (err) {
             console.error("Error creating event from program:", err)
-            setError(`Failed to create event from program. ${err}`)
+            setError(`Failed to create special event from program. ${err}`)
         } finally {
             setIsLoading(false)
         }
@@ -141,9 +141,9 @@ const ScheduleEventDialog = (props: ScheduleEventDialogProps) => {
             </DialogTrigger>
             <DialogContent className="max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Schedule Event from Program</DialogTitle>
+                    <DialogTitle>Schedule Special Event from Program</DialogTitle>
                     <DialogDescription>
-                        Select dates to create a new event using the program as a template.
+                        Select dates to create a new special event using the program as a template.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
@@ -232,7 +232,7 @@ const ScheduleEventDialog = (props: ScheduleEventDialogProps) => {
                                     Creating...
                                 </>
                             ) : (
-                                "Create Event"
+                                "Create Special Event"
                             )}
                         </Button>
                     </div>

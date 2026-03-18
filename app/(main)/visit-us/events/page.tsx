@@ -43,12 +43,18 @@ const EventsPage = () => {
 
     const items = (standaloneEvents || []).map((event) => ({
         title: (
-            <Link href={`/visit-us/events/${event._id}`} className="hover:underline">
+            <Link href={`/visit-us/events/${event._id}`} className={event.status === "cancelled" ? "line-through text-gray-500" : "hover:underline"}>
                 {event.title}
             </Link>
         ),
         description: (
             <div>
+                {event.status === "cancelled" && (
+                    <p className="text-sm font-bold text-gray-500 uppercase mb-1">Cancelled</p>
+                )}
+                {event.status === "sold_out" && (
+                    <p className="text-sm font-bold text-gray-500 uppercase mb-1">Sold Out</p>
+                )}
                 <p className="text-base text-pewter font-semibold mb-2">
                     {formatDateRange(event.startDate, event.endDate)}
                     {event.location && ` · ${event.location}`}
@@ -67,16 +73,12 @@ const EventsPage = () => {
     return (
         <div className="w-full h-fit flex flex-col items-center justify-start gap-16">
             <div className="w-full h-fit">
-                <Hero title="Events" image={HeroImg} />
+                <Hero title="Special Events" image={HeroImg} />
 
                 <div className="w-full h-fit bg-seashell py-12">
-                    <Header className="text-pewter px-8">Upcoming Events</Header>
+                    <Header className="text-pewter px-8">Upcoming Programs and Special Events</Header>
                     <UpcomingEventsWidget />
                 </div>
-                <p className="text-center text-ink max-w-2xl mx-auto mt-10 -mb-8 px-8">
-                    These are our special one-off events. Looking for recurring programs like tours and workshops?{" "}
-                    <Link href="/visit-us" className="text-cinnamon underline hover:text-cinnamon/80">Check out our Programs page</Link>.
-                </p>
             </div>
             <div className="w-full py-16">
                 {status === "loading" && (

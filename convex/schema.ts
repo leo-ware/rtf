@@ -59,6 +59,17 @@ export default defineSchema({
         description: v.string(),
         content: v.string(),
         isPublic: v.boolean(),
+
+        topic_homepage: v.optional(v.boolean()),
+        topic_conservation: v.optional(v.boolean()),
+        topic_sanctuary: v.optional(v.boolean()),
+        topic_advocacy: v.optional(v.boolean()),
+        topic_education: v.optional(v.boolean()),
+        topic_herd_management: v.optional(v.boolean()),
+        topic_population_management: v.optional(v.boolean()),
+        topic_roundups: v.optional(v.boolean()),
+        topic_horse_slaughter: v.optional(v.boolean()),
+        topic_spirit: v.optional(v.boolean()),
     })
         .index("by_isPublic", ["isPublic"])
         .index("by_image", ["imageId"])
@@ -236,6 +247,7 @@ export default defineSchema({
         startDate: v.string(),
         endDate: v.string(),
         registrationLink: v.optional(v.string()),
+        status: v.optional(v.union(v.literal("scheduled"), v.literal("cancelled"), v.literal("sold_out"))),
     })
         .index("by_program", ["programId"])
         .index("by_date_number", ["dateNumber"])
@@ -298,9 +310,10 @@ export default defineSchema({
         height: v.optional(v.number()),
         authorCredit: v.optional(v.string()),
         authors: v.optional(v.array(v.id("people"))),
+        searchText: v.optional(v.string()),
     })
         .searchIndex("searchTitle", {
-            searchField: "title"
+            searchField: "searchText"
         }),
 
     contactMessages: defineTable({

@@ -1,5 +1,4 @@
 import Hero from "@/components/public-ui/Hero"
-import Header from "@/components/public-ui/Header"
 import Callout from "@/components/public-ui/Callout"
 import LearnTimelineContent from "./LearnTimelineContent"
 import EducationResourcesWidget from "@/components/EducationResourcesWidget"
@@ -20,12 +19,6 @@ const LearnPage = () => {
             <div className="w-10/12 mx-auto">
                 <EducationResourcesWidget />
             </div>
-            <Header className="text-cinnamon w-10/12 md:w-full">
-                Timelines
-            </Header>
-            <p className="w-10/12 md:w-8/12 -mt-8 text-left md:text-center text-lg md:text-xl text-ink">
-                Explore the key moments and milestones that have shaped the history of wild horses and burros in America.
-            </p>
             <LearnTimelineContent />
         </div>
     )

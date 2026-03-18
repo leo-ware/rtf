@@ -52,15 +52,15 @@ export const PersonCard = ({ person }: { person: Person, size?: "small" | "mediu
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent
                     showCloseButton={false}
-                    className="bg-sage-green border-none text-white sm:max-w-2xl md:max-w-3xl h-[80vh] sm:h-[55vh] p-0 overflow-hidden rounded-lg outline-none"
+                    className="bg-sage-green border-none text-white w-[90vw] sm:w-[85vw] md:w-[75vw] lg:w-[60vw] !max-w-none h-[80vh] sm:h-[70vh] lg:h-[60vh] p-0 overflow-y-auto sm:overflow-hidden rounded-lg outline-none"
                 >
                     <DialogTitle className="sr-only">{person.name}</DialogTitle>
                     <DialogClose className="absolute top-3 right-3 z-10 text-white opacity-70 hover:opacity-100 transition-opacity outline-none focus:outline-none">
                         <XIcon className="size-6" />
                         <span className="sr-only">Close</span>
                     </DialogClose>
-                    <div className="flex flex-col sm:flex-row h-full">
-                        <div className="sm:w-[240px] sm:min-w-[240px] aspect-square sm:aspect-auto relative bg-gray-600 overflow-hidden shrink-0">
+                    <div className="flex flex-col sm:flex-row sm:h-full">
+                        <div className="sm:w-[40%] sm:min-w-[40%] aspect-square sm:aspect-auto relative bg-gray-600 overflow-hidden shrink-0">
                             {person.image ? (
                                 <ImageWithAuthorCredit
                                     src={person.image.src}
@@ -77,13 +77,13 @@ export const PersonCard = ({ person }: { person: Person, size?: "small" | "mediu
                                 </div>
                             )}
                         </div>
-                        <div className="p-6 flex flex-col gap-1 h-full overflow-hidden">
-                            <div className="font-serif text-2xl font-bold shrink-0">{person.name}</div>
+                        <div className="p-6 flex flex-col gap-1 sm:h-full sm:overflow-hidden">
+                            <div className="font-serif text-2xl lg:text-3xl font-bold shrink-0">{person.name}</div>
                             {person.title && (
-                                <div className="text-base italic text-white/80 shrink-0">{person.title}</div>
+                                <div className="text-base lg:text-lg italic text-white/80 shrink-0">{person.title}</div>
                             )}
                             {person.bio && (
-                                <div className="text-sm leading-relaxed text-white/90 mt-2 overflow-y-auto flex-1 min-h-0">{person.bio}</div>
+                                <div className="text-sm lg:text-base leading-relaxed text-white/90 mt-2 sm:overflow-y-auto sm:flex-1 sm:min-h-0">{person.bio}</div>
                             )}
                             {person.link && (
                                 <a

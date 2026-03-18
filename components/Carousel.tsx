@@ -26,7 +26,7 @@ const Carousel = ({
     className,
     items: initialItems,
     nDisplayItems,
-    autoPlay = 'right',
+    autoPlay = false,
     autoPlayInterval = 3000,
     transitionDuration = 300,
     leftButton,

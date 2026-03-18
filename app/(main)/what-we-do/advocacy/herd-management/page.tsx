@@ -110,7 +110,7 @@ const HerdManagementPage = () => {
 
             <div className="w-full flex flex-col">
                 <ScrollReveal variant="fade-up" className="w-full">
-                    <TakeActionSection />
+                    <TakeActionSection topic="herd_management" />
                 </ScrollReveal>
 
                 <ScrollReveal variant="fade-up">

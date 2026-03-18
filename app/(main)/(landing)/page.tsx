@@ -60,6 +60,7 @@ const HomePage = () => {
                         Wild Horse{" "}
                         <span className="block lg:inline w-full">
                             <TextCycler
+                                hideUnderline
                                 words={["Conservation", "Sanctuary", "Advocacy", "Education"]}
                                 hrefs={[
                                     "/what-we-do/conservation",
@@ -293,7 +294,7 @@ const HomePage = () => {
             </div>
 
             <ScrollReveal variant="fade-up" className="w-full h-fit mt-8">
-                <TakeActionSection />
+                <TakeActionSection topic="homepage" />
             </ScrollReveal>
 
             <div className="relative w-full h-[400px] md:h-fit md:min-h-[400px] md:py-16 py-4 flex items-end md:items-center justify-end px-4 md:px-24">
@@ -318,7 +319,7 @@ const HomePage = () => {
                     className="z-10 flex flex-col items-end justify-center gap-4 md:my-16"
                 >
                     <div className="text-white font-serif text-right flex flex-col gap-2">
-                        <div className="text-[48px] font-bold">Spirit</div>
+                        <div className="text-[48px]">Spirit</div>
                         <div className="text-[28px]">
                             The Inspiration behind{" "}
                             <br className="hidden md:block" />
@@ -400,7 +401,7 @@ const HomePage = () => {
                 variant="fade-up"
                 className="w-fit max-w-11/12 h-fit mt-8 mb-20 mx-auto flex flex-col items-center justify-center"
             >
-                <div className="text-storm font-serif text-4xl mb-2">
+                <div className="text-pewter font-serif text-4xl mb-2">
                     Subscribe to receive updates on our work
                 </div>
                 <SubscribePrimary />

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { usePaginatedQuery, useQuery } from "convex/react"
+import { usePaginatedQuery, useQuery, useMutation } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -38,10 +38,19 @@ import { formatDateRange } from "@/lib/utils"
 import EventEditDialog from "./EventEditDialog"
 import ProgramEditDialog from "../programs/ProgramEditDialog"
 
+const statusLabel = (status: string | undefined) => {
+    switch (status) {
+        case "cancelled": return "Cancelled"
+        case "sold_out": return "Sold Out"
+        default: return "Scheduled"
+    }
+}
+
 const EventsTab = () => {
     const [searchTerm, setSearchTerm] = useState("")
     const [viewMode, setViewMode] = useState<"list" | "calendar">("list")
     const [createDropdownOpen, setCreateDropdownOpen] = useState(false)
+    const updateEventStatus = useMutation(api.events.updateEventStatus)
 
     // Queries
     const {
@@ -91,7 +100,7 @@ const EventsTab = () => {
                         ></path>
                     </svg>
                     <span className="text-gray-500 text-sm mt-1">
-                        Fetching events...
+                        Fetching special events...
                     </span>
                 </div>
             </div>
@@ -119,7 +128,7 @@ const EventsTab = () => {
                         <DropdownMenuTrigger asChild>
                             <Button size="sm">
                                 <Plus className="h-4 w-4" />
-                                Create Event
+                                Schedule Event
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="p-2 flex flex-col gap-2">
@@ -127,7 +136,7 @@ const EventsTab = () => {
                                 <EventCreateDialog>
                                     <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-2 rounded-md">
                                         <Plus className="h-4 w-4" />
-                                        Create One-Time Event
+                                        Create Special Event
                                     </div>
                                 </EventCreateDialog>
                             </DropdownMenuItem>
@@ -135,7 +144,7 @@ const EventsTab = () => {
                                 <ScheduleEventDialog>
                                     <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-2 rounded-md">
                                         <CalendarPlus className="h-4 w-4" />
-                                        Schedule Recurring Event
+                                        Schedule Program
                                     </div>
                                 </ScheduleEventDialog>
                             </DropdownMenuItem>
@@ -164,10 +173,10 @@ const EventsTab = () => {
                     <div className="bg-white p-6 rounded-lg shadow-sm border">
                         <div className="mb-6">
                             <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                                Event Calendar
+                                Special Event Calendar
                             </h2>
                             <p className="text-gray-600">
-                                Click on any event to view details. Use edit and
+                                Click on any special event to view details. Use edit and
                                 delete buttons for management.
                             </p>
                         </div>
@@ -180,7 +189,7 @@ const EventsTab = () => {
             ) : (
                 <Card>
                     <CardHeader>
-                        <CardTitle>Events List</CardTitle>
+                        <CardTitle>Upcoming Programs and Special Events List</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <ScrollDiv
@@ -282,6 +291,14 @@ const EventsTab = () => {
                                                             </>
                                                         )}
                                                     </Badge>
+                                                    {(event.status === "cancelled" || event.status === "sold_out") && (
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="text-xs"
+                                                        >
+                                                            {statusLabel(event.status)}
+                                                        </Badge>
+                                                    )}
                                                     {event.requiresRegistration && (
                                                         <Badge
                                                             variant="outline"
@@ -295,6 +312,24 @@ const EventsTab = () => {
                                             </td>
                                             <td className="px-6 py-4 text-sm font-medium">
                                                 <div className="flex space-x-2">
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <Button size="sm" variant="outline" className="text-xs">
+                                                                {statusLabel(event.status)}
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent>
+                                                            {(["scheduled", "cancelled", "sold_out"] as const).map((s) => (
+                                                                <DropdownMenuItem
+                                                                    key={s}
+                                                                    onClick={() => updateEventStatus({ id: event._id, status: s })}
+                                                                    className={event.status === s || (!event.status && s === "scheduled") ? "font-bold" : ""}
+                                                                >
+                                                                    {statusLabel(s)}
+                                                                </DropdownMenuItem>
+                                                            ))}
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
                                                     <EventEditDialog
                                                         eventId={event._id}
                                                     />
@@ -326,12 +361,12 @@ const EventsTab = () => {
                                 <div className="text-center py-12 w-full">
                                     <Edit className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                                     <h3 className="text-lg font-medium text-gray-900 mb-2">
-                                        No events found
+                                        No special events found
                                     </h3>
                                     <p className="text-gray-600 mb-4">
                                         {searchTerm
-                                            ? `No events match "${searchTerm}"`
-                                            : "Get started by creating your first event."}
+                                            ? `No special events match "${searchTerm}"`
+                                            : "Get started by creating your first special event."}
                                     </p>
                                 </div>
                             )}

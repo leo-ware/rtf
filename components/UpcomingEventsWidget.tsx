@@ -98,7 +98,7 @@ const UpcomingEventsWidget = ({ className, compact = false }: { className?: stri
               No upcoming events at this time.
             </div>
           )}
-          {events?.map((event) => (
+          {events?.filter((event) => event.status !== "cancelled").map((event) => (
             <div
               key={event._id}
               className="col-span-full grid grid-cols-subgrid pr-2"
@@ -152,6 +152,11 @@ const UpcomingEventsWidget = ({ className, compact = false }: { className?: stri
                 >
                   {event.title}
                 </div>
+                {event.status === "sold_out" && (
+                  <div className="text-[13px] font-semibold text-pewter/60 uppercase tracking-wide mt-0.5">
+                    Sold Out
+                  </div>
+                )}
                 <div className="block @xl:hidden mt-1.5 text-pewter tracking-wide">
                   {(() => {
                     const { dateLine, timeLine } = formatEventDate(event.startDate, event.endDate)

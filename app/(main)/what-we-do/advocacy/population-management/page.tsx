@@ -112,7 +112,7 @@ const PopulationManagementPage = () => {
 
             <div className="w-full flex flex-col">
                 <ScrollReveal variant="fade-up" className="w-full">
-                    <TakeActionSection />
+                    <TakeActionSection topic="population_management" />
                 </ScrollReveal>
 
                 <ScrollReveal variant="fade-up">

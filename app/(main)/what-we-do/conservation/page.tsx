@@ -14,7 +14,7 @@ import SponsorAHerdDialog from "@/components/donation-widgets/SponsorAHerdDialog
 import ScrollReveal from "@/components/public-ui/ScrollReveal"
 
 import HeroImg from "./hero.jpg"
-import BlurredBg from "./blurred-bg.jpg"
+import SanctuaryFundImage from "@/app/(main)/(landing)/imgs/sanctuary_fund.jpg"
 import CarouselDummy from "./carousel-dummy.png"
 import After from "./after.png"
 import Before from "./before.png"
@@ -283,7 +283,7 @@ const ConservationPage = () => {
 
             <ScrollReveal variant="fade-up" className="w-11/12 md:w-10/12 mx-auto">
                 <DonationCallout
-                    image={BlurredBg}
+                    image={SanctuaryFundImage}
                     heading="Support our conservation efforts by donating to our Sanctuary Fund"
                     description="The Wild Horse Defense Fund fuels Return to Freedom's frontline work to end cruel roundups, advance humane on-range management, and defend wild horses through advocacy, legal action, and education."
                     donatePathway="Sanctuary Fund"

@@ -210,11 +210,17 @@ const PeoplePage = () => {
                                     </div>
                                     <div className="w-full md:w-auto md:grow bg-pewter text-seashell px-6 py-8 md:px-8
                                         flex flex-col items-start justify-center gap-4">
-                                        <div className="text-[32px] md:text-[40px] font-serif">
-                                            {person.name}
+                                        <div>
+                                            <div className="text-[32px] md:text-[40px] font-serif">
+                                                {person.name}
+                                            </div>
+                                            {person.title && (
+                                                <div className="text-sm font-bold uppercase tracking-wide mt-1">
+                                                    {person.title}
+                                                </div>
+                                            )}
                                         </div>
-                                        {/* <div className="text-xs uppercase">{person.title}</div> */}
-                                        <p className="text-[18px] md:text-[20px] line-clamp-4">{person.bio ?? ""}</p>
+                                        <p className="text-[18px] md:text-[20px] line-clamp-6">{person.bio ?? ""}</p>
                                         {person.link && (
                                             person.link.startsWith("/") ? (
                                                 <Link href={person.link}>

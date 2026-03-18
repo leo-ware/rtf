@@ -46,6 +46,21 @@ const resolvePaginationResult = async (
     }
 }
 
+export const buildSearchText = async (
+    ctx: MutationCtx,
+    fields: { title: string, authors?: Id<"people">[], authorCredit?: string }
+): Promise<string> => {
+    const parts = [fields.title]
+    if (fields.authors && fields.authors.length > 0) {
+        const people = await Promise.all(fields.authors.map(id => ctx.db.get(id)))
+        for (const person of people) {
+            if (person?.name) parts.push(person.name)
+        }
+    }
+    if (fields.authorCredit) parts.push(fields.authorCredit)
+    return parts.join(" ")
+}
+
 export default class ImageManager {
     id: Id<"images">
     constructor(id: Id<"images">) {
@@ -57,8 +72,14 @@ export default class ImageManager {
     }
 
     static async create(ctx: MutationCtx, args: CreateArgs) {
+        const searchText = await buildSearchText(ctx, {
+            title: args.title,
+            authors: args.authors,
+            authorCredit: args.authorCredit,
+        })
         const imageId = await ctx.db.insert("images", {
             ...args,
+            searchText,
         });
         return new ImageManager(imageId);
     }
@@ -72,7 +93,7 @@ export default class ImageManager {
 
     static async search(ctx: QMCtxType, args: {query: string, paginationOpts: PaginationOptions}) {
         const pagination = await ctx.db.query("images")
-            .withSearchIndex("searchTitle", (q) => q.search("title", args.query))
+            .withSearchIndex("searchTitle", (q) => q.search("searchText", args.query))
             .paginate(args.paginationOpts)
         return await resolvePaginationResult(ctx, pagination);
     }
@@ -101,6 +122,16 @@ export default class ImageManager {
 
     async update(ctx: MutationCtx, args: UpdateArgs) {
         await ctx.db.patch(this.id, removeUndefinedFields(args));
+        // Recompute searchText with the latest field values
+        const updated = await ctx.db.get(this.id)
+        if (updated) {
+            const searchText = await buildSearchText(ctx, {
+                title: updated.title,
+                authors: updated.authors,
+                authorCredit: updated.authorCredit,
+            })
+            await ctx.db.patch(this.id, { searchText })
+        }
     }
 
     async delete(ctx: MutationCtx) {

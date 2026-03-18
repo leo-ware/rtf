@@ -46,10 +46,12 @@ const ProgramRegisterButton = ({ programId }: { programId: Id<"programs"> }) => 
 
     const [open, setOpen] = useState<boolean>(false)
 
-    const availableDates = program?.events.map((event) => ({
-        id: event._id,
-        name: formatDate(new Date(event.startDate), { includeTime: true, includeYear: false })
-    }))
+    const allDates = program?.events
+        .map((event) => ({
+            id: event._id,
+            name: formatDate(new Date(event.startDate), { includeTime: true, includeYear: false }),
+            status: event.status ?? "scheduled",
+        }))
 
     return (
         <div className={`relative`}>
@@ -84,39 +86,57 @@ const ProgramRegisterButton = ({ programId }: { programId: Id<"programs"> }) => 
                             bg-milk text-ink font-normal
                             flex flex-col items-center justify-start
                             `}>
-                            {availableDates && availableDates.length === 0 && (
+                            {allDates && allDates.length === 0 && (
                                 <div className="min-w-[200px] min-h-[50px] w-full h-full flex items-center justify-center">
                                     <p className="text-center text-[16px] text-ink/50">
                                         No dates available
                                     </p>
                                 </div>
                             )}
-                            {availableDates === undefined && (
+                            {allDates === undefined && (
                                 <div className="min-w-[200px] min-h-[50px] w-full h-full flex items-center justify-center">
                                     <ImSpinner8 className="w-4 h-4 animate-spin" />
                                 </div>
                             )}
-                            {availableDates && availableDates.map((date, index) => (
-                                <Link
-                                    key={date.name}
-                                    href={`/visit-us/events/${date.id}/register`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    onMouseDown={(e) => {
-                                        e.stopPropagation()
-                                    }}
-                                    onClick={() => trackEvent(AnalyticsEvents.EVENT_REGISTER_CLICKED, { eventId: date.id, programId })}
-                                    className={`
-                                    w-fit min-w-[200px] whitespace-nowrap py-2 px-2
-                                    text-center text-[16px]
-                                    hover:text-pewter hover:font-bold
-                                    ${index !== availableDates.length - 1
-                                            ? "border-b-2 border-cinnamon"
-                                            : ""}
-                                `}
-                                >
-                                    {date.name}
-                                </Link>
+                            {allDates && allDates.map((date, index) => (
+                                date.status === "scheduled" ? (
+                                    <Link
+                                        key={date.id}
+                                        href={`/visit-us/events/${date.id}/register`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        onMouseDown={(e) => {
+                                            e.stopPropagation()
+                                        }}
+                                        onClick={() => trackEvent(AnalyticsEvents.EVENT_REGISTER_CLICKED, { eventId: date.id, programId })}
+                                        className={`
+                                        w-fit min-w-[200px] whitespace-nowrap py-2 px-2
+                                        text-center text-[16px]
+                                        hover:text-pewter hover:font-bold
+                                        ${index !== allDates.length - 1
+                                                ? "border-b-2 border-cinnamon"
+                                                : ""}
+                                    `}
+                                    >
+                                        {date.name}
+                                    </Link>
+                                ) : (
+                                    <div
+                                        key={date.id}
+                                        className={`
+                                        w-fit min-w-[200px] whitespace-nowrap py-2 px-2
+                                        text-center text-gray-400
+                                        ${index !== allDates.length - 1
+                                                ? "border-b-2 border-cinnamon"
+                                                : ""}
+                                    `}
+                                    >
+                                        <div className="text-[16px] line-through">{date.name}</div>
+                                        <div className="text-[12px] uppercase">
+                                            {date.status === "cancelled" ? "Cancelled" : "Sold Out"}
+                                        </div>
+                                    </div>
+                                )
                             ))}
                         </div>
 

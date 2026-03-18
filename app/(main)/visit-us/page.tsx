@@ -34,7 +34,7 @@ const VisitPage = () => {
         })
     const syntheticProgramGroups = [
         {
-            name: "Host Your Event",
+            name: "Your Weddings and Events",
             description: "Host your wedding, fundraiser, retreat, or private gathering at our sanctuary on California's Central Coast.",
             link: "/visit-us/host-your-event",
         }
@@ -70,13 +70,9 @@ const VisitPage = () => {
                 <Hero title="Programs" image={HeroImg} />
 
                 <div className="w-full h-fit bg-seashell py-12">
-                    <Header className="text-pewter px-8">Upcoming Events</Header>
+                    <Header className="text-pewter px-8">Upcoming Programs and Special Events</Header>
                     <UpcomingEventsWidget />
                 </div>
-                <p className="text-center text-ink max-w-2xl mx-auto mt-10 -mb-8 px-8">
-                    Browse our recurring programs including tours, workshops, and more. Looking for special one-off events?{" "}
-                    <Link href="/visit-us/events" className="text-cinnamon underline hover:text-cinnamon/80">Check out our Events page</Link>.
-                </p>
             </div>
             <div className="w-full py-16">
                 {status === "loading" && (

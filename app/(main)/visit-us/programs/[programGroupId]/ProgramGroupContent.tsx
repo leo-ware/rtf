@@ -12,6 +12,9 @@ import Header from "@/components/public-ui/Header"
 import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import RegisterButton from "@/components/RegisterButton"
 import Button from "@/components/public-ui/Button"
+import Link from "next/link"
+import { formatDate } from "@/lib/utils"
+import { Doc } from "@/convex/_generated/dataModel"
 import Carousel from "@/components/Carousel"
 import GalleryVideoItem from "@/components/GalleryVideoItem"
 import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
@@ -74,7 +77,7 @@ const ProgramGroupContent = ({ programGroupId }: ProgramGroupContentProps) => {
 
                             return (
                                 <div key={program._id} className="w-full flex gap-6 items-start justify-center">
-                                    <div className="relative basis-[40%] aspect-[4/3]">
+                                    <div className="relative basis-[40%] aspect-[4/3] rounded-sm overflow-hidden">
                                         {program.image?.url ? (
                                             <ConvexImage
                                                 src={program.image?.url || ""}
@@ -98,16 +101,58 @@ const ProgramGroupContent = ({ programGroupId }: ProgramGroupContentProps) => {
                                     <div className="basis-0 grow flex flex-col gap-4 text-[20px]">
                                         <Header level={2} className="text-sage-green text-left md:text-left">{program.name}</Header>
                                         <p>{program.description}</p>
-                                        {isOpen && (
-                                            <div>
-                                                <div dangerouslySetInnerHTML={{ __html: program.details }} />
-                                                {program.ticketPriceText && (
-                                                    <div className="text-lg text-pewter mt-4">
-                                                        {program.ticketPriceText}
+                                        <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
+                                            <div className="overflow-hidden">
+                                                <div className="flex flex-col gap-4 pt-1">
+                                                    <div>
+                                                        <div dangerouslySetInnerHTML={{ __html: program.details }} />
+                                                        {program.ticketPriceText && (
+                                                            <div className="text-lg text-pewter mt-4">
+                                                                {program.ticketPriceText}
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                )}
+                                                    {(() => {
+                                                        const now = Date.now()
+                                                        const upcoming = (program.events ?? [])
+                                                            .filter((e: Doc<"events">) => e.dateNumber > now)
+                                                            .sort((a: Doc<"events">, b: Doc<"events">) => a.dateNumber - b.dateNumber)
+                                                            .slice(0, 3)
+
+                                                        if (upcoming.length === 0) return null
+
+                                                        return (
+                                                            <div className="flex flex-wrap gap-3">
+                                                                {upcoming.map((event: Doc<"events">) => {
+                                                                    const start = new Date(event.startDate)
+                                                                    const inactive = event.status === "cancelled" || event.status === "sold_out"
+                                                                    return (
+                                                                        <Link
+                                                                            key={event._id}
+                                                                            href={`/visit-us/events/${event._id}`}
+                                                                            className={`rounded-lg border-2 border-cinnamon bg-white px-4 py-3 text-center transition-colors ${inactive ? "" : "hover:bg-cinnamon/5"}`}
+                                                                        >
+                                                                            <div className={`text-[15px] font-semibold text-cinnamon ${inactive ? "line-through opacity-50" : ""}`}>
+                                                                                {formatDate(start, { includeYear: false })}
+                                                                            </div>
+                                                                            <div className={`text-[13px] text-gray-400 ${inactive ? "line-through opacity-50" : ""}`}>
+                                                                                {start.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
+                                                                            </div>
+                                                                            {event.status === "cancelled" && (
+                                                                                <div className="text-[12px] text-gray-400 uppercase mt-1">Cancelled</div>
+                                                                            )}
+                                                                            {event.status === "sold_out" && (
+                                                                                <div className="text-[12px] text-gray-400 uppercase mt-1">Sold Out</div>
+                                                                            )}
+                                                                        </Link>
+                                                                    )
+                                                                })}
+                                                            </div>
+                                                        )
+                                                    })()}
+                                                </div>
                                             </div>
-                                        )}
+                                        </div>
                                         <div className="flex items-center justify-start gap-2">
                                             <Button
                                                 onClick={isOpen ? closeSelf : openSelf}

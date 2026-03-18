@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation"
 import { useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import AlternatingPictureLayout from "@/components/public-ui/AlternatingPictureLayout"
+import Header from "@/components/public-ui/Header"
 import Tabs from "@/components/public-ui/Tabs"
 import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import { ImSpinner8 } from "react-icons/im"
@@ -55,24 +56,27 @@ const LearnTimelineContentInner = () => {
         )
     }
 
-    if (timelines.length === 0) {
-        return null
-    }
-
     const mapItems = (items: typeof timelines[number]["items"]) =>
         items
             .filter((item) => item.image?.url)
             .map((item) => ({
                 superTitle: item.date,
                 title: item.title,
-                description: item.content,
+                description: <div dangerouslySetInnerHTML={{ __html: item.content }} />,
                 image: item.image!.url!,
                 imageAlt: item.image?.altText,
                 authorCredit: item.image?.authorCredit,
             }))
 
+    // Filter out timelines that have no displayable items (items with images)
+    const nonEmptyTimelines = timelines.filter((t) => mapItems(t.items).length > 0)
+
+    if (nonEmptyTimelines.length === 0) {
+        return null
+    }
+
     // Find active timeline and its last item for the closing section
-    const activeTimeline = timelines.find((t) => t._id === activeTimelineId) ?? timelines[0]
+    const activeTimeline = nonEmptyTimelines.find((t) => t._id === activeTimelineId) ?? nonEmptyTimelines[0]
     const lastItem = activeTimeline.items.length > 0
         ? activeTimeline.items[activeTimeline.items.length - 1]
         : null
@@ -81,9 +85,9 @@ const LearnTimelineContentInner = () => {
     const mapItemsExcludingLast = (items: typeof timelines[number]["items"]) =>
         mapItems(items.length > 1 ? items.slice(0, -1) : items)
 
-    const timelineContent = timelines.length === 1 ? (
+    const timelineContent = nonEmptyTimelines.length === 1 ? (
         (() => {
-            const items = mapItemsExcludingLast(timelines[0].items)
+            const items = mapItemsExcludingLast(nonEmptyTimelines[0].items)
             if (items.length === 0) return null
             return (
                 <AlternatingPictureLayout
@@ -101,12 +105,12 @@ const LearnTimelineContentInner = () => {
             onTabChange={handleTabChange}
             defaultTabSelector={timelineSlug
                 ? (item) => {
-                    const matched = timelines.find((t) => t.slug === timelineSlug)
+                    const matched = nonEmptyTimelines.find((t) => t.slug === timelineSlug)
                     return matched ? item.id === matched._id : false
                 }
                 : undefined
             }
-            items={timelines.map((timeline) => ({
+            items={nonEmptyTimelines.map((timeline) => ({
                 id: timeline._id,
                 title: timeline.title,
                 content: (() => {
@@ -133,6 +137,12 @@ const LearnTimelineContentInner = () => {
 
     return (
         <>
+            <Header className="text-cinnamon w-10/12 md:w-full">
+                Timelines
+            </Header>
+            <p className="w-10/12 md:w-8/12 -mt-8 text-left md:text-center text-lg md:text-xl text-ink">
+                Explore the key moments and milestones that have shaped the history of wild horses and burros in America.
+            </p>
             <div ref={timelinesRef} className="w-10/12 mx-auto">
                 {timelineContent}
             </div>
@@ -145,8 +155,7 @@ const LearnTimelineContentInner = () => {
                     <div className="text-[48px] font-serif text-cinnamon">
                         {lastItem.title}
                     </div>
-                    <div className="text-[20px] mb-2">
-                        {lastItem.content}
+                    <div className="text-[20px] mb-2" dangerouslySetInnerHTML={{ __html: lastItem.content }}>
                     </div>
                     <div className="w-8/12">
                         <ImageWithAuthorCredit

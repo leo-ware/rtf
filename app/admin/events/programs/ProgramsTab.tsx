@@ -232,6 +232,12 @@ const ProgramsTab = () => {
                                                                                     {format(new Date(event.startDate), "h:mm a")}
                                                                                     {event.endDate && ` – ${format(new Date(event.endDate), "h:mm a")}`}
                                                                                 </span>
+                                                                                {event.status === "cancelled" && (
+                                                                                    <Badge variant="outline" className="ml-2 text-xs">Cancelled</Badge>
+                                                                                )}
+                                                                                {event.status === "sold_out" && (
+                                                                                    <Badge variant="outline" className="ml-2 text-xs">Sold Out</Badge>
+                                                                                )}
                                                                             </div>
                                                                         </div>
                                                                         {/* <Badge variant={event.isPublic ? "default" : "secondary"} className="text-xs">

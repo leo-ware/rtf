@@ -4,21 +4,38 @@ import { getCurrentUserOrThrow } from "./users"
 import { generateSlug } from "./utils"
 import { paginationOptsValidator } from "convex/server"
 import { resolveImageId } from "./images"
+import { convexTopicEnum, topicNameToAttributeName, topicNameList } from "./models/articleMetadataManager"
+
+const topicFields = {
+    topic_homepage: v.optional(v.boolean()),
+    topic_conservation: v.optional(v.boolean()),
+    topic_sanctuary: v.optional(v.boolean()),
+    topic_advocacy: v.optional(v.boolean()),
+    topic_education: v.optional(v.boolean()),
+    topic_herd_management: v.optional(v.boolean()),
+    topic_population_management: v.optional(v.boolean()),
+    topic_roundups: v.optional(v.boolean()),
+    topic_horse_slaughter: v.optional(v.boolean()),
+    topic_spirit: v.optional(v.boolean()),
+}
+
+const takeActionArticleValidator = v.object({
+    _id: v.id("takeActionArticle"),
+    _creationTime: v.number(),
+    title: v.string(),
+    slug: v.string(),
+    imageId: v.optional(v.id("images")),
+    description: v.string(),
+    content: v.string(),
+    isPublic: v.boolean(),
+    ...topicFields,
+})
 
 export const listTakeActionArticles = query({
     args: {
         publicOnly: v.optional(v.boolean()),
     },
-    returns: v.array(v.object({
-        _id: v.id("takeActionArticle"),
-        _creationTime: v.number(),
-        title: v.string(),
-        slug: v.string(),
-        imageId: v.optional(v.id("images")),
-        description: v.string(),
-        content: v.string(),
-        isPublic: v.boolean(),
-    })),
+    returns: v.array(takeActionArticleValidator),
     handler: async (ctx, args) => {
         const publicOnly = args.publicOnly ?? true
 
@@ -51,7 +68,7 @@ export const recommendTakeActionArticles = query({
             .withIndex("by_isPublic", (q) => q.eq("isPublic", true))
             .order("desc")
             .paginate(args.paginationOpts)
-        
+
         const withImages = {
             ...pagination,
             page: await Promise.all(pagination.page.map(async (article) => {
@@ -68,21 +85,35 @@ export const recommendTakeActionArticles = query({
     },
 })
 
+export const getTopicTakeActionArticles = query({
+    args: {
+        topic: convexTopicEnum,
+    },
+    handler: async (ctx, args) => {
+        const articles = await ctx.db
+            .query("takeActionArticle")
+            .withIndex("by_isPublic", (q) => q.eq("isPublic", true))
+            .order("desc")
+            .collect()
+
+        const topicField = topicNameToAttributeName(args.topic)
+        const filtered = articles.filter((a) => a[topicField] === true)
+
+        return await Promise.all(filtered.map(async (article) => ({
+            ...article,
+            image: article.imageId
+                ? await resolveImageId(ctx, article.imageId)
+                : null,
+        })))
+    },
+})
+
 export const getTakeActionArticle = query({
     args: {
         id: v.id("takeActionArticle"),
     },
     returns: v.union(
-        v.object({
-            _id: v.id("takeActionArticle"),
-            _creationTime: v.number(),
-            title: v.string(),
-            slug: v.string(),
-            imageId: v.optional(v.id("images")),
-            description: v.string(),
-            content: v.string(),
-            isPublic: v.boolean(),
-        }),
+        takeActionArticleValidator,
         v.null()
     ),
     handler: async (ctx, args) => {
@@ -107,16 +138,7 @@ export const getTakeActionArticleBySlug = query({
         slug: v.string(),
     },
     returns: v.union(
-        v.object({
-            _id: v.id("takeActionArticle"),
-            _creationTime: v.number(),
-            title: v.string(),
-            slug: v.string(),
-            imageId: v.optional(v.id("images")),
-            description: v.string(),
-            content: v.string(),
-            isPublic: v.boolean(),
-        }),
+        takeActionArticleValidator,
         v.null()
     ),
     handler: async (ctx, args) => {
@@ -139,6 +161,7 @@ export const createTakeActionArticle = mutation({
         slug: v.optional(v.string()),
         imageId: v.optional(v.id("images")),
         description: v.string(),
+        topics: v.optional(v.array(convexTopicEnum)),
     },
     returns: v.id("takeActionArticle"),
     handler: async (ctx, args) => {
@@ -160,6 +183,13 @@ export const createTakeActionArticle = mutation({
             throw new Error("Slug already in use")
         }
 
+        const topicPatches: Record<string, boolean> = {}
+        if (args.topics) {
+            for (const topic of args.topics) {
+                topicPatches[topicNameToAttributeName(topic)] = true
+            }
+        }
+
         return await ctx.db.insert("takeActionArticle", {
             title: args.title,
             slug,
@@ -167,6 +197,7 @@ export const createTakeActionArticle = mutation({
             description: args.description,
             content: "<p></p>",
             isPublic: false,
+            ...topicPatches,
         })
     },
 })
@@ -180,6 +211,7 @@ export const updateTakeActionArticle = mutation({
         description: v.optional(v.string()),
         content: v.optional(v.string()),
         isPublic: v.optional(v.boolean()),
+        topics: v.optional(v.array(convexTopicEnum)),
     },
     returns: v.null(),
     handler: async (ctx, args) => {
@@ -193,7 +225,7 @@ export const updateTakeActionArticle = mutation({
             throw new Error("Take action article not found")
         }
 
-        const { id, slug: nextSlug, ...updates } = args
+        const { id, slug: nextSlug, topics, ...updates } = args
 
         if (typeof nextSlug === "string") {
             const normalizedSlug = nextSlug.trim()
@@ -222,7 +254,15 @@ export const updateTakeActionArticle = mutation({
             }
         }
 
-        await ctx.db.patch(id, updates)
+        const topicPatches: Record<string, boolean | undefined> = {}
+        if (topics !== undefined) {
+            const topicSet = new Set(topics)
+            for (const t of topicNameList) {
+                topicPatches[topicNameToAttributeName(t)] = topicSet.has(t) ? true : undefined
+            }
+        }
+
+        await ctx.db.patch(id, { ...updates, ...topicPatches })
         return null
     },
 })
@@ -242,5 +282,3 @@ export const deleteTakeActionArticle = mutation({
         return null
     },
 })
-
-

@@ -19,6 +19,7 @@ type EventCreateFields = {
     endDate: string
     programId?: Id<"programs">
     registrationLink?: string
+    status?: "scheduled" | "cancelled" | "sold_out"
 }
 
 // Event-specific fields for updates
@@ -27,6 +28,7 @@ type EventUpdateFields = {
     startDate?: string
     endDate?: string
     registrationLink?: string
+    status?: "scheduled" | "cancelled" | "sold_out"
 }
 
 // Program fields adapted for event creation (some fields optional/renamed)
@@ -111,6 +113,7 @@ export default class EventManager {
             endDate: args.endDate,
             dateNumber: Date.parse(args.startDate),
             registrationLink: args.registrationLink,
+            status: args.status ?? "scheduled",
         })
 
         return new EventManager(eventId)
@@ -131,6 +134,7 @@ export default class EventManager {
         }
         if (args.endDate !== undefined) eventUpdates.endDate = args.endDate
         if (args.registrationLink !== undefined) eventUpdates.registrationLink = args.registrationLink
+        if (args.status !== undefined) eventUpdates.status = args.status
 
         if (Object.keys(eventUpdates).length > 0) {
             await ctx.db.patch(this.id, eventUpdates)

@@ -10,7 +10,7 @@ import NewsCarousel from "@/components/NewsCarousel"
 import TakeActionSection from "@/components/TakeActionSection"
 import ScrollReveal from "@/components/public-ui/ScrollReveal"
 import DonationCallout from "@/components/DonationCallout"
-import BlurredBg from "@/components/images/blurred-bg.jpg"
+import WhdfImage from "@/app/(main)/(landing)/imgs/whdf.jpg"
 import StatsBar from "@/components/StatsBar"
 
 import Policy1 from "./policy1.png"
@@ -146,7 +146,7 @@ const AdvocacyPage = () => {
             <div className="w-full flex flex-col">
                 <ScrollReveal variant="fade-up" className="w-full">
                     <DonationCallout
-                        image={BlurredBg}
+                        image={WhdfImage}
                         heading={<>Donate to <br /> Wild Horse Defense Fund</>}
                         description="The Wild Horse Defense Fund fuels Return to Freedom's frontline work to end cruel roundups, advance humane on-range management, and defend wild horses through advocacy, legal action, and education."
                         donatePathway="Wild Horse Defense Fund"
@@ -157,7 +157,7 @@ const AdvocacyPage = () => {
                     />
                 </ScrollReveal>
 
-                <TakeActionSection rows={1} showControls={true} />
+                <TakeActionSection rows={1} showControls={true} topic="advocacy" />
 
                 <StatsBar />
             </div>

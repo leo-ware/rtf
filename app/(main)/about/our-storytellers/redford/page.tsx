@@ -13,7 +13,7 @@ import NedaImg from "@/public/img/neda-and-spirit.jpg"
 import MustangsPosterImg from "@/public/img/the-mustangs-poster-e1632512502880.jpg"
 import HorsesImg from "@/public/img/ares-mares.jpg"
 import OwyheeImg from "@/public/img/Owyhee-9925-scaled.jpg"
-import BgBlurred from "@/public/img/footer-bg-blurred.png"
+import WhdfImage from "@/app/(main)/(landing)/imgs/whdf.jpg"
 import GrazingImg from "@/public/img/grazing-brown-horses-e1721864397332.png"
 
 const RedfordPage = () => {
@@ -376,7 +376,7 @@ const RedfordPage = () => {
             {/* 8. Donation CTA */}
             <div className="w-10/12 mx-auto py-8">
                 <DonationCallout
-                    image={BgBlurred}
+                    image={WhdfImage}
                     heading="Continue Robert Redford's Legacy"
                     description="Support Return to Freedom's mission to preserve the freedom, diversity, and habitat of America's wild horses and burros."
                     donatePathway="general"

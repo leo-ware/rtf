@@ -43,13 +43,15 @@ interface TiptapEditorProps {
     onChange: (content: string) => void;
     placeholder?: string;
     className?: string;
+    minimal?: boolean;
 }
 
 export const TiptapEditor: React.FC<TiptapEditorProps> = ({
     content,
     onChange,
     placeholder = "Start writing...",
-    className = ""
+    className = "",
+    minimal = false
 }) => {
     const [linkUrl, setLinkUrl] = useState("");
     const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false);
@@ -59,26 +61,23 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
 
     const [isImagePickerOpen, setIsImagePickerOpen] = useState(false);
 
-    const editor = useEditor({
-        immediatelyRender: false,
-        extensions: [
-            StarterKit.configure({
-                codeBlock: false, // Disable default code block to use lowlight version
-            }),
-            Typography,
-            Placeholder.configure({
-                placeholder,
-            }),
-            Link.configure({
-                openOnClick: false,
-                HTMLAttributes: {
-                    class: "text-blue-600 hover:text-blue-800 underline",
-                },
-            }),
+    const extensions = [
+        StarterKit.configure({
+            codeBlock: false,
+        }),
+        Typography,
+        Placeholder.configure({
+            placeholder,
+        }),
+        Link.configure({
+            openOnClick: false,
+            HTMLAttributes: {
+                class: "text-blue-600 hover:text-blue-800 underline",
+            },
+        }),
+        ...(minimal ? [] : [
             CustomImage.configure({
-                HTMLAttributes: {
-                    // No styling classes - applied via CSS at render time
-                },
+                HTMLAttributes: {},
             }),
             Youtube.configure({
                 HTMLAttributes: {
@@ -87,7 +86,12 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
                 inline: false,
                 nocookie: true,
             })
-        ],
+        ])
+    ]
+
+    const editor = useEditor({
+        immediatelyRender: false,
+        extensions,
         content,
         onUpdate: ({ editor }) => {
             const html = editor.getHTML();
@@ -95,7 +99,7 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
         },
         editorProps: {
             attributes: {
-                class: `prose prose-lg max-w-none focus:outline-none min-h-[400px] p-4 ${className}`,
+                class: `prose prose-lg max-w-none focus:outline-none ${minimal ? "min-h-[150px]" : "min-h-[400px]"} p-4 ${className}`,
             },
         },
     });
@@ -152,63 +156,67 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
                     </Button>
                 </div>
 
-                {/* Headings */}
-                <div className="flex items-center space-x-1 pr-2 border-r border-gray-300">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => editor.chain().focus().setParagraph().run()}
-                        className={editor.isActive("paragraph") ? "bg-gray-200" : ""}
-                    >
-                        <Type className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-                        className={editor.isActive("heading", { level: 1 }) ? "bg-gray-200" : ""}
-                    >
-                        <Heading1 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-                        className={editor.isActive("heading", { level: 2 }) ? "bg-gray-200" : ""}
-                    >
-                        <Heading2 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-                        className={editor.isActive("heading", { level: 3 }) ? "bg-gray-200" : ""}
-                    >
-                        <Heading3 className="h-4 w-4" />
-                    </Button>
-                </div>
+                {!minimal && (
+                    <>
+                        {/* Headings */}
+                        <div className="flex items-center space-x-1 pr-2 border-r border-gray-300">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => editor.chain().focus().setParagraph().run()}
+                                className={editor.isActive("paragraph") ? "bg-gray-200" : ""}
+                            >
+                                <Type className="h-4 w-4" />
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+                                className={editor.isActive("heading", { level: 1 }) ? "bg-gray-200" : ""}
+                            >
+                                <Heading1 className="h-4 w-4" />
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+                                className={editor.isActive("heading", { level: 2 }) ? "bg-gray-200" : ""}
+                            >
+                                <Heading2 className="h-4 w-4" />
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+                                className={editor.isActive("heading", { level: 3 }) ? "bg-gray-200" : ""}
+                            >
+                                <Heading3 className="h-4 w-4" />
+                            </Button>
+                        </div>
 
-                {/* Lists */}
-                <div className="flex items-center space-x-1 pr-2 border-r border-gray-300">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => editor.chain().focus().toggleBulletList().run()}
-                        className={editor.isActive("bulletList") ? "bg-gray-200" : ""}
-                    >
-                        <List className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                        className={editor.isActive("orderedList") ? "bg-gray-200" : ""}
-                    >
-                        <ListOrdered className="h-4 w-4" />
-                    </Button>
-                </div>
+                        {/* Lists */}
+                        <div className="flex items-center space-x-1 pr-2 border-r border-gray-300">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => editor.chain().focus().toggleBulletList().run()}
+                                className={editor.isActive("bulletList") ? "bg-gray-200" : ""}
+                            >
+                                <List className="h-4 w-4" />
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                                className={editor.isActive("orderedList") ? "bg-gray-200" : ""}
+                            >
+                                <ListOrdered className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </>
+                )}
 
-                {/* Media & Elements */}
+                {/* Link */}
                 <div className="flex items-center space-x-1 pr-2 border-r border-gray-300">
                     <Dialog open={isLinkDialogOpen} onOpenChange={setIsLinkDialogOpen}>
                         <DialogTrigger asChild>
@@ -243,46 +251,50 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
                         </DialogContent>
                     </Dialog>
 
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setIsImagePickerOpen(true)}
-                    >
-                        <ImageIcon className="h-4 w-4" />
-                    </Button>
-
-                    <Dialog open={isYoutubeDialogOpen} onOpenChange={setIsYoutubeDialogOpen}>
-                        <DialogTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                                <YoutubeIcon className="h-4 w-4" />
+                    {!minimal && (
+                        <>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setIsImagePickerOpen(true)}
+                            >
+                                <ImageIcon className="h-4 w-4" />
                             </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-md">
-                            <DialogHeader>
-                                <DialogTitle>Add Youtube Video</DialogTitle>
-                                <DialogDescription>
-                                    Enter the URL for the video
-                                </DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-4">
-                                <div>
-                                    <Label htmlFor="linkUrl">URL</Label>
-                                    <Input
-                                        id="linkUrl"
-                                        value={youtubeURL}
-                                        onChange={(e) => setYoutubeURL(e.target.value)}
-                                        placeholder="https://example.com"
-                                    />
-                                </div>
-                                <div className="flex justify-end space-x-2">
-                                    <Button variant="outline" onClick={() => setIsYoutubeDialogOpen(false)}>
-                                        Cancel
+
+                            <Dialog open={isYoutubeDialogOpen} onOpenChange={setIsYoutubeDialogOpen}>
+                                <DialogTrigger asChild>
+                                    <Button variant="ghost" size="sm">
+                                        <YoutubeIcon className="h-4 w-4" />
                                     </Button>
-                                    <Button onClick={addYoutubeVideo}>Add Video</Button>
-                                </div>
-                            </div>
-                        </DialogContent>
-                    </Dialog>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-md">
+                                    <DialogHeader>
+                                        <DialogTitle>Add Youtube Video</DialogTitle>
+                                        <DialogDescription>
+                                            Enter the URL for the video
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <Label htmlFor="linkUrl">URL</Label>
+                                            <Input
+                                                id="linkUrl"
+                                                value={youtubeURL}
+                                                onChange={(e) => setYoutubeURL(e.target.value)}
+                                                placeholder="https://example.com"
+                                            />
+                                        </div>
+                                        <div className="flex justify-end space-x-2">
+                                            <Button variant="outline" onClick={() => setIsYoutubeDialogOpen(false)}>
+                                                Cancel
+                                            </Button>
+                                            <Button onClick={addYoutubeVideo}>Add Video</Button>
+                                        </div>
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
+                        </>
+                    )}
                 </div>
 
                 {/* History */}
@@ -312,11 +324,13 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({
             </div>
 
             {/* Image Picker */}
-            <ImagePicker
-                isOpen={isImagePickerOpen}
-                onClose={() => setIsImagePickerOpen(false)}
-                onImageSelect={handleImagePickerSelect}
-            />
+            {!minimal && (
+                <ImagePicker
+                    isOpen={isImagePickerOpen}
+                    onClose={() => setIsImagePickerOpen(false)}
+                    onImageSelect={handleImagePickerSelect}
+                />
+            )}
         </div>
     );
 };

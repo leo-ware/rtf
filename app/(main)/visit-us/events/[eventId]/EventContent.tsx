@@ -9,6 +9,7 @@ import Header from "@/components/public-ui/Header"
 import ConvexImage from "@/components/images/ConvexImage"
 import LargeLoader from "@/components/public-ui/LargeLoader"
 import RegisterButton from "@/components/RegisterButton"
+import { formatDate, formatDateRange } from "@/lib/utils"
 import { trackEvent, AnalyticsEvents } from "@/lib/analytics"
 
 type EventContentProps = {
@@ -55,9 +56,54 @@ const EventContent = ({ eventId }: EventContentProps) => {
                 )}
             </div>
 
-            <Header level={1} className="text-pewter max-w-8/12">
+            <Header level={1} className={`text-pewter max-w-8/12 ${event.status === "cancelled" ? "line-through text-gray-500" : ""}`}>
                 {event.title}
             </Header>
+
+            <div className="max-w-8/12 text-center flex flex-col items-center gap-2">
+                {(() => {
+                    const start = new Date(event.startDate)
+                    const end = new Date(event.endDate)
+                    const sameDay = start.toDateString() === end.toDateString()
+                    const startTime = start.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
+                    const endTime = end.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
+
+                    return (
+                        <>
+                            <div className="text-2xl font-serif text-cinnamon">
+                                {sameDay
+                                    ? formatDate(start, { includeYear: true })
+                                    : formatDateRange(start, end, { forceIncludeYear: true })
+                                }
+                            </div>
+                            {sameDay && startTime !== endTime && (
+                                <div className="text-lg text-gray-400">
+                                    {startTime} – {endTime}
+                                </div>
+                            )}
+                        </>
+                    )
+                })()}
+                {event.location && (
+                    <div className="text-lg text-gray-400">
+                        {event.location}
+                    </div>
+                )}
+                {(!event.status || event.status === "scheduled") && (
+                    <RegisterButton eventId={eventId} />
+                )}
+            </div>
+
+            {event.status === "cancelled" && (
+                <div className="w-full max-w-8/12 text-gray-500 text-center text-2xl font-serif">
+                    This event has been cancelled.
+                </div>
+            )}
+            {event.status === "sold_out" && (
+                <div className="w-full max-w-8/12 text-pewter text-center text-2xl font-serif">
+                    This event is sold out.
+                </div>
+            )}
 
             <div className={`
                 max-w-8/12
@@ -84,9 +130,6 @@ const EventContent = ({ eventId }: EventContentProps) => {
                     </div>
                 </div>
 
-                <div className="not-prose w-full my-8 mx-auto h-fit flex items-center justify-center">
-                    <RegisterButton eventId={eventId} />
-                </div>
             </div>
         </div>
     )

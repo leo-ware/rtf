@@ -21,6 +21,9 @@ import { Switch } from "@/components/ui/switch"
 import { Loader2 } from "lucide-react"
 import { generateSlug } from "@/lib/utils"
 import ImagePickerDialog from "@/components/images/ImagePickerDialog"
+import { TagSelector } from "@/components/TagSelector"
+import { topicNameList, topicNameToAttributeName } from "@/lib/topicType"
+import type { TopicNameType } from "@/lib/topicType"
 
 type TakeActionArticleEditDialogProps = {
     takeActionArticleId: Id<"takeActionArticle">
@@ -46,17 +49,22 @@ const TakeActionArticleEditDialog = ({
         imageId: undefined as Id<"images"> | undefined,
         description: undefined as string | undefined,
         isPublic: undefined as boolean | undefined,
+        topics: [] as TopicNameType[],
     })
     const [slugSetManually, setSlugSetManually] = useState(false)
 
     useEffect(() => {
         if (takeActionArticle) {
+            const topics = topicNameList.filter(
+                (t) => takeActionArticle[topicNameToAttributeName(t)] === true
+            ) as TopicNameType[]
             setFormData({
                 title: takeActionArticle.title,
                 slug: takeActionArticle.slug,
                 imageId: takeActionArticle.imageId,
                 description: takeActionArticle.description,
                 isPublic: takeActionArticle.isPublic,
+                topics,
             })
             setSlugSetManually(true)
         }
@@ -84,6 +92,7 @@ const TakeActionArticleEditDialog = ({
                 imageId: formData.imageId,
                 description: formData.description?.trim(),
                 isPublic: formData.isPublic,
+                topics: formData.topics,
             })
             setIsOpen(false)
         } catch (err) {
@@ -189,6 +198,22 @@ const TakeActionArticleEditDialog = ({
                                 onCheckedChange={(checked) => setFormData({ ...formData, isPublic: checked })}
                             />
                         </div>
+
+                        <TagSelector
+                            label="Topics"
+                            description="Select one or more topics for this article"
+                            selectedIds={formData.topics}
+                            availableItems={topicNameList.map(topic => ({
+                                _id: topic,
+                                name: (topic.charAt(0).toUpperCase() + topic.slice(1)).replaceAll("_", " ")
+                            }))}
+                            onSelectionChange={(topics) => setFormData(prev => ({
+                                ...prev,
+                                topics: topics as TopicNameType[],
+                            }))}
+                            placeholder="Select topics..."
+                            searchPlaceholder="Search topics..."
+                        />
 
                         {error && (
                             <div className="text-red-500 text-sm">{error}</div>

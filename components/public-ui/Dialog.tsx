@@ -32,7 +32,7 @@ export const DialogContent = ({ children }: { children: React.ReactNode }) => {
                     flex items-center justify-center"
                 onClick={() => setOpen(false)}>
                 <div
-                    className="relative w-full h-full md:w-auto md:h-auto md:max-w-[90vw] md:max-h-[90vh]
+                    className="relative w-full h-full md:max-w-[90vw] md:max-h-[90vh]
                         rounded-none md:rounded-md overflow-y-auto overflow-x-hidden scrollbar-thin"
                     onClick={(e) => e.stopPropagation()}>
                     {children}

@@ -3,11 +3,14 @@
 import CardLayout from "./public-ui/CardLayout"
 import Header from "./public-ui/Header"
 import TakeActionLink from "./TakeActionLink"
-import { usePaginatedQuery } from "convex/react"
+import { usePaginatedQuery, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
+import Button from "./public-ui/Button"
 import { cn } from "@/lib/utils"
 import { Loader2, ChevronDownIcon } from "lucide-react"
 import Link from "next/link"
+import { useMemo } from "react"
+import type { TopicNameType } from "@/lib/topicType"
 
 import TakeActionImage1 from "./images/take-action-1.jpg"
 import TakeActionImage2 from "./images/take-action-2.jpg"
@@ -27,9 +30,10 @@ const TakeActionSkeletonCard = ({ className }: { className?: string }) => {
 type TakeActionSectionProps = {
     rows?: number
     showControls?: boolean
+    topic?: TopicNameType
 }
 
-const TakeActionSection = ({ rows = 1, showControls = false }: TakeActionSectionProps) => {
+const TakeActionSection = ({ rows = 1, showControls = false, topic }: TakeActionSectionProps) => {
     const rowSize = 3
     const initCount = rowSize * rows
     const { results: recommended, loadMore, status: recommendedStatus } = usePaginatedQuery(
@@ -38,7 +42,23 @@ const TakeActionSection = ({ rows = 1, showControls = false }: TakeActionSection
         { initialNumItems: initCount }
     )
 
+    const topicArticles = useQuery(
+        api.takeActionArticle.getTopicTakeActionArticles,
+        topic ? { topic } : "skip"
+    )
+
+    const articles = useMemo(() => {
+        if (!topic) return recommended
+
+        const topicResults = topicArticles ?? []
+        const topicIds = new Set(topicResults.map(a => a._id))
+        const supplemental = recommended.filter(a => !topicIds.has(a._id))
+        return [...topicResults, ...supplemental]
+    }, [topic, topicArticles, recommended])
+
     const fallbackImages = [TakeActionImage1, TakeActionImage2, TakeActionImage3]
+
+    const isLoading = recommendedStatus === "LoadingFirstPage" || (topic && topicArticles === undefined)
 
     return (
         <div id="take-action" className="bg-slate-teal py-12 w-full">
@@ -50,20 +70,20 @@ const TakeActionSection = ({ rows = 1, showControls = false }: TakeActionSection
             <CardLayout className={"gap-6"}>
                 {(
                     <>
-                        {recommendedStatus === "LoadingFirstPage" && (
+                        {isLoading && (
                             [...Array(initCount)].map((_, idx) => (
                                 <TakeActionSkeletonCard key={idx} className="mx-auto" />
                             ))
                         )}
 
-                        {recommended && recommended.length > 0 && (
-                            recommended.map((recommendedArticle, idx) => (
+                        {!isLoading && articles && articles.length > 0 && (
+                            articles.slice(0, showControls ? undefined : initCount).map((article, idx) => (
                                 <TakeActionLink
-                                    key={recommendedArticle._id}
+                                    key={article._id}
                                     className="mx-auto"
-                                    title={recommendedArticle.title}
-                                    href={recommendedArticle.slug ? `/resources/take-action/${recommendedArticle.slug}` : undefined}
-                                    image={recommendedArticle.image}
+                                    title={article.title}
+                                    href={article.slug ? `/resources/take-action/${article.slug}` : undefined}
+                                    image={article.image}
                                     fallbackImage={fallbackImages[idx % fallbackImages.length]}
                                 />
                             ))
@@ -98,11 +118,8 @@ const TakeActionSection = ({ rows = 1, showControls = false }: TakeActionSection
 
                 {!showControls && (
                     <div className="col-span-full flex items-center justify-center">
-                        <Link
-                            href="/take-action"
-                            className="text-sm font-medium text-white/80 hover:text-white transition-colors"
-                        >
-                            Learn More
+                        <Link href="/take-action">
+                            <Button color="cinnamon">Learn More</Button>
                         </Link>
                     </div>
                 )}

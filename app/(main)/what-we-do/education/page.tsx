@@ -113,7 +113,7 @@ const EducationPage = () => {
 
             <ScrollReveal variant="fade-in" className="w-full bg-seashell py-8">
                 <div className="w-11/12 md:w-8/12 mx-auto">
-                    <Header className="text-pewter pl-8">Upcoming Events</Header>
+                    <Header className="text-pewter pl-8">Upcoming Programs and Special Events</Header>
                     <UpcomingEventsWidget />
                 </div>
             </ScrollReveal>

@@ -15,9 +15,9 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { Plus, Edit } from "lucide-react"
 import ImagePickerDialog from "@/components/images/ImagePickerDialog"
+import { TiptapEditor } from "@/components/TiptapEditor"
 
 type LearnTimelineItemType = {
     _id: Id<"learnTimelineItems">
@@ -55,7 +55,8 @@ const LearnTimelineItemDialog = ({
     })
 
     const isEditing = mode === "edit"
-    const saveDisabled = isLoading || !formData.title.trim() || !formData.content.trim()
+    const contentIsEmpty = !formData.content || formData.content.replace(/<[^>]*>/g, "").trim() === ""
+    const saveDisabled = isLoading || !formData.title.trim() || contentIsEmpty
 
     const resetForm = () => {
         if (isEditing && editItem) {
@@ -159,14 +160,12 @@ const LearnTimelineItemDialog = ({
                     </div>
 
                     <div>
-                        <Label htmlFor="item-content">Content *</Label>
-                        <Textarea
-                            id="item-content"
-                            value={formData.content}
-                            disabled={isLoading}
-                            onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
+                        <Label>Content *</Label>
+                        <TiptapEditor
+                            minimal
+                            content={formData.content}
+                            onChange={(content) => setFormData(prev => ({ ...prev, content }))}
                             placeholder="Describe this timeline entry"
-                            rows={6}
                         />
                     </div>
 
