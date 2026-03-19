@@ -87,31 +87,31 @@ const dropdownConfigs: NavDropdownConfig[] = [
                 label: "Advocacy",
                 href: "/what-we-do/advocacy",
                 description: "Working to shape policy and legislation that safeguards wild horses and their habitats.",
-                image: "/img/Cedar-6490.jpg",
+                image: "/img/Cedar-1941-square.png",
                 children: [
                     {
                         label: "Herd Management",
                         href: "/what-we-do/advocacy/herd-management",
                         description: "Designated Herd Management Areas balance wild horse populations with other public-land uses, but decades of over-allocation threaten the future of wild herds.",
-                        image: "/img/Cedar-6490.jpg",
+                        image: "/img/Cedar-1941-square.png",
                     },
                     {
                         label: "Horse Slaughter",
                         href: "/what-we-do/advocacy/horse-slaughter",
                         description: "Though horse slaughter is banned in the U.S., thousands are still exported for slaughter each year. RTF advocates for lasting protections through the SAFE Act.",
-                        image: "/img/Cedar-6490.jpg",
+                        image: "/img/Cedar-1941-square.png",
                     },
                     {
                         label: "Population Management",
                         href: "/what-we-do/advocacy/population-management",
                         description: "Humane, science-based fertility control can replace roundups, reduce costs, and allow wild herds to live naturally on the range.",
-                        image: "/img/Cedar-6490.jpg",
+                        image: "/img/Cedar-1941-square.png",
                     },
                     {
                         label: "Roundups",
                         href: "/what-we-do/advocacy/roundups",
                         description: "Each year, thousands of wild horses and burros are chased by helicopters into traps on public lands, destroying family bands and costing taxpayers hundreds of millions.",
-                        image: "/img/Cedar-6490.jpg",
+                        image: "/img/Cedar-1941-square.png",
                     },
                 ],
             },
@@ -149,13 +149,13 @@ const dropdownConfigs: NavDropdownConfig[] = [
                 label: "Our Burros",
                 href: "/horses/our-burros",
                 description: "Meet the wild burros at Return to Freedom, resilient and full of personality.",
-                image: "/img/ares-mares.jpg",
+                image: "/img/burros-hero.jpg",
             },
             {
                 label: "Sponsor a Burro",
                 href: "/donate/sponsor-a-burro",
                 description: "Support a wild burro's care with a sponsorship — a meaningful way to make a difference.",
-                image: "/img/ares-mares.jpg",
+                image: "/img/burro-azure.jpg",
             },
         ],
     },
@@ -310,7 +310,7 @@ const DropdownNavItem = ({ config, align = "left" }: { config: NavDropdownConfig
                         </p>
                     </div>
 
-                    <div className="relative rounded overflow-hidden">
+                    <div className="relative rounded overflow-hidden aspect-square">
                         <Image
                             src={activeItem.image}
                             alt={activeItem.label}
