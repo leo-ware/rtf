@@ -3,7 +3,7 @@ import Callout from "@/components/public-ui/Callout"
 import NewsCarousel from "@/components/NewsCarousel"
 import ScrollReveal from "@/components/public-ui/ScrollReveal"
 
-import HeroImage from "./hero.png"
+import HeroImage from "./hero.jpg"
 
 export const metadata = {
     title: "End Horse Slaughter - Return to Freedom"
