@@ -17,7 +17,6 @@ import {
     EyeOff,
     ArrowLeft,
     ExternalLink,
-    Calendar,
     User,
     Settings,
     Loader2
@@ -25,7 +24,7 @@ import {
 import Link from "next/link";
 import { Id } from "@/convex/_generated/dataModel";
 import { PageProps } from "@/lib/types";
-import { deepEqual, removeUndefined, formatDate } from "@/lib/utils";
+import { deepEqual, removeUndefined } from "@/lib/utils";
 import ImagePickerDialog from "@/components/images/ImagePickerDialog";
 import InfoWidget from "@/components/InfoWidget";
 import { topicNameList, TopicNameType, CategoryNameType, categoryNameList, categoryDisplayNames } from "@/lib/topicType";
@@ -349,6 +348,25 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
                                 </div>
 
                                 <div className="space-y-2">
+                                    <Label>Article Date</Label>
+                                    <Input
+                                        type="date"
+                                        value={articleMetadataFormData.date
+                                            ? new Date(articleMetadataFormData.date).toISOString().split("T")[0]
+                                            : ""
+                                        }
+                                        onChange={(e) => {
+                                            const val = e.target.value
+                                            setArticleMetadataFormData(prev => ({
+                                                ...prev,
+                                                date: val ? new Date(val).getTime() : undefined,
+                                            }))
+                                        }}
+                                        disabled={isSaving}
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
                                     <Label htmlFor="slug">
                                         Slug
                                         <InfoWidget>
@@ -470,11 +488,6 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
                                     authorNames={article.authorNames}
                                     authorCredit={article.authorCredit}
                                 />
-
-                                <div className="flex items-center space-x-2 text-sm">
-                                    <Calendar className="h-4 w-4 text-gray-400" />
-                                    <span>Created: {formatDate(new Date(article._creationTime))}</span>
-                                </div>
 
                                 <div className="text-sm text-gray-600">
                                     <p>

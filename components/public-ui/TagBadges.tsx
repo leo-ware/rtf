@@ -3,7 +3,6 @@
 import { useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Id } from "@/convex/_generated/dataModel"
-import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
 type TagBadgesProps = {
@@ -23,12 +22,8 @@ export function TagBadges({ tagIds, className }: TagBadgesProps) {
     if (tagsToDisplay.length === 0) return null
 
     return (
-        <div className={cn("flex flex-wrap gap-2", className)}>
-            {tagsToDisplay.map((tag) => (
-                <Badge key={tag._id} variant="secondary" className="text-xs font-normal">
-                    #{tag.name}
-                </Badge>
-            ))}
-        </div>
+        <span className={cn("text-xs uppercase font-semibold text-pewter/70", className)}>
+            {tagsToDisplay.map(t => t.name).join(" · ")}
+        </span>
     )
 }

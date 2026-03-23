@@ -23,6 +23,7 @@ const CONVEX_URL = "https://careful-panda-154.convex.cloud"
 const OUTPUT_DIR = "./output"
 const PROGRESS_FILE = path.join(OUTPUT_DIR, "import-progress.json")
 const TAG_MAP_FILE = path.join(OUTPUT_DIR, "tag-map.json")
+const IMAGE_CACHE_FILE = path.join(OUTPUT_DIR, "image-cache.json")
 
 const client = new ConvexHttpClient(CONVEX_URL)
 const api = anyApi
@@ -139,6 +140,35 @@ const saveTagMap = async (tagMap: Record<string, string>) => {
     await fs.writeFile(TAG_MAP_FILE, JSON.stringify(tagMap, null, 2))
 }
 
+// Image dedup cache: WP image URL → Convex image ID
+const loadImageCache = async (): Promise<Record<string, string>> => {
+    try {
+        const data = await fs.readFile(IMAGE_CACHE_FILE, "utf-8")
+        return JSON.parse(data)
+    } catch {
+        return {}
+    }
+}
+
+const saveImageCache = async (cache: Record<string, string>) => {
+    await fs.writeFile(IMAGE_CACHE_FILE, JSON.stringify(cache, null, 2))
+}
+
+// Normalize WP image URLs for dedup (strip size suffixes like -scaled, -e123, -300x200)
+const normalizeImageUrl = (url: string): string => {
+    try {
+        const u = new URL(url)
+        const ext = path.extname(u.pathname)
+        const base = u.pathname.replace(ext, "")
+            .replace(/-scaled$/, "")
+            .replace(/-e\d+$/, "")
+            .replace(/-\d+x\d+$/, "")
+        return `${u.origin}${base}${ext}`
+    } catch {
+        return url
+    }
+}
+
 const slugify = (name: string): string => {
     return name
         .toLowerCase()
@@ -149,7 +179,63 @@ const slugify = (name: string): string => {
 }
 
 const stripHtml = (html: string): string => {
-    return html.replace(/<[^>]*>/g, "").replace(/&[^;]+;/g, " ").trim()
+    return decodeHtmlEntities(html.replace(/<[^>]*>/g, "")).trim()
+}
+
+const decodeHtmlEntities = (text: string): string => {
+    return text
+        .replace(/&#038;/g, "&")
+        .replace(/&#8217;/g, "\u2019")
+        .replace(/&#8216;/g, "\u2018")
+        .replace(/&#8220;/g, "\u201C")
+        .replace(/&#8221;/g, "\u201D")
+        .replace(/&#8211;/g, "\u2013")
+        .replace(/&#8212;/g, "\u2014")
+        .replace(/&#8230;/g, "\u2026")
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/&#\d+;/g, (match) => {
+            const code = parseInt(match.slice(2, -1), 10)
+            return String.fromCharCode(code)
+        })
+}
+
+/**
+ * Remove the featured image from the article content HTML.
+ * WordPress often embeds the featured image as the first image in the content.
+ */
+const removeFeaturedImageFromContent = (content: string, featuredImageUrl: string | null): string => {
+    if (!featuredImageUrl) return content
+
+    // Extract the base filename without size suffixes like -scaled, -e123, -300x200
+    const urlPath = new URL(featuredImageUrl).pathname
+    const baseName = urlPath.split("/").pop()?.replace(/-scaled.*$/, "").replace(/-e\d+.*$/, "").replace(/-\d+x\d+.*$/, "") || ""
+
+    if (!baseName) return content
+
+    // Remove <div class="wp-caption"> blocks or <img> tags that reference this image
+    // First try removing the wp-caption div wrapper
+    const captionPattern = new RegExp(
+        `<div[^>]*class="wp-caption[^"]*"[^>]*>[\\s\\S]*?${baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[\\s\\S]*?</div>`,
+        "gi"
+    )
+    let cleaned = content.replace(captionPattern, "")
+
+    // If that didn't match, try removing standalone <img> tags
+    if (cleaned === content) {
+        const imgPattern = new RegExp(
+            `<img[^>]*${baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[^>]*>`,
+            "gi"
+        )
+        cleaned = cleaned.replace(imgPattern, "")
+    }
+
+    // Clean up any resulting empty paragraphs
+    cleaned = cleaned.replace(/<p>\s*<\/p>/g, "")
+
+    return cleaned.trim()
 }
 
 const determineCategory = (categoryIds: number[]): CategoryEnum | undefined => {
@@ -185,10 +271,20 @@ const downloadImage = async (url: string): Promise<{ blob: Blob, contentType: st
     }
 }
 
+// Global image cache — loaded at startup, saved periodically
+let imageCache: Record<string, string> = {}
+
 const uploadImage = async (
     imageData: { url: string, altText: string, width: number, height: number, title: string }
 ): Promise<string | null> => {
     try {
+        // Check dedup cache
+        const normalizedUrl = normalizeImageUrl(imageData.url)
+        if (imageCache[normalizedUrl]) {
+            log(`  Image dedup hit: ${normalizedUrl}`)
+            return imageCache[normalizedUrl]
+        }
+
         // Download
         const downloaded = await downloadImage(imageData.url)
         if (!downloaded) return null
@@ -225,6 +321,8 @@ const uploadImage = async (
             height: imageData.height || undefined,
         })
 
+        // Cache for dedup
+        imageCache[normalizedUrl] = imageId
         return imageId
     } catch (error) {
         log(`  Image upload error: ${error}`)
@@ -251,10 +349,11 @@ const createTags = async (categories: WPCategory[]): Promise<Record<string, stri
             continue // Already created
         }
 
-        const slug = slugify(cat.name)
+        const decodedName = decodeHtmlEntities(cat.name)
+        const slug = slugify(decodedName)
         try {
             const tagId = await client.mutation(api.migration.importCreateTag, {
-                name: cat.name,
+                name: decodedName,
                 slug,
             })
             tagMap[key] = tagId
@@ -274,6 +373,7 @@ const importArticle = async (
     tagMap: Record<string, string>,
     index: number,
     total: number,
+    fallbackImageId: string | null = null,
 ): Promise<boolean> => {
     log(`[${index + 1}/${total}] Importing: ${article.title.substring(0, 60)}...`)
 
@@ -293,10 +393,16 @@ const importArticle = async (
             imageId = await uploadImage(article.featuredImage)
             if (imageId) {
                 log(`  Image uploaded: ${imageId}`)
+            } else if (fallbackImageId) {
+                log(`  Image upload failed, using fallback image`)
+                imageId = fallbackImageId
             } else {
                 log(`  Image upload failed, skipping article (image required)`)
                 return false
             }
+        } else if (fallbackImageId) {
+            log(`  No featured image, using fallback image`)
+            imageId = fallbackImageId
         } else {
             log(`  No featured image, skipping article (image required)`)
             return false
@@ -311,15 +417,24 @@ const importArticle = async (
             .map(id => tagMap[String(id)])
             .filter((id): id is string => !!id)
 
+        // Decode HTML entities in title
+        const title = decodeHtmlEntities(article.title)
+
         // Clean excerpt (strip HTML tags)
-        const excerpt = stripHtml(article.excerpt) || article.title
+        const excerpt = stripHtml(article.excerpt) || title
+
+        // Remove featured image from content (WordPress often duplicates it)
+        const content = removeFeaturedImageFromContent(
+            article.content,
+            article.featuredImage?.url || null
+        )
 
         // Create article
         const articleId = await client.mutation(api.migration.importArticle, {
-            title: article.title,
+            title,
             slug: article.slug,
             excerpt,
-            content: article.content,
+            content,
             date: new Date(article.date).getTime(),
             imageId,
             authorCredit: article.authorName !== "Unknown" ? article.authorName : undefined,
@@ -340,6 +455,7 @@ const main = async () => {
     const args = process.argv.slice(2)
     let limit = Infinity
     let offset = 0
+    let fallbackImageId: string | null = null
 
     for (let i = 0; i < args.length; i++) {
         if (args[i] === "--limit" && args[i + 1]) {
@@ -350,11 +466,16 @@ const main = async () => {
             offset = parseInt(args[i + 1], 10)
             i++
         }
+        if (args[i] === "--fallback-image" && args[i + 1]) {
+            fallbackImageId = args[i + 1]
+            i++
+        }
     }
 
     log("=".repeat(60))
     log("WordPress → Convex Article Importer")
     log(`Limit: ${limit === Infinity ? "all" : limit}, Offset: ${offset}`)
+    if (fallbackImageId) log(`Fallback image: ${fallbackImageId}`)
     log("=".repeat(60))
 
     // Load data
@@ -366,6 +487,10 @@ const main = async () => {
     )
 
     log(`Loaded ${articles.length} articles, ${categories.length} categories`)
+
+    // Load image cache for dedup
+    imageCache = await loadImageCache()
+    log(`Image cache: ${Object.keys(imageCache).length} entries`)
 
     // Load progress
     const progress = await loadProgress()
@@ -388,7 +513,7 @@ const main = async () => {
 
     for (let i = 0; i < toImport.length; i++) {
         const article = toImport[i]
-        const ok = await importArticle(article, tagMap, i, toImport.length)
+        const ok = await importArticle(article, tagMap, i, toImport.length, fallbackImageId)
 
         if (ok) {
             success++
@@ -401,6 +526,7 @@ const main = async () => {
         // Save progress every 10 articles
         if ((i + 1) % 10 === 0 || i === toImport.length - 1) {
             await saveProgress(progress)
+            await saveImageCache(imageCache)
         }
     }
 

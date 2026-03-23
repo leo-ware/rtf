@@ -33,6 +33,8 @@ const CinematicSection = ({
                     src={image}
                     alt={imageAlt}
                     fill
+                    priority
+                    sizes="100vw"
                     className="absolute inset-0 w-full h-full object-cover object-center"
                     wrapperClassName="absolute inset-0 w-full h-full"
                 />
@@ -63,6 +65,8 @@ const CinematicSection = ({
                     src={image}
                     alt={imageAlt}
                     fill
+                    priority
+                    sizes="100vw"
                     className="absolute inset-0 w-full h-full object-cover object-center"
                     wrapperClassName="absolute inset-0 w-full h-full"
                 />

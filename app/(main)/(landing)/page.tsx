@@ -48,6 +48,8 @@ const HomePage = () => {
                     priority
                     className="z-0 absolute w-full h-full object-cover"
                     placeholder="blur"
+                    quality={90}
+                    sizes="100vw"
                 />
                 <video
                     className={`z-[1] absolute w-full h-full object-cover transition-opacity duration-700 ${videoReady ? "opacity-100" : "opacity-0"}`}
@@ -75,12 +77,12 @@ const HomePage = () => {
                         <span className="block lg:inline w-full">
                             <TextCycler
                                 hideUnderline
-                                words={["Conservation", "Sanctuary", "Advocacy", "Education"]}
+                                words={["Sanctuary", "Conservation", "Education", "Advocacy"]}
                                 hrefs={[
-                                    "/what-we-do/conservation",
                                     "/what-we-do/sanctuary",
-                                    "/what-we-do/advocacy",
+                                    "/what-we-do/conservation",
                                     "/what-we-do/education",
+                                    "/what-we-do/advocacy",
                                 ]}
                             />
                         </span>

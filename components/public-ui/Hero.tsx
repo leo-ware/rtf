@@ -14,6 +14,8 @@ const Hero = ({ title, image, authorCredit }: { title: string; image: StaticImag
         alt="About Hero"
         className="z-0 absolute top-0 left-0 w-full h-full object-cover object-center"
         fill
+        priority
+        sizes="100vw"
         wrapperClassName="z-0 absolute top-0 left-0 w-full h-full"
         authorCredit={authorCredit}
       />

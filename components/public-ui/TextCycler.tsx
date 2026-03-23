@@ -16,6 +16,7 @@ type TextCyclerProps = {
 
 const TextCycler = ({ words, hrefs, interval = 800, pause = 3500, className, hideUnderline }: TextCyclerProps) => {
     const [index, setIndex] = useState(0)
+    const [isFirstRender, setIsFirstRender] = useState(true)
     const shouldReduceMotion = useReducedMotion()
 
     const longestWord = useMemo(
@@ -24,6 +25,7 @@ const TextCycler = ({ words, hrefs, interval = 800, pause = 3500, className, hid
     )
 
     useEffect(() => {
+        setIsFirstRender(false)
         const id = setInterval(() => {
             setIndex((prev) => (prev + 1) % words.length)
         }, interval + pause)
@@ -85,7 +87,7 @@ const TextCycler = ({ words, hrefs, interval = 800, pause = 3500, className, hid
                         <motion.span
                             key={currentWord}
                             className="inline-block"
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={isFirstRender ? false : { opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -20 }}
                             transition={{ duration: 0.4 }}
