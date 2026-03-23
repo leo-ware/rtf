@@ -194,21 +194,41 @@ export const getForTags = query({
     },
 })
 
-export const listHerds = query({
-    args: {},
-    returns: v.array(v.object({ _id: v.id("herds"), name: v.string() })),
-    handler: async (ctx) => {
-        const herds = await ctx.db.query("herds").collect();
-        return herds.map(h => ({ _id: h._id, name: h.name }));
+export const searchHerds = query({
+    args: {
+        query: v.optional(v.string()),
+        paginationOpts: paginationOptsValidator,
+    },
+    handler: async (ctx, args) => {
+        const results = args.query
+            ? await ctx.db.query("herds")
+                .withSearchIndex("searchName", q => q.search("name", args.query!))
+                .paginate(args.paginationOpts)
+            : await ctx.db.query("herds")
+                .paginate(args.paginationOpts)
+        return {
+            ...results,
+            page: results.page.map(h => ({ _id: h._id, name: h.name })),
+        }
     }
 })
 
-export const listAnimals = query({
-    args: {},
-    returns: v.array(v.object({ _id: v.id("animals"), name: v.string() })),
-    handler: async (ctx) => {
-        const animals = await ctx.db.query("animals").collect();
-        return animals.map(a => ({ _id: a._id, name: a.name }));
+export const searchAnimals = query({
+    args: {
+        query: v.optional(v.string()),
+        paginationOpts: paginationOptsValidator,
+    },
+    handler: async (ctx, args) => {
+        const results = args.query
+            ? await ctx.db.query("animals")
+                .withSearchIndex("searchName", q => q.search("name", args.query!))
+                .paginate(args.paginationOpts)
+            : await ctx.db.query("animals")
+                .paginate(args.paginationOpts)
+        return {
+            ...results,
+            page: results.page.map(a => ({ _id: a._id, name: a.name })),
+        }
     }
 })
 

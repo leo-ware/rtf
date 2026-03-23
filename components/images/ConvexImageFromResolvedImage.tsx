@@ -23,6 +23,7 @@ const ConvexImageFromResolvedImage = ({ image, className, style, objectFit }: Co
             style={style}
             objectFit={objectFit}
             authorCredit={authorCredit}
+            blurDataUrl={image.blurDataUrl}
         />
     )
 }

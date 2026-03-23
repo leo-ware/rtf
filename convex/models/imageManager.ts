@@ -117,6 +117,7 @@ export default class ImageManager {
             ...image,
             url: imageUrl || null,
             authorNames,
+            blurDataUrl: image.blurDataUrl,
         }
     }
 

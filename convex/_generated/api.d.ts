@@ -29,6 +29,8 @@ import type * as externalArticles from "../externalArticles.js";
 import type * as galleryItems from "../galleryItems.js";
 import type * as herds from "../herds.js";
 import type * as http from "../http.js";
+import type * as imageProcessing from "../imageProcessing.js";
+import type * as imageProcessingHelpers from "../imageProcessingHelpers.js";
 import type * as images from "../images.js";
 import type * as jobListing from "../jobListing.js";
 import type * as learnTimelines from "../learnTimelines.js";
@@ -93,6 +95,8 @@ declare const fullApi: ApiFromModules<{
   galleryItems: typeof galleryItems;
   herds: typeof herds;
   http: typeof http;
+  imageProcessing: typeof imageProcessing;
+  imageProcessingHelpers: typeof imageProcessingHelpers;
   images: typeof images;
   jobListing: typeof jobListing;
   learnTimelines: typeof learnTimelines;

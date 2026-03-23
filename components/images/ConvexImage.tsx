@@ -12,13 +12,10 @@ export type ConvexImageProps = {
     className?: string
     authorCredit?: string
     style?: React.CSSProperties
+    blurDataUrl?: string | null
 }
 
-const ConvexImage: React.FC<ConvexImageProps> = ({ src, width, height, alt, objectFit = "cover", className, authorCredit, style }: ConvexImageProps) => {
-    const loader = ({ src }: { src: string }) => {
-        return src
-    }
-
+const ConvexImage: React.FC<ConvexImageProps> = ({ src, width, height, alt, objectFit = "cover", className, authorCredit, style, blurDataUrl }: ConvexImageProps) => {
     const classes = cn("relative group", className)
 
     return (
@@ -31,7 +28,8 @@ const ConvexImage: React.FC<ConvexImageProps> = ({ src, width, height, alt, obje
                     alt={alt}
                     style={{ objectFit }}
                     className="w-full h-full"
-                    loader={loader} />
+                    {...(blurDataUrl ? { placeholder: "blur", blurDataURL: blurDataUrl } : {})}
+                />
             )}
             {authorCredit && (
                 <div className="absolute bottom-0 right-0 px-2 py-1 bg-black/60 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">

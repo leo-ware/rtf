@@ -11,7 +11,7 @@ import NewsHeroImage from "./news-hero-image.jpg"
 import { cn, formatDate } from "@/lib/utils"
 import { FaSearch } from "react-icons/fa"
 import ConvexImage from "@/components/images/ConvexImage"
-import { ExternalLink, Loader2 } from "lucide-react"
+import { ChevronRight, ExternalLink, Loader2 } from "lucide-react"
 import { trackEvent, AnalyticsEvents } from "@/lib/analytics"
 import { TagBadges } from "@/components/public-ui/TagBadges"
 import { Id } from "@/convex/_generated/dataModel"
@@ -34,6 +34,7 @@ const NewsOptionBox = (props: React.DetailedHTMLProps<React.HTMLAttributes<HTMLD
 
 export default function NewsPage() {
 
+    const [showFilters, setShowFilters] = useState(false)
     const [searchTerm, setSearchTerm] = useState<string | null>(null)
     const [external, setExternal] = useState<SelectOption<boolean | undefined> | null>(null)
     const [selectedTags, setSelectedTags] = useState<Id<"tags">[]>([])
@@ -188,9 +189,10 @@ export default function NewsPage() {
 
             <div className="h-fit w-10/12 mx-auto flex flex-col gap-8 py-8">
                 {/* Search */}
-                <div className="flex flex-col gap-4">
-                    <div className="w-full flex flex-wrap lg:flex-nowrap gap-3 items-center">
-                        <div className="w-[200px]">
+                <div className="flex flex-col gap-3">
+                    {/* Desktop: single row | Tablet: two rows | Phone: search + toggle */}
+                    <div className="w-full flex flex-col lg:flex-row gap-3">
+                        <div className="w-full lg:w-[300px] lg:mr-auto">
                             <Input
                                 value={searchTerm ?? ""}
                                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -203,78 +205,92 @@ export default function NewsPage() {
                                 }
                             />
                         </div>
-                        <Select
-                            placeholder="Source"
-                            containerClassName="w-[100px]"
-                            options={[
-                                { label: "All", value: undefined },
-                                { label: "RTF", value: false },
-                                { label: "External", value: true },
-                            ]}
-                            selectedValue={external ?? null}
-                            onSelect={setExternal}
-                        />
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <div className="h-10 w-[130px] border-2 border-pewter rounded-sm px-2 flex items-center justify-between cursor-pointer bg-white shrink-0">
-                                    <span className="uppercase text-sm font-semibold text-pewter truncate">
-                                        {startDate || endDate ? `${startDate ? startDate.slice(5) : "…"} – ${endDate ? endDate.slice(5) : "…"}` : "Date"}
-                                    </span>
-                                    <FaCaretDown size={14} className="text-pewter shrink-0 ml-1" />
-                                </div>
-                            </PopoverTrigger>
-                            <PopoverContent
-                                className="w-auto p-3 border-2 border-pewter rounded-sm shadow-md"
-                                align="start"
-                                sideOffset={4}
-                                avoidCollisions={false}
-                            >
-                                <div className="flex flex-col gap-2">
-                                    <div className="flex flex-col gap-1">
-                                        <span className="text-xs font-bold uppercase text-pewter/60 tracking-wider">From</span>
-                                        <input
-                                            type="date"
-                                            value={startDate}
-                                            onChange={(e) => setStartDate(e.target.value)}
-                                            max={endDate || undefined}
-                                            className="h-9 border-2 border-pewter rounded-sm px-2 text-sm font-semibold text-pewter bg-white"
-                                        />
-                                    </div>
-                                    <div className="flex flex-col gap-1">
-                                        <span className="text-xs font-bold uppercase text-pewter/60 tracking-wider">To</span>
-                                        <input
-                                            type="date"
-                                            value={endDate}
-                                            onChange={(e) => setEndDate(e.target.value)}
-                                            min={startDate || undefined}
-                                            className="h-9 border-2 border-pewter rounded-sm px-2 text-sm font-semibold text-pewter bg-white"
-                                        />
-                                    </div>
-                                    {(startDate || endDate) && (
-                                        <button
-                                            className="mt-1 text-xs font-bold uppercase text-pewter/50 hover:text-pewter tracking-wider text-right"
-                                            onClick={() => { setStartDate(""); setEndDate("") }}
-                                        >
-                                            Clear
-                                        </button>
-                                    )}
-                                </div>
-                            </PopoverContent>
-                        </Popover>
-                        <div className="w-[150px]">
-                            <MultiCheckboxDropdown
-                                placeholder="Topics"
-                                items={combinedFilterItems}
-                                selectedValues={combinedSelectedValues}
-                                onSelectionChange={handleCombinedFilterChange}
-                                searchable
+                        {/* Phone: Options toggle button */}
+                        <button
+                            className="md:hidden flex items-center gap-1 text-sm font-semibold text-pewter uppercase"
+                            onClick={() => setShowFilters(f => !f)}
+                        >
+                            <ChevronRight className={cn("w-4 h-4 transition-transform", showFilters && "rotate-90")} />
+                            Options
+                        </button>
+                        {/* Filters: always visible on md+, toggled on phone */}
+                        <div className={cn(
+                            "w-full lg:w-auto flex flex-wrap lg:flex-nowrap gap-3 items-center",
+                            showFilters ? "flex" : "hidden md:flex"
+                        )}>
+                            <Select
+                                placeholder="Source"
+                                containerClassName="w-[100px]"
+                                options={[
+                                    { label: "All", value: undefined },
+                                    { label: "RTF", value: false },
+                                    { label: "External", value: true },
+                                ]}
+                                selectedValue={external ?? null}
+                                onSelect={setExternal}
                             />
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <div className="h-10 w-[130px] border-2 border-pewter rounded-sm px-2 flex items-center justify-between cursor-pointer bg-white shrink-0">
+                                        <span className="uppercase text-sm font-semibold text-pewter truncate">
+                                            {startDate || endDate ? `${startDate ? startDate.slice(5) : "…"} – ${endDate ? endDate.slice(5) : "…"}` : "Date"}
+                                        </span>
+                                        <FaCaretDown size={14} className="text-pewter shrink-0 ml-1" />
+                                    </div>
+                                </PopoverTrigger>
+                                <PopoverContent
+                                    className="w-auto p-3 border-2 border-pewter rounded-sm shadow-md"
+                                    align="start"
+                                    sideOffset={4}
+                                    avoidCollisions={false}
+                                >
+                                    <div className="flex flex-col gap-2">
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-xs font-bold uppercase text-pewter/60 tracking-wider">From</span>
+                                            <input
+                                                type="date"
+                                                value={startDate}
+                                                onChange={(e) => setStartDate(e.target.value)}
+                                                max={endDate || undefined}
+                                                className="h-9 border-2 border-pewter rounded-sm px-2 text-sm font-semibold text-pewter bg-white"
+                                            />
+                                        </div>
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-xs font-bold uppercase text-pewter/60 tracking-wider">To</span>
+                                            <input
+                                                type="date"
+                                                value={endDate}
+                                                onChange={(e) => setEndDate(e.target.value)}
+                                                min={startDate || undefined}
+                                                className="h-9 border-2 border-pewter rounded-sm px-2 text-sm font-semibold text-pewter bg-white"
+                                            />
+                                        </div>
+                                        {(startDate || endDate) && (
+                                            <button
+                                                className="mt-1 text-xs font-bold uppercase text-pewter/50 hover:text-pewter tracking-wider text-right"
+                                                onClick={() => { setStartDate(""); setEndDate("") }}
+                                            >
+                                                Clear
+                                            </button>
+                                        )}
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
+                            <div className="w-[150px]">
+                                <MultiCheckboxDropdown
+                                    placeholder="Topics"
+                                    items={combinedFilterItems}
+                                    selectedValues={combinedSelectedValues}
+                                    onSelectionChange={handleCombinedFilterChange}
+                                    searchable
+                                />
+                            </div>
+                            <NewsOptionBox
+                                className="w-fit h-10 border-none cursor-pointer hover:text-gray-700"
+                                onClick={resetSearch}>
+                                Reset
+                            </NewsOptionBox>
                         </div>
-                        <NewsOptionBox
-                            className="w-fit h-10 border-none cursor-pointer hover:text-gray-700"
-                            onClick={resetSearch}>
-                            Reset
-                        </NewsOptionBox>
                     </div>
                 </div>
 
@@ -289,8 +305,8 @@ export default function NewsPage() {
                             <div className="w-full h-fit min-h-[400px] flex flex-col gap-4">
                                 <div className="w-full flex flex-col gap-4">
                                     {displayedArticles.map((article) => (
-                                        <div key={article._id} className="w-full h-[200px] bg-gray-50 flex flex-row justify-between items-center">
-                                            <div className="w-1/4 h-full bg-gray-100">
+                                        <div key={article._id} className="w-full md:h-[200px] bg-gray-50 flex flex-col md:flex-row justify-between items-center">
+                                            <div className="w-full h-[200px] md:w-1/4 md:h-full bg-gray-100 shrink-0">
                                                 {article.image?.url && (
                                                     <ConvexImage
                                                         src={article.image?.url}
@@ -302,7 +318,7 @@ export default function NewsPage() {
                                                     />
                                                 )}
                                             </div>
-                                            <div className="w-3/4 px-10 flex flex-col gap-2 items-start justify-center">
+                                            <div className="w-full md:w-3/4 px-4 py-4 md:px-10 md:py-0 flex flex-col gap-2 items-start justify-center">
                                                 {article.articleId ? (
                                                     <Link href={`/api/redirect/article/${article.articleId}`} className="text-lg font-serif">
                                                         {article.title}
@@ -312,7 +328,7 @@ export default function NewsPage() {
                                                         href={`/api/redirect/external-article/${article.externalArticleId}`}
                                                         target="_blank"
                                                         rel="noopener"
-                                                        className="text-lg font-serif inline-flex items-center"
+                                                        className="text-lg font-serif inline-flex items-start"
                                                         onClick={() => trackEvent(AnalyticsEvents.EXTERNAL_LINK_CLICKED, {
                                                             title: article.title,
                                                             organization: article.organization,
@@ -320,7 +336,7 @@ export default function NewsPage() {
                                                         })}
                                                     >
                                                         {article.title}
-                                                        <ExternalLink className="w-4 h-4 ml-1 shrink-0" />
+                                                        <ExternalLink className="w-4 h-4 ml-1 mt-1 shrink-0 hidden md:inline" />
                                                     </Link>
                                                 )}
                                                 <TagBadges tagIds={article.tags} />
@@ -336,7 +352,7 @@ export default function NewsPage() {
                                                     {" | "}
                                                     {article.externalArticleId ? "External" : "RTF"}
                                                 </div>
-                                                <div className="text-sm line-clamp-4">
+                                                <div className="text-sm line-clamp-3">
                                                     {article.excerpt}
                                                 </div>
                                             </div>

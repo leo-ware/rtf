@@ -23,8 +23,6 @@ const OurPeopleBento = () => {
         })
         .slice(0, 8)
 
-    const loader = ({ src }: { src: string }) => src
-
     const imageCell = (person: typeof withImages[number], idx: number, className: string) => (
         <ScrollReveal key={person._id} variant="scale" delay={idx * 0.08} className={className}>
             <div className="relative w-full h-full overflow-hidden rounded-sm group">
@@ -33,7 +31,6 @@ const OurPeopleBento = () => {
                     alt={person.name}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    loader={loader}
                     sizes="(max-width: 768px) 50vw, 33vw"
                 />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-3 py-2 translate-y-full group-hover:translate-y-0 transition-transform duration-300">

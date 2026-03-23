@@ -14,6 +14,7 @@ const ConvexImageFromId = ({imageId, className, style}: {imageId: Id<"images">, 
             className={className}
             authorCredit={image?.authorNames && image.authorNames.length > 0 ? image.authorNames.join(", ") : image?.authorCredit}
             style={style}
+            blurDataUrl={image?.blurDataUrl}
         />
     )
 }

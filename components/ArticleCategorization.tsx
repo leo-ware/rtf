@@ -1,13 +1,19 @@
 "use client"
 
-import { useState, useMemo, KeyboardEvent } from "react"
-import { useQuery, useMutation } from "convex/react"
+import { useState, useMemo, useRef, useEffect, useCallback, KeyboardEvent } from "react"
+import { useQuery, useMutation, usePaginatedQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Id } from "@/convex/_generated/dataModel"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { X, Plus, Trash2 } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
+import { X, Plus, Trash2, ChevronsUpDown, Search } from "lucide-react"
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -47,8 +53,6 @@ export function ArticleCategorization({
     tags,
     setTags
 }: ArticleCategorizationProps) {
-    const herds = useQuery(api.articleMetadata.listHerds)
-    const animals = useQuery(api.articleMetadata.listAnimals)
     const availableTopics = useQuery(api.articleMetadata.listTopics)
     const availableTags = useQuery(api.tags.list)
 
@@ -111,11 +115,12 @@ export function ArticleCategorization({
             {herdIds && setHerdIds && (
                 <div className="space-y-2">
                     <label className="text-sm font-medium">Select one or more herds related to this article</label>
-                    <SimpleMultiSelect
-                        selectedIds={herdIds}
-                        onChange={setHerdIds}
-                        options={herds}
-                        placeholder="Select herds..."
+                    <ServerSearchMultiSelect
+                        selectedIds={herdIds as string[]}
+                        onChange={(ids) => setHerdIds(ids as Id<"herds">[])}
+                        searchEndpoint="searchHerds"
+                        placeholder="Search herds..."
+                        label="herds"
                     />
                 </div>
             )}
@@ -124,11 +129,12 @@ export function ArticleCategorization({
             {animalIds && setAnimalIds && (
                 <div className="space-y-2">
                     <label className="text-sm font-medium">Select one or more animals related to this article</label>
-                    <SimpleMultiSelect
-                        selectedIds={animalIds}
-                        onChange={setAnimalIds}
-                        options={animals}
-                        placeholder="Select animals..."
+                    <ServerSearchMultiSelect
+                        selectedIds={animalIds as string[]}
+                        onChange={(ids) => setAnimalIds(ids as Id<"animals">[])}
+                        searchEndpoint="searchAnimals"
+                        placeholder="Search animals..."
+                        label="animals"
                     />
                 </div>
             )}
@@ -137,11 +143,12 @@ export function ArticleCategorization({
             {topics && setTopics && (
                 <div className="space-y-2">
                     <label className="text-sm font-medium">Choose which site page(s) to display this article on</label>
-                    <SimpleMultiSelect
+                    <ClientSearchMultiSelect
                         selectedIds={topics}
                         onChange={setTopics}
                         options={availableTopics}
-                        placeholder="Select topics..."
+                        placeholder="Search topics..."
+                        label="topics"
                     />
                 </div>
             )}
@@ -160,11 +167,12 @@ export function ArticleCategorization({
                         New Tag
                     </Button>
                 </div>
-                <SimpleMultiSelect
+                <ClientSearchMultiSelect
                     selectedIds={tags}
                     onChange={setTags}
                     options={sortedTags}
-                    placeholder="Select tags..."
+                    placeholder="Search tags..."
+                    label="tags"
                     onDelete={(id) => setTagPendingDelete(id)}
                 />
 
@@ -302,51 +310,282 @@ export function ArticleCategorization({
     )
 }
 
-function SimpleMultiSelect<T extends string>({ selectedIds, onChange, options, placeholder, onDelete }: {
-    selectedIds: T[],
-    onChange: (ids: T[]) => void,
-    options: { _id: T, name: string }[] | undefined,
-    placeholder: string,
+/**
+ * Server-side search multi-select for herds/animals.
+ * Sends search query to Convex and displays results.
+ */
+function ServerSearchMultiSelect({ selectedIds, onChange, searchEndpoint, placeholder, label }: {
+    selectedIds: string[]
+    onChange: (ids: string[]) => void
+    searchEndpoint: "searchHerds" | "searchAnimals"
+    placeholder: string
+    label: string
+}) {
+    const [open, setOpen] = useState(false)
+    const [search, setSearch] = useState("")
+    const scrollRef = useRef<HTMLDivElement>(null)
+    const sentinelRef = useRef<HTMLDivElement>(null)
+
+    const searchQuery = search.trim() || undefined
+    const { results, status, loadMore } = usePaginatedQuery(
+        api.articleMetadata[searchEndpoint],
+        { query: searchQuery },
+        { initialNumItems: 20 }
+    )
+
+    // Resolve names for already-selected items (they may not be in current search results)
+    const { results: allResults } = usePaginatedQuery(
+        api.articleMetadata[searchEndpoint],
+        { query: undefined },
+        { initialNumItems: 20 }
+    )
+
+    const selectedNames = useMemo(() => {
+        const map = new Map<string, string>()
+        for (const item of allResults ?? []) {
+            if (selectedIds.includes(item._id)) {
+                map.set(item._id, item.name)
+            }
+        }
+        for (const item of results ?? []) {
+            if (selectedIds.includes(item._id)) {
+                map.set(item._id, item.name)
+            }
+        }
+        return map
+    }, [allResults, results, selectedIds])
+
+    // Infinite scroll: load more when sentinel is visible
+    const handleLoadMore = useCallback(() => {
+        if (status === "CanLoadMore") {
+            loadMore(20)
+        }
+    }, [status, loadMore])
+
+    useEffect(() => {
+        const sentinel = sentinelRef.current
+        const scrollContainer = scrollRef.current
+        if (!sentinel || !scrollContainer) return
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting) {
+                    handleLoadMore()
+                }
+            },
+            { root: scrollContainer, threshold: 0.1 }
+        )
+        observer.observe(sentinel)
+        return () => observer.disconnect()
+    }, [handleLoadMore])
+
+    const toggle = (id: string) => {
+        if (selectedIds.includes(id)) {
+            onChange(selectedIds.filter(sid => sid !== id))
+        } else {
+            onChange([...selectedIds, id])
+        }
+    }
+
+    return (
+        <div className="space-y-2">
+            <Popover open={open} onOpenChange={(o) => { setOpen(o); if (!o) setSearch("") }}>
+                <PopoverTrigger asChild>
+                    <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={open}
+                        type="button"
+                        className="w-full justify-between font-normal"
+                    >
+                        <span className="text-muted-foreground">
+                            {selectedIds.length === 0
+                                ? `Select ${label}...`
+                                : `${selectedIds.length} ${label} selected`
+                            }
+                        </span>
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                    <div className="flex items-center gap-2 border-b px-3 py-2">
+                        <Search className="h-4 w-4 shrink-0 opacity-50" />
+                        <input
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder={placeholder}
+                            className="flex h-8 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                            autoFocus
+                        />
+                    </div>
+                    <div ref={scrollRef} className="max-h-[200px] overflow-y-auto p-1">
+                        {status === "LoadingFirstPage" && (
+                            <p className="py-4 text-center text-sm text-muted-foreground">Loading...</p>
+                        )}
+                        {status !== "LoadingFirstPage" && results.length === 0 && (
+                            <p className="py-4 text-center text-sm text-muted-foreground">No results found.</p>
+                        )}
+                        {results.map(opt => {
+                            const isSelected = selectedIds.includes(opt._id)
+                            return (
+                                <div
+                                    key={opt._id}
+                                    className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent"
+                                    onClick={() => toggle(opt._id)}
+                                >
+                                    <Checkbox
+                                        checked={isSelected}
+                                        onCheckedChange={() => toggle(opt._id)}
+                                        className="pointer-events-none"
+                                    />
+                                    <span className="flex-1">{opt.name}</span>
+                                </div>
+                            )
+                        })}
+                        {status !== "Exhausted" && status !== "LoadingFirstPage" && (
+                            <div ref={sentinelRef} className="py-2 text-center text-xs text-muted-foreground">
+                                {status === "LoadingMore" ? "Loading..." : ""}
+                            </div>
+                        )}
+                    </div>
+                </PopoverContent>
+            </Popover>
+
+            {/* Selected items as badges */}
+            {selectedIds.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                    {selectedIds.map(id => (
+                        <Badge
+                            key={id}
+                            variant="secondary"
+                            className="cursor-pointer"
+                            onClick={() => toggle(id)}
+                        >
+                            {selectedNames.get(id) ?? id}
+                            <X className="ml-1 h-3 w-3" />
+                        </Badge>
+                    ))}
+                </div>
+            )}
+        </div>
+    )
+}
+
+/**
+ * Client-side search multi-select for topics/tags (small, static lists).
+ */
+function ClientSearchMultiSelect<T extends string>({ selectedIds, onChange, options, placeholder, label, onDelete }: {
+    selectedIds: T[]
+    onChange: (ids: T[]) => void
+    options: { _id: T, name: string }[] | undefined
+    placeholder: string
+    label: string
     onDelete?: (id: T) => void
 }) {
+    const [open, setOpen] = useState(false)
+    const [search, setSearch] = useState("")
+
     if (options === undefined) {
         return <span className="text-sm text-muted-foreground">Loading...</span>
     }
 
+    const filtered = search.trim()
+        ? options.filter(opt => opt.name.toLowerCase().includes(search.toLowerCase().trim()))
+        : options
+
+    const selectedOptions = options.filter(opt => selectedIds.includes(opt._id))
+
+    const toggle = (id: T) => {
+        if (selectedIds.includes(id)) {
+            onChange(selectedIds.filter(sid => sid !== id))
+        } else {
+            onChange([...selectedIds, id])
+        }
+    }
+
     return (
-        <div className="flex flex-wrap gap-2">
-            {options.map(opt => {
-                const isSelected = selectedIds.includes(opt._id);
-                return (
-                    <Badge
-                        key={opt._id}
-                        variant={isSelected ? "default" : "outline"}
-                        className="cursor-pointer"
-                        onClick={() => {
-                            if (isSelected) {
-                                onChange(selectedIds.filter(id => id !== opt._id));
-                            } else {
-                                onChange([...selectedIds, opt._id]);
-                            }
-                        }}
+        <div className="space-y-2">
+            <Popover open={open} onOpenChange={(o) => { setOpen(o); if (!o) setSearch("") }}>
+                <PopoverTrigger asChild>
+                    <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={open}
+                        type="button"
+                        className="w-full justify-between font-normal"
                     >
-                        {opt.name}
-                        {isSelected && <X className="ml-1 h-3 w-3" />}
-                        {onDelete && (
-                            <div
-                                className="ml-1 hover:text-red-500 p-0.5 rounded-full hover:bg-red-100"
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    onDelete(opt._id)
-                                }}
-                            >
-                                <Trash2 className="h-3 w-3" />
-                            </div>
+                        <span className="text-muted-foreground">
+                            {selectedIds.length === 0
+                                ? `Select ${label}...`
+                                : `${selectedIds.length} ${label} selected`
+                            }
+                        </span>
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                    <div className="flex items-center gap-2 border-b px-3 py-2">
+                        <Search className="h-4 w-4 shrink-0 opacity-50" />
+                        <input
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder={placeholder}
+                            className="flex h-8 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                            autoFocus
+                        />
+                    </div>
+                    <div className="max-h-[200px] overflow-y-auto p-1">
+                        {filtered.length === 0 && (
+                            <p className="py-4 text-center text-sm text-muted-foreground">No results found.</p>
                         )}
-                    </Badge>
-                )
-            })}
-            {options.length === 0 && <span className="text-sm text-muted-foreground">No items found.</span>}
+                        {filtered.map(opt => {
+                            const isSelected = selectedIds.includes(opt._id)
+                            return (
+                                <div
+                                    key={opt._id}
+                                    className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm cursor-pointer hover:bg-accent group"
+                                    onClick={() => toggle(opt._id)}
+                                >
+                                    <Checkbox
+                                        checked={isSelected}
+                                        onCheckedChange={() => toggle(opt._id)}
+                                        className="pointer-events-none"
+                                    />
+                                    <span className="flex-1">{opt.name}</span>
+                                    {onDelete && (
+                                        <div
+                                            className="opacity-0 group-hover:opacity-100 hover:text-red-500 p-0.5 rounded-full hover:bg-red-100"
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                onDelete(opt._id)
+                                            }}
+                                        >
+                                            <Trash2 className="h-3 w-3" />
+                                        </div>
+                                    )}
+                                </div>
+                            )
+                        })}
+                    </div>
+                </PopoverContent>
+            </Popover>
+
+            {/* Selected items as badges */}
+            {selectedOptions.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                    {selectedOptions.map(opt => (
+                        <Badge
+                            key={opt._id}
+                            variant="secondary"
+                            className="cursor-pointer"
+                            onClick={() => toggle(opt._id)}
+                        >
+                            {opt.name}
+                            <X className="ml-1 h-3 w-3" />
+                        </Badge>
+                    ))}
+                </div>
+            )}
         </div>
     )
 }

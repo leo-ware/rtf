@@ -16,4 +16,5 @@ export type ResolvedImageType = {
     mimeType: string;
     size: number;
     storageId: Id<"_storage">;
+    blurDataUrl?: string;
 }

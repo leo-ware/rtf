@@ -324,6 +324,7 @@ export default defineSchema({
         authorCredit: v.optional(v.string()),
         authors: v.optional(v.array(v.id("people"))),
         searchText: v.optional(v.string()),
+        blurDataUrl: v.optional(v.string()),
     })
         .searchIndex("searchTitle", {
             searchField: "searchText"
@@ -471,7 +472,8 @@ export default defineSchema({
         donationFormId: v.optional(v.id("donationForms")),
 
         articleMetadataIds: v.optional(v.array(v.id("articleMetadata"))),
-    }).index("by_slug", ["slug"]),
+    }).index("by_slug", ["slug"])
+        .searchIndex("searchName", { searchField: "name" }),
 
     galleryItems: defineTable({
         type: v.union(v.literal("image"), v.literal("video")),
@@ -511,7 +513,8 @@ export default defineSchema({
         .index("by_herd", ["herdId"])
         .index("by_in_memoriam", ["inMemoriam"])
         .index("by_adoptable", ["adoptable"])
-        .index("by_image", ["imageId"]),
+        .index("by_image", ["imageId"])
+        .searchIndex("searchName", { searchField: "name" }),
 
     people: defineTable({
         name: v.string(),

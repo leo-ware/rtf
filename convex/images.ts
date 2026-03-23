@@ -4,6 +4,7 @@ import { getCurrentUserOrThrow } from "./users"
 import ImageManager, { resolveImageId, buildSearchText } from "./models/imageManager"
 import { paginationOptsValidator } from "convex/server"
 import { imagesAggregate } from "./aggregates"
+import { internal } from "./_generated/api"
 
 export { resolveImageId };
 
@@ -44,6 +45,10 @@ export const createImage = mutation({
             throw new Error("Error creating image")
         }
         await imagesAggregate.insert(ctx, image)
+        await ctx.scheduler.runAfter(0, internal.imageProcessing.generateBlurDataUrl, {
+            imageId: image._id,
+            storageId: args.storageId,
+        })
         return image
     },
 })
@@ -118,6 +123,7 @@ export const listImagesByAuthors = query({
         authorCredit: v.optional(v.string()),
         authors: v.optional(v.array(v.id("people"))),
         searchText: v.optional(v.string()),
+        blurDataUrl: v.optional(v.string()),
         url: v.union(v.string(), v.null()),
         authorNames: v.array(v.string()),
     })),

@@ -24,7 +24,6 @@ const StorytellerCard = ({ name, title, bio, link, image }: StorytellerCardProps
                     alt={image.alt}
                     fill
                     className="object-cover"
-                    loader={({ src }) => src}
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 />
             ) : (

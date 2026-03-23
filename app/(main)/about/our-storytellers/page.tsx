@@ -91,7 +91,6 @@ const OurStorytellersPage = () => {
                                         alt={image.altText || image.title}
                                         fill
                                         className="object-cover"
-                                        loader={({ src }) => src}
                                         sizes="100vw"
                                     />
                                     {image.authorNames.length > 0 && (
