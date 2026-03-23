@@ -187,7 +187,7 @@ export default function NewsPage() {
                 <div className="flex flex-col gap-3">
                     {/* Desktop: single row | Tablet: two rows | Phone: search + toggle */}
                     <div className="w-full flex flex-col lg:flex-row gap-3">
-                        <div className="w-full lg:w-[300px] lg:mr-auto">
+                        <div className="w-full lg:w-[500px] lg:mr-auto">
                             <Input
                                 value={searchTerm ?? ""}
                                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -208,14 +208,18 @@ export default function NewsPage() {
                             <ChevronRight className={cn("w-4 h-4 transition-transform", showFilters && "rotate-90")} />
                             Options
                         </button>
-                        {/* Filters: always visible on md+, toggled on phone */}
+                        {/* Filters: always visible on md+, animated on phone */}
                         <div className={cn(
-                            "w-full lg:w-auto flex flex-wrap lg:flex-nowrap gap-3 items-center",
-                            showFilters ? "flex" : "hidden md:flex"
+                            "w-full md:w-auto flex flex-wrap lg:flex-nowrap gap-3 items-center",
+                            "md:!max-h-none md:!opacity-100",
+                            "transition-all duration-300 ease-in-out",
+                            showFilters
+                                ? "max-h-[200px] opacity-100"
+                                : "max-h-0 opacity-0 overflow-hidden md:overflow-visible"
                         )}>
                             <Select
                                 placeholder="Source"
-                                containerClassName="w-[100px]"
+                                containerClassName="w-[114px]"
                                 options={[
                                     { label: "All", value: undefined },
                                     { label: "RTF", value: false },

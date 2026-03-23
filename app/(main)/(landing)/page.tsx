@@ -1,6 +1,7 @@
 "use client"
 
 import Button from "@/components/public-ui/Button"
+import Image from "next/image"
 import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import Link from "next/link"
 import { Fragment } from "react"
@@ -29,6 +30,7 @@ import Header from "@/components/public-ui/Header"
 import TakeActionSection from "@/components/TakeActionSection"
 import TextCycler from "@/components/public-ui/TextCycler"
 import SubscribePrimary from "../contact/SubscribePrimary"
+import VideoPoster from "./imgs/landing_hero_video_preview.jpg"
 
 const landingVideoUrl =
     "https://pub-25922965d5524e8db13526bfb193c2ff.r2.dev/rtf-landing-video-v1.mp4"
@@ -37,12 +39,21 @@ const HomePage = () => {
     return (
         <div className="w-full">
             <div className="relative w-full h-[84vh] bg-pewter">
-                <video
+                <Image
+                    src={VideoPoster}
+                    alt=""
+                    fill
+                    priority
                     className="z-0 absolute w-full h-full object-cover"
+                    placeholder="blur"
+                />
+                <video
+                    className="z-[1] absolute w-full h-full object-cover"
                     autoPlay
                     loop
                     muted
                     playsInline
+                    preload="none"
                 >
                     {landingVideoUrl && (
                         <source src={landingVideoUrl} type="video/mp4" />

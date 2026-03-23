@@ -418,7 +418,18 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
                                         )}
                                     />
                                 </div>
+                            </CardContent>
+                        </Card>
 
+                        {/* Tags Section */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Tags & Categories</CardTitle>
+                                <CardDescription>
+                                    Associate this article with herds, animals, and topics
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
                                 <div className="space-y-2">
                                     <Label>Category</Label>
                                     <select
@@ -436,18 +447,6 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
                                         ))}
                                     </select>
                                 </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* Tags Section */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Tags & Categories</CardTitle>
-                                <CardDescription>
-                                    Associate this article with herds, animals, and topics
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
                                 <ArticleCategorization
                                     herdIds={articleMetadataFormData.herdIds || []}
                                     setHerdIds={(ids) => setArticleMetadataFormData(prev => ({ ...prev, herdIds: ids }))}

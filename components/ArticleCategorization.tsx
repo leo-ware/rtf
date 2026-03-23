@@ -114,7 +114,7 @@ export function ArticleCategorization({
             {/* Herds */}
             {herdIds && setHerdIds && (
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">Select one or more herds related to this article</label>
+                    <label className="text-sm font-medium">Associate Herds</label>
                     <ServerSearchMultiSelect
                         selectedIds={herdIds as string[]}
                         onChange={(ids) => setHerdIds(ids as Id<"herds">[])}
@@ -128,7 +128,7 @@ export function ArticleCategorization({
             {/* Animals */}
             {animalIds && setAnimalIds && (
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">Select one or more animals related to this article</label>
+                    <label className="text-sm font-medium">Associate Horses</label>
                     <ServerSearchMultiSelect
                         selectedIds={animalIds as string[]}
                         onChange={(ids) => setAnimalIds(ids as Id<"animals">[])}
@@ -142,7 +142,7 @@ export function ArticleCategorization({
             {/* Topics */}
             {topics && setTopics && (
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">Choose which site page(s) to display this article on</label>
+                    <label className="text-sm font-medium">Promote on these Pages</label>
                     <ClientSearchMultiSelect
                         selectedIds={topics}
                         onChange={setTopics}
@@ -156,7 +156,7 @@ export function ArticleCategorization({
             {/* Tags */}
             <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium">Select one or more tags for this article</label>
+                    <label className="text-sm font-medium">Select Tags</label>
                     <Button
                         size="sm"
                         variant="outline"
