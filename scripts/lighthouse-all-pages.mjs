@@ -117,8 +117,8 @@ for (const r of results) {
     const lcp = typeof r.lcp === "number" ? r.lcp.toFixed(1) : r.lcp
     const fcp = typeof r.fcp === "number" ? r.fcp.toFixed(1) : r.fcp
     const si = typeof r.si === "number" ? r.si.toFixed(1) : r.si
-    const tbt = typeof r.tbt === "number" ? Math.round(r.tbt).toString() : r.tbt
-    const cls = typeof r.cls === "number" ? r.cls.toFixed(3) : r.cls
+    const tbt = typeof r.tbt === "number" ? Math.round(r.tbt).toString() : String(r.tbt ?? "-")
+    const cls = typeof r.cls === "number" ? r.cls.toFixed(3) : String(r.cls ?? "-")
     console.log(
         r.path.padEnd(50) +
         String(r.score).padStart(6) +

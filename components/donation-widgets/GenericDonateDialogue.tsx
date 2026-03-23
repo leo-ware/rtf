@@ -86,7 +86,9 @@ const GenericDonateDialogueInner = ({
     // If falling back to default form, log it
     const usingFallbackForm = !currentFormId
     if (usingFallbackForm) {
-        console.log("GenericDonateDialogue: Falling back to default static form")
+        console.log(
+            "GenericDonateDialogue: Falling back to default static form",
+        )
     }
 
     // Determine display name:
@@ -95,9 +97,9 @@ const GenericDonateDialogueInner = ({
     // - If using pathway selection: show selected pathway name
     const displayName = usingFallbackForm
         ? "Donate to RTF"
-        : (!donationFormId && selectedPathway)
-            ? selectedPathway.name
-            : ""
+        : !donationFormId && selectedPathway
+          ? selectedPathway.name
+          : ""
 
     return (
         <div
@@ -130,9 +132,16 @@ const GenericDonateDialogueInner = ({
                         <Select
                             value={selectedPathwayId || ""}
                             onValueChange={(newId) => {
-                                setSelectedPathwayId(newId as Id<"donatePathways">)
-                                const pathway = dialogPathways.find(p => p._id === newId)
-                                trackEvent(AnalyticsEvents.DONATE_PATHWAY_SELECTED, { pathway: pathway?.name })
+                                setSelectedPathwayId(
+                                    newId as Id<"donatePathways">,
+                                )
+                                const pathway = dialogPathways.find(
+                                    (p) => p._id === newId,
+                                )
+                                trackEvent(
+                                    AnalyticsEvents.DONATE_PATHWAY_SELECTED,
+                                    { pathway: pathway?.name },
+                                )
                             }}
                         >
                             <SelectTrigger
@@ -165,7 +174,7 @@ const GenericDonateDialogueInner = ({
                     ) : (
                         <SalsaDonateFormEmbedInner
                             donationForm={{
-                                formId: "AbpiIcUdxC",
+                                formId: "DdsZGetofy",
                                 formTemplateId:
                                     "075b2dc6-782d-42b0-b9b6-603714a36154",
                             }}
