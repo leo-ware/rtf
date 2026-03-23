@@ -1,7 +1,7 @@
 import Hero from "@/components/public-ui/Hero"
 import Callout from "@/components/public-ui/Callout"
 import NewsCarousel from "@/components/NewsCarousel"
-import HeroImage from "./hero.jpg"
+import HeroImage from "./hero.png"
 
 export const metadata = {
     title: "Protect Herd Management Areas - Return to Freedom"

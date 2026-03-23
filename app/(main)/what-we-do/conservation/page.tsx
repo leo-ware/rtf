@@ -20,9 +20,9 @@ import After from "./after.jpg"
 import Before from "./before.jpg"
 import Img5 from "./img5.jpg"
 import Img4 from "./img4.jpg"
-import Img3 from "./img3.jpg"
+import Img3 from "./img3.png"
 import Img2 from "./im2.png"
-import Img1 from "./img1.jpg"
+import Img1 from "./img1.png"
 
 
 const ConservationPage = () => {
