@@ -1,7 +1,7 @@
 import { Doc, Id } from "../_generated/dataModel";
 import { MutationCtx, QMCtxType } from "../types";
 import { removeUndefinedFields } from "../utils";
-import ArticleMetadataManager, { TopicNameType } from "./articleMetadataManager";
+import ArticleMetadataManager, { TopicNameType, CategoryNameType } from "./articleMetadataManager";
 import { resolveImageId } from "./imageManager";
 
 type CreateArgs = {
@@ -17,6 +17,8 @@ type CreateArgs = {
     herdIds?: Id<"herds">[],
     animalIds?: Id<"animals">[],
     topics?: TopicNameType[],
+    category?: CategoryNameType,
+    from_import?: boolean,
 }
 
 type UpdateArgs = {
@@ -49,6 +51,8 @@ export default class ArticleManager {
             public: false,
             tags: args.tags,
             topics: args.topics,
+            category: args.category,
+            from_import: args.from_import,
         });
         const articleId = await ctx.db.insert("articles", {
             slug: args.slug,

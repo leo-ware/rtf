@@ -62,6 +62,7 @@ type CreateArgs = {
     topics?: TopicNameType[],
     tags?: Id<"tags">[],
     category?: CategoryNameType,
+    from_import?: boolean,
     imageId: Id<"images">,
 }
 
@@ -130,6 +131,7 @@ class ArticleMetadataManager {
             isExternal: !!args.externalArticleId,
             imageId: args.imageId,
             category: args.category,
+            from_import: args.from_import,
         });
         const manager = new ArticleMetadataManager(articleMetadataId)
         if (args.herdIds) {

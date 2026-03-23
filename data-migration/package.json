@@ -4,7 +4,11 @@
     "description": "Scripts to migrate data from old RTF WordPress site",
     "type": "module",
     "scripts": {
-        "scrape": "tsx scrape-news.ts"
+        "scrape": "tsx scrape-news.ts",
+        "import-news": "tsx import-news.ts"
+    },
+    "dependencies": {
+        "convex": "^1.21.0"
     },
     "devDependencies": {
         "@types/node": "^22.0.0",

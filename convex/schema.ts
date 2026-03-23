@@ -134,6 +134,7 @@ export default defineSchema({
             v.literal("field_notes"),
             v.literal("press_release"),
         )),
+        from_import: v.optional(v.boolean()),
         searchText: v.string(),
 
         topic_homepage: v.optional(v.boolean()),

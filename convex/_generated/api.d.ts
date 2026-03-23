@@ -35,6 +35,7 @@ import type * as images from "../images.js";
 import type * as jobListing from "../jobListing.js";
 import type * as learnTimelines from "../learnTimelines.js";
 import type * as locations from "../locations.js";
+import type * as migration from "../migration.js";
 import type * as migrations_backfillAggregates from "../migrations/backfillAggregates.js";
 import type * as migrations_migrateGalleryToGalleryItems from "../migrations/migrateGalleryToGalleryItems.js";
 import type * as migrations_migrateTicketPrices from "../migrations/migrateTicketPrices.js";
@@ -101,6 +102,7 @@ declare const fullApi: ApiFromModules<{
   jobListing: typeof jobListing;
   learnTimelines: typeof learnTimelines;
   locations: typeof locations;
+  migration: typeof migration;
   "migrations/backfillAggregates": typeof migrations_backfillAggregates;
   "migrations/migrateGalleryToGalleryItems": typeof migrations_migrateGalleryToGalleryItems;
   "migrations/migrateTicketPrices": typeof migrations_migrateTicketPrices;

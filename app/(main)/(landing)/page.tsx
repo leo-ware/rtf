@@ -4,7 +4,7 @@ import Button from "@/components/public-ui/Button"
 import Image from "next/image"
 import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import Link from "next/link"
-import { Fragment } from "react"
+import { Fragment, useState } from "react"
 import DonationCallout, { DonationCalloutGrid } from "@/components/DonationCallout"
 import UpcomingEventsWidget from "@/components/UpcomingEventsWidget"
 import LongRightArrow from "@/components/LongRightArrow"
@@ -36,6 +36,8 @@ const landingVideoUrl =
     "https://pub-25922965d5524e8db13526bfb193c2ff.r2.dev/rtf-landing-video-v1.mp4"
 
 const HomePage = () => {
+    const [videoReady, setVideoReady] = useState(false)
+
     return (
         <div className="w-full">
             <div className="relative w-full h-[84vh] bg-pewter">
@@ -48,12 +50,13 @@ const HomePage = () => {
                     placeholder="blur"
                 />
                 <video
-                    className="z-[1] absolute w-full h-full object-cover"
+                    className={`z-[1] absolute w-full h-full object-cover transition-opacity duration-700 ${videoReady ? "opacity-100" : "opacity-0"}`}
                     autoPlay
                     loop
                     muted
                     playsInline
                     preload="none"
+                    onPlaying={() => setVideoReady(true)}
                 >
                     {landingVideoUrl && (
                         <source src={landingVideoUrl} type="video/mp4" />
