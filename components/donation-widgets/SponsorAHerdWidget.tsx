@@ -3,7 +3,7 @@
 import { usePaginatedQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
-import SponsorAHerdImg from "./imgs/spirit.png"
+import SponsorAHerdImg from "./imgs/spirit.jpg"
 import { useEffect, useState } from "react"
 import { Id } from "@/convex/_generated/dataModel"
 import SalsaDonateFormEmbed from "../SalsaDonateFormEmbed"

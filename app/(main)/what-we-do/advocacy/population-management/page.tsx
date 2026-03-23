@@ -8,7 +8,7 @@ import PopulationManagementHero from "./hero.jpg"
 export const metadata = {
     title: "Population Management - Return to Freedom"
 }
-import RoundupsImage1 from "../imgs/randomhorse.png"
+import RoundupsImage1 from "../imgs/randomhorse.jpg"
 import TakeActionSection from "@/components/TakeActionSection"
 import WHDCallout from "@/components/WHDCallout"
 import AdvocacyCarousel from "@/components/AdvocacyCarousel"

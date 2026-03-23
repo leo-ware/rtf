@@ -13,9 +13,9 @@ import HeroImg from "./hero.jpg"
 export const metadata = {
     title: "Education - Return to Freedom"
 }
-import Img1 from "./img1.png"
-import Img2 from "./img2.png"
-import Img3 from "./img3.png"
+import Img1 from "./img1.jpg"
+import Img2 from "./img2.jpg"
+import Img3 from "./img3.jpg"
 import NewsCarousel from "@/components/NewsCarousel"
 import { Fragment } from "react/jsx-runtime"
 

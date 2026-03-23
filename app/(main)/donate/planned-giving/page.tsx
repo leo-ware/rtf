@@ -9,7 +9,7 @@ import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import Callout from "@/components/public-ui/Callout"
 
 import pgHero from "./pg-hero.jpg"
-import pg1 from "./img1.png"
+import pg1 from "./img1.jpg"
 import EmailLink from "@/components/public-ui/EmailLink"
 import Header from "@/components/public-ui/Header"
 import MoreWaysWidget from "../../../../components/donation-widgets/MoreWaysWidget"

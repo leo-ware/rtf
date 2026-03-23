@@ -19,7 +19,10 @@ import * as path from "path"
 import { ConvexHttpClient } from "convex/browser"
 import { anyApi } from "convex/server"
 
-const CONVEX_URL = "https://careful-panda-154.convex.cloud"
+const CONVEX_DEV_URL = "https://careful-panda-154.convex.cloud"
+const CONVEX_PROD_URL = "https://descriptive-clam-596.convex.cloud"
+const isProd = process.argv.includes("--prod")
+const CONVEX_URL = isProd ? CONVEX_PROD_URL : CONVEX_DEV_URL
 const OUTPUT_DIR = "./output"
 const PROGRESS_FILE = path.join(OUTPUT_DIR, "import-progress.json")
 const TAG_MAP_FILE = path.join(OUTPUT_DIR, "tag-map.json")
@@ -473,7 +476,8 @@ const main = async () => {
     }
 
     log("=".repeat(60))
-    log("WordPress → Convex Article Importer")
+    log(`WordPress → Convex Article Importer (${isProd ? "PRODUCTION" : "dev"})`)
+    log(`Target: ${CONVEX_URL}`)
     log(`Limit: ${limit === Infinity ? "all" : limit}, Offset: ${offset}`)
     if (fallbackImageId) log(`Fallback image: ${fallbackImageId}`)
     log("=".repeat(60))

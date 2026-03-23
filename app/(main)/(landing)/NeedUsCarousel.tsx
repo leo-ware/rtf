@@ -9,9 +9,9 @@ import Link from "next/link"
 import ScrollReveal from "@/components/public-ui/ScrollReveal"
 
 import HorsesInCrisis from "./need-us-images/horses_in_crisis.jpg"
-import BlmBroken from "./need-us-images/blm_broken.png"
+import BlmBroken from "./need-us-images/blm_broken.jpg"
 import CaptivityNoAnswer from "./need-us-images/captivity_no_answer.jpg"
-import HumaneSolution from "./need-us-images/humane_solution.png"
+import HumaneSolution from "./need-us-images/humane_solution.jpg"
 import RtfLeads from "./need-us-images/rtf_leads.jpg"
 
 type CarouselItemWidgetProps = {

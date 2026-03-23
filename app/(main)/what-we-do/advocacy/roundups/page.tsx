@@ -6,12 +6,12 @@ import TakeActionSection from "@/components/TakeActionSection"
 import WHDCallout from "@/components/WHDCallout"
 import AdvocacyCarousel from "@/components/AdvocacyCarousel"
 
-import RoundupsHero from "./roundups-hero.png"
+import RoundupsHero from "./roundups-hero.jpg"
 
 export const metadata = {
     title: "End Roundups & Removals - Return to Freedom"
 }
-import RoundupsImage1 from "../imgs/randomhorse.png"
+import RoundupsImage1 from "../imgs/randomhorse.jpg"
 
 const RoundupsPage = () => {
     return (

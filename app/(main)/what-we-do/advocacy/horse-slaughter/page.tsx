@@ -8,7 +8,7 @@ import HeroImage from "./hero.jpg"
 export const metadata = {
     title: "End Horse Slaughter - Return to Freedom"
 }
-import RoundupsImage1 from "../imgs/randomhorse.png"
+import RoundupsImage1 from "../imgs/randomhorse.jpg"
 import List from "@/components/public-ui/List"
 import WHDCallout from "@/components/WHDCallout"
 import TakeActionSection from "@/components/TakeActionSection"

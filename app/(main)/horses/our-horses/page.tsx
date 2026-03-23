@@ -6,7 +6,7 @@ import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import SponsorAHorseMenu from "../../../../components/donation-widgets/SponsorAHorseMenu"
 import OurHorsesHeroImage from "./our-horses-hero.jpg"
 
-import SpiritImage from "./spirit.png"
+import SpiritImage from "./spirit.jpg"
 import AdoptBanner from "./adopt-banner.jpg"
 import Link from "next/link"
 import SponsorAHorseDialog from "@/components/donation-widgets/SponsorAHorseDialog"

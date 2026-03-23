@@ -15,14 +15,14 @@ import ScrollReveal from "@/components/public-ui/ScrollReveal"
 
 import HeroImg from "./hero.jpg"
 import SanctuaryFundImage from "@/app/(main)/(landing)/imgs/sanctuary_fund.jpg"
-import CarouselDummy from "./carousel-dummy.png"
-import After from "./after.png"
-import Before from "./before.png"
+import CarouselDummy from "./carousel-dummy.jpg"
+import After from "./after.jpg"
+import Before from "./before.jpg"
 import Img5 from "./img5.jpg"
 import Img4 from "./img4.jpg"
-import Img3 from "./img3.png"
+import Img3 from "./img3.jpg"
 import Img2 from "./im2.png"
-import Img1 from "./img1.png"
+import Img1 from "./img1.jpg"
 
 
 const ConservationPage = () => {

@@ -3,7 +3,7 @@
 import Hero from "@/components/public-ui/Hero"
 import Header from "@/components/public-ui/Header"
 import Callout from "@/components/public-ui/Callout"
-import OpportunitiesHero from "./opportunities-hero.png"
+import OpportunitiesHero from "./opportunities-hero.jpg"
 import Button from "@/components/public-ui/Button"
 import EmailLink from "@/components/public-ui/EmailLink"
 import { useQuery } from "convex/react"

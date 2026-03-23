@@ -13,7 +13,7 @@ import DonationCallout from "@/components/DonationCallout"
 import WhdfImage from "@/app/(main)/(landing)/imgs/whdf.jpg"
 import StatsBar from "@/components/StatsBar"
 
-import Policy1 from "./policy1.png"
+import Policy1 from "./policy1.jpg"
 import Policy2 from "./policy2.jpg"
 import Policy3 from "./policy-3.jpg"
 import Policy4 from "./policy-4.jpg"

@@ -1,6 +1,6 @@
 import { StaticImageData } from "next/image"
 
-import AlpineHerdImage from "./imgs/alpine_herd_hero.png"
+import AlpineHerdImage from "./imgs/alpine_herd_hero.jpg"
 import AlpineHerdMap from "./imgs/alpine-herd-map.png"
 
 
