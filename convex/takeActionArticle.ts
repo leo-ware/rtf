@@ -17,6 +17,7 @@ const topicFields = {
     topic_roundups: v.optional(v.boolean()),
     topic_horse_slaughter: v.optional(v.boolean()),
     topic_spirit: v.optional(v.boolean()),
+    topic_about: v.optional(v.boolean()),
 }
 
 const takeActionArticleValidator = v.object({

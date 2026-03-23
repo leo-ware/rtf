@@ -12,7 +12,7 @@ import { formatDate } from "@/lib/utils"
 import BrosChilling from "@/public/img/bros-chilling.png"
 import Carosel from "@/components/Carousel"
 
-type TopicType = "homepage" | "conservation" | "sanctuary" | "advocacy" | "education" | "herd_management" | "population_management" | "roundups" | "horse_slaughter" | "spirit"
+type TopicType = "homepage" | "conservation" | "sanctuary" | "advocacy" | "education" | "herd_management" | "population_management" | "roundups" | "horse_slaughter" | "spirit" | "about"
 
 type NewsCarouselProps = {
     title?: string

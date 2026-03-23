@@ -17,6 +17,7 @@ export const topicNameList = [
     "roundups",
     "horse_slaughter",
     "spirit",
+    "about",
 ] as const;
 export const convexTopicEnum = v.union(
     ...topicNameList.map(topic => v.literal(topic))

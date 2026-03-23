@@ -1,5 +1,11 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# claude worktrees
+.claude/worktrees
+
+
+# image optimization backups
+.image-backups
 
 # dependencies
 /node_modules

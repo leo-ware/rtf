@@ -70,6 +70,7 @@ export default defineSchema({
         topic_roundups: v.optional(v.boolean()),
         topic_horse_slaughter: v.optional(v.boolean()),
         topic_spirit: v.optional(v.boolean()),
+        topic_about: v.optional(v.boolean()),
     })
         .index("by_isPublic", ["isPublic"])
         .index("by_image", ["imageId"])
@@ -132,6 +133,7 @@ export default defineSchema({
         topic_roundups: v.optional(v.boolean()),
         topic_horse_slaughter: v.optional(v.boolean()),
         topic_spirit: v.optional(v.boolean()),
+        topic_about: v.optional(v.boolean()),
 
         articleId: v.optional(v.id("articles")),
         externalArticleId: v.optional(v.id("externalArticles")),
@@ -153,6 +155,7 @@ export default defineSchema({
                 "topic_roundups",
                 "topic_horse_slaughter",
                 "topic_spirit",
+                "topic_about",
             ]
         },
         )
@@ -169,6 +172,7 @@ export default defineSchema({
             "topic_roundups",
             "topic_horse_slaughter",
             "topic_spirit",
+            "topic_about",
         ]),
 
     articles: defineTable({

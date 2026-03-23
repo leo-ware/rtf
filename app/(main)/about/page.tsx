@@ -61,7 +61,7 @@ const AboutPage = () => {
       <OurPeopleBento />
 
       <ScrollReveal variant="fade-up">
-        <NewsCarousel bgColor="transparent" title="RTF in the News" />
+        <NewsCarousel bgColor="transparent" title="RTF in the News" topic="about" />
       </ScrollReveal>
 
       <ScrollReveal variant="fade-up">

@@ -29,6 +29,7 @@ const TOPICS = [
     { value: "roundups", label: "Roundups" },
     { value: "horse-slaughter", label: "Horse Slaughter" },
     { value: "spirit", label: "Spirit" },
+    { value: "about", label: "About" },
 ] as const
 
 type Topic = typeof TOPICS[number]["value"]
