@@ -5,12 +5,12 @@ type InputProps = React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputEle
     icon?: React.ReactNode;
 }
 
-const Input = (props: InputProps) => (
+const Input = ({ containerClassName, icon, ...props }: InputProps) => (
     <div className={cn(
         `h-10 border-2 border-pewter rounded-sm px-2 py-1
         flex items-center gap-2
         `,
-        props.containerClassName
+        containerClassName
     )}>
         <input
             {...props}
@@ -24,9 +24,9 @@ const Input = (props: InputProps) => (
                 props.className
             )}
         />
-        {props.icon && (
+        {icon && (
             <div className="shrink-0 aspect-square text-pewter">
-                {props.icon}
+                {icon}
             </div>
         )}
     </div>

@@ -52,6 +52,12 @@ export default defineSchema({
     })
         .index("by_order", ["order"]),
 
+    tags: defineTable({
+        name: v.string(),
+        slug: v.string(),
+        articleMetadataIds: v.optional(v.array(v.id("articleMetadata"))),
+    }).index("by_slug", ["slug"]),
+
     takeActionArticle: defineTable({
         title: v.string(),
         slug: v.string(),
@@ -120,6 +126,7 @@ export default defineSchema({
         excerpt: v.string(),
         herdIds: v.array(v.id("herds")),
         animalIds: v.array(v.id("animals")),
+        tags: v.optional(v.array(v.id("tags"))),
         searchText: v.string(),
 
         topic_homepage: v.optional(v.boolean()),
@@ -142,7 +149,8 @@ export default defineSchema({
             searchField: "searchText",
             filterFields: [
                 "isExternal",
-                "date",
+                "public",
+                "tags",
                 "topic_homepage",
                 "topic_conservation",
                 "topic_sanctuary",
@@ -169,7 +177,8 @@ export default defineSchema({
             "topic_roundups",
             "topic_horse_slaughter",
             "topic_spirit",
-        ]),
+        ])
+        .index("by_public_date", ["public", "date"]),
 
     articles: defineTable({
         slug: v.string(),

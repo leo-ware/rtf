@@ -2,7 +2,7 @@ import { v } from "convex/values";
 import { Doc, Id } from "../_generated/dataModel";
 import { MutationCtx, QMCtxType } from "../types";
 import { PaginationOptions } from "convex/server";
-import ArticleSearchManager, { ArticleSearchParams } from "./articleSearchManager";
+import { searchArticles, ArticleSearchParams } from "./articleSearchManager";
 import { resolveImageId } from "./imageManager";
 
 // keep in sync with lib/topicType.ts
@@ -53,12 +53,13 @@ type CreateArgs = {
     herdIds?: Id<"herds">[],
     animalIds?: Id<"animals">[],
     topics?: TopicNameType[],
+    tags?: Id<"tags">[],
     imageId: Id<"images">,
 }
 
-type UpdateArgs = Exclude<Partial<CreateArgs>, "articleId" | "externalArticleId">
+type UpdateArgs = Omit<Partial<CreateArgs>, "articleId" | "externalArticleId">
 
-const resolvePaginatedResult = async (ctx: QMCtxType, articleMetadata: Doc<"articleMetadata">) => {
+export const resolvePaginatedResult = async (ctx: QMCtxType, articleMetadata: Doc<"articleMetadata">) => {
     const link = articleMetadata.isExternal
         ? `/api/redirect/external-article/${articleMetadata.externalArticleId}`
         : `/api/redirect/article/${articleMetadata.articleId}`
@@ -114,8 +115,9 @@ class ArticleMetadataManager {
             excerpt: args.excerpt || "",
             date: args.date || now,
             public: args.public || false,
-            herdIds: [],
-            animalIds: [],
+            tags: [],
+            herdIds: args.herdIds || [],
+            animalIds: args.animalIds || [],
             searchText: `${args.title} ${args.excerpt || ""}`,
             isExternal: !!args.externalArticleId,
             imageId: args.imageId,
@@ -130,13 +132,13 @@ class ArticleMetadataManager {
         if (args.topics) {
             await manager.setTopics(ctx, articleMetadataId, args.topics);
         }
+        if (args.tags) {
+            await manager.setTags(ctx, { tagIds: args.tags });
+        }
         return manager
     }
 
     async update(ctx: MutationCtx, args: UpdateArgs) {
-        if (args.articleId && args.externalArticleId) {
-            throw new Error("Cannot specify both articleId and externalArticleId");
-        }
         if (args.herdIds) {
             await this.setHerds(ctx, { herdIds: args.herdIds });
         }
@@ -156,22 +158,25 @@ class ArticleMetadataManager {
             title: item.title,
             excerpt: item.excerpt,
         }
-        if (args.title) {
+        if (args.title !== undefined) {
             patch.title = args.title
         }
-        if (args.excerpt) {
+        if (args.excerpt !== undefined) {
             patch.excerpt = args.excerpt
         }
-        if (args.date) {
+        if (args.date !== undefined) {
             patch.date = args.date;
         }
-        if (args.public) {
+        if (args.public !== undefined) {
             patch.public = args.public;
         }
-        if (args.imageId) {
+        if (args.tags !== undefined) {
+            await this.setTags(ctx, { tagIds: args.tags });
+        }
+        if (args.imageId !== undefined) {
             patch.imageId = args.imageId;
         }
-        patch.searchText = `${item.title || patch.title} ${item.excerpt || patch.excerpt || ""}`;
+        patch.searchText = `${patch.title || item.title} ${patch.excerpt || item.excerpt || ""}`;
         await ctx.db.patch(this.id, patch);
     }
 
@@ -265,68 +270,112 @@ class ArticleMetadataManager {
     async setHerds(ctx: MutationCtx, args: {
         herdIds: Id<"herds">[]
     }) {
-        const [herds, articleMetadata] = await Promise.all([
-            Promise.all(args.herdIds.map(async (herdId) => ctx.db.get(herdId))),
-            ctx.db.get(this.id),
-        ])
-
+        const articleMetadata = await ctx.db.get(this.id);
         if (!articleMetadata) {
             throw new Error("Failed to retrieve article metadata");
         }
 
-        const herdPatches = herds
-            .filter(herd => !!herd)
-            .map(herd => ({
-                ...herd,
-                articleMetadataIds: (herd.articleMetadataIds || [])
-                    .filter(id => id !== this.id)
-                    .concat([this.id])
-            }))
-        const foundHerdIds = herdPatches
-            .map(herd => herd._id)
-            .filter(id => !!id);
-        const articleMetadataPatch = {
-            ...articleMetadata,
-            herdIds: foundHerdIds
+        const oldHerdIds = articleMetadata.herdIds;
+        const removedHerdIds = oldHerdIds.filter(id => !args.herdIds.includes(id));
+
+        const [newHerds, removedHerds] = await Promise.all([
+            Promise.all(args.herdIds.map(id => ctx.db.get(id))),
+            Promise.all(removedHerdIds.map(id => ctx.db.get(id))),
+        ]);
+
+        const foundHerdIds: Id<"herds">[] = [];
+        const patches: Promise<void>[] = [];
+
+        for (const herd of newHerds) {
+            if (!herd) continue;
+            foundHerdIds.push(herd._id);
+            patches.push(ctx.db.patch(herd._id, {
+                articleMetadataIds: [...new Set([...(herd.articleMetadataIds ?? []), this.id])]
+            }));
         }
-        await Promise.all([
-            ctx.db.patch(this.id, articleMetadataPatch),
-            Promise.all(herdPatches.map(herd => ctx.db.patch(herd._id, herd))),
-        ])
+        for (const herd of removedHerds) {
+            if (!herd) continue;
+            patches.push(ctx.db.patch(herd._id, {
+                articleMetadataIds: (herd.articleMetadataIds ?? []).filter(id => id !== this.id)
+            }));
+        }
+
+        patches.push(ctx.db.patch(this.id, { herdIds: foundHerdIds }));
+        await Promise.all(patches);
     }
 
     async setAnimals(ctx: MutationCtx, args: {
         animalIds: Id<"animals">[]
     }) {
-        const { animalIds } = args;
-        const [animals, articleMetadata] = await Promise.all([
-            Promise.all(animalIds.map(async (animalId) => ctx.db.get(animalId))),
-            ctx.db.get(this.id),
-        ])
+        const articleMetadata = await ctx.db.get(this.id);
         if (!articleMetadata) {
             throw new Error("Failed to retrieve article metadata");
         }
 
-        const animalPatches = animals
-            .filter(animal => !!animal)
-            .map(animal => ({
-                ...animal,
-                articleMetadataIds: (animal.articleMetadataIds || [])
-                    .filter(id => id !== this.id)
-                    .concat([this.id])
-            }))
-        const foundAnimalIds = animalPatches
-            .map(animal => animal._id)
-            .filter(id => !!id);
-        const articleMetadataPatch = {
-            ...articleMetadata,
-            animalIds: foundAnimalIds
+        const oldAnimalIds = articleMetadata.animalIds;
+        const removedAnimalIds = oldAnimalIds.filter(id => !args.animalIds.includes(id));
+
+        const [newAnimals, removedAnimals] = await Promise.all([
+            Promise.all(args.animalIds.map(id => ctx.db.get(id))),
+            Promise.all(removedAnimalIds.map(id => ctx.db.get(id))),
+        ]);
+
+        const foundAnimalIds: Id<"animals">[] = [];
+        const patches: Promise<void>[] = [];
+
+        for (const animal of newAnimals) {
+            if (!animal) continue;
+            foundAnimalIds.push(animal._id);
+            patches.push(ctx.db.patch(animal._id, {
+                articleMetadataIds: [...new Set([...(animal.articleMetadataIds ?? []), this.id])]
+            }));
+        }
+        for (const animal of removedAnimals) {
+            if (!animal) continue;
+            patches.push(ctx.db.patch(animal._id, {
+                articleMetadataIds: (animal.articleMetadataIds ?? []).filter(id => id !== this.id)
+            }));
         }
 
-        await Promise.all([
-            ctx.db.patch(this.id, articleMetadataPatch),
-            Promise.all(animalPatches.map(animal => ctx.db.patch(animal._id, animal))),
-        ])
+        patches.push(ctx.db.patch(this.id, { animalIds: foundAnimalIds }));
+        await Promise.all(patches);
+    }
+
+    async setTags(ctx: MutationCtx, args: {
+        tagIds: Id<"tags">[]
+    }) {
+        const articleMetadata = await ctx.db.get(this.id);
+        if (!articleMetadata) {
+            throw new Error("Failed to retrieve article metadata");
+        }
+
+        const oldTagIds = articleMetadata.tags ?? [];
+        const removedTagIds = oldTagIds.filter(id => !args.tagIds.includes(id));
+
+        const [newTags, removedTags] = await Promise.all([
+            Promise.all(args.tagIds.map(id => ctx.db.get(id))),
+            Promise.all(removedTagIds.map(id => ctx.db.get(id))),
+        ]);
+
+        const foundTagIds: Id<"tags">[] = [];
+        const patches: Promise<void>[] = [];
+
+        for (const tag of newTags) {
+            if (!tag) continue;
+            foundTagIds.push(tag._id);
+            patches.push(ctx.db.patch(tag._id, {
+                articleMetadataIds: [...new Set([...(tag.articleMetadataIds ?? []), this.id])]
+            }));
+        }
+        for (const tag of removedTags) {
+            if (!tag) continue;
+            patches.push(ctx.db.patch(tag._id, {
+                articleMetadataIds: (tag.articleMetadataIds ?? []).filter(id => id !== this.id)
+            }));
+        }
+
+        patches.push(ctx.db.patch(this.id, { tags: foundTagIds }));
+        await Promise.all(patches);
     }
 
     async setTopics(
@@ -344,7 +393,7 @@ class ArticleMetadataManager {
     }
 
     static async search(ctx: QMCtxType, searchArgs: ArticleSearchParams, paginationOpts: PaginationOptions,) {
-        const pagination = await ArticleSearchManager.search(
+        const pagination = await searchArticles(
             ctx,
             searchArgs,
             paginationOpts
@@ -352,7 +401,7 @@ class ArticleMetadataManager {
         return {
             ...pagination,
             page: await Promise.all(pagination.page.map(
-                async (articleMetadata) => await resolvePaginatedResult(ctx, articleMetadata)
+                async (articleMetadata: Doc<"articleMetadata">) => await resolvePaginatedResult(ctx, articleMetadata)
             )),
         }
     }

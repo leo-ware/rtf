@@ -1,7 +1,7 @@
 import { Doc, Id } from "../_generated/dataModel";
 import { MutationCtx, QMCtxType } from "../types";
 import { removeUndefinedFields } from "../utils";
-import ArticleMetadataManager from "./articleMetadataManager";
+import ArticleMetadataManager, { TopicNameType } from "./articleMetadataManager";
 import { resolveImageId } from "./imageManager";
 
 type CreateArgs = {
@@ -13,6 +13,10 @@ type CreateArgs = {
     imageId: Id<"images">,
     authorCredit?: string,
     authors?: Id<"people">[],
+    tags?: Id<"tags">[],
+    herdIds?: Id<"herds">[],
+    animalIds?: Id<"animals">[],
+    topics?: TopicNameType[],
 }
 
 type UpdateArgs = {
@@ -21,6 +25,10 @@ type UpdateArgs = {
     imageId?: Id<"images">,
     authorCredit?: string,
     authors?: Id<"people">[],
+    tags?: Id<"tags">[],
+    herdIds?: Id<"herds">[],
+    animalIds?: Id<"animals">[],
+    topics?: TopicNameType[],
 }
 
 export default class ArticleManager {
@@ -34,11 +42,13 @@ export default class ArticleManager {
         const articleMetadataManager = await ArticleMetadataManager.create(ctx, {
             imageId: args.imageId,
             title: args.title,
-            excerpt: args.title,
-            herdIds: [],
-            animalIds: [],
+            excerpt: args.excerpt,
+            herdIds: args.herdIds,
+            animalIds: args.animalIds,
             date: args.date || Date.now(),
             public: false,
+            tags: args.tags,
+            topics: args.topics,
         });
         const articleId = await ctx.db.insert("articles", {
             slug: args.slug,
@@ -58,16 +68,30 @@ export default class ArticleManager {
         if (args.slug !== undefined) {
             await ArticleManager.helperCheckSlugUnique(ctx, args.slug, this.id);
         }
-        const patch = removeUndefinedFields(args);
-        await ctx.db.patch(this.id, patch);
-        if (patch.imageId) {
+        const articlePatch = removeUndefinedFields({
+            slug: args.slug,
+            content: args.content,
+            imageId: args.imageId,
+            authorCredit: args.authorCredit,
+        });
+        if (Object.keys(articlePatch).length > 0) {
+            await ctx.db.patch(this.id, articlePatch);
+        }
+
+        const hasMetadataUpdates = args.imageId !== undefined || args.tags !== undefined || args.herdIds !== undefined || args.animalIds !== undefined || args.topics !== undefined;
+
+        if (hasMetadataUpdates) {
             const article = await this.get(ctx);
             if (!article) {
                 throw new Error("Article not found");
             }
             const articleMetadataManager = new ArticleMetadataManager(article.articleMetadataId);
             await articleMetadataManager.update(ctx, {
-                imageId: patch.imageId,
+                imageId: args.imageId,
+                tags: args.tags,
+                herdIds: args.herdIds,
+                animalIds: args.animalIds,
+                topics: args.topics,
             });
         }
     }
