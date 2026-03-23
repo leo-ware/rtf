@@ -54,6 +54,7 @@ import type * as programs from "../programs.js";
 import type * as rsvp from "../rsvp.js";
 import type * as socialLinks from "../socialLinks.js";
 import type * as sponsors from "../sponsors.js";
+import type * as tags from "../tags.js";
 import type * as takeActionArticle from "../takeActionArticle.js";
 import type * as ticketPrices from "../ticketPrices.js";
 import type * as timelineItems from "../timelineItems.js";
@@ -117,6 +118,7 @@ declare const fullApi: ApiFromModules<{
   rsvp: typeof rsvp;
   socialLinks: typeof socialLinks;
   sponsors: typeof sponsors;
+  tags: typeof tags;
   takeActionArticle: typeof takeActionArticle;
   ticketPrices: typeof ticketPrices;
   timelineItems: typeof timelineItems;

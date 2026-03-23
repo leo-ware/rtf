@@ -12,6 +12,7 @@ type CreateArgs = {
     blurb: string,
     organization: string,
     date: number,
+    tags?: Id<"tags">[],
 }
 
 type UpdateArgs = Partial<CreateArgs> & {
@@ -48,10 +49,9 @@ export default class ExternalArticleManager {
             imageId: args.imageId,
             title: args.title,
             excerpt: args.blurb,
-            herdIds: [],
-            animalIds: [],
             date: args.date,
             public: true,
+            tags: args.tags,
         });
 
         const externalArticleId = await ctx.db.insert("externalArticles", {

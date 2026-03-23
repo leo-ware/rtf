@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { useQuery, useMutation, usePaginatedQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api"
 import { notFound } from "next/navigation";
 import { TiptapEditor } from "@/components/TiptapEditor";
@@ -24,13 +24,13 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Id } from "@/convex/_generated/dataModel";
-import { TagSelector } from "@/components/TagSelector";
 import { PageProps } from "@/lib/types";
 import { deepEqual, removeUndefined, formatDate } from "@/lib/utils";
 import ImagePickerDialog from "@/components/images/ImagePickerDialog";
 import InfoWidget from "@/components/InfoWidget";
 import { topicNameList, TopicNameType } from "@/lib/topicType";
 import PeopleMultiSelect from "@/components/PeopleMultiSelect";
+import { ArticleCategorization } from "@/components/ArticleCategorization";
 
 const AuthorDisplay = ({ authorNames, authorCredit }: { authorNames?: string[], authorCredit?: string }) => {
     const display = authorNames && authorNames.length > 0
@@ -63,19 +63,6 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const { results: herds, loadMore: loadMoreHerds, status: herdSearchStatus } = usePaginatedQuery(
-        api.herds.listHerds,
-        {},
-        { initialNumItems: 100 }
-    );
-    const { results: animals, loadMore: loadMoreAnimals, status: animalSearchStatus } = usePaginatedQuery(
-        api.animals.listAnimals,
-        {},
-        { initialNumItems: 100 }
-    );
-    const canLoadMoreHerds = herdSearchStatus === "CanLoadMore";
-    const canLoadMoreAnimals = animalSearchStatus === "CanLoadMore";
-
     const [articleFormData, setArticleFormData] = useState({
         slug: undefined as string | undefined,
         imageId: undefined as Id<"images"> | undefined,
@@ -91,6 +78,7 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
         herdIds: undefined as Id<"herds">[] | undefined,
         animalIds: undefined as Id<"animals">[] | undefined,
         topics: undefined as TopicNameType[] | undefined,
+        tags: undefined as Id<"tags">[] | undefined,
     })
     const localInitialized = useRef(false);
 
@@ -109,7 +97,8 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
         excerpt: a?.articleMetadata?.excerpt,
         herdIds: a?.articleMetadata?.herdIds,
         animalIds: a?.articleMetadata?.animalIds,
-        topics: a?.articleMetadata?.topics
+        topics: a?.articleMetadata?.topics,
+        tags: a?.articleMetadata?.tags,
     })
 
     // Initialize the form data from the article and article metadata
@@ -169,7 +158,8 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
                     public: articleMetadataFormData.public,
                     herdIds: articleMetadataFormData.herdIds,
                     animalIds: articleMetadataFormData.animalIds,
-                    topics: articleMetadataFormData.topics
+                    topics: articleMetadataFormData.topics,
+                    tags: articleMetadataFormData.tags,
                 })),
             ])
         } catch (error) {
@@ -437,48 +427,15 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                <TagSelector
-                                    label="Herds"
-                                    description="Select one or more herds related to this article"
-                                    selectedIds={articleMetadataFormData.herdIds || []}
-                                    availableItems={herds?.map(h => ({ _id: h._id, name: h.name })) || []}
-                                    loadMore={() => loadMoreHerds(20)}
-                                    onSelectionChange={(ids) => setArticleMetadataFormData(prev => ({
-                                        ...prev,
-                                        herdIds: ids as Array<Id<"herds">>,
-                                    }))}
-                                    placeholder="Select herds..."
-                                    searchPlaceholder="Search herds..."
-                                />
-
-                                <TagSelector
-                                    label="Animals"
-                                    description="Select one or more animals related to this article"
-                                    selectedIds={articleMetadataFormData.animalIds || []}
-                                    availableItems={animals?.map(a => ({ _id: a._id, name: a.name })) || []}
-                                    loadMore={() => loadMoreAnimals(20)}
-                                    onSelectionChange={(ids) => setArticleMetadataFormData(prev => ({
-                                        ...prev,
-                                        animalIds: ids as Array<Id<"animals">>
-                                    }))}
-                                    placeholder="Select animals..."
-                                    searchPlaceholder="Search animals..."
-                                />
-
-                                <TagSelector
-                                    label="Topics"
-                                    description="Select one or more topics for this article"
-                                    selectedIds={articleMetadataFormData.topics || []}
-                                    availableItems={topicNameList.map(topic => ({
-                                        _id: topic,
-                                        name: (topic.charAt(0).toUpperCase() + topic.slice(1)).replaceAll("_", " ")
-                                    }))}
-                                    onSelectionChange={(topics) => setArticleMetadataFormData(prev => ({
-                                        ...prev,
-                                        topics: topics as TopicNameType[],
-                                    }))}
-                                    placeholder="Select topics..."
-                                    searchPlaceholder="Search topics..."
+                                <ArticleCategorization
+                                    herdIds={articleMetadataFormData.herdIds || []}
+                                    setHerdIds={(ids) => setArticleMetadataFormData(prev => ({ ...prev, herdIds: ids }))}
+                                    animalIds={articleMetadataFormData.animalIds || []}
+                                    setAnimalIds={(ids) => setArticleMetadataFormData(prev => ({ ...prev, animalIds: ids }))}
+                                    topics={articleMetadataFormData.topics || []}
+                                    setTopics={(topics) => setArticleMetadataFormData(prev => ({ ...prev, topics: topics as TopicNameType[] }))}
+                                    tags={articleMetadataFormData.tags || []}
+                                    setTags={(tags) => setArticleMetadataFormData(prev => ({ ...prev, tags }))}
                                 />
                             </CardContent>
                         </Card>

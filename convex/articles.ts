@@ -2,7 +2,7 @@ import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { getCurrentUserOrThrow } from "./users";
 import ArticleManager from "./models/articleManager";
-import { extractTopicsList } from "./models/articleMetadataManager";
+import { extractTopicsList, convexTopicEnum } from "./models/articleMetadataManager";
 import { articleMetadataAggregate } from "./aggregates";
 
 
@@ -47,7 +47,12 @@ export const createArticle = mutation({
         imageId: v.id("images"),
         authorCredit: v.optional(v.string()),
         authors: v.optional(v.array(v.id("people"))),
+        tags: v.optional(v.array(v.id("tags"))),
+        herdIds: v.optional(v.array(v.id("herds"))),
+        animalIds: v.optional(v.array(v.id("animals"))),
+        topics: v.optional(v.array(convexTopicEnum)),
     },
+    returns: v.id("articles"),
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
@@ -76,7 +81,12 @@ export const updateArticle = mutation({
         imageId: v.optional(v.id("images")),
         authorCredit: v.optional(v.string()),
         authors: v.optional(v.array(v.id("people"))),
+        tags: v.optional(v.array(v.id("tags"))),
+        herdIds: v.optional(v.array(v.id("herds"))),
+        animalIds: v.optional(v.array(v.id("animals"))),
+        topics: v.optional(v.array(convexTopicEnum)),
     },
+    returns: v.id("articles"),
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
@@ -90,6 +100,10 @@ export const updateArticle = mutation({
             imageId: args.imageId,
             authorCredit: args.authorCredit,
             authors: args.authors,
+            tags: args.tags,
+            herdIds: args.herdIds,
+            animalIds: args.animalIds,
+            topics: args.topics,
         });
         return manager.id;
     }
@@ -99,6 +113,7 @@ export const deleteArticle = mutation({
     args: {
         id: v.id("articles"),
     },
+    returns: v.id("articles"),
     handler: async (ctx, args) => {
         const user = await getCurrentUserOrThrow(ctx)
         if (!user.atLeastAuthorized) {
