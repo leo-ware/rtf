@@ -28,7 +28,7 @@ import { PageProps } from "@/lib/types";
 import { deepEqual, removeUndefined, formatDate } from "@/lib/utils";
 import ImagePickerDialog from "@/components/images/ImagePickerDialog";
 import InfoWidget from "@/components/InfoWidget";
-import { topicNameList, TopicNameType } from "@/lib/topicType";
+import { topicNameList, TopicNameType, CategoryNameType, categoryNameList, categoryDisplayNames } from "@/lib/topicType";
 import PeopleMultiSelect from "@/components/PeopleMultiSelect";
 import { ArticleCategorization } from "@/components/ArticleCategorization";
 
@@ -79,6 +79,7 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
         animalIds: undefined as Id<"animals">[] | undefined,
         topics: undefined as TopicNameType[] | undefined,
         tags: undefined as Id<"tags">[] | undefined,
+        category: undefined as CategoryNameType | undefined,
     })
     const localInitialized = useRef(false);
 
@@ -99,6 +100,7 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
         animalIds: a?.articleMetadata?.animalIds,
         topics: a?.articleMetadata?.topics,
         tags: a?.articleMetadata?.tags,
+        category: a?.articleMetadata?.category as CategoryNameType | undefined,
     })
 
     // Initialize the form data from the article and article metadata
@@ -160,6 +162,7 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
                     animalIds: articleMetadataFormData.animalIds,
                     topics: articleMetadataFormData.topics,
                     tags: articleMetadataFormData.tags,
+                    category: articleMetadataFormData.category,
                 })),
             ])
         } catch (error) {
@@ -414,6 +417,24 @@ const ArticleEditPage = ({ params }: PageProps<{ articleId: string }>) => {
                                             setArticleFormData(prev => ({ ...prev, imageId: imageId || undefined }))
                                         )}
                                     />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label>Category</Label>
+                                    <select
+                                        value={articleMetadataFormData.category || ""}
+                                        onChange={(e) => setArticleMetadataFormData(prev => ({
+                                            ...prev,
+                                            category: (e.target.value || undefined) as CategoryNameType | undefined,
+                                        }))}
+                                        disabled={isSaving}
+                                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs"
+                                    >
+                                        <option value="">No category</option>
+                                        {categoryNameList.map(c => (
+                                            <option key={c} value={c}>{categoryDisplayNames[c]}</option>
+                                        ))}
+                                    </select>
                                 </div>
                             </CardContent>
                         </Card>

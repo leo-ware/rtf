@@ -8,6 +8,7 @@ const ConvexImageFromId = ({imageId, className, style}: {imageId: Id<"images">, 
     return (
         <ConvexImage
             src={image?.url || ""}
+            imageId={imageId}
             alt={image?.altText || image?.title || ""}
             width={image?.width || 0}
             height={image?.height || 0}

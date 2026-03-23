@@ -45,6 +45,7 @@ const EventContent = ({ eventId }: EventContentProps) => {
                 {event?.image?.url ? (
                     <ConvexImage
                         src={event?.image?.url || ""}
+                        imageId={event?.image?._id}
                         alt={event?.image?.altText || ""}
                         width={event?.image?.width || 0}
                         height={event?.image?.height || 0}

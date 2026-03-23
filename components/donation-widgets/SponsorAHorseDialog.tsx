@@ -41,6 +41,7 @@ const SponsorAHorseDialog = ({ children, animalId }: { children?: React.ReactNod
                             ? (
                                 <ConvexImage
                                     src={animal.image.url}
+                                    imageId={animal.image._id}
                                     alt={animal.image.altText || animal.name}
                                     width={animal.image.width || 400}
                                     height={animal.image.height || 300}

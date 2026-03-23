@@ -1,11 +1,12 @@
 import { PaginationOptions } from "convex/server";
 import { type QMCtxType } from "../types"
-import { topicNameToAttributeName, type TopicNameType } from "./articleMetadataManager"
+import { topicNameToAttributeName, type TopicNameType, type CategoryNameType } from "./articleMetadataManager"
 
 export type ArticleSearchParams = {
     query?: string,
     topics?: TopicNameType[],
     external?: boolean,
+    category?: CategoryNameType,
     dateMin?: number,
     dateMax?: number,
     publicOnly?: boolean,
@@ -26,6 +27,9 @@ function buildTextSearchQuery(ctx: QMCtxType, args: ArticleSearchParams) {
             }
             if (args.publicOnly) {
                 search = search.eq("public", true);
+            }
+            if (args.category !== undefined) {
+                search = search.eq("category", args.category);
             }
             return search
         },
@@ -58,6 +62,7 @@ function buildTextSearchQuery(ctx: QMCtxType, args: ArticleSearchParams) {
 function buildFilterQuery(ctx: QMCtxType, args: ArticleSearchParams) {
     if (
         args.external === undefined &&
+        args.category === undefined &&
         args.dateMin === undefined &&
         args.dateMax === undefined &&
         args.topics === undefined &&
@@ -76,6 +81,9 @@ function buildFilterQuery(ctx: QMCtxType, args: ArticleSearchParams) {
             return q.and(...[
                 args.external !== undefined
                     ? q.eq(q.field("isExternal"), args.external!)
+                    : undefined,
+                args.category !== undefined
+                    ? q.eq(q.field("category"), args.category!)
                     : undefined,
                 args.dateMin
                     ? q.gte(q.field("date"), args.dateMin!)

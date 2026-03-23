@@ -26,6 +26,7 @@ const AdoptableAnimalCard = ({ animal }: { animal: any }) => {
                 {animal.image?.url && (
                     <ConvexImage
                         src={animal.image.url}
+                        imageId={animal.image._id}
                         alt={animal.name}
                         width={animal.image.width || 400}
                         height={animal.image.height || 400}
@@ -35,6 +36,7 @@ const AdoptableAnimalCard = ({ animal }: { animal: any }) => {
                 {firstGalleryImage?.image?.url && (
                     <ConvexImage
                         src={firstGalleryImage.image.url}
+                        imageId={firstGalleryImage.image._id}
                         alt={firstGalleryImage.image.altText ?? animal.name}
                         width={firstGalleryImage.image.width || 400}
                         height={firstGalleryImage.image.height || 400}

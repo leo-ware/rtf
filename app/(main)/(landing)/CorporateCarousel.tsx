@@ -35,6 +35,7 @@ const CorporateCarousel = () => {
                 widget: (
                     <ConvexImage
                         src={image.url!}
+                        imageId={image._id}
                         width={image.width}
                         height={image.height}
                         className="w-[200px] h-auto"

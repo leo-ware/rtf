@@ -107,6 +107,7 @@ const OurHorsesPage = () => {
                             <div className="relative w-full h-[600px]">
                                 <ConvexImage
                                     src={inMemoriamHorse.image.url}
+                                    imageId={inMemoriamHorse.image._id}
                                     alt={inMemoriamHorse.name}
                                     width={inMemoriamHorse.image.width || 1200}
                                     height={inMemoriamHorse.image.height || 400}

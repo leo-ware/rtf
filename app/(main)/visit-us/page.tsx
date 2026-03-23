@@ -117,6 +117,7 @@ const VisitPage = () => {
                                             <div key={index} className="relative w-full aspect-[16/9]">
                                                 <ConvexImage
                                                     src={item.image.url}
+                                                    imageId={item.image._id}
                                                     alt={item.image.altText || `Gallery image ${index + 1}`}
                                                     width={item.image.width || 800}
                                                     height={item.image.height || 450}

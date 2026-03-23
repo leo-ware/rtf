@@ -45,6 +45,7 @@ const OurBurrosPage = () => {
                             <div className="relative w-full h-[600px]">
                                 <ConvexImage
                                     src={inMemoriamBurro.image.url}
+                                    imageId={inMemoriamBurro.image._id}
                                     alt={inMemoriamBurro.name}
                                     width={inMemoriamBurro.image.width || 1200}
                                     height={inMemoriamBurro.image.height || 600}

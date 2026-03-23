@@ -30,6 +30,12 @@ export const attributeNameToTopicName = (attribute: TopicAttributeType) => {
 }
 const topicAttributeList = topicNameList.map(topicNameToAttributeName)
 type TopicAttributeType = (typeof topicAttributeList)[number];
+// Article categories - keep in sync with lib/topicType.ts
+export const categoryNameList = ["featured_news", "rtf_e_news", "field_notes", "press_release"] as const
+export type CategoryNameType = (typeof categoryNameList)[number]
+export const convexCategoryEnum = v.union(
+    ...categoryNameList.map(c => v.literal(c))
+)
 // end of necessary sync
 
 export const extractTopicsList = <T extends Partial<Record<TopicAttributeType, boolean | undefined>>>(obj: T) => {
@@ -55,6 +61,7 @@ type CreateArgs = {
     animalIds?: Id<"animals">[],
     topics?: TopicNameType[],
     tags?: Id<"tags">[],
+    category?: CategoryNameType,
     imageId: Id<"images">,
 }
 
@@ -122,6 +129,7 @@ class ArticleMetadataManager {
             searchText: `${args.title} ${args.excerpt || ""}`,
             isExternal: !!args.externalArticleId,
             imageId: args.imageId,
+            category: args.category,
         });
         const manager = new ArticleMetadataManager(articleMetadataId)
         if (args.herdIds) {
@@ -176,6 +184,9 @@ class ArticleMetadataManager {
         }
         if (args.imageId !== undefined) {
             patch.imageId = args.imageId;
+        }
+        if (args.category !== undefined) {
+            patch.category = args.category as Doc<"articleMetadata">["category"];
         }
         patch.searchText = `${patch.title || item.title} ${patch.excerpt || item.excerpt || ""}`;
         await ctx.db.patch(this.id, patch);

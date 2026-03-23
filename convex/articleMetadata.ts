@@ -1,7 +1,7 @@
 import { v } from "convex/values"
 import { query, mutation } from "./_generated/server"
 import { getCurrentUserOrThrow } from "./users"
-import ArticleMetadataManager, { convexTopicEnum, topicNameList, resolvePaginatedResult } from "./models/articleMetadataManager"
+import ArticleMetadataManager, { convexTopicEnum, convexCategoryEnum, topicNameList, resolvePaginatedResult } from "./models/articleMetadataManager"
 import { paginationOptsValidator } from "convex/server"
 import { articleMetadataAggregate } from "./aggregates"
 import { Id } from "./_generated/dataModel"
@@ -53,6 +53,7 @@ export const updateArticleMetadata = mutation({
         animalIds: v.optional(v.array(v.id("animals"))),   
         topics: v.optional(v.array(convexTopicEnum)),
         tags: v.optional(v.array(v.id("tags"))),
+        category: v.optional(convexCategoryEnum),
     },
     returns: v.id("articleMetadata"),
     handler: async (ctx, args) => {
@@ -120,6 +121,7 @@ export const search = query({
         query: v.optional(v.string()),
         topics: v.optional(v.array(convexTopicEnum)),
         external: v.optional(v.boolean()),
+        category: v.optional(convexCategoryEnum),
         dateMin: v.optional(v.number()),
         dateMax: v.optional(v.number()),
         publicOnly: v.optional(v.boolean()),
@@ -141,6 +143,7 @@ export const search = query({
                 query: args.query,
                 topics: args.topics,
                 external: args.external,
+                category: args.category,
                 dateMin: args.dateMin,
                 dateMax: args.dateMax,
                 publicOnly: args.publicOnly,
@@ -156,6 +159,7 @@ export const getForTags = query({
         tagIds: v.array(v.id("tags")),
         publicOnly: v.optional(v.boolean()),
         external: v.optional(v.boolean()),
+        category: v.optional(convexCategoryEnum),
         dateMin: v.optional(v.number()),
         dateMax: v.optional(v.number()),
     },
@@ -181,6 +185,7 @@ export const getForTags = query({
             if (!a) return false;
             if (args.publicOnly && !a.public) return false;
             if (args.external !== undefined && a.isExternal !== args.external) return false;
+            if (args.category !== undefined && a.category !== args.category) return false;
             if (args.dateMin !== undefined && a.date < args.dateMin) return false;
             if (args.dateMax !== undefined && a.date > args.dateMax) return false;
             return true;

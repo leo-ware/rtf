@@ -15,7 +15,7 @@ import { ChevronRight, ExternalLink, Loader2 } from "lucide-react"
 import { trackEvent, AnalyticsEvents } from "@/lib/analytics"
 import { TagBadges } from "@/components/public-ui/TagBadges"
 import { Id } from "@/convex/_generated/dataModel"
-import { TopicNameType } from "@/convex/models/articleMetadataManager"
+import { CategoryNameType, categoryNameList, categoryDisplayNames } from "@/lib/topicType"
 import MultiCheckboxDropdown from "@/components/public-ui/form/MultiCheckboxDropdown"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { FaCaretDown } from "react-icons/fa6"
@@ -37,36 +37,29 @@ export default function NewsPage() {
     const [showFilters, setShowFilters] = useState(false)
     const [searchTerm, setSearchTerm] = useState<string | null>(null)
     const [external, setExternal] = useState<SelectOption<boolean | undefined> | null>(null)
+    const [selectedCategory, setSelectedCategory] = useState<SelectOption<CategoryNameType | undefined> | null>(null)
     const [selectedTags, setSelectedTags] = useState<Id<"tags">[]>([])
-    const [selectedTopics, setSelectedTopics] = useState<TopicNameType[]>([])
     const [startDate, setStartDate] = useState<string>("")
     const [endDate, setEndDate] = useState<string>("")
 
-    const availableTopics = useQuery(api.articleMetadata.listTopics)
     const availableTags = useQuery(api.tags.list)
 
-    const combinedFilterItems = [
-        ...(availableTopics ?? []).map(t => ({ label: t.name, value: t._id, sectionLabel: "Topics" })),
-        ...(availableTags ?? []).map(t => ({ label: t.name, value: t._id, sectionLabel: "Tags" })),
-    ]
-    const topicValueSet = new Set<string>((availableTopics ?? []).map(t => t._id))
-    const combinedSelectedValues = [...selectedTopics, ...(selectedTags as string[])]
-    const handleCombinedFilterChange = (vals: string[]) => {
-        setSelectedTopics(vals.filter(v => topicValueSet.has(v)) as TopicNameType[])
-        setSelectedTags(vals.filter(v => !topicValueSet.has(v)) as Id<"tags">[])
+    const tagFilterItems = (availableTags ?? []).map(t => ({ label: t.name, value: t._id }))
+    const handleTagFilterChange = (vals: string[]) => {
+        setSelectedTags(vals as Id<"tags">[])
     }
 
     const resetSearch = () => {
         setSearchTerm(null)
         setExternal(null)
+        setSelectedCategory(null)
         setSelectedTags([])
-        setSelectedTopics([])
         setStartDate("")
         setEndDate("")
     }
 
     const hasTags = selectedTags.length > 0
-    const hasTopics = selectedTopics.length > 0 || !!searchTerm
+    const hasTopics = !!searchTerm
 
     // Paginated query — used for all articles and topic/text filtering (branches A and C)
     const { results: topicResults, loadMore: loadMoreTopics, status: topicStatus } = usePaginatedQuery(
@@ -75,7 +68,8 @@ export default function NewsPage() {
             publicOnly: true,
             query: searchTerm || undefined,
             external: external?.value ?? undefined,
-            topics: selectedTopics.length > 0 ? selectedTopics : undefined,
+            category: selectedCategory?.value ?? undefined,
+            topics: undefined,
             dateMin: startDate ? new Date(startDate).getTime() : undefined,
             dateMax: endDate ? new Date(`${endDate}T23:59:59.999`).getTime() : undefined,
         },
@@ -89,6 +83,7 @@ export default function NewsPage() {
             tagIds: selectedTags,
             publicOnly: true,
             external: external?.value ?? undefined,
+            category: selectedCategory?.value ?? undefined,
             dateMin: startDate ? new Date(startDate).getTime() : undefined,
             dateMax: endDate ? new Date(`${endDate}T23:59:59.999`).getTime() : undefined,
         } : "skip"
@@ -98,7 +93,7 @@ export default function NewsPage() {
     const [tagDisplayCount, setTagDisplayCount] = useState(20)
     useEffect(() => {
         setTagDisplayCount(20)
-    }, [selectedTags, selectedTopics, searchTerm, startDate, endDate, external])
+    }, [selectedTags, searchTerm, startDate, endDate, external])
 
     // Merge results based on active filter branches
     const displayedArticles = useMemo(() => {
@@ -229,9 +224,22 @@ export default function NewsPage() {
                                 selectedValue={external ?? null}
                                 onSelect={setExternal}
                             />
+                            <Select
+                                placeholder="Category"
+                                containerClassName="w-[170px]"
+                                options={[
+                                    { label: "All", value: undefined },
+                                    ...categoryNameList.map(c => ({
+                                        label: categoryDisplayNames[c],
+                                        value: c as CategoryNameType | undefined,
+                                    })),
+                                ]}
+                                selectedValue={selectedCategory ?? null}
+                                onSelect={setSelectedCategory}
+                            />
                             <Popover>
                                 <PopoverTrigger asChild>
-                                    <div className="h-10 w-[130px] border-2 border-pewter rounded-sm px-2 flex items-center justify-between cursor-pointer bg-white shrink-0">
+                                    <div className="h-10 w-[110px] border-2 border-pewter rounded-sm px-2 flex items-center justify-between cursor-pointer bg-white shrink-0">
                                         <span className="uppercase text-sm font-semibold text-pewter truncate">
                                             {startDate || endDate ? `${startDate ? startDate.slice(5) : "…"} – ${endDate ? endDate.slice(5) : "…"}` : "Date"}
                                         </span>
@@ -276,12 +284,12 @@ export default function NewsPage() {
                                     </div>
                                 </PopoverContent>
                             </Popover>
-                            <div className="w-[150px]">
+                            <div className="w-[120px]">
                                 <MultiCheckboxDropdown
-                                    placeholder="Topics"
-                                    items={combinedFilterItems}
-                                    selectedValues={combinedSelectedValues}
-                                    onSelectionChange={handleCombinedFilterChange}
+                                    placeholder="Tags"
+                                    items={tagFilterItems}
+                                    selectedValues={selectedTags as string[]}
+                                    onSelectionChange={handleTagFilterChange}
                                     searchable
                                 />
                             </div>

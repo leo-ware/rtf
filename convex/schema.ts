@@ -128,6 +128,12 @@ export default defineSchema({
         herdIds: v.array(v.id("herds")),
         animalIds: v.array(v.id("animals")),
         tags: v.optional(v.array(v.id("tags"))),
+        category: v.optional(v.union(
+            v.literal("featured_news"),
+            v.literal("rtf_e_news"),
+            v.literal("field_notes"),
+            v.literal("press_release"),
+        )),
         searchText: v.string(),
 
         topic_homepage: v.optional(v.boolean()),
@@ -153,6 +159,7 @@ export default defineSchema({
                 "isExternal",
                 "public",
                 "tags",
+                "category",
                 "topic_homepage",
                 "topic_conservation",
                 "topic_sanctuary",

@@ -2,9 +2,11 @@
 
 import { cn } from "@/lib/utils"
 import Image from "next/image"
+import { Id } from "@/convex/_generated/dataModel"
 
 export type ConvexImageProps = {
     src: string
+    imageId?: Id<"images">
     width: number | undefined
     height: number | undefined
     alt: string
@@ -15,14 +17,15 @@ export type ConvexImageProps = {
     blurDataUrl?: string | null
 }
 
-const ConvexImage: React.FC<ConvexImageProps> = ({ src, width, height, alt, objectFit = "cover", className, authorCredit, style, blurDataUrl }: ConvexImageProps) => {
+const ConvexImage: React.FC<ConvexImageProps> = ({ src, imageId, width, height, alt, objectFit = "cover", className, authorCredit, style, blurDataUrl }: ConvexImageProps) => {
     const classes = cn("relative group", className)
+    const imageSrc = imageId ? `/api/img/${imageId}` : src
 
     return (
         <div className={classes} style={style}>
-            {src && src.length > 0 && (
+            {imageSrc && imageSrc.length > 0 && (
                 <Image
-                    src={src}
+                    src={imageSrc}
                     width={width}
                     height={height}
                     alt={alt}

@@ -62,6 +62,7 @@ const IndividualHorseContent = ({ horseSlug }: IndividualHorseContentProps) => {
                         {animal.image?.url ? (
                             <ConvexImage
                                 src={animal.image.url}
+                                imageId={animal.image._id}
                                 alt={animal.name}
                                 width={animal.image.width || 600}
                                 height={animal.image.height || 400}
@@ -125,6 +126,7 @@ const IndividualHorseContent = ({ horseSlug }: IndividualHorseContentProps) => {
                                                 <div key={index} className="relative w-full aspect-[16/9]">
                                                     <ConvexImage
                                                         src={item.image.url}
+                                                        imageId={item.image._id}
                                                         alt={item.image.altText || `${animal.name} gallery image ${index + 1}`}
                                                         width={item.image.width || 800}
                                                         height={item.image.height || 450}

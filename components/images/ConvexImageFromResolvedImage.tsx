@@ -16,6 +16,7 @@ const ConvexImageFromResolvedImage = ({ image, className, style, objectFit }: Co
     return (
         <ConvexImage
             src={image.url || ""}
+            imageId={image._id}
             alt={image.altText || image.title || ""}
             width={image.width || 0}
             height={image.height || 0}

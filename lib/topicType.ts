@@ -25,3 +25,16 @@ export const attributeNameToTopicName = (attribute: TopicAttributeType) => {
 }
 export const topicAttributeList = topicNameList.map(topicNameToAttributeName)
 export type TopicAttributeType = (typeof topicAttributeList)[number];
+
+// Article categories
+export const categoryNameList = ["featured_news", "rtf_e_news", "field_notes", "press_release"] as const
+export type CategoryNameType = (typeof categoryNameList)[number]
+export const convexCategoryEnum = v.union(
+    ...categoryNameList.map(c => v.literal(c))
+)
+export const categoryDisplayNames: Record<CategoryNameType, string> = {
+    featured_news: "Featured News",
+    rtf_e_news: "RTF E-News",
+    field_notes: "Field Notes",
+    press_release: "Press Release",
+}

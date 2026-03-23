@@ -47,6 +47,7 @@ const ProgramGroupContent = ({ programGroupId }: ProgramGroupContentProps) => {
                 {programGroup?.image?.url ? (
                     <ConvexImage
                         src={programGroup?.image?.url || ""}
+                        imageId={programGroup?.image?._id}
                         alt={programGroup?.image?.altText || ""}
                         width={programGroup?.image?.width || 0}
                         height={programGroup?.image?.height || 0}
@@ -81,6 +82,7 @@ const ProgramGroupContent = ({ programGroupId }: ProgramGroupContentProps) => {
                                         {program.image?.url ? (
                                             <ConvexImage
                                                 src={program.image?.url || ""}
+                                                imageId={program.image?._id}
                                                 alt={program.image?.altText || ""}
                                                 width={program.image?.width || 0}
                                                 height={program.image?.height || 0}
@@ -199,6 +201,7 @@ const ProgramGroupContent = ({ programGroupId }: ProgramGroupContentProps) => {
                                             <div key={index} className="relative w-full aspect-[16/9]">
                                                 <ConvexImage
                                                     src={item.image.url}
+                                                    imageId={item.image._id}
                                                     alt={item.image.altText || `Gallery image ${index + 1}`}
                                                     width={item.image.width || 800}
                                                     height={item.image.height || 450}

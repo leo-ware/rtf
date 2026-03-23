@@ -22,6 +22,7 @@ const TakeActionLink = ({ title, fallbackImage, image, href, className }: TakeAc
                 {(image && image.url) ? (
                     <ConvexImage
                         src={image.url}
+                        imageId={image._id}
                         alt={title}
                         width={image.width}
                         height={image.height}
