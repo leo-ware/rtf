@@ -1,7 +1,7 @@
 import { StaticImageData } from "next/image";
 import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit";
 
-const Hero = ({ title, image, authorCredit }: { title: string; image: StaticImageData; authorCredit?: string }) => {
+const Hero = ({ title, image, authorCredit, objectPosition }: { title: string; image: StaticImageData; authorCredit?: string; objectPosition?: string }) => {
   return (
     <div
       style={{ height: "calc(100vh - 135px)" }}
@@ -12,7 +12,8 @@ const Hero = ({ title, image, authorCredit }: { title: string; image: StaticImag
       <ImageWithAuthorCredit
         src={image}
         alt="About Hero"
-        className="z-0 absolute top-0 left-0 w-full h-full object-cover object-center"
+        className="z-0 absolute top-0 left-0 w-full h-full object-cover"
+        style={objectPosition ? { objectPosition } : { objectPosition: "center" }}
         fill
         priority
         sizes="100vw"

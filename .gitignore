@@ -3,6 +3,8 @@
 # claude worktrees
 .claude/worktrees
 
+# local working folder
+downloads
 
 # image optimization backups
 .image-backups
