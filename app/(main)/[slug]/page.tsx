@@ -1,4 +1,4 @@
-import { redirect, notFound } from "next/navigation"
+import { permanentRedirect, notFound } from "next/navigation"
 import { fetchQuery } from "convex/nextjs"
 import { api } from "@/convex/_generated/api"
 import { PageProps } from "@/lib/types"
@@ -15,8 +15,8 @@ const LegacyBlogRedirectPage = async ({ params }: PageProps<{ slug: string }>) =
     const articleExists = await fetchQuery(api.articles.checkSlugExists, { slug })
 
     if (articleExists) {
-        // Redirect to the new article location with 301 permanent redirect
-        redirect(`/resources/news/article/${slug}`)
+        // Redirect to the new article location with 308 permanent redirect
+        permanentRedirect(`/resources/news/article/${slug}`)
     }
 
     // If no article found, show 404

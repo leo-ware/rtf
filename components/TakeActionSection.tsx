@@ -9,7 +9,7 @@ import Button from "./public-ui/Button"
 import { cn } from "@/lib/utils"
 import { Loader2, ChevronDownIcon } from "lucide-react"
 import Link from "next/link"
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import type { TopicNameType } from "@/lib/topicType"
 
 import TakeActionImage1 from "./images/take-action-1.jpg"
@@ -60,28 +60,63 @@ const TakeActionSection = ({ rows = 1, showControls = false, topic }: TakeAction
         return [...topicResults, ...supplemental]
     }, [topic, topicArticles, topicIds, recommended])
 
-    const hasFreshRecommended = useMemo(
-        () => recommended.some(a => !topicIds.has(a._id)),
-        [recommended, topicIds]
-    )
+    // Number of articles currently revealed. Topic articles are always
+    // shown in full, so the floor is max(initCount, topicArticles.length).
+    const minVisible = Math.max(initCount, topicArticles?.length ?? 0)
+    const [visibleCount, setVisibleCount] = useState(initCount)
+    const effectiveVisible = Math.max(visibleCount, minVisible)
 
-    // When a topic is set, the recommended page may consist entirely of
-    // articles already shown via the topic query. Auto-skip those pages so
-    // the "Show More" button doesn't get stuck offering loads that produce
-    // no new visible items.
+    // Eagerly load the next page so we always know whether there is at
+    // least one more (deduped) article to reveal. When recommended pages
+    // overlap entirely with topic articles, this loop keeps loading
+    // until we either find a new article or exhaust the query — which is
+    // the only way to definitively answer "is there more to show?" given
+    // the client-side dedup.
+    //
+    // Convex sometimes reports `CanLoadMore` but then returns no new
+    // items. To avoid spinning forever, we record the `recommended.length`
+    // we last triggered a loadMore at, and if we end up back at
+    // `CanLoadMore` with the same length, we treat the query as
+    // exhausted on the client and stop asking.
+    const lastLoadTriggerLength = useRef(-1)
+    const [clientExhausted, setClientExhausted] = useState(false)
+
+    // If `recommended` grew (or shrank) via some other path, the stall is
+    // no longer the latest signal — reset the guard so we'll try again.
     useEffect(() => {
-        if (!topic) return
-        if (recommendedStatus !== "CanLoadMore") return
-        if (hasFreshRecommended) return
-        loadMore(rowSize)
-    }, [topic, recommendedStatus, hasFreshRecommended, loadMore])
+        if (recommended.length !== lastLoadTriggerLength.current) {
+            setClientExhausted(false)
+        }
+    }, [recommended.length])
 
-    const canShowMore =
-        recommendedStatus === "CanLoadMore" && (topic ? hasFreshRecommended : true)
+    useEffect(() => {
+        if (clientExhausted) return
+        if (recommendedStatus !== "CanLoadMore") return
+        if (articles.length > effectiveVisible) return
+        if (lastLoadTriggerLength.current === recommended.length) {
+            // We already asked at this length and convex returned nothing
+            // new — bail out and treat as exhausted.
+            setClientExhausted(true)
+            return
+        }
+        lastLoadTriggerLength.current = recommended.length
+        loadMore(rowSize)
+    }, [clientExhausted, recommendedStatus, recommended.length, articles.length, effectiveVisible, loadMore])
+
+    const canShowMore = articles.length > effectiveVisible
+    const isExhausted = recommendedStatus === "Exhausted" || clientExhausted
 
     const fallbackImages = [TakeActionImage1, TakeActionImage2, TakeActionImage3]
 
     const isLoading = recommendedStatus === "LoadingFirstPage" || (topic && topicArticles === undefined)
+    // While we're still loading ahead to figure out if more exists, show a
+    // spinner in place of the button so it doesn't flicker on/off.
+    const isResolvingMore =
+        showControls &&
+        !canShowMore &&
+        !isExhausted &&
+        (recommendedStatus === "LoadingMore" ||
+            (recommendedStatus === "CanLoadMore" && articles.length <= effectiveVisible))
 
     return (
         <div id="take-action" className="bg-slate-teal py-12 w-full">
@@ -100,7 +135,7 @@ const TakeActionSection = ({ rows = 1, showControls = false, topic }: TakeAction
                         )}
 
                         {!isLoading && articles && articles.length > 0 && (
-                            articles.slice(0, showControls ? undefined : initCount).map((article, idx) => (
+                            articles.slice(0, showControls ? effectiveVisible : initCount).map((article, idx) => (
                                 <TakeActionLink
                                     key={article._id}
                                     className="mx-auto"
@@ -114,17 +149,17 @@ const TakeActionSection = ({ rows = 1, showControls = false, topic }: TakeAction
                     </>
                 )}
 
-                {showControls && (canShowMore || recommendedStatus === "LoadingMore") && (
+                {showControls && (canShowMore || isResolvingMore) && (
                     <div className="col-span-full flex items-center justify-center gap-2">
                         <div
                             className="cursor-pointer w-fit h-fit"
                             onClick={() => {
-                                if (recommendedStatus === "CanLoadMore") {
-                                    loadMore(rowSize)
+                                if (canShowMore) {
+                                    setVisibleCount(c => Math.max(c, effectiveVisible) + rowSize)
                                 }
                             }}
                         >
-                            {recommendedStatus === "CanLoadMore" && (
+                            {canShowMore && (
                                 <div className="flex flex-col items-center justify-center group">
                                     <div className="text-sm font-medium text-white/80 group-hover:text-white">
                                         Show More
@@ -132,7 +167,7 @@ const TakeActionSection = ({ rows = 1, showControls = false, topic }: TakeAction
                                     <ChevronDownIcon className="w-4 h-4 text-white/80 group-hover:text-white" />
                                 </div>
                             )}
-                            {recommendedStatus === "LoadingMore" && (
+                            {!canShowMore && isResolvingMore && (
                                 <Loader2 className="w-4 h-4 animate-spin text-white/80" />
                             )}
                         </div>

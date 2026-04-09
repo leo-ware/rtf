@@ -62,7 +62,12 @@ const LearnTimelineContentInner = () => {
             .map((item) => ({
                 superTitle: item.date,
                 title: item.title,
-                description: <div dangerouslySetInnerHTML={{ __html: item.content }} />,
+                description: (
+                    <div
+                        className="prose prose-lg max-w-none text-ink"
+                        dangerouslySetInnerHTML={{ __html: item.content }}
+                    />
+                ),
                 image: item.image!.url!,
                 imageAlt: item.image?.altText,
                 authorCredit: item.image?.authorCredit,
@@ -155,8 +160,10 @@ const LearnTimelineContentInner = () => {
                     <div className="text-[48px] font-serif text-cinnamon">
                         {lastItem.title}
                     </div>
-                    <div className="text-[20px] mb-2" dangerouslySetInnerHTML={{ __html: lastItem.content }}>
-                    </div>
+                    <div
+                        className="prose prose-lg max-w-none text-[20px] mb-2 text-ink"
+                        dangerouslySetInnerHTML={{ __html: lastItem.content }}
+                    />
                     <div className="w-8/12">
                         <ImageWithAuthorCredit
                             src={lastItem.image.url}

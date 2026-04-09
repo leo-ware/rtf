@@ -26,17 +26,11 @@ const nextConfig: NextConfig = {
     },
     async redirects() {
         return [
-            // Donate path changes
-            {
-                source: "/donate1",
-                destination: "/donate",
-                permanent: true,
-            },
-            {
-                source: "/donate1/:path*",
-                destination: "/donate/:path*",
-                permanent: true,
-            },
+            // NOTE: /donate1/* redirects are handled in middleware.ts
+            // (see lib/legacyRedirects.ts) so that specific subpaths like
+            // /donate1/sponsor/<horse> can be remapped instead of being
+            // wildcarded onto a 404.
+
             // Visit path changes
             {
                 source: "/visit",

@@ -2,7 +2,7 @@ import { v } from "convex/values"
 import { mutation } from "./_generated/server"
 import ArticleManager from "./models/articleManager"
 import { convexCategoryEnum } from "./models/articleMetadataManager"
-import { articleMetadataAggregate } from "./aggregates"
+import { articleMetadataAggregate, animalsAggregate } from "./aggregates"
 
 export const importArticle = mutation({
     args: {
@@ -107,5 +107,57 @@ export const importCheckSlugExists = mutation({
             .withIndex("by_slug", (q) => q.eq("slug", args.slug))
             .first()
         return !!article
+    },
+})
+
+export const importCheckAnimalSlugExists = mutation({
+    args: { slug: v.string() },
+    returns: v.boolean(),
+    handler: async (ctx, args) => {
+        const animal = await ctx.db
+            .query("animals")
+            .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+            .first()
+        return !!animal
+    },
+})
+
+export const importCreateGalleryItem = mutation({
+    args: { imageId: v.id("images") },
+    returns: v.id("galleryItems"),
+    handler: async (ctx, args) => {
+        return await ctx.db.insert("galleryItems", {
+            type: "image",
+            imageId: args.imageId,
+        })
+    },
+})
+
+export const importCreateAnimal = mutation({
+    args: {
+        name: v.string(),
+        slug: v.string(),
+        type: v.union(v.literal("horse"), v.literal("burro")),
+        description: v.string(),
+        content: v.optional(v.string()),
+        imageId: v.id("images"),
+        gallery: v.optional(v.array(v.id("galleryItems"))),
+    },
+    returns: v.id("animals"),
+    handler: async (ctx, args) => {
+        const animalId = await ctx.db.insert("animals", {
+            name: args.name,
+            slug: args.slug,
+            type: args.type,
+            description: args.description,
+            content: args.content,
+            imageId: args.imageId,
+            gallery: args.gallery,
+        })
+        const animal = await ctx.db.get(animalId)
+        if (animal) {
+            await animalsAggregate.insert(ctx, animal)
+        }
+        return animalId
     },
 })

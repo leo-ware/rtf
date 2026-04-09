@@ -18,7 +18,9 @@ import {
     ExternalLink,
     LinkIcon,
     Badge,
+    Search,
 } from "lucide-react"
+import { Input } from "@/components/ui/input"
 import {
     Tooltip,
     TooltipContent,
@@ -39,6 +41,18 @@ const AdminNewsPage = () => {
         document.title = "News & Articles - RTF Admin"
     }, [])
 
+    const [searchTerm, setSearchTerm] = useState("")
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("")
+
+    useEffect(() => {
+        const handle = setTimeout(() => {
+            setDebouncedSearchTerm(searchTerm)
+        }, 250)
+        return () => clearTimeout(handle)
+    }, [searchTerm])
+
+    const trimmedSearch = debouncedSearchTerm.trim()
+
     const {
         results: allArticles,
         loadMore: loadMoreArticles,
@@ -47,7 +61,7 @@ const AdminNewsPage = () => {
         api.articleMetadata.search,
         {
             publicOnly: false,
-            query: undefined,
+            query: trimmedSearch || undefined,
             topics: undefined,
             external: undefined,
             dateMin: undefined,
@@ -97,6 +111,16 @@ const AdminNewsPage = () => {
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="relative mb-6">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                    type="search"
+                    placeholder="Search articles…"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-9"
+                />
+            </div>
             <Tabs defaultValue="articles" className="w-full">
                 <div className="flex justify-between items-center mb-8">
                     <TabsList className="grid w-fit grid-cols-2">
@@ -205,13 +229,26 @@ const AdminNewsPage = () => {
                     {articles.length === 0 && (
                         <div className="text-center py-12">
                             <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                            <h3 className="text-lg font-medium text-gray-900 mb-2">
-                                No articles yet
-                            </h3>
-                            <p className="text-gray-600 mb-4">
-                                Get started by creating your first news article
-                            </p>
-                            <ArticleCreateDialog />
+                            {trimmedSearch ? (
+                                <>
+                                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                        No articles match &ldquo;{trimmedSearch}&rdquo;
+                                    </h3>
+                                    <p className="text-gray-600 mb-4">
+                                        Try a different search term.
+                                    </p>
+                                </>
+                            ) : (
+                                <>
+                                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                        No articles yet
+                                    </h3>
+                                    <p className="text-gray-600 mb-4">
+                                        Get started by creating your first news article
+                                    </p>
+                                    <ArticleCreateDialog />
+                                </>
+                            )}
                         </div>
                     )}
                 </TabsContent>
@@ -302,19 +339,32 @@ const AdminNewsPage = () => {
                     {externalArticles.length === 0 && (
                         <div className="text-center py-12">
                             <LinkIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                            <h3 className="text-lg font-medium text-gray-900 mb-2">
-                                No external articles yet
-                            </h3>
-                            <p className="text-gray-600 mb-4">
-                                Get started by adding your first external
-                                article reference
-                            </p>
-                            <ExternalArticleCreateDialog>
-                                <Button>
-                                    <LinkIcon className="h-4 w-4 mr-2" />
-                                    Add External Article
-                                </Button>
-                            </ExternalArticleCreateDialog>
+                            {trimmedSearch ? (
+                                <>
+                                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                        No external articles match &ldquo;{trimmedSearch}&rdquo;
+                                    </h3>
+                                    <p className="text-gray-600 mb-4">
+                                        Try a different search term.
+                                    </p>
+                                </>
+                            ) : (
+                                <>
+                                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                        No external articles yet
+                                    </h3>
+                                    <p className="text-gray-600 mb-4">
+                                        Get started by adding your first external
+                                        article reference
+                                    </p>
+                                    <ExternalArticleCreateDialog>
+                                        <Button>
+                                            <LinkIcon className="h-4 w-4 mr-2" />
+                                            Add External Article
+                                        </Button>
+                                    </ExternalArticleCreateDialog>
+                                </>
+                            )}
                         </div>
                     )}
                 </TabsContent>
