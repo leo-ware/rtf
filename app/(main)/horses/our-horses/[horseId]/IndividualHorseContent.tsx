@@ -89,11 +89,13 @@ const IndividualHorseContent = ({ horseSlug }: IndividualHorseContentProps) => {
                         <div className="text-lg text-left">
                             {animal.description}
                         </div>
-                        <SponsorAHorseDialog animalId={animal._id}>
-                            <Button color="cinnamon" size="medium">
-                                Sponsor {animal.name}
-                            </Button>
-                        </SponsorAHorseDialog>
+                        {animal.donationFormId && (
+                            <SponsorAHorseDialog animalId={animal._id}>
+                                <Button color="cinnamon" size="medium">
+                                    Sponsor {animal.name}
+                                </Button>
+                            </SponsorAHorseDialog>
+                        )}
                     </div>
                 </div>
 

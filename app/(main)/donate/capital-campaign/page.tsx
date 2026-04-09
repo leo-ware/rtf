@@ -43,7 +43,7 @@ const CapitalCampaignPage = () => {
                 </div>
             </div>
 
-            <ImageWithAuthorCredit src={bg1} alt="Capital Campaign" className="w-full h-[80vh] object-cover object-center" />
+            <ImageWithAuthorCredit src={bg1} alt="Capital Campaign" wrapperClassName="w-full" className="w-full h-[80vh] object-cover object-center" />
 
             <div className="w-10/12 md:w-8/12 mx-auto h-fit flex flex-col items-start md:items-center justify-center gap-8 text-left md:text-center">
                 <div className="text-4xl font-serif text-sage-green">
@@ -59,7 +59,7 @@ const CapitalCampaignPage = () => {
                 </div>
             </div>
 
-            <ImageWithAuthorCredit src={bg2} alt="Capital Campaign" className="w-full h-[80vh] object-cover object-center" />
+            <ImageWithAuthorCredit src={bg2} alt="Capital Campaign" wrapperClassName="w-full" className="w-full h-[80vh] object-cover object-center" />
 
             <div className="w-10/12 md:w-8/12 mx-auto h-fit flex flex-col items-start md:items-center justify-center gap-8 text-left md:text-center">
                 <div className="text-4xl font-serif text-pewter">
@@ -75,7 +75,7 @@ const CapitalCampaignPage = () => {
                 </div>
             </div>
 
-            <ImageWithAuthorCredit src={bg3} alt="Capital Campaign" className="w-full h-[80vh] object-cover object-center" />
+            <ImageWithAuthorCredit src={bg3} alt="Capital Campaign" wrapperClassName="w-full" className="w-full h-[80vh] object-cover object-center" />
 
             <div className="w-10/12 md:w-8/12 mx-auto h-fit flex flex-col items-start md:items-center justify-center gap-8 text-left md:text-center">
                 <div className="text-4xl font-serif text-cinnamon">

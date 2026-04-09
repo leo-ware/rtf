@@ -300,21 +300,36 @@ export const getPromotedAnimalForSponsorship = query({
         type: v.union(v.literal("horse"), v.literal("burro")),
     },
     handler: async (ctx, args) => {
-        const promotedAnimals = await ctx.db
+        const hasLiveDonationForm = async (animal: { donationFormId?: Id<"donationForms"> }) => {
+            if (!animal.donationFormId) return false
+            const form = await ctx.db.get(animal.donationFormId)
+            return form !== null
+        }
+
+        const promotedRaw = await ctx.db
             .query("animals")
             .filter((q) => q.eq(q.field("promoted"), true))
             .filter((q) => q.neq(q.field("inMemoriam"), true))
             .filter((q) => q.eq(q.field("type"), args.type!))
+            .filter((q) => q.neq(q.field("donationFormId"), undefined))
             .order("desc")
-            .take(10)
+            .take(20)
+        const promotedAnimals = (await Promise.all(
+            promotedRaw.map(async (a) => (await hasLiveDonationForm(a)) ? a : null)
+        )).filter((a): a is typeof promotedRaw[number] => a !== null)
 
-        const animals = (promotedAnimals && promotedAnimals.length > 0)
-            ? promotedAnimals
-            : await ctx.db.query("animals")
+        let animals = promotedAnimals
+        if (animals.length === 0) {
+            const fallbackRaw = await ctx.db.query("animals")
                 .filter((q) => q.neq(q.field("inMemoriam"), true))
                 .filter((q) => q.eq(q.field("type"), args.type!))
+                .filter((q) => q.neq(q.field("donationFormId"), undefined))
                 .order("desc")
-                .take(10)
+                .take(20)
+            animals = (await Promise.all(
+                fallbackRaw.map(async (a) => (await hasLiveDonationForm(a)) ? a : null)
+            )).filter((a): a is typeof fallbackRaw[number] => a !== null)
+        }
 
         const selectedAnimal = animals[Math.floor(Math.random() * animals.length)]
 
@@ -358,6 +373,7 @@ export const getAnimalsForSponsorship = query({
         if (!args.includeInMemoriam) {
             query = query.filter((q) => q.neq(q.field("inMemoriam"), true))
         }
+        query = query.filter((q) => q.neq(q.field("donationFormId"), undefined))
         if (args.herdId) {
             query = query.filter((q) => q.eq(q.field("herdId"), args.herdId!))
         }
@@ -375,20 +391,24 @@ export const getAnimalsForSponsorship = query({
         const animals = animalsResult.page
 
         const animalsWithHerdsAndImages = await Promise.all(animals.map(async (animal) => {
-            const [herd, image] = await Promise.all([
+            const [herd, image, donationForm] = await Promise.all([
                 animal.herdId ? ctx.db.get(animal.herdId) : null,
                 animal.imageId ? resolveImageId(ctx, animal.imageId) : null,
+                animal.donationFormId ? ctx.db.get(animal.donationFormId) : null,
             ])
             return {
                 ...animal,
                 herd,
                 image,
+                _hasLiveDonationForm: donationForm !== null,
             }
         }))
 
+        const filteredAnimals = animalsWithHerdsAndImages.filter((a) => a._hasLiveDonationForm)
+
         return {
             ...animalsResult,
-            page: animalsWithHerdsAndImages,
+            page: filteredAnimals.map(({ _hasLiveDonationForm, ...rest }) => rest),
         }
     },
 })

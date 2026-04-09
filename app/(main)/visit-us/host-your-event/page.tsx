@@ -28,7 +28,7 @@ import galleryImg11 from "@/public/img/event_gallery_11.jpg"
 import galleryImg12 from "@/public/img/event_gallery_12.jpg"
 
 export const metadata = {
-    title: "Host Your Event - Return to Freedom",
+    title: "Your Weddings & Events - Return to Freedom",
     description:
         "Host your wedding, fundraiser, retreat, or special gathering at Return to Freedom's sanctuary on California's Central Coast.",
 }
@@ -145,7 +145,7 @@ const HostYourEventPage = () => {
     return (
         <div className="w-full h-fit flex flex-col items-center justify-start gap-16">
             <Hero
-                title="Host Your Event"
+                title="Your Weddings & Events"
                 image={HeroImg}
                 objectPosition="25% center"
             />

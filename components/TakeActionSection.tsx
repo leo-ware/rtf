@@ -9,7 +9,7 @@ import Button from "./public-ui/Button"
 import { cn } from "@/lib/utils"
 import { Loader2, ChevronDownIcon } from "lucide-react"
 import Link from "next/link"
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
 import type { TopicNameType } from "@/lib/topicType"
 
 import TakeActionImage1 from "./images/take-action-1.jpg"
@@ -47,14 +47,37 @@ const TakeActionSection = ({ rows = 1, showControls = false, topic }: TakeAction
         topic ? { topic } : "skip"
     )
 
+    const topicIds = useMemo(
+        () => new Set((topicArticles ?? []).map(a => a._id)),
+        [topicArticles]
+    )
+
     const articles = useMemo(() => {
         if (!topic) return recommended
 
         const topicResults = topicArticles ?? []
-        const topicIds = new Set(topicResults.map(a => a._id))
         const supplemental = recommended.filter(a => !topicIds.has(a._id))
         return [...topicResults, ...supplemental]
-    }, [topic, topicArticles, recommended])
+    }, [topic, topicArticles, topicIds, recommended])
+
+    const hasFreshRecommended = useMemo(
+        () => recommended.some(a => !topicIds.has(a._id)),
+        [recommended, topicIds]
+    )
+
+    // When a topic is set, the recommended page may consist entirely of
+    // articles already shown via the topic query. Auto-skip those pages so
+    // the "Show More" button doesn't get stuck offering loads that produce
+    // no new visible items.
+    useEffect(() => {
+        if (!topic) return
+        if (recommendedStatus !== "CanLoadMore") return
+        if (hasFreshRecommended) return
+        loadMore(rowSize)
+    }, [topic, recommendedStatus, hasFreshRecommended, loadMore])
+
+    const canShowMore =
+        recommendedStatus === "CanLoadMore" && (topic ? hasFreshRecommended : true)
 
     const fallbackImages = [TakeActionImage1, TakeActionImage2, TakeActionImage3]
 
@@ -91,7 +114,7 @@ const TakeActionSection = ({ rows = 1, showControls = false, topic }: TakeAction
                     </>
                 )}
 
-                {showControls && ["CanLoadMore", "LoadingMore"].includes(recommendedStatus) && (
+                {showControls && (canShowMore || recommendedStatus === "LoadingMore") && (
                     <div className="col-span-full flex items-center justify-center gap-2">
                         <div
                             className="cursor-pointer w-fit h-fit"

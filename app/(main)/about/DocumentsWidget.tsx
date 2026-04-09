@@ -5,37 +5,31 @@ import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import { chunk } from "@/lib/utils"
 import AresMares from "@/public/img/ares-mares-cropped.png"
 import Button from "@/components/public-ui/Button"
-import { usePaginatedQuery } from "convex/react"
+import { useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { useState } from "react"
+import { AnimatePresence, motion } from "motion/react"
 import { trackEvent, AnalyticsEvents } from "@/lib/analytics"
 
 const DocumentsWidget = () => {
-    const { results: documents, status: documentsStatus } = usePaginatedQuery(
-        api.documents.listPublicDocuments,
-        { type: undefined },
-        { initialNumItems: 500 }
-    )
     const [activeTab, setActiveTab] = useState<"annual_report" | "financial_documents" | "form_990">("annual_report")
 
-    const documentsWithLinks = (documents || []).map(doc => ({
-        ...doc,
-        link: `/resources/documents/${doc._id}`
-    }))
+    const activeTabDocs = useQuery(api.documents.listPublicDocumentsByType, { type: activeTab })
+    const annualReports = useQuery(api.documents.listPublicDocumentsByType, { type: "annual_report" })
 
-    const listDocuments = documentsWithLinks
-        .filter(d => d.type === activeTab)
+    const listDocuments = (activeTabDocs || [])
+        .map(doc => ({ ...doc, link: `/resources/documents/${doc._id}` }))
         .sort((a, b) => b.year - a.year)
         .map(doc => {
             if (activeTab === "annual_report") {
                 return { ...doc, title: `${doc.year} Annual Report` }
             } else {
-                return doc
+                return { ...doc, title: doc.name }
             }
         })
 
-    const sortedAnnualReport = documentsWithLinks
-        .filter(d => d.type === "annual_report")
+    const sortedAnnualReport = (annualReports || [])
+        .map(doc => ({ ...doc, link: `/resources/documents/${doc._id}` }))
         .sort((a, b) => b.year - a.year)
     const latestAnnualReport = sortedAnnualReport.length > 0 ? sortedAnnualReport[0] : null
 
@@ -73,7 +67,7 @@ const DocumentsWidget = () => {
                     </Link>
                 </div>
             </div>
-            <div className="w-full h-fit bg-pewter py-12 md:py-20 px-4 md:px-1/12 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-8">
+            <div id="financials" className="w-full h-fit bg-pewter py-12 md:py-20 px-4 md:px-1/12 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-8 scroll-mt-24">
 
                 <div className="w-full md:w-fit flex flex-col items-center md:items-start justify-start gap-2 text-center md:text-left md:shrink-0">
                     <div className="text-white text-[36px] md:text-[48px] font-serif leading-tight">Financials</div>
@@ -116,29 +110,41 @@ const DocumentsWidget = () => {
                         ))}
                     </div>
 
-                    <div className="w-full bg-white rounded p-4 md:p-8 flex flex-col md:flex-row">
-                        {chunk(listDocuments, 8).map(rl => (
-                            <div className="w-full md:w-1/3 flex flex-col items-start justify-start gap-1">
-                                {rl.map(r => (
-                                    <Link
-                                        href={r.link}
-                                        className="text-pewter text-[17px] md:text-[20px]"
-                                        onClick={() => trackEvent(AnalyticsEvents.DOCUMENT_OPENED, {
-                                            name: r.title,
-                                            type: activeTab,
-                                            year: r.year,
-                                        })}
-                                    >
-                                        {r.title}
-                                    </Link>
+                    <div className="relative w-full bg-white rounded p-4 md:p-8 overflow-hidden">
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={activeTab}
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -8 }}
+                                transition={{ duration: 0.2, ease: "easeOut" }}
+                                className="w-full flex flex-col md:flex-row"
+                            >
+                                {chunk(listDocuments, 8).map(rl => (
+                                    <div className="w-full md:w-1/3 flex flex-col items-start justify-start gap-1">
+                                        {rl.map(r => (
+                                            <Link
+                                                key={r._id}
+                                                href={r.link}
+                                                className="text-pewter text-[17px] md:text-[20px]"
+                                                onClick={() => trackEvent(AnalyticsEvents.DOCUMENT_OPENED, {
+                                                    name: r.title,
+                                                    type: activeTab,
+                                                    year: r.year,
+                                                })}
+                                            >
+                                                {r.title}
+                                            </Link>
+                                        ))}
+                                    </div>
                                 ))}
-                            </div>
-                        ))}
-                        {listDocuments.length === 0 && (
-                            <div className="w-full flex items-center justify-center">
-                                <div className="text-pewter text-[20px]">No documents found</div>
-                            </div>
-                        )}
+                                {listDocuments.length === 0 && (
+                                    <div className="w-full flex items-center justify-center">
+                                        <div className="text-pewter text-[20px]">No documents found</div>
+                                    </div>
+                                )}
+                            </motion.div>
+                        </AnimatePresence>
                     </div>
                 </div>
             </div>

@@ -19,6 +19,14 @@ import { useMutation } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import ImagePickerDialog from "@/components/images/ImagePickerDialog"
 import DonationFormSelector from "./DonationFormSelector"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import { DONATE_LINK_PRESETS } from "./donateLinkPresets"
 
 type PathwayType = "link" | "donationForm"
 
@@ -183,18 +191,39 @@ const DonatePathwayEditDialog = ({ pathway, children, onUpdated }: DonatePathway
                     </div>
 
                     {formData.pathwayType === "link" && (
-                        <div>
-                            <Label htmlFor="link">Link URL *</Label>
-                            <Input
-                                id="link"
-                                value={formData.link}
-                                disabled={editingDisabled}
-                                onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-                                placeholder="e.g., /donate/sponsor-a-horse or https://example.com"
-                            />
-                            <p className="text-sm text-gray-500 mt-1">
-                                Use relative paths (starting with /) for internal pages, or full URLs for external links.
-                            </p>
+                        <div className="space-y-3">
+                            <div>
+                                <Label>Quick select (optional)</Label>
+                                <Select
+                                    value=""
+                                    onValueChange={(path) => setFormData({ ...formData, link: path })}
+                                    disabled={editingDisabled}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Choose a donate page…" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {DONATE_LINK_PRESETS.map((preset) => (
+                                            <SelectItem key={preset.path} value={preset.path}>
+                                                {preset.label} ({preset.path})
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <Label htmlFor="link">Link URL *</Label>
+                                <Input
+                                    id="link"
+                                    value={formData.link}
+                                    disabled={editingDisabled}
+                                    onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+                                    placeholder="e.g., /donate/sponsor-a-horse or https://example.com"
+                                />
+                                <p className="text-sm text-gray-500 mt-1">
+                                    Use relative paths (starting with /) for internal pages, or full URLs for external links.
+                                </p>
+                            </div>
                         </div>
                     )}
 

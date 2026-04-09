@@ -45,7 +45,7 @@ export const createImage = mutation({
             throw new Error("Error creating image")
         }
         await imagesAggregate.insert(ctx, image)
-        await ctx.scheduler.runAfter(0, internal.imageProcessing.generateBlurDataUrl, {
+        await ctx.scheduler.runAfter(0, internal.imageProcessing.optimizeImage, {
             imageId: image._id,
             storageId: args.storageId,
         })
@@ -124,6 +124,14 @@ export const listImagesByAuthors = query({
         authors: v.optional(v.array(v.id("people"))),
         searchText: v.optional(v.string()),
         blurDataUrl: v.optional(v.string()),
+        processingStatus: v.optional(v.union(
+            v.literal("pending"),
+            v.literal("processing"),
+            v.literal("completed"),
+            v.literal("failed"),
+        )),
+        processingError: v.optional(v.string()),
+        processedAt: v.optional(v.number()),
         url: v.union(v.string(), v.null()),
         authorNames: v.array(v.string()),
     })),

@@ -101,6 +101,32 @@ export const deleteDonationForm = mutation({
             throw new Error("Insufficient permissions")
         }
 
+        // Clear references to this form from animals, herds, and pathways
+        // so we don't leave dangling donationFormIds.
+        const referencingAnimals = await ctx.db
+            .query("animals")
+            .filter((q) => q.eq(q.field("donationFormId"), args.id))
+            .collect()
+        for (const animal of referencingAnimals) {
+            await ctx.db.patch(animal._id, { donationFormId: undefined })
+        }
+
+        const referencingHerds = await ctx.db
+            .query("herds")
+            .filter((q) => q.eq(q.field("donationFormId"), args.id))
+            .collect()
+        for (const herd of referencingHerds) {
+            await ctx.db.patch(herd._id, { donationFormId: undefined })
+        }
+
+        const referencingPathways = await ctx.db
+            .query("donatePathways")
+            .filter((q) => q.eq(q.field("donationFormId"), args.id))
+            .collect()
+        for (const pathway of referencingPathways) {
+            await ctx.db.patch(pathway._id, { donationFormId: undefined })
+        }
+
         const manager = new DonationFormManager(args.id)
         await manager.delete(ctx)
         return manager.id

@@ -21,6 +21,7 @@ type SponsorAHorseMenuProps = {
     title?: string
     initialNumItems?: number
     herdId?: Id<"herds">
+    priorityHerdId?: Id<"herds">
     type?: "horse" | "burro"
     showControls?: boolean
     excludeAnimalIds?: Id<"animals">[]
@@ -28,7 +29,7 @@ type SponsorAHorseMenuProps = {
     hideViewAll?: boolean
 }
 
-const SponsorAHorseMenu = ({ title, initialNumItems: limit, herdId = undefined, type = undefined, showControls = false, excludeAnimalIds = [], includeInMemoriam = false, hideViewAll = false }: SponsorAHorseMenuProps) => {
+const SponsorAHorseMenu = ({ title, initialNumItems: limit, herdId = undefined, priorityHerdId = undefined, type = undefined, showControls = false, excludeAnimalIds = [], includeInMemoriam = false, hideViewAll = false }: SponsorAHorseMenuProps) => {
 
     const [selectedHerdId, setSelectedHerdId] = useState<Id<"herds"> | null>(herdId || null)
     const [selectedType, setSelectedType] = useState<"horse" | "burro" | null>(type || null)
@@ -38,6 +39,15 @@ const SponsorAHorseMenu = ({ title, initialNumItems: limit, herdId = undefined, 
         { herdId: selectedHerdId ?? undefined, type: selectedType ?? undefined, includeInMemoriam: includeInMemoriam || undefined },
         { initialNumItems: limit ? (showControls ? limit : limit + 2) : 6 }
     )
+    // Only prioritize when the user has not made an explicit filter selection
+    const shouldPrioritize = !!priorityHerdId && selectedHerdId === null && selectedType === null
+    const { results: _priorityAnimals } = usePaginatedQuery(
+        api.animals.getAnimalsForSponsorship,
+        shouldPrioritize
+            ? { herdId: priorityHerdId, includeInMemoriam: includeInMemoriam || undefined }
+            : "skip",
+        { initialNumItems: limit ? (showControls ? limit : limit + 2) : 6 }
+    )
     const { results: herds } = usePaginatedQuery(
         api.herds.listHerds,
         {},
@@ -45,9 +55,16 @@ const SponsorAHorseMenu = ({ title, initialNumItems: limit, herdId = undefined, 
     )
 
     const _animalsFiltered = _animals?.filter((animal) => !excludeAnimalIds.includes(animal._id))
+    const _merged = shouldPrioritize && _animalsFiltered
+        ? (() => {
+            const prioritySet = new Set(_priorityAnimals.map(a => a._id))
+            const rest = _animalsFiltered.filter(a => !prioritySet.has(a._id))
+            return [..._priorityAnimals, ...rest]
+        })()
+        : _animalsFiltered
     const animals = showControls
-        ? _animalsFiltered
-        : _animalsFiltered?.slice(0, limit || 6)
+        ? _merged
+        : _merged?.slice(0, limit || 6)
     
     const selectedHerd = herds?.find((herd) => herd._id === selectedHerdId)
 

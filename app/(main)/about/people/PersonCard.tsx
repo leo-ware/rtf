@@ -52,15 +52,15 @@ export const PersonCard = ({ person }: { person: Person, size?: "small" | "mediu
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent
                     showCloseButton={false}
-                    className="bg-sage-green border-none text-white w-[90vw] sm:w-[85vw] md:w-[75vw] lg:w-[60vw] !max-w-none h-[80vh] sm:h-[70vh] lg:h-[60vh] p-0 overflow-y-auto sm:overflow-hidden rounded-lg outline-none"
+                    className="block bg-sage-green border-none text-white !max-w-none w-[min(80vw,45vh)] h-[min(160vw,90vh)] sm:w-[min(85vw,900px)] sm:h-[min(42.5vw,450px)] p-0 gap-0 overflow-hidden rounded-lg outline-none"
                 >
                     <DialogTitle className="sr-only">{person.name}</DialogTitle>
                     <DialogClose className="absolute top-3 right-3 z-10 text-white opacity-70 hover:opacity-100 transition-opacity outline-none focus:outline-none">
                         <XIcon className="size-6" />
                         <span className="sr-only">Close</span>
                     </DialogClose>
-                    <div className="flex flex-col sm:flex-row sm:h-full">
-                        <div className="sm:w-[40%] sm:min-w-[40%] aspect-square sm:aspect-auto relative bg-gray-600 overflow-hidden shrink-0">
+                    <div className="flex flex-col sm:flex-row w-full h-full">
+                        <div className="w-full h-1/2 sm:w-1/2 sm:h-full relative bg-gray-600 overflow-hidden shrink-0">
                             {person.image ? (
                                 <ImageWithAuthorCredit
                                     src={person.image.src}
@@ -77,20 +77,20 @@ export const PersonCard = ({ person }: { person: Person, size?: "small" | "mediu
                                 </div>
                             )}
                         </div>
-                        <div className="p-6 flex flex-col gap-1 sm:h-full sm:overflow-hidden">
-                            <div className="font-serif text-2xl lg:text-3xl font-bold shrink-0">{person.name}</div>
+                        <div className="w-full h-1/2 sm:w-1/2 sm:h-full p-6 flex flex-col gap-1 min-w-0 min-h-0 overflow-hidden">
+                            <div className="font-serif text-2xl lg:text-3xl font-bold shrink-0 min-w-0">{person.name}</div>
                             {person.title && (
-                                <div className="text-base lg:text-lg italic text-white/80 shrink-0">{person.title}</div>
+                                <div className="text-base lg:text-lg italic text-white/80 shrink-0 min-w-0">{person.title}</div>
                             )}
                             {person.bio && (
-                                <div className="text-sm lg:text-base leading-relaxed text-white/90 mt-2 sm:overflow-y-auto sm:flex-1 sm:min-h-0">{person.bio}</div>
+                                <div className="text-sm lg:text-base leading-relaxed text-white/90 mt-2 flex-1 min-h-0 min-w-0 overflow-y-auto [overflow-wrap:anywhere]">{person.bio}</div>
                             )}
                             {person.link && (
                                 <a
                                     href={person.link}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-sm text-white/60 hover:text-white mt-2 underline shrink-0"
+                                    className="text-sm text-white/60 hover:text-white mt-2 underline shrink-0 min-w-0"
                                 >
                                     Read more
                                 </a>

@@ -4,7 +4,7 @@ import { FaCaretLeft, FaCaretRight } from "react-icons/fa"
 import ImageWithAuthorCredit from "@/components/images/ImageWithAuthorCredit"
 import Link from "next/link"
 import { useMemo } from "react"
-import { usePaginatedQuery } from "convex/react"
+import { usePaginatedQuery, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Id } from "@/convex/_generated/dataModel"
 import { formatDate } from "@/lib/utils"
@@ -26,11 +26,16 @@ const NewsCarousel = ({
     title = "Latest News",
     bgColor = "seashell",
     topic,
+    herdId,
 }: NewsCarouselProps) => {
     const { results: topicArticles } = usePaginatedQuery(
         api.articleMetadata.carouselSearch,
         topic ? { topic } : "skip",
         { initialNumItems: 6 }
+    )
+    const herdArticles = useQuery(
+        api.articleMetadata.getForHerd,
+        herdId ? { herdId, publicOnly: true } : "skip"
     )
     const { results: generalArticles } = usePaginatedQuery(
         api.articleMetadata.carouselSearch,
@@ -39,10 +44,22 @@ const NewsCarousel = ({
     )
 
     const articles = useMemo(() => {
-        const topicIds = new Set(topicArticles.map(a => a._id))
-        const supplemental = generalArticles.filter(a => !topicIds.has(a._id))
-        return [...topicArticles, ...supplemental].slice(0, 6)
-    }, [topicArticles, generalArticles])
+        const seen = new Set<string>()
+        const merged: typeof generalArticles = []
+        const pushUnique = (list: typeof generalArticles | undefined) => {
+            if (!list) return
+            for (const a of list) {
+                if (!seen.has(a._id)) {
+                    seen.add(a._id)
+                    merged.push(a)
+                }
+            }
+        }
+        pushUnique(herdArticles as typeof generalArticles | undefined)
+        pushUnique(topicArticles)
+        pushUnique(generalArticles)
+        return merged.slice(0, 6)
+    }, [herdArticles, topicArticles, generalArticles])
 
     if (!articles || articles.length === 0) {
         return null
@@ -72,8 +89,8 @@ const NewsCarousel = ({
                                 wrapperClassName="w-full h-full"
                                 authorCredit={article.image?.authorCredit} />
                         </div>
-                        <div className="grow sm:basis-0 bg-white flex flex-col items-center justify-start py-3 sm:justify-center sm:py-0 overflow-hidden">
-                            <div className="w-3/4 h-fit md:border-l-4 border-cinnamon md:pl-4 py-2 flex flex-col justify-start gap-1 sm:gap-2">
+                        <div className="grow sm:basis-0 bg-white flex flex-col items-center md:items-start justify-start py-3 md:pl-8 sm:justify-center sm:py-0 overflow-hidden">
+                            <div className="w-3/4 h-fit md:border-l-4 border-cinnamon md:pl-4 py-2 flex flex-col justify-start gap-1 sm:gap-2 md:text-left">
                                 <div className="text-sm">
                                     {formattedDate}
                                 </div>

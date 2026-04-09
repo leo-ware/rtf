@@ -15,6 +15,7 @@ import { api } from "@/convex/_generated/api";
 import ConvexImage from "../images/ConvexImage";
 import Button from "../public-ui/Button";
 import SalsaDonateFormEmbed from "../SalsaDonateFormEmbed";
+import Link from "next/link";
 import { useRef } from "react";
 
 const SponsorAHorseDialog = ({ children, animalId }: { children?: React.ReactNode, animalId: Id<"animals"> }) => {
@@ -30,13 +31,13 @@ const SponsorAHorseDialog = ({ children, animalId }: { children?: React.ReactNod
                 )}
             </DialogTrigger>
             <DialogContent>
-                <div className="w-full md:w-[50vw] min-h-full md:min-h-0 md:h-auto relative bg-sage-green md:rounded-md md:overflow-hidden">
+                <div className="w-full md:w-[60vw] lg:w-[80vw] xl:w-[70vw] min-h-full md:min-h-0 md:h-auto lg:h-[65vh] relative bg-sage-green md:rounded-md md:overflow-hidden flex flex-col lg:flex-row">
                     {/* Close button - fixed on mobile for always-visible access */}
                     <DialogClose className="fixed md:absolute top-4 right-4 z-20 text-white text-2xl">
                         <IoMdClose />
                     </DialogClose>
 
-                    <div className="relative w-full h-[200px] md:h-auto md:aspect-[2/1] shrink-0">
+                    <div className="relative w-full lg:w-[45%] lg:order-last h-[200px] md:h-auto md:aspect-[2/1] lg:aspect-auto lg:min-h-full shrink-0">
                         {animal?.image?.url
                             ? (
                                 <ConvexImage
@@ -59,9 +60,9 @@ const SponsorAHorseDialog = ({ children, animalId }: { children?: React.ReactNod
                             )}
                     </div>
 
-                    <div className="w-full px-4 pt-6 pb-2 md:px-6 md:pt-10 basis-0 grow">
-                        <div className="w-full mb-4 md:mb-6 flex flex-col gap-2 items-center justify-between">
-                            <div className="text-xl md:text-3xl font-serif text-white">
+                    <div className="w-full lg:w-[55%] px-4 pt-6 pb-2 md:px-6 md:pt-10 basis-0 grow lg:overflow-y-auto scrollbar-thin">
+                        <div className="w-full mb-4 md:mb-6 flex flex-col gap-2 items-center lg:items-start justify-between">
+                            <div className="text-xl md:text-3xl font-serif text-white text-center lg:text-left lg:px-6">
                                 {animal?.inMemoriam ? `Gift in Memory of ${animal?.name}` : `Sponsor ${animal?.name}`}
                             </div>
                             {animal?.inMemoriam && (
@@ -73,8 +74,15 @@ const SponsorAHorseDialog = ({ children, animalId }: { children?: React.ReactNod
                                 <SalsaDonateFormEmbed donationFormId={animal.donationFormId} />
                             )}
                             {animal && !animal.donationFormId && (
-                                <div className="text-lg text-white/90">
-                                    Donations have not been configured for this animal.
+                                <div className="flex flex-col items-center gap-4 text-center">
+                                    <p className="text-base md:text-lg text-white/90">
+                                        {animal.name} is not currently available to sponsor, but your support still helps the herd. Please consider making a donation to Return to Freedom.
+                                    </p>
+                                    <Link href="/donate">
+                                        <Button color="cinnamon" size="medium">
+                                            Donate
+                                        </Button>
+                                    </Link>
                                 </div>
                             )}
                         </div>

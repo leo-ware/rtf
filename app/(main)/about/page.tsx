@@ -1,5 +1,6 @@
 import NewsCarousel from "../../../components/NewsCarousel";
 import DocumentsWidget from "./DocumentsWidget";
+import HashScroller from "@/components/public-ui/HashScroller";
 import OurPeopleBento from "./OurPeopleBento";
 import AboutHeroImg from "@/public/img/about_hero.jpg";
 import MissionImg from "@/public/img/mission-image.jpg";
@@ -17,6 +18,7 @@ export const metadata = {
 const AboutPage = () => {
   return (
     <div className="w-full h-fit">
+      <HashScroller />
       <Hero title="About Us" image={AboutHeroImg} />
 
       <div className="w-full h-fit py-16 px-4 flex flex-col items-center justify-center gap-12">

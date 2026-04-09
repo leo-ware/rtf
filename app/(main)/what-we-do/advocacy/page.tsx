@@ -12,6 +12,7 @@ import ScrollReveal from "@/components/public-ui/ScrollReveal"
 import DonationCallout from "@/components/DonationCallout"
 import WhdfImage from "@/app/(main)/(landing)/imgs/whdf.jpg"
 import StatsBar from "@/components/StatsBar"
+import HashScroller from "@/components/public-ui/HashScroller"
 
 import Policy1 from "./policy1.jpg"
 import Policy2 from "./policy2.jpg"
@@ -109,6 +110,7 @@ const PolicyCard = ({ policy, index }: { policy: typeof policies[number], index:
 const AdvocacyPage = () => {
     return (
         <div className="w-full h-fit flex flex-col items-center justify-start">
+            <HashScroller />
             <Hero title="Advocacy" image={AdvocacyHero} />
 
             <div className="py-16">

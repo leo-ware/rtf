@@ -80,6 +80,7 @@ export default class ImageManager {
         const imageId = await ctx.db.insert("images", {
             ...args,
             searchText,
+            processingStatus: "pending" as const,
         });
         return new ImageManager(imageId);
     }

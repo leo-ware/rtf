@@ -5,6 +5,75 @@ import { internalAction } from "./_generated/server"
 import { internal } from "./_generated/api"
 import sharp from "sharp"
 
+export const optimizeImage = internalAction({
+    args: {
+        imageId: v.id("images"),
+        storageId: v.id("_storage"),
+    },
+    returns: v.null(),
+    handler: async (ctx, args) => {
+        // Mark as processing
+        await ctx.runMutation(internal.imageProcessingHelpers.setProcessingStatus, {
+            imageId: args.imageId,
+            status: "processing",
+        })
+
+        try {
+            const url = await ctx.storage.getUrl(args.storageId)
+            if (!url) {
+                throw new Error("Could not get storage URL for image")
+            }
+
+            const response = await fetch(url)
+            const arrayBuffer = await response.arrayBuffer()
+            const buffer = Buffer.from(arrayBuffer)
+
+            // Resize (max 2400px long edge) and convert to JPEG
+            const optimized = await sharp(buffer)
+                .resize(2400, 2400, { fit: "inside", withoutEnlargement: true })
+                .flatten({ background: "#ffffff" })
+                .jpeg({ quality: 82 })
+                .toBuffer()
+
+            // Get dimensions of the optimized image
+            const metadata = await sharp(optimized).metadata()
+
+            // Upload optimized image to storage
+            const newStorageId = await ctx.storage.store(
+                new Blob([new Uint8Array(optimized)], { type: "image/jpeg" })
+            )
+
+            // Update the image record with new storage ID and metadata
+            await ctx.runMutation(internal.imageProcessingHelpers.updateImageAfterOptimization, {
+                imageId: args.imageId,
+                storageId: newStorageId,
+                size: optimized.length,
+                width: metadata.width ?? 0,
+                height: metadata.height ?? 0,
+                mimeType: "image/jpeg",
+            })
+
+            // Delete the old storage blob
+            await ctx.storage.delete(args.storageId)
+
+            // Generate blur data URL from the already-optimized image
+            await ctx.runAction(internal.imageProcessing.generateBlurDataUrl, {
+                imageId: args.imageId,
+                storageId: newStorageId,
+            })
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Unknown error"
+            await ctx.runMutation(internal.imageProcessingHelpers.setProcessingStatus, {
+                imageId: args.imageId,
+                status: "failed",
+                error: message,
+            })
+        }
+
+        return null
+    },
+})
+
 export const generateBlurDataUrl = internalAction({
     args: {
         imageId: v.id("images"),

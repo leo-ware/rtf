@@ -3,6 +3,7 @@ import { v } from "convex/values"
 import { getCurrentUserOrThrow } from "./users"
 import { Doc, Id } from "./_generated/dataModel"
 import { resolveImageId } from "./images"
+import { resolveGalleryItem } from "./galleryItems"
 import { paginationOptsValidator } from "convex/server"
 import { QMCtxType } from "./types"
 
@@ -138,6 +139,7 @@ export const updateHerd = mutation({
         description: v.optional(v.string()),
         imageId: v.optional(v.id("images")),
         timeline: v.optional(v.array(v.id("timelineItem"))),
+        gallery: v.optional(v.array(v.id("galleryItems"))),
         content: v.optional(v.string()),
         donationFormId: v.optional(v.id("donationForms")),
     },
@@ -160,6 +162,7 @@ export const updateHerd = mutation({
             description: string | undefined
             imageId: Id<"images"> | undefined
             timeline: Array<Id<"timelineItem">> | undefined
+            gallery: Array<Id<"galleryItems">> | undefined
             content: string | undefined
             donationFormId: Id<"donationForms"> | undefined
             updatedAt: number
@@ -201,6 +204,10 @@ export const updateHerd = mutation({
 
         if (args.timeline !== undefined) {
             updates.timeline = args.timeline
+        }
+
+        if (args.gallery !== undefined) {
+            updates.gallery = args.gallery
         }
 
         if (args.content !== undefined) {
@@ -339,6 +346,27 @@ export const removeTimelineItem = mutation({
         })
 
         return null
+    },
+})
+
+export const getHerdGalleryItems = query({
+    args: { ids: v.array(v.id("herds")) },
+    handler: async (ctx, args) => {
+        return await Promise.all(args.ids.map(async (id) => {
+            const herd = await ctx.db.get(id)
+            if (!herd) return null
+
+            const galleryIds = herd.gallery || []
+
+            const itemsForHerd = await Promise.all(
+                galleryIds.map(async (itemId) => resolveGalleryItem(ctx, itemId))
+            )
+
+            return {
+                herdId: herd._id,
+                items: itemsForHerd.filter(item => item !== null)
+            }
+        }))
     },
 })
 

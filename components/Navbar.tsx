@@ -36,7 +36,7 @@ const dropdownConfigs: NavDropdownConfig[] = [
         href: "/about",
         subpages: [
             {
-                label: "About RTF",
+                label: "About Us",
                 href: "/about",
                 description: "Learn about Return to Freedom's mission to preserve and protect America's wild horses.",
                 image: "/img/about_hero.jpg",
@@ -57,6 +57,12 @@ const dropdownConfigs: NavDropdownConfig[] = [
                 label: "Contact Us",
                 href: "/contact",
                 description: "Get in touch with Return to Freedom — we'd love to hear from you.",
+                image: "/img/about_hero.jpg",
+            },
+            {
+                label: "Financials",
+                href: "/about#financials",
+                description: "Annual reports, financial statements, and Form 990 filings for Return to Freedom.",
                 image: "/img/about_hero.jpg",
             },
         ],
@@ -90,7 +96,7 @@ const dropdownConfigs: NavDropdownConfig[] = [
                 image: "/img/Cedar-1941-square.png",
                 children: [
                     {
-                        label: "Herd Management",
+                        label: "Herd Management Areas",
                         href: "/what-we-do/advocacy/herd-management",
                         description: "Designated Herd Management Areas balance wild horse populations with other public-land uses, but decades of over-allocation threaten the future of wild herds.",
                         image: "/img/Cedar-1941-square.png",
@@ -138,6 +144,12 @@ const dropdownConfigs: NavDropdownConfig[] = [
                 href: "/donate/sponsor-a-horse",
                 description: "Support a wild horse's care with a sponsorship — a meaningful way to make a difference.",
                 image: "/img/sponsor-horse-dropdown.jpg",
+            },
+            {
+                label: "Meet Spirit",
+                href: "/horses/spirit",
+                description: "Meet Spirit, the iconic wild stallion who inspired Return to Freedom's mission.",
+                image: "/img/spirit-headshot.jpg",
             },
         ],
     },
@@ -194,10 +206,10 @@ const dropdownConfigs: NavDropdownConfig[] = [
                 image: "/img/events-dropdown.jpg",
             },
             {
-                label: "Your Weddings and Events",
+                label: "Your Weddings & Events",
                 href: "/visit-us/host-your-event",
                 description: "Host your wedding, fundraiser, retreat, or private gathering at our beautiful sanctuary.",
-                image: "/img/wedding_gallery_1.jpg",
+                image: "/img/event_gallery_3.jpg",
             },
         ],
     },

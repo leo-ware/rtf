@@ -333,7 +333,16 @@ export default defineSchema({
         authors: v.optional(v.array(v.id("people"))),
         searchText: v.optional(v.string()),
         blurDataUrl: v.optional(v.string()),
+        processingStatus: v.optional(v.union(
+            v.literal("pending"),
+            v.literal("processing"),
+            v.literal("completed"),
+            v.literal("failed"),
+        )),
+        processingError: v.optional(v.string()),
+        processedAt: v.optional(v.number()),
     })
+        .index("by_processingStatus", ["processingStatus"])
         .searchIndex("searchTitle", {
             searchField: "searchText"
         }),
@@ -474,6 +483,7 @@ export default defineSchema({
         description: v.optional(v.string()),
         imageId: v.optional(v.id("images")),
         timeline: v.optional(v.array(v.id("timelineItem"))),
+        gallery: v.optional(v.array(v.id("galleryItems"))),
         createdAt: v.number(),
         updatedAt: v.number(),
         content: v.optional(v.string()),

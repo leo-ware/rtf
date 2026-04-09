@@ -5,20 +5,25 @@ import { useQuery, useMutation } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Id } from "@/convex/_generated/dataModel"
 import { useRouter } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { ArrowLeft, Save, Calendar, Code } from "lucide-react"
+import { ArrowLeft, Save, Calendar, Code, Image as ImageIcon, Video } from "lucide-react"
 import Link from "next/link"
 import { handleConvexError } from "@/lib/errorHandler"
 import ImagePickerDialog from "@/components/images/ImagePickerDialog"
+import { ImagePicker } from "@/components/images/ImagePicker"
 import TimelineCreateDialog from "./TimelineCreateDialog"
 import TimelineDeleteDialog from "./TimelineDeleteDialog"
 import { TiptapEditor } from "@/components/TiptapEditor"
 import DonationFormSection from "@/components/DonationFormAdmin/DonationFormSection"
 import ReorderableList from "@/components/ReorderableList"
+import GalleryItemPicker, { GalleryItemType } from "@/components/GalleryItemPicker"
+import VideoPickerDialog from "@/components/VideoPickerDialog"
+import { VideoSource } from "@/lib/videoUtils"
+import { ArticleRenderer } from "@/components/ArticleRenderer"
 
 type EditHerdPageProps = {
     params: Promise<{
@@ -34,40 +39,186 @@ const EditHerdPage = ({ params }: EditHerdPageProps) => {
     const timeline = useQuery(api.herds.getHerdTimeline, { herdId })
     const updateHerd = useMutation(api.herds.updateHerd)
     const reorderTimeline = useMutation(api.timelineItems.reorderTimelineItems)
+    const createImageGalleryItem = useMutation(api.galleryItems.createImageGalleryItem)
+    const createVideoGalleryItem = useMutation(api.galleryItems.createVideoGalleryItem)
+    const deleteGalleryItem = useMutation(api.galleryItems.deleteGalleryItem)
+
+    const galleryItemsRaw = useQuery(api.herds.getHerdGalleryItems, {
+        ids: [herdId],
+    })
+    const galleryItemsServer = galleryItemsRaw?.[0]?.items || []
 
     const [formData, setFormData] = useState({
+        _initialized: false,
         name: "",
         slug: "",
         description: "",
         imageId: null as Id<"images"> | null,
+        gallery: [] as GalleryItemType[],
         content: undefined as string | undefined,
         donationFormId: undefined as Id<"donationForms"> | null | undefined,
     })
 
     const [isSaving, setIsSaving] = useState(false)
+    const [idxGalleryImagePickerOpen, setIdxGalleryImagePickerOpen] = useState<number | null>(null)
+    const [emptyImagePickerOpen, setEmptyImagePickerOpen] = useState(false)
+    const [videoPickerOpen, setVideoPickerOpen] = useState(false)
 
     // Update form data when herd loads
     useEffect(() => {
-        if (herd) {
-            setFormData({
+        if (herd && !formData._initialized) {
+            setFormData(prev => ({
+                ...prev,
+                _initialized: true,
                 name: herd.name,
                 slug: herd.slug,
                 description: herd.description || "",
                 imageId: (herd.imageId as Id<"images">) || null,
                 content: herd.content || "",
                 donationFormId: herd.donationFormId ?? undefined,
-            })
+            }))
         }
     }, [herd])
+
+    // Hydrate gallery from server
+    useEffect(() => {
+        if (galleryItemsServer && galleryItemsServer.length > 0) {
+            const validItems: GalleryItemType[] = galleryItemsServer
+                .filter((item): item is NonNullable<typeof item> => item !== null)
+                .map(item => {
+                    if (item.type === "image" && item.imageId && item.image) {
+                        return {
+                            type: "image" as const,
+                            galleryItemId: item._id,
+                            imageId: item.imageId,
+                            url: item.image.url || "",
+                            altText: item.image.altText,
+                        }
+                    } else if (item.type === "video" && item.videoSource && item.videoId) {
+                        return {
+                            type: "video" as const,
+                            galleryItemId: item._id,
+                            videoSource: item.videoSource,
+                            videoId: item.videoId,
+                            videoTitle: item.videoTitle,
+                            thumbnailUrl: item.thumbnailUrl,
+                        }
+                    }
+                    return null
+                })
+                .filter((item): item is GalleryItemType => item !== null)
+
+            setFormData(prev => ({ ...prev, gallery: validItems }))
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [galleryItemsServer.map(item => item?._id).sort().join(",")])
+
+    const handleGalleryReorder = (newOrder: string[]) => {
+        const reorderedGallery = newOrder
+            .map(id => formData.gallery.find(item => item.galleryItemId === id))
+            .filter((item): item is GalleryItemType => item !== undefined)
+        setFormData(prev => ({ ...prev, gallery: reorderedGallery }))
+    }
+
+    const handleAddImage = async (imageData: { imageId: Id<"images">; url: string }) => {
+        try {
+            const galleryItemId = await createImageGalleryItem({ imageId: imageData.imageId })
+            const newItem: GalleryItemType = {
+                type: "image",
+                galleryItemId,
+                imageId: imageData.imageId,
+                url: imageData.url,
+            }
+            setFormData(prev => ({ ...prev, gallery: [...prev.gallery, newItem] }))
+            setEmptyImagePickerOpen(false)
+        } catch (error: any) {
+            console.error("Error creating gallery item:", error)
+            alert(error?.message || "Failed to add image to gallery.")
+        }
+    }
+
+    const handleAddVideo = async (videoData: {
+        videoSource: VideoSource
+        videoId: string
+        videoTitle?: string
+        thumbnailUrl?: string
+    }) => {
+        try {
+            const galleryItemId = await createVideoGalleryItem({
+                videoSource: videoData.videoSource,
+                videoId: videoData.videoId,
+                videoTitle: videoData.videoTitle,
+                thumbnailUrl: videoData.thumbnailUrl,
+            })
+            const newItem: GalleryItemType = {
+                type: "video",
+                galleryItemId,
+                videoSource: videoData.videoSource,
+                videoId: videoData.videoId,
+                videoTitle: videoData.videoTitle,
+                thumbnailUrl: videoData.thumbnailUrl,
+            }
+            setFormData(prev => ({ ...prev, gallery: [...prev.gallery, newItem] }))
+            setVideoPickerOpen(false)
+        } catch (error: any) {
+            console.error("Error creating video gallery item:", error)
+            alert(error?.message || "Failed to add video to gallery.")
+        }
+    }
+
+    const handleDeleteGalleryItem = async (index: number) => {
+        const item = formData.gallery[index]
+        if (item && item.galleryItemId) {
+            try {
+                await deleteGalleryItem({ id: item.galleryItemId })
+            } catch (error) {
+                console.error("Error deleting gallery item:", error)
+            }
+        }
+        setFormData(prev => ({
+            ...prev,
+            gallery: prev.gallery.filter((_, i) => i !== index)
+        }))
+    }
+
+    const handleGalleryImageChange = async (index: number, imageData: { imageId: Id<"images">; url: string }) => {
+        const item = formData.gallery[index]
+        if (item && item.type === "image") {
+            if (item.galleryItemId) {
+                try {
+                    await deleteGalleryItem({ id: item.galleryItemId })
+                } catch (error) {
+                    console.error("Error deleting old gallery item:", error)
+                }
+            }
+            const newGalleryItemId = await createImageGalleryItem({ imageId: imageData.imageId })
+            const newItem: GalleryItemType = {
+                type: "image",
+                galleryItemId: newGalleryItemId,
+                imageId: imageData.imageId,
+                url: imageData.url,
+            }
+            setFormData(prev => ({
+                ...prev,
+                gallery: prev.gallery.map((g, i) => i === index ? newItem : g)
+            }))
+        }
+        setIdxGalleryImagePickerOpen(null)
+    }
 
     const handleSave = async () => {
         setIsSaving(true)
         try {
+            const validGallery = formData.gallery
+                .map(item => item.galleryItemId)
+                .filter((id): id is Id<"galleryItems"> => id !== undefined && id !== null)
+
             await updateHerd({
                 id: herdId,
                 name: formData.name,
                 description: formData.description || undefined,
                 imageId: formData.imageId || undefined,
+                gallery: validGallery.length > 0 ? validGallery : undefined,
                 content: formData.content || "",
                 donationFormId: formData.donationFormId ?? undefined,
             })
@@ -190,12 +341,81 @@ const EditHerdPage = ({ params }: EditHerdPageProps) => {
                                                     </div>
                                                 </div>
                                                 <h4 className="font-semibold text-gray-900 mb-1">{item.title}</h4>
-                                                <p className="text-gray-600 text-sm">{item.description}</p>
+                                                <ArticleRenderer content={item.description} className="text-gray-600 text-sm" />
                                             </div>
                                         ),
                                     }))}
                                     onReorder={handleTimelineReorder}
                                 />
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    {/* Gallery Management */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Gallery</CardTitle>
+                            <CardDescription>
+                                Manage images and videos for the herd's gallery
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="space-y-3">
+                                <ReorderableList
+                                    items={formData.gallery.map((item, index) => ({
+                                        id: item.galleryItemId,
+                                        widget: (
+                                            <GalleryItemPicker
+                                                item={item}
+                                                imagePickerOpen={idxGalleryImagePickerOpen === index}
+                                                onOpenImagePicker={() => setIdxGalleryImagePickerOpen(index)}
+                                                onCloseImagePicker={() => setIdxGalleryImagePickerOpen(null)}
+                                                onDelete={() => handleDeleteGalleryItem(index)}
+                                                onImageChange={(imageData) => handleGalleryImageChange(index, imageData)}
+                                            />
+                                        ),
+                                    }))}
+                                    onReorder={handleGalleryReorder}
+                                />
+                            </div>
+
+                            <div className="flex gap-2">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setEmptyImagePickerOpen(true)}
+                                    className="flex-1"
+                                >
+                                    <ImageIcon className="h-4 w-4 mr-2" />
+                                    Add Image
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setVideoPickerOpen(true)}
+                                    className="flex-1"
+                                >
+                                    <Video className="h-4 w-4 mr-2" />
+                                    Add Video
+                                </Button>
+                            </div>
+
+                            <ImagePicker
+                                isOpen={emptyImagePickerOpen}
+                                onClose={() => setEmptyImagePickerOpen(false)}
+                                onImageSelect={handleAddImage}
+                            />
+
+                            <VideoPickerDialog
+                                isOpen={videoPickerOpen}
+                                onClose={() => setVideoPickerOpen(false)}
+                                onVideoSelect={handleAddVideo}
+                            />
+
+                            {formData.gallery.length === 0 && (
+                                <div className="text-center py-8 border-2 border-dashed rounded-lg">
+                                    <ImageIcon className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                                    <p className="text-sm text-gray-500">No gallery items yet</p>
+                                    <p className="text-xs text-gray-400 mt-1">Add images or videos to create a gallery</p>
+                                </div>
                             )}
                         </CardContent>
                     </Card>

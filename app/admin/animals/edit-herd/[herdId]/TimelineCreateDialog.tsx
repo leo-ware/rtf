@@ -16,10 +16,10 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { Plus, Edit } from "lucide-react"
 import { handleConvexError } from "@/lib/errorHandler"
 import ImagePickerDialog from "@/components/images/ImagePickerDialog"
+import { TiptapEditor } from "@/components/TiptapEditor"
 
 type TimelineItem = {
     _id: Id<"timelineItem">
@@ -63,7 +63,8 @@ const TimelineCreateDialog = ({
 
     const isEditing = mode === "edit"
     const editingDisabled = isLoading
-    const saveDisabled = isLoading || !formData.title || !formData.description
+    const descriptionIsEmpty = !formData.description || formData.description.replace(/<[^>]*>/g, "").trim() === ""
+    const saveDisabled = isLoading || !formData.title || descriptionIsEmpty
 
     const resetForm = () => {
         if (isEditing && editItem) {
@@ -208,14 +209,10 @@ const TimelineCreateDialog = ({
                     </div>
 
                     <div>
-                        <Label htmlFor="timeline-description">Description</Label>
-                        <Textarea
-                            id="timeline-description"
-                            value={formData.description}
-                            disabled={editingDisabled}
-                            onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                            placeholder="Describe this timeline item"
-                            rows={4}
+                        <Label>Description</Label>
+                        <TiptapEditor
+                            content={formData.description}
+                            onChange={(content) => setFormData(prev => ({ ...prev, description: content }))}
                         />
                     </div>
 

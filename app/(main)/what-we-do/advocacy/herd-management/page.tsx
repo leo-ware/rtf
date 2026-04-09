@@ -16,7 +16,7 @@ import AdvocacyCarousel from "@/components/AdvocacyCarousel"
 const HerdManagementPage = () => {
     return (
         <div className="w-full h-fit flex flex-col items-center justify-center gap-16 mb-16">
-            <Hero title="Herd Management" image={HeroImage} />
+            <Hero title="Herd Management Areas" image={HeroImage} />
             <ScrollReveal variant="fade-up">
                 <Callout className="text-cinnamon">
                     Designated by the Bureau of Land Management, Herd Management Areas were created to balance

@@ -98,7 +98,6 @@ export const updateDocument = mutation({
             year: args.year,
             fileId: args.fileId,
             isPublic: args.isPublic,
-            updatedAt: Date.now(),
         })
 
         await ctx.db.patch(args.id, patch)
@@ -221,6 +220,24 @@ export const listPublicDocuments = query({
         }
 
         return resolvedDocuments
+    },
+})
+
+// List all public documents of a given type. Not paginated — intended for
+// small, bounded sets like financial reports where we need every record.
+export const listPublicDocumentsByType = query({
+    args: {
+        type: documentTypeValidator,
+    },
+    handler: async (ctx, args) => {
+        const docs = await ctx.db
+            .query("documents")
+            .withIndex("by_type", (q) => q.eq("type", args.type))
+            .collect()
+        const publicDocs = docs.filter((d) => d.isPublic)
+        return await Promise.all(
+            publicDocs.map((d) => resolveDocument(ctx, d))
+        )
     },
 })
 

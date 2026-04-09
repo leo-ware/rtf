@@ -2,13 +2,16 @@
 
 import Hero from "@/components/public-ui/Hero"
 import SponsorAHorseMenu from "../../../../components/donation-widgets/SponsorAHorseMenu"
+import NewsCarousel from "@/components/NewsCarousel"
 
 import OurHerdsHeroImage from "./herds-hero.jpg"
 import HerdsTabsSection from "./HerdsTabsSection"
-import { use } from "react"
+import { use, useState } from "react"
+import { Id } from "@/convex/_generated/dataModel"
 
 const OurHerdsPage = ({ searchParams }: { searchParams: Promise<{ slug?: string }> }) => {
     const { slug } = use(searchParams)
+    const [selectedHerdId, setSelectedHerdId] = useState<Id<"herds"> | null>(null)
     return (
         <div className="w-full h-fit mb-16 flex flex-col items-center justify-start gap-16 text-center">
             <Hero title="Our Herds" image={OurHerdsHeroImage} />
@@ -22,10 +25,12 @@ const OurHerdsPage = ({ searchParams }: { searchParams: Promise<{ slug?: string 
                 all share a very deep bond.
             </div>
 
-            <HerdsTabsSection defaultSlug={slug} />
+            <HerdsTabsSection defaultSlug={slug} onHerdChange={setSelectedHerdId} />
+
+            <NewsCarousel herdId={selectedHerdId ?? undefined} />
 
             <div className="isolate z-0 w-full h-fit">
-                <SponsorAHorseMenu />
+                <SponsorAHorseMenu priorityHerdId={selectedHerdId ?? undefined} />
             </div>
         </div>
     )

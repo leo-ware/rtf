@@ -199,6 +199,30 @@ export const getForTags = query({
     },
 })
 
+export const getForHerd = query({
+    args: {
+        herdId: v.id("herds"),
+        publicOnly: v.optional(v.boolean()),
+    },
+    handler: async (ctx, args) => {
+        const herd = await ctx.db.get(args.herdId)
+        if (!herd) return []
+
+        const ids = herd.articleMetadataIds ?? []
+        const articles = await Promise.all(ids.map(id => ctx.db.get(id)))
+
+        const filtered = articles.filter((a): a is NonNullable<typeof a> => {
+            if (!a) return false
+            if (args.publicOnly && !a.public) return false
+            return true
+        })
+
+        filtered.sort((a, b) => b.date - a.date)
+
+        return await Promise.all(filtered.map(a => resolvePaginatedResult(ctx, a)))
+    },
+})
+
 export const searchHerds = query({
     args: {
         query: v.optional(v.string()),
